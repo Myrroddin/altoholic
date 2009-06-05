@@ -1,29 +1,27 @@
 ﻿## Interface: 30100
 ## Title: Altoholic
 ## Title-zhCN: |cffeedd99 [物品] |r: 全角色统计 Altoholic
+
 ## Notes: Provides information about your alts
 ## Notes-zhTW: 讓你即時撿閱你所有角色的資料
 ## Notes-zhCN: 能让你全面掌握你的所有角色的信息。
+
 ## Author: Thaoky
 ## Version: 3.1.002b
-## OptionalDeps: Ace3, LibBabble-Zone-3.0, LibBabble-Boss-3.0, LibBabble-Inventory-3.0, LibBabble-Faction-3.0, LibBabble-Class-3.0, LibFuBarPlugin-3.0
+
+## OptionalDeps: Ace3, LibBabble-Zone-3.0, LibBabble-Boss-3.0, LibBabble-Inventory-3.0, LibBabble-Faction-3.0, LibBabble-Class-3.0, LibFuBarPlugin-3.0, LibCompress, LibDataBroker-1.1
 ## SavedVariables: AltoholicDB
 ## X-Category: Interface Enhancements
-## X-Embeds: Ace3, LibBabble-Zone-3.0, LibBabble-Boss-3.0, LibBabble-Inventory-3.0, LibBabble-Faction-3.0, LibBabble-Class-3.0, LibFuBarPlugin-3.0
 
+#@no-lib-strip@
+# Libraries
 embeds.xml
+#@end-no-lib-strip@
 
-localization_enUS.lua
-localization_frFR.lua
-localization_deDE.lua
-localization_esES.lua
-localization_zhTW.lua
-localization_zhCN.lua
-localization_ruRU.lua
+local.xml
 
 AltoholicTemplates.xml
 Altoholic.xml
-
 
 Frames\TabSummary.xml
 Frames\TabCharacters.xml
