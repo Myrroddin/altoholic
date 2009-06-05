@@ -5,7 +5,9 @@
 <Include file="Locals\deDE.lua"/>
 <Include file="Locals\enUS.lua"/>
 <Include file="Locals\esES.lua"/>
+<Include file="Locals\esMX.lua"/>
 <Include file="Locals\frFR.lua"/>
+<Include file="Locals\koKR.lua"/>
 <Include file="Locals\ruRU.lua"/>
 <Include file="Locals\zhCN.lua"/>
 <Include file="Locals\zhTW.lua"/>
