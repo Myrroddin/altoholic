@@ -1859,12 +1859,14 @@ function Altoholic:TIME_PLAYED_MSG(event, TotalTime, CurrentLevelTime)
 
 	-- I'm not entirely happy to have to put this here, but in all events triggered prior to this one, the icon button is not yet valid,
 	-- and can't be hidden programmatically. Hopefully, this event is only triggered at login and when /played is typed, so minimal impact.
+	--[[
 	if self:IsFuBarMinimapAttached() then
 		-- still required to test if it's not nil, when a new character  is created for instance.
 		if type(_G["LibFuBarPlugin-Mod-3.0_Altoholic_FrameMinimapButton"]) ~= "nil" then
 			_G["LibFuBarPlugin-Mod-3.0_Altoholic_FrameMinimapButton"]:Hide()
 		end
 	end
+	--]]
 
 	self.Mail:CheckExpiries()
 end
