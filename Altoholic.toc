@@ -17,6 +17,7 @@
 # Libraries
 embeds.xml
 #@end-no-lib-strip@
+ldb.xml
 
 local.xml
 
