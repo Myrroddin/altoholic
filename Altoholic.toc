@@ -9,7 +9,7 @@
 ## Author: Thaoky
 ## Version: 3.1.002b
 
-## OptionalDeps: Ace3, LibBabble-Zone-3.0, LibBabble-Boss-3.0, LibBabble-Inventory-3.0, LibBabble-Faction-3.0, LibBabble-Class-3.0, LibFuBarPlugin-3.0, LibCompress, LibDataBroker-1.1
+## OptionalDeps: Ace3, LibDataBroker-1.1, LibBabble-Zone-3.0, LibBabble-Boss-3.0, LibBabble-Inventory-3.0, LibBabble-Faction-3.0, LibBabble-Class-3.0, LibFuBarPlugin-3.0, LibCompress
 ## SavedVariables: AltoholicDB
 ## X-Category: Interface Enhancements
 
