@@ -1,5 +1,4 @@
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
-local V = Altoholic.vars
 
 local WHITE		= "|cFFFFFFFF"
 local RED		= "|cFFFF0000"
@@ -14,8 +13,10 @@ function Altoholic.Quests:Update()
 	local frame = "AltoholicFrameQuests"
 	local entry = frame.."Entry"
 	
+	local self = Altoholic.Quests
+	
 	if #c.questlog == 0 then
-		AltoholicTabCharactersStatus:SetText(L["No quest found for "] .. V.CurrentAlt)
+		AltoholicTabCharactersStatus:SetText(L["No quest found for "] .. Altoholic:GetCurrentCharacter())
 		Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
 		return
 	end
@@ -170,7 +171,7 @@ function Altoholic.Quests:Link_OnEnter(self)
 	local id = self:GetID()
 	if id == 0 then return end
 
-	local player = V.CurrentAlt
+	local player = Altoholic:GetCurrentCharacter()
 	local r = Altoholic:GetRealmTable()
 	local link = r.char[player].questlog[id].link
 	if not link then return end
@@ -208,7 +209,7 @@ function Altoholic.Quests:Scan()
 	local c = Altoholic.ThisCharacter
 	local q = c.questlog
 
-	Altoholic:ClearTable(q)
+	wipe(q)
 
 	local currentSelection = GetQuestLogSelection()		-- save the currently selected quest
 	local headersState = {} 	-- save the state of headers, restore it after scan
@@ -230,7 +231,46 @@ function Altoholic.Quests:Scan()
 			q[i].isComplete = isComplete
 			
 			SelectQuestLogEntry(i);
-			q[i].money= GetQuestLogRewardMoney();
+			q[i].money = GetQuestLogRewardMoney();
+			
+			local Rewards = {}
+			local num = GetNumQuestLogChoices()		-- these are the actual item choices proposed to the player
+			if num > 0 then
+				for i = 1, num do
+					local _, _, numItems, _, isUsable = GetQuestLogChoiceInfo(i)
+					local link = GetQuestLogItemLink("choice", i)
+					local id = Altoholic:GetIDFromLink(link)
+					if id then
+						table.insert(Rewards, "c|"..id.."|"..numItems.."|"..(isUsable or ""))
+					end
+				end
+			end
+			
+			num = GetNumQuestLogRewards()				-- these are the rewards given anyway
+			if num > 0 then
+				for i = 1, num do
+					local _, _, numItems, _, isUsable = GetQuestLogRewardInfo(i)
+					local link = GetQuestLogItemLink("reward", i)
+					local id = Altoholic:GetIDFromLink(link)
+					if id then
+						table.insert(Rewards, "r|"..id.."|"..numItems.."|"..(isUsable or ""))
+					end
+				end
+			end
+
+			if GetQuestLogRewardSpell() then		-- apparently, there is only one spell as reward
+				local _, _, isTradeskillSpell, isSpellLearned = GetQuestLogRewardSpell()
+				if isTradeskillSpell or isSpellLearned then
+					local link = GetQuestLogSpellLink()
+					local id = tonumber(link:match("spell:(%d+)")) 
+					if id then
+						table.insert(Rewards, "s|"..id)
+					end
+				end
+			end
+
+			q[i].rewards = table.concat(Rewards, "^")
+			
 		else
 			q[i].name = title
 			q[i].isHeader = true

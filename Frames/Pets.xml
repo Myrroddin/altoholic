@@ -1,6 +1,7 @@
 ﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
-
-	<CheckButton name="PetButtonTemplate" virtual="true">
+	<Script file="Pets.lua"></Script>
+	
+	<CheckButton name="AltoPetButtonTemplate" virtual="true">
 		<Size>
 			<AbsDimension x="37" y="37"/>
 		</Size>
@@ -11,13 +12,13 @@
 		<CheckedTexture file="Interface\Buttons\CheckButtonHilight" alphaMode="ADD"/>
 		<Scripts>
 			<OnEnter>
-				Altoholic_Pets_OnEnter(self)
+				Altoholic.Pets:OnEnter(self)
 			</OnEnter>
 			<OnLeave>
 				AltoTooltip:Hide();
 			</OnLeave>
 			<OnClick>
-				Altoholic_Pets_OnClick(self)
+				Altoholic.Pets:OnClick(self)
 			</OnClick>
 		</Scripts>
 	</CheckButton>
@@ -61,6 +62,9 @@
 					<OnLoad>
 						UIDropDownMenu_SetWidth(self, 100) 
 						UIDropDownMenu_SetButtonWidth(self, 20)
+						UIDropDownMenu_SetSelectedValue(self, 1);
+						UIDropDownMenu_SetText(self, COMPANIONS)
+						UIDropDownMenu_Initialize(self, Altoholic.Pets.DropDownPets_Initialize)
 					</OnLoad>
 				</Scripts>
 			</Frame>
@@ -173,7 +177,7 @@
 						</Frames>
 					</PlayerModel>
 				
-					<CheckButton name="$Parent_Button1" inherits="PetButtonTemplate" id="1">
+					<CheckButton name="$Parent_Button1" inherits="AltoPetButtonTemplate" id="1">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
@@ -182,7 +186,7 @@
 							</Anchor>
 						</Anchors>
 					</CheckButton>
-					<CheckButton name="$Parent_Button2" inherits="PetButtonTemplate" id="2">
+					<CheckButton name="$Parent_Button2" inherits="AltoPetButtonTemplate" id="2">
 						<Anchors>
 							<Anchor point="LEFT" relativeTo="$Parent_Button1" relativePoint="RIGHT">
 								<Offset>
@@ -191,7 +195,7 @@
 							</Anchor>
 						</Anchors>
 					</CheckButton>
-					<CheckButton name="$Parent_Button3" inherits="PetButtonTemplate" id="3">
+					<CheckButton name="$Parent_Button3" inherits="AltoPetButtonTemplate" id="3">
 						<Anchors>
 							<Anchor point="LEFT" relativeTo="$Parent_Button2" relativePoint="RIGHT">
 								<Offset>
@@ -200,7 +204,7 @@
 							</Anchor>
 						</Anchors>
 					</CheckButton>
-					<CheckButton name="$Parent_Button4" inherits="PetButtonTemplate" id="4">
+					<CheckButton name="$Parent_Button4" inherits="AltoPetButtonTemplate" id="4">
 						<Anchors>
 							<Anchor point="LEFT" relativeTo="$Parent_Button3" relativePoint="RIGHT">
 								<Offset>
@@ -209,7 +213,7 @@
 							</Anchor>
 						</Anchors>
 					</CheckButton>
-					<CheckButton name="$Parent_Button5" inherits="PetButtonTemplate" id="5">
+					<CheckButton name="$Parent_Button5" inherits="AltoPetButtonTemplate" id="5">
 						<Anchors>
 							<Anchor point="LEFT" relativeTo="$Parent_Button4" relativePoint="RIGHT">
 								<Offset>
@@ -218,7 +222,7 @@
 							</Anchor>
 						</Anchors>
 					</CheckButton>
-					<CheckButton name="$Parent_Button6" inherits="PetButtonTemplate" id="6">
+					<CheckButton name="$Parent_Button6" inherits="AltoPetButtonTemplate" id="6">
 						<Anchors>
 							<Anchor point="LEFT" relativeTo="$Parent_Button5" relativePoint="RIGHT">
 								<Offset>
@@ -227,7 +231,7 @@
 							</Anchor>
 						</Anchors>
 					</CheckButton>
-					<CheckButton name="$Parent_Button7" inherits="PetButtonTemplate" id="7">
+					<CheckButton name="$Parent_Button7" inherits="AltoPetButtonTemplate" id="7">
 						<Anchors>
 							<Anchor point="TOP" relativeTo="$Parent_Button1" relativePoint="BOTTOM">
 								<Offset>
@@ -236,7 +240,7 @@
 							</Anchor>
 						</Anchors>
 					</CheckButton>
-					<CheckButton name="$Parent_Button8" inherits="PetButtonTemplate" id="8">
+					<CheckButton name="$Parent_Button8" inherits="AltoPetButtonTemplate" id="8">
 						<Anchors>
 							<Anchor point="LEFT" relativeTo="$Parent_Button7" relativePoint="RIGHT">
 								<Offset>
@@ -245,7 +249,7 @@
 							</Anchor>
 						</Anchors>
 					</CheckButton>
-					<CheckButton name="$Parent_Button9" inherits="PetButtonTemplate" id="9">
+					<CheckButton name="$Parent_Button9" inherits="AltoPetButtonTemplate" id="9">
 						<Anchors>
 							<Anchor point="LEFT" relativeTo="$Parent_Button8" relativePoint="RIGHT">
 								<Offset>
@@ -254,7 +258,7 @@
 							</Anchor>
 						</Anchors>
 					</CheckButton>
-					<CheckButton name="$Parent_Button10" inherits="PetButtonTemplate" id="10">
+					<CheckButton name="$Parent_Button10" inherits="AltoPetButtonTemplate" id="10">
 						<Anchors>
 							<Anchor point="LEFT" relativeTo="$Parent_Button9" relativePoint="RIGHT">
 								<Offset>
@@ -263,7 +267,7 @@
 							</Anchor>
 						</Anchors>
 					</CheckButton>
-					<CheckButton name="$Parent_Button11" inherits="PetButtonTemplate" id="11">
+					<CheckButton name="$Parent_Button11" inherits="AltoPetButtonTemplate" id="11">
 						<Anchors>
 							<Anchor point="LEFT" relativeTo="$Parent_Button10" relativePoint="RIGHT">
 								<Offset>
@@ -272,7 +276,7 @@
 							</Anchor>
 						</Anchors>
 					</CheckButton>
-					<CheckButton name="$Parent_Button12" inherits="PetButtonTemplate" id="12">
+					<CheckButton name="$Parent_Button12" inherits="AltoPetButtonTemplate" id="12">
 						<Anchors>
 							<Anchor point="LEFT" relativeTo="$Parent_Button11" relativePoint="RIGHT">
 								<Offset>
@@ -295,7 +299,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								local p = self:GetParent():GetParent()
+								local p = Altoholic.Pets
 								p:SetPage( p.CurrentPage - 1)
 							</OnClick>
 						</Scripts>
@@ -317,7 +321,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								local p = self:GetParent():GetParent()
+								local p = Altoholic.Pets
 								p:SetPage( p.CurrentPage + 1)
 							</OnClick>
 						</Scripts>
@@ -378,16 +382,59 @@
 						</Layers>
 						<Scripts>
 							<OnVerticalScroll>
-								FauxScrollFrame_OnVerticalScroll(self, offset, 41, function(self) 
-									AltoholicFramePets:UpdatePetsAllInOne();
-								end)
+								FauxScrollFrame_OnVerticalScroll(self, offset, 41, Altoholic.Pets.UpdatePetsAllInOne)
 							</OnVerticalScroll>
 						</Scripts>
 					</ScrollFrame>
+					
+					<Button name="$parentEntry1" inherits="AltoAchievementEntryTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentScrollFrame" relativePoint="TOPLEFT">
+								<Offset>
+									<AbsDimension x="3" y="3"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Button>
+					<Button name="$parentEntry2" inherits="AltoAchievementEntryTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentEntry1" relativePoint="BOTTOMLEFT" />
+						</Anchors>
+					</Button>
+					<Button name="$parentEntry3" inherits="AltoAchievementEntryTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentEntry2" relativePoint="BOTTOMLEFT" />
+						</Anchors>
+					</Button>
+					<Button name="$parentEntry4" inherits="AltoAchievementEntryTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentEntry3" relativePoint="BOTTOMLEFT" />
+						</Anchors>
+					</Button>
+					<Button name="$parentEntry5" inherits="AltoAchievementEntryTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentEntry4" relativePoint="BOTTOMLEFT" />
+						</Anchors>
+					</Button>
+					<Button name="$parentEntry6" inherits="AltoAchievementEntryTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentEntry5" relativePoint="BOTTOMLEFT" />
+						</Anchors>
+					</Button>
+					<Button name="$parentEntry7" inherits="AltoAchievementEntryTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentEntry6" relativePoint="BOTTOMLEFT" />
+						</Anchors>
+					</Button>
+					<Button name="$parentEntry8" inherits="AltoAchievementEntryTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentEntry7" relativePoint="BOTTOMLEFT" />
+						</Anchors>
+					</Button>
+
 				</Frames>
 			</Frame>
 		</Frames>
 	</Frame>
 
-	<Script file="Pets.lua"></Script>
 </Ui>

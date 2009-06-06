@@ -1,13 +1,13 @@
 ﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="Reputations.lua"></Script>
 
-	<Button name="RepItemTemplate" hidden="true" virtual="true">
+	<Button name="AltoRepItemTemplate" hidden="true" virtual="true">
 		<Size>
 			<AbsDimension x="37" y="20"/>
 		</Size>
 		<Layers> 
 			<Layer level="BACKGROUND"> 
-				<Texture name="$parent_Background" setAllPoints="true">
+				<Texture name="$parent_Background">
 					<Size>
 						<AbsDimension x="33" y="16"/>
 					</Size>
@@ -62,7 +62,7 @@
 		</Backdrop>
 	</Button>
 		
-	<Button name="ReputationEntryTemplate" virtual="true">
+	<Button name="AltoReputationEntryTemplate" virtual="true">
 		<Size>
 			<AbsDimension x="615" y="22"/>
 		</Size>
@@ -113,16 +113,96 @@
 				<NormalTexture name="$parentIcon" file="Interface\Buttons\UI-MinusButton-UP" />
 				<HighlightTexture file="Interface\Buttons\UI-PlusButton-Hilight" alphaMode="ADD" />
 			</Button>
-			<Button name="$parentItem1" inherits="RepItemTemplate" />
-			<Button name="$parentItem2" inherits="RepItemTemplate" />
-			<Button name="$parentItem3" inherits="RepItemTemplate" />
-			<Button name="$parentItem4" inherits="RepItemTemplate" />
-			<Button name="$parentItem5" inherits="RepItemTemplate" />
-			<Button name="$parentItem6" inherits="RepItemTemplate" />
-			<Button name="$parentItem7" inherits="RepItemTemplate" />
-			<Button name="$parentItem8" inherits="RepItemTemplate" />
-			<Button name="$parentItem9" inherits="RepItemTemplate" />
-			<Button name="$parentItem10" inherits="RepItemTemplate" />
+			<Button name="$parentItem1" inherits="AltoRepItemTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="185" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentItem2" inherits="AltoRepItemTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentItem1" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentItem3" inherits="AltoRepItemTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentItem2" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentItem4" inherits="AltoRepItemTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentItem3" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentItem5" inherits="AltoRepItemTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentItem4" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentItem6" inherits="AltoRepItemTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentItem5" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentItem7" inherits="AltoRepItemTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentItem6" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentItem8" inherits="AltoRepItemTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentItem7" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentItem9" inherits="AltoRepItemTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentItem8" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentItem10" inherits="AltoRepItemTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentItem9" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
 		</Frames>
 	</Button>
 	
@@ -175,12 +255,86 @@
 				</Layers>
 				<Scripts>
 					<OnVerticalScroll>
-						FauxScrollFrame_OnVerticalScroll(self, offset, 41, function(self) 
-							Altoholic.Reputations:Update();
-						end)
+						FauxScrollFrame_OnVerticalScroll(self, offset, 41, Altoholic.Reputations.Update)
 					</OnVerticalScroll>
 				</Scripts>
 			</ScrollFrame>
+			
+			<Button name="$parentEntry1" inherits="AltoReputationEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentScrollFrame" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="3" y="3"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry2" inherits="AltoReputationEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry1" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry3" inherits="AltoReputationEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry2" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry4" inherits="AltoReputationEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry3" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry5" inherits="AltoReputationEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry4" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry6" inherits="AltoReputationEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry5" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry7" inherits="AltoReputationEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry6" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry8" inherits="AltoReputationEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry7" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry9" inherits="AltoReputationEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry8" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry10" inherits="AltoReputationEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry9" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry11" inherits="AltoReputationEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry10" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry12" inherits="AltoReputationEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry11" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry13" inherits="AltoReputationEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry12" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry14" inherits="AltoReputationEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry13" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+
 		</Frames>
 	</Frame>
 

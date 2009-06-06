@@ -27,6 +27,7 @@ XML_ALTO_SUMMARY_MENU4 = "Actividad"
 XML_ALTO_SUMMARY_MENU5 = "Miembros hermandad"
 XML_ALTO_SUMMARY_MENU6 = "Habilidades hermandad"
 XML_ALTO_SUMMARY_MENU7 = "Banco de hermandad"
+XML_ALTO_SUMMARY_MENU8 = "Calendar"
 
 XML_ALTO_SUMMARY_TEXT1 = "Petición de compartir cuenta"
 XML_ALTO_SUMMARY_TEXT2 = "Click en este botón para pedir a un jugador\n"
@@ -86,6 +87,7 @@ XML_ALTO_OPT_GENERAL9 = "|cFFFFFFFFSi está |cFF00FF00activada|cFFFFFFFF, esta o
                 .. "Consejo de seguridad: desaciva esto si tienes permisos de oficial\n"
                 .. "en pestañas del banco de la hermandad que no deben ser vistas por todos,\n"
                 .. "y autoriza las peticiones manualmente"
+XML_ALTO_OPT_GENERAL10 = "Transparency"
 
 XML_ALTO_OPT_SEARCH1 = "Comprobación automática |cFFFF0000(riesgo de desconexión)";
 XML_ALTO_OPT_SEARCH2 = "|cFFFFFFFFSi un objeto no esta en la caché local de objetos\n"
@@ -126,4 +128,7 @@ XML_ALTO_OPT_TOOLTIP7 = "Mostrar contadores en los nodos de recolección";
 XML_ALTO_OPT_TOOLTIP8 = "Mostrar contadores de ambas facciones";
 XML_ALTO_OPT_TOOLTIP9 = "Mostrar contadores de todas las cuentas";
 XML_ALTO_OPT_TOOLTIP10 = "Include guild bank count in the total count";
+
+XML_ALTO_OPT_CALENDAR1 = "Week starts on Monday"; 
+XML_ALTO_OPT_CALENDAR2 = "Warn %d minutes before an event starts"; 
 end

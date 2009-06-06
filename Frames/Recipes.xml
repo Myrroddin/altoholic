@@ -1,7 +1,7 @@
 ﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="Recipes.lua"></Script>
 
- 	<Button name="CraftReagentTemplate" virtual="true">
+ 	<Button name="AltoCraftReagentTemplate" virtual="true">
 		<Size>
 			<AbsDimension x="18" y="18"/>
 		</Size>
@@ -48,7 +48,7 @@
 		<HighlightTexture file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD"/>
 	</Button>	
 	
-	<Button name="RecipesEntryTemplate" virtual="true">
+	<Button name="AltoRecipesEntryTemplate" virtual="true">
 		<Size>
 			<AbsDimension x="615" y="22"/>
 		</Size>
@@ -84,7 +84,7 @@
 				<HighlightTexture file="Interface\Buttons\UI-PlusButton-Hilight" alphaMode="ADD" />
 			</Button>
 			
-		 	<Button name="$parentCraft" inherits="CraftReagentTemplate">
+		 	<Button name="$parentCraft" inherits="AltoCraftReagentTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
@@ -150,7 +150,7 @@
 				</Scripts>		
 				<NormalFont style="GameFontNormalSmallLeft"/>
 			</Button>
-			<Button name="$parentItem1" inherits="CraftReagentTemplate">
+			<Button name="$parentItem1" inherits="AltoCraftReagentTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentRecipeLink" relativePoint="TOPRIGHT">
 						<Offset>
@@ -159,7 +159,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentItem2" inherits="CraftReagentTemplate">
+			<Button name="$parentItem2" inherits="AltoCraftReagentTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentItem1" relativePoint="TOPRIGHT">
 						<Offset>
@@ -168,7 +168,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentItem3" inherits="CraftReagentTemplate">
+			<Button name="$parentItem3" inherits="AltoCraftReagentTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentItem2" relativePoint="TOPRIGHT">
 						<Offset>
@@ -177,7 +177,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentItem4" inherits="CraftReagentTemplate">
+			<Button name="$parentItem4" inherits="AltoCraftReagentTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentItem3" relativePoint="TOPRIGHT">
 						<Offset>
@@ -186,7 +186,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentItem5" inherits="CraftReagentTemplate">
+			<Button name="$parentItem5" inherits="AltoCraftReagentTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentItem4" relativePoint="TOPRIGHT">
 						<Offset>
@@ -195,7 +195,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentItem6" inherits="CraftReagentTemplate">
+			<Button name="$parentItem6" inherits="AltoCraftReagentTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentItem5" relativePoint="TOPRIGHT">
 						<Offset>
@@ -204,7 +204,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentItem7" inherits="CraftReagentTemplate">
+			<Button name="$parentItem7" inherits="AltoCraftReagentTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentItem6" relativePoint="TOPRIGHT">
 						<Offset>
@@ -213,7 +213,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentItem8" inherits="CraftReagentTemplate">
+			<Button name="$parentItem8" inherits="AltoCraftReagentTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentItem7" relativePoint="TOPRIGHT">
 						<Offset>
@@ -333,9 +333,7 @@
 							<OnLoad>
 								UIDropDownMenu_SetWidth(self, 100) 
 								UIDropDownMenu_SetButtonWidth(self, 20)
-								UIDropDownMenu_Initialize(self, function(self) 
-									Altoholic.TradeSkills.Recipes:DropDownColor_Initialize();
-								end)
+								UIDropDownMenu_Initialize(self, Altoholic.TradeSkills.Recipes.DropDownColor_Initialize)
 								UIDropDownMenu_SetSelectedValue(self, 0);
 							</OnLoad>
 						</Scripts>
@@ -352,9 +350,7 @@
 							<OnLoad>
 								UIDropDownMenu_SetWidth(self, 120) 
 								UIDropDownMenu_SetButtonWidth(self, 20)
-								UIDropDownMenu_Initialize(self, function(self) 
-									Altoholic.TradeSkills.Recipes:DropDownSubclass_Initialize();
-								end)
+								UIDropDownMenu_Initialize(self, Altoholic.TradeSkills.Recipes.DropDownSubclass_Initialize)
 								UIDropDownMenu_SetSelectedValue(self, ALL_SUBCLASSES);
 							</OnLoad>
 						</Scripts>
@@ -371,9 +367,7 @@
 							<OnLoad>
 								UIDropDownMenu_SetWidth(self, 120) 
 								UIDropDownMenu_SetButtonWidth(self, 20)
-								UIDropDownMenu_Initialize(self, function(self) 
-									Altoholic.TradeSkills.Recipes:DropDownInvSlot_Initialize();
-								end)
+								UIDropDownMenu_Initialize(self, Altoholic.TradeSkills.Recipes.DropDownInvSlot_Initialize)
 								UIDropDownMenu_SetSelectedValue(self, ALL_INVENTORY_SLOTS);
 							</OnLoad>
 						</Scripts>
@@ -417,21 +411,87 @@
 				</Layers>
 				<Scripts>
 					<OnVerticalScroll>
-						FauxScrollFrame_OnVerticalScroll(self, offset, 18, function(self) 
-							Altoholic.TradeSkills.Recipes:Update()
-						end)
+						FauxScrollFrame_OnVerticalScroll(self, offset, 18, Altoholic.TradeSkills.Recipes.Update)
 					</OnVerticalScroll>
-					<OnShow>
-						Altoholic.TradeSkills.Recipes:Update()
-					</OnShow>
 				</Scripts>
 			</ScrollFrame>
+			
+			<Button name="$parentEntry1" inherits="AltoRecipesEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentScrollFrame" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry2" inherits="AltoRecipesEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry1" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry3" inherits="AltoRecipesEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry2" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry4" inherits="AltoRecipesEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry3" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry5" inherits="AltoRecipesEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry4" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry6" inherits="AltoRecipesEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry5" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry7" inherits="AltoRecipesEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry6" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry8" inherits="AltoRecipesEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry7" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry9" inherits="AltoRecipesEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry8" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry10" inherits="AltoRecipesEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry9" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry11" inherits="AltoRecipesEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry10" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry12" inherits="AltoRecipesEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry11" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry13" inherits="AltoRecipesEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry12" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry14" inherits="AltoRecipesEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry13" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+
 		</Frames>
-		<Scripts>
-			<OnShow>
-				AltoholicFrameRecipesScrollFrame:Show()
-			</OnShow>
-		</Scripts>
 	</Frame>
 
 </Ui>

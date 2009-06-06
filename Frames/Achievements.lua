@@ -89,7 +89,7 @@ Altoholic.Achievements.RefTable = {
 function Altoholic.Achievements:BuildView(categoryID)
 	
 	self.view = self.view or {}
-	Altoholic:ClearTable(self.view)
+	wipe(self.view)
 
 	if not self.RefTable[categoryID] then
 		-- if the category does not contain progressive achievements, then add all achievements to the view
@@ -115,7 +115,8 @@ function Altoholic.Achievements:Update()
 	local VisibleLines = 8
 	local frame = "AltoholicFrameAchievements"
 	local entry = frame.."Entry"
-		
+	
+	local self = Altoholic.Achievements
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
 	local r = Altoholic:GetRealmTable()
 	
@@ -155,6 +156,9 @@ function Altoholic.Achievements:Update()
 				itemButton:Show()
 				
 				j = j + 1
+				if j > 10 then 	-- users of Symbolic Links might have more than 10 columns, prevent it
+					break
+				end
 			end
 			
 			while j <= 10 do
@@ -255,7 +259,7 @@ function Altoholic.Achievements:Scan()
 	c.CompletedAchievements = completed
 	c.TotalAchievementPoints = GetTotalAchievementPoints()
 	
-	Altoholic:ClearTable(ach)
+	wipe(ach)
 	
 	local cats = GetCategoryList()
 	

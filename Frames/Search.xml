@@ -1,7 +1,7 @@
 ﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="Search.lua"></Script>
 
-	<Button name="SearchEntryTemplate" hidden="true" virtual="true">
+	<Button name="AltoSearchEntryTemplate" hidden="true" virtual="true">
 		<Size>
 			<AbsDimension x="615" y="41"/>
 		</Size>
@@ -178,16 +178,21 @@
 						local id = self:GetID()
 						if id == 0 then return end
 						
+						local link
 						local s = Altoholic.Search.Results:Get(id)
-						if s.craftNum == nil then	return end
 						
-						local c = Altoholic:GetCharacterTableByLine(s.char)
-						local r = c.recipes[s.location].list
-						if not r then return	end
+						if s.linetype == 2 then
+							local c = Altoholic:GetCharacterTableByLine(s.char)
+							local r = c.recipes[s.location].list
+							if not r then return	end
 
-						local _, _, spellID = strsplit("^", r[s.craftNum])
-						local link = Altoholic.TradeSkills.Recipes:GetLink(spellID, s.location)
-						
+							local _, _, spellID = strsplit("^", r[s.craftNum])
+							link = Altoholic.TradeSkills.Recipes:GetLink(spellID, s.location)
+						elseif s.linetype == 3 then
+							local LTL = LibStub("LibTradeLinks-1.0")
+							link = Altoholic.TradeSkills.Recipes:GetLink(s.spellID, LTL:GetSkillName(s.skillID))
+						end
+
 						if link then
 							GameTooltip:ClearLines();
 							GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
@@ -205,15 +210,20 @@
 								local id = self:GetID()
 								if id == 0 then return end
 								
+								local link
 								local s = Altoholic.Search.Results:Get(id)
-								if s.craftNum == nil then	return end
 								
-								local c = Altoholic:GetCharacterTableByLine(s.char)
-								local r = c.recipes[s.location].list
-								if not r then return end
-								
-								local _, _, spellID = strsplit("^", r[s.craftNum])
-								local link = Altoholic.TradeSkills.Recipes:GetLink(spellID, s.location)
+								if s.linetype == 2 then
+									local c = Altoholic:GetCharacterTableByLine(s.char)
+									local r = c.recipes[s.location].list
+									if not r then return	end
+
+									local _, _, spellID = strsplit("^", r[s.craftNum])
+									link = Altoholic.TradeSkills.Recipes:GetLink(spellID, s.location)
+								elseif s.linetype == 3 then
+									local LTL = LibStub("LibTradeLinks-1.0")
+									link = Altoholic.TradeSkills.Recipes:GetLink(s.spellID, LTL:GetSkillName(s.skillID))
+								end
 								
 								if not link then return end
 								ChatFrameEditBox:Insert(link);
@@ -288,12 +298,51 @@
 				</Layers>
 				<Scripts>
 					<OnVerticalScroll>
-						FauxScrollFrame_OnVerticalScroll(self, offset, 41, function(self) 
-							Altoholic.Search:Update()
-						end)
+						FauxScrollFrame_OnVerticalScroll(self, offset, 41, Altoholic.Search.Update)
 					</OnVerticalScroll>
 				</Scripts>
 			</ScrollFrame>
+			
+			<Button name="$parentEntry1" inherits="AltoSearchEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentScrollFrame" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry2" inherits="AltoSearchEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry1" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry3" inherits="AltoSearchEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry2" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry4" inherits="AltoSearchEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry3" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry5" inherits="AltoSearchEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry4" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry6" inherits="AltoSearchEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry5" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry7" inherits="AltoSearchEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry6" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+
 		</Frames>
 	</Frame>
 

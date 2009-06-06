@@ -1,6 +1,5 @@
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
-local V = Altoholic.vars
 
 local WHITE				= "|cFFFFFFFF"
 local TEAL				= "|cFF00FF9A"
@@ -15,7 +14,7 @@ local RecipeColorNames = { BI["Green"], BI["Yellow"], BI["Orange"], L["Grey"] }
 
 function Altoholic.TradeSkills.Recipes:BuildView()
 	self.view = self.view or {}
-	Altoholic:ClearTable(self.view)
+	wipe(self.view)
 	
 	local ts = Altoholic.TradeSkills
 	local c = Altoholic:GetCharacterTable()
@@ -95,6 +94,8 @@ end
 
 function Altoholic.TradeSkills.Recipes:Update()
 	local ts = Altoholic.TradeSkills
+	local self = ts.Recipes
+	
 	local c = Altoholic:GetCharacterTable()
 	local VisibleLines = 14
 	local frame = "AltoholicFrameRecipes"
@@ -103,7 +104,7 @@ function Altoholic.TradeSkills.Recipes:Update()
 	
 	if not p or p.ScanFailed then
 		AltoholicFrameRecipesInfo:Hide()
-		AltoholicTabCharactersStatus:SetText(L["No data"] .. ": " .. ts.CurrentProfession .. L[" scan failed for "] .. V.CurrentAlt)
+		AltoholicTabCharactersStatus:SetText(L["No data"] .. ": " .. ts.CurrentProfession .. L[" scan failed for "] .. Altoholic:GetCurrentCharacter())
 		Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
 		return
 	else
@@ -187,6 +188,7 @@ function Altoholic.TradeSkills.Recipes:Update()
 				local color, itemID, spellID, reagents = strsplit("^", p.list[s])
 				color = RecipeColors[tonumber(color)]
 				itemID = tonumber(itemID)
+				spellID = tonumber(spellID)
 				
 				if itemID then
 					Altoholic:SetItemButtonTexture(entry..i.."Craft", GetItemIcon(itemID), 18, 18);
@@ -196,7 +198,12 @@ function Altoholic.TradeSkills.Recipes:Update()
 					_G[entry..i.."Craft"]:Hide()
 				end
 				
-				_G[entry..i.."RecipeLinkNormalText"]:SetText(self:GetLink(spellID, ts.CurrentProfession, color))
+				if spellID then
+					_G[entry..i.."RecipeLinkNormalText"]:SetText(self:GetLink(spellID, ts.CurrentProfession, color))
+				else
+					DEFAULT_CHAT_FRAME:AddMessage(p.list[s])
+					_G[entry..i.."RecipeLinkNormalText"]:SetText(L["N/A"])
+				end
 				--_G[entry..i.."RecipeLink"]:SetID(index)
 				_G[entry..i.."RecipeLink"]:SetID(s)
 				_G[entry..i.."RecipeLink"]:SetPoint("TOPLEFT", 32, 0)
@@ -247,12 +254,13 @@ end
 
 function Altoholic.TradeSkills.Recipes:DropDownColor_Initialize()
 	local ts = Altoholic.TradeSkills
+	local self = ts.Recipes
 	local info = UIDropDownMenu_CreateInfo(); 
 	
 	if not ts.CurrentProfession then 
 		info.text = L["Any"]
 		info.value = 0
-		info.func = Altoholic.TradeSkills.Recipes.ChangeColor
+		info.func = self.ChangeColor
 		info.checked = nil; 
 		info.icon = nil; 
 		UIDropDownMenu_AddButton(info, 1); 
@@ -265,7 +273,7 @@ function Altoholic.TradeSkills.Recipes:DropDownColor_Initialize()
 	info.text = L["Any"]
 	info.text = format("%s %s(%s)", L["Any"], GREEN, p.TotalCount )
 	info.value = 0
-	info.func = Altoholic.TradeSkills.Recipes.ChangeColor
+	info.func = self.ChangeColor
 	info.checked = nil; 
 	info.icon = nil; 
 	UIDropDownMenu_AddButton(info, 1); 
@@ -275,7 +283,7 @@ function Altoholic.TradeSkills.Recipes:DropDownColor_Initialize()
 	for i = 1, 4 do
 		info.text = format("%s %s(%s)", RecipeColors[i] .. RecipeColorNames[i], GREEN, count[i] )
 		info.value = i
-		info.func = Altoholic.TradeSkills.Recipes.ChangeColor
+		info.func = self.ChangeColor
 		info.checked = nil; 
 		info.icon = nil; 
 		UIDropDownMenu_AddButton(info, 1); 
@@ -292,15 +300,16 @@ end
 
 function Altoholic.TradeSkills.Recipes:DropDownSubclass_Initialize()
 	local info = UIDropDownMenu_CreateInfo(); 
+	local ts = Altoholic.TradeSkills
+	local self = ts.Recipes
 	
 	info.text = ALL_SUBCLASSES
 	info.value = ALL_SUBCLASSES
-	info.func = Altoholic.TradeSkills.Recipes.ChangeSubClass
+	info.func = self.ChangeSubClass
 	info.checked = nil; 
 	info.icon = nil; 
 	UIDropDownMenu_AddButton(info, 1); 
 
-	local ts = Altoholic.TradeSkills
 	if not ts.CurrentProfession then return end
 	
 	local c = Altoholic:GetCharacterTable()
@@ -313,7 +322,7 @@ function Altoholic.TradeSkills.Recipes:DropDownSubclass_Initialize()
 		if color == 0 then		-- header
 			info.text = name
 			info.value = name
-			info.func = Altoholic.TradeSkills.Recipes.ChangeSubClass
+			info.func = self.ChangeSubClass
 			info.checked = nil; 
 			info.icon = nil; 
 			UIDropDownMenu_AddButton(info, 1);
@@ -331,15 +340,16 @@ end
 
 function Altoholic.TradeSkills.Recipes:DropDownInvSlot_Initialize()
 	local info = UIDropDownMenu_CreateInfo(); 
+	local ts = Altoholic.TradeSkills
+	local self = ts.Recipes
 	
 	info.text = ALL_INVENTORY_SLOTS
 	info.value = ALL_INVENTORY_SLOTS
-	info.func = Altoholic.TradeSkills.Recipes.ChangeInvSlot
+	info.func = self.ChangeInvSlot
 	info.checked = nil; 
 	info.icon = nil; 
 	UIDropDownMenu_AddButton(info, 1); 
 
-	local ts = Altoholic.TradeSkills
 	if not ts.CurrentProfession then return end
 	
 	local c = Altoholic:GetCharacterTable()
@@ -372,7 +382,7 @@ function Altoholic.TradeSkills.Recipes:DropDownInvSlot_Initialize()
 	for k, v in pairs(invSlots) do		-- add all the slots found
 		info.text = k
 		info.value = v
-		info.func = Altoholic.TradeSkills.Recipes.ChangeInvSlot
+		info.func = self.ChangeInvSlot
 		info.checked = nil; 
 		info.icon = nil; 
 		UIDropDownMenu_AddButton(info, 1);
@@ -380,7 +390,7 @@ function Altoholic.TradeSkills.Recipes:DropDownInvSlot_Initialize()
 
 	info.text = NONEQUIPSLOT			--NONEQUIPSLOT = "Created Items"; -- Items created by enchanting
 	info.value = NONEQUIPSLOT
-	info.func = Altoholic.TradeSkills.Recipes.ChangeInvSlot
+	info.func = self.ChangeInvSlot
 	info.checked = nil; 
 	info.icon = nil; 
 	UIDropDownMenu_AddButton(info, 1);
@@ -453,15 +463,10 @@ function Altoholic.TradeSkills.Recipes:Link_OnClick(self, button)
 		return
 	end
 	
-	if V.CurrentRealm ~= GetRealmName() then
+	if Altoholic:GetCurrentRealm() ~= GetRealmName() then
 		Altoholic:Print(L["Cannot link another realm's tradeskill"])
 		return
 	end
-	
-	-- if V.CurrentAccount ~= THIS_ACCOUNT then
-		-- Altoholic:Print(L["Cannot link another account's tradeskill"])
-		-- return
-	-- end
 
 	local c = Altoholic:GetCharacterTable()
 	local link = c.recipes[Altoholic.TradeSkills.CurrentProfession].FullLink	
@@ -472,6 +477,6 @@ function Altoholic.TradeSkills.Recipes:Link_OnClick(self, button)
 	end
 	
 	if ( ChatFrameEditBox:IsShown() ) then
-		ChatFrameEditBox:Insert(V.CurrentAlt .. ": " .. link);
+		ChatFrameEditBox:Insert(Altoholic:GetCurrentCharacter() .. ": " .. link);
 	end
 end

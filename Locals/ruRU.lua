@@ -31,6 +31,7 @@ XML_ALTO_SUMMARY_MENU4 = "Activity"
 XML_ALTO_SUMMARY_MENU5 = "Guild Members"
 XML_ALTO_SUMMARY_MENU6 = "Guild Skills"
 XML_ALTO_SUMMARY_MENU7 = "Guild Bank Tabs"
+XML_ALTO_SUMMARY_MENU8 = "Calendar"
 
 XML_ALTO_SUMMARY_TEXT1 = "Account Sharing Request"
 XML_ALTO_SUMMARY_TEXT2 = "Click this button to ask a player\n"
@@ -89,6 +90,7 @@ XML_ALTO_OPT_GENERAL9 = "|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option
 				.. "Security hint: disable this if you have officer rights\n"
 				.. "on guild bank tabs that may not be viewed by everyone,\n"
 				.. "and authorize requests manually"
+XML_ALTO_OPT_GENERAL10 = "Transparency"
 
 XML_ALTO_OPT_SEARCH1 = "Запрашивать информацию о предмете у сервера |cFFFF0000(риск отключения от сервера)";
 XML_ALTO_OPT_SEARCH2 = "|cFFFFFFFFЕсли предмет не найден в локальном кэше клиента, но обнаружен во время поиска,\n"
@@ -127,4 +129,7 @@ XML_ALTO_OPT_TOOLTIP7 = "Show counters on gathering nodes";
 XML_ALTO_OPT_TOOLTIP8 = "Show counters for both factions";
 XML_ALTO_OPT_TOOLTIP9 = "Show counters for all accounts";
 XML_ALTO_OPT_TOOLTIP10 = "Include guild bank count in the total count";
+
+XML_ALTO_OPT_CALENDAR1 = "Week starts on Monday"; 
+XML_ALTO_OPT_CALENDAR2 = "Warn %d minutes before an event starts"; 
 end

@@ -9,14 +9,7 @@
 	</Button>
 
 	<!-- Item template -->
-	<Button name="BagItemTemplate" inherits="ItemButtonTemplate" hidden="true" virtual="true">
-		<Anchors>
-			<Anchor point="BOTTOMRIGHT">
-				<Offset>
-					<AbsDimension x="0" y="0"/>
-				</Offset>
-			</Anchor>
-		</Anchors>
+	<Button name="AltoBagItemTemplate" inherits="ItemButtonTemplate" hidden="true" virtual="true">
 		<Frames>
 			<Cooldown name="$parentCooldown" inherits="CooldownFrameTemplate"/>
 		</Frames>
@@ -36,7 +29,7 @@
 		</Scripts>
 	</Button>
 	<!-- Navigation -->
-	<Button name="MenuItemTemplate" hidden="true" virtual="true">
+	<Button name="AltoMenuItemTemplate" hidden="true" virtual="true">
 		<Size>
 			<AbsDimension x="136" y="20"/>
 		</Size>

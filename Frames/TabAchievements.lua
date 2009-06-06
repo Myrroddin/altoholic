@@ -10,7 +10,7 @@ Altoholic.Tabs.Achievements = {}
 function Altoholic.Tabs.Achievements:BuildView()
 
 	self.view = self.view or {}
-	Altoholic:ClearTable(self.view)
+	wipe(self.view)
 	
 	local cats = GetCategoryList()
 	for _, categoryID in ipairs(cats) do

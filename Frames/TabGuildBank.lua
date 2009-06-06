@@ -1,12 +1,16 @@
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 
-local V = Altoholic.vars
 local WHITE		= "|cFFFFFFFF"
 local TEAL		= "|cFF00FF9A"
 local GREEN		= "|cFF00FF00"
 local YELLOW	= "|cFFFFFF00"
 
-function AltoholicTabGuildBank:SelectGuildDropDown_Initialize()
+Altoholic.Tabs.GuildBank = {}
+
+function Altoholic.Tabs.GuildBank:DropDownGuild_Initialize()
+	if not Altoholic.db then return end
+	
+	local self = Altoholic.Tabs.GuildBank
 	local info = UIDropDownMenu_CreateInfo(); 
 
 	for AccountName, a in pairs(Altoholic.db.global.data) do
@@ -16,24 +20,26 @@ function AltoholicTabGuildBank:SelectGuildDropDown_Initialize()
 								.." / ".. YELLOW .. AccountName ..  WHITE.. ")"
 				info.value = AccountName .."|" .. RealmName .."|".. GuildName
 				info.checked = nil; 
-				info.func = function(self) AltoholicTabGuildBank:ChangeGuild(self) end
+				info.func = self.ChangeGuild
+				info.arg1 = AccountName
+				info.arg2 = RealmName
 				UIDropDownMenu_AddButton(info, 1); 
 			end
 		end
 	end
 end
 
-function AltoholicTabGuildBank:ChangeGuild(self)
-	local account, realm, guildname = strsplit("|", self.value)
+function Altoholic.Tabs.GuildBank:ChangeGuild(account, realm, checked)
+	local _, _, guildname = strsplit("|", self.value)
 
 	UIDropDownMenu_ClearAll(AltoholicTabGuildBank_SelectGuild);
 	UIDropDownMenu_SetSelectedValue(AltoholicTabGuildBank_SelectGuild, account .."|" .. realm .."|".. guildname)
 	UIDropDownMenu_SetText(AltoholicTabGuildBank_SelectGuild, GREEN .. guildname .. WHITE .. " (" .. realm .. ")")
 
-	AltoholicTabGuildBank:LoadGuild(account, realm, guildname)
+	Altoholic.Tabs.GuildBank:LoadGuild(account, realm, guildname)
 end
 
-function AltoholicTabGuildBank:LoadGuild(account, realm, name)
+function Altoholic.Tabs.GuildBank:LoadGuild(account, realm, name)
 	local guild = Altoholic.db.global.data[account][realm].guild[name]
 	AltoGuildBank:Hide()
 	for i = 1, 6 do
@@ -51,7 +57,7 @@ function AltoholicTabGuildBank:LoadGuild(account, realm, name)
 	AltoholicTabGuildBankMoney:SetText(MONEY .. ": " .. Altoholic:GetMoneyString(guild.bankmoney))
 end
 
-function AltoholicTabGuildBank:HideGuild(self)
+function Altoholic.Tabs.GuildBank:HideGuild(self)
 
 	local value = UIDropDownMenu_GetSelectedValue(AltoholicTabGuildBank_SelectGuild)
 	if not value then return end
@@ -66,8 +72,8 @@ function AltoholicTabGuildBank:HideGuild(self)
 	end
 end
 
-function AltoholicTabGuildBank:DeleteGuild()
-	AltoMsgBox.ButtonHandler = AltoholicTabGuildBank.ButtonHandler
+function Altoholic.Tabs.GuildBank:DeleteGuild()
+	AltoMsgBox.ButtonHandler = Altoholic.Tabs.GuildBank.ButtonHandler
 	local value = UIDropDownMenu_GetSelectedValue(AltoholicTabGuildBank_SelectGuild)
 	if not value then return end
 	
@@ -77,7 +83,7 @@ function AltoholicTabGuildBank:DeleteGuild()
 	AltoMsgBox:Show()
 end
 
-function AltoholicTabGuildBank:ButtonHandler(button)
+function Altoholic.Tabs.GuildBank:ButtonHandler(button)
 	AltoMsgBox.ButtonHandler = nil		-- prevent any other call to msgbox from coming back here
 	if not button then return end
 	
@@ -94,7 +100,7 @@ function AltoholicTabGuildBank:ButtonHandler(button)
 	AltoholicTabGuildBankMoney:SetText("")
 	
 	AltoGuildBank:Hide()
-	Altoholic:ClearTable(guild[guildname])	-- clear all content for this guild ..
+	wipe(guild[guildname])	-- clear all content for this guild ..
 	guild[guildname] = nil						-- .. then the guild entry itself
 	UIDropDownMenu_ClearAll(AltoholicTabGuildBank_SelectGuild);
 	

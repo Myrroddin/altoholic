@@ -6,7 +6,8 @@ local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 
 local V = Altoholic.vars
-Altoholic.Version = "v3.1.002b"
+Altoholic.Version = "v3.1.003"
+Altoholic.VersionNum = 301003
 
 local WHITE		= "|cFFFFFFFF"
 local RED		= "|cFFFF0000"
@@ -22,7 +23,7 @@ Altoholic.ProfessionSpellID = {
 	[BI["Cooking"]] = 2550,
 	[BI["Enchanting"]] = 7411,
 	[BI["Engineering"]] = 4036,
-	[BI["First Aid"]] = 3279,
+	[BI["First Aid"]] = 3273,
 	[BI["Jewelcrafting"]] = 25229,
 	[BI["Leatherworking"]] = 2108,
 	[BI["Tailoring"]] = 3908,
@@ -49,7 +50,7 @@ Altoholic.ClassInfo = {
 local function Hook_LinkWrangler (frame)
 	local name, link = frame:GetItem ()
 	if name and link then
-		Altoholic:ProcessTooltip(frame, name, link)
+		Altoholic.Tooltip:Process(frame, name, link)
 	end
 end
 
@@ -60,7 +61,9 @@ local INFO_CHARACTER_LINE = 1
 local INFO_TOTAL_LINE = 2
 
 function Altoholic:OnEnable()
+	self.Tasks:Init()
 	self.Profiler:Init()
+	self.Tooltip:Init()
 	
 	self:RegisterEvent("PLAYER_ALIVE")
 	self:RegisterEvent("PLAYER_LEVEL_UP")
@@ -69,20 +72,16 @@ function Altoholic:OnEnable()
 	self:RegisterEvent("PLAYER_LOGOUT")
 	self:RegisterEvent("PLAYER_UPDATE_RESTING")
 	self:RegisterEvent("PLAYER_GUILD_UPDATE")		-- for gkick, gquit, etc..
-	
 	self:RegisterEvent("UPDATE_INSTANCE_INFO", "UpdateRaidTimers")
 	self:RegisterEvent("RAID_INSTANCE_WELCOME", "RequestUpdateRaidInfo")
-	
 	self:RegisterEvent("ZONE_CHANGED", "UpdatePlayerLocation")
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "UpdatePlayerLocation")
 	self:RegisterEvent("ZONE_CHANGED_INDOORS", "UpdatePlayerLocation")
-	
 	self:RegisterEvent("TIME_PLAYED_MSG")
-	
 	self:RegisterEvent("BANKFRAME_OPENED", Altoholic.Containers.OnBankOpened)
 	self:RegisterEvent("GUILDBANKFRAME_OPENED", Altoholic.GuildBank.OnOpen)
 	self:RegisterEvent("AUCTION_HOUSE_SHOW", Altoholic.AuctionHouse.OnShow)
-	
+
 	self:RegisterEvent("PLAYER_TALENT_UPDATE");
 	self:RegisterEvent("MAIL_SHOW", Altoholic.Mail.OnShow)
 	
@@ -102,23 +101,9 @@ function Altoholic:OnEnable()
 	local c = Altoholic.ThisCharacter
 	c.lastlogout = 0
 	c.faction = UnitFactionGroup("player")
-	
-	-- Summary tab DDM
-	UIDropDownMenu_SetSelectedValue(AltoholicTabSummary_SelectLocation, self.Options:Get("TabSummaryMode"))
-	UIDropDownMenu_SetText(AltoholicTabSummary_SelectLocation, select(self.Options:Get("TabSummaryMode"), L["This realm"], L["All realms"], L["All accounts"]))
 
-	UIDropDownMenu_Initialize(AltoholicTabSummary_SelectLocation, function(self) 
-		AltoholicTabSummary:SelectLocation_Initialize();
-	end)
-
-	AltoholicTabCharacters:Initialize()
-	AltoholicFrameContainers:Initialize()
-	AltoholicFramePets:Initialize()
-
-	UIDropDownMenu_Initialize(AltoholicTabGuildBank_SelectGuild, function(self) 
-		AltoholicTabGuildBank:SelectGuildDropDown_Initialize();
-	end)
-	
+	self.Tabs.Summary:Init()
+	self.Containers:Init()
 	
 	-- do not move this one into the frame's OnLoad
 	UIDropDownMenu_Initialize(AltoholicFrameEquipmentRightClickMenu, Equipment_RightClickMenu_OnLoad, "MENU");
@@ -126,98 +111,10 @@ function Altoholic:OnEnable()
 	
 	RequestTimePlayed()	-- trigger a TIME_PLAYED_MSG event if playtime is unavailable for this character
 	
-	-- *** Create Scroll Frames' children lines ***
-	self:CreateScrollLines("AltoholicFrameSummary", "CharacterSummaryTemplate", 14);
-	self:CreateScrollLines("AltoholicFrameBagUsage", "BagUsageTemplate", 14);
-	self:CreateScrollLines("AltoholicFrameContainers", "ContainerTemplate", 7, 14);
-	
-	-- guild bank frames
-	local p = _G[ "AltoGuildBank" ]					-- parent frame
-	local e = "GuildBankEntry"
-	local f = CreateFrame("Button", e .. 1, p, "ContainerTemplate")
-	f:SetPoint("TOPLEFT", p, "TOPLEFT", 0, 0)
-	
-	for i = 2, 7 do
-		f = CreateFrame("Button", e .. i, p, "ContainerTemplate")
-		f:SetPoint("TOPLEFT", e .. (i-1), "BOTTOMLEFT", 0, 0)
-	end
-	
-	for i=1, 7 do
-		_G[e..i.."Item14"]:SetPoint("BOTTOMRIGHT", e..i, "BOTTOMRIGHT", -15, 0);
-		for j=13, 1, -1 do
-			_G[e..i.."Item" .. j]:SetPoint("BOTTOMRIGHT", e..i.."Item" .. (j + 1), "BOTTOMLEFT", -5, 0);
-		end
-	end		
-
-	self:CreateScrollLines("AltoholicFrameMail", "MailEntryTemplate", 7);
-	self:CreateScrollLines("AltoholicFrameSearch", "SearchEntryTemplate", 7);
-	self:CreateScrollLines("AltoholicFrameEquipment", "EquipmentEntryTemplate", 7, 10);
-
-	-- Manually fill the reputation frame
-	local frame = "AltoholicFrameReputations"
-	f = CreateFrame("Button", frame .. "Entry" .. 1, _G[frame], "ReputationEntryTemplate")
-	f:SetPoint("TOPLEFT", frame .. "ScrollFrame", "TOPLEFT", 3, 3)
-	
-	for i = 2, 14 do
-		f = CreateFrame("Button", frame .. "Entry" .. i, _G[frame], "ReputationEntryTemplate")
-		f:SetPoint("TOPLEFT", frame .. "Entry" .. (i-1), "BOTTOMLEFT", 0, 0)
-	end
-	
-	for i=1, 14 do
-		_G[frame.."Entry"..i.."Item10"]:SetPoint("BOTTOMRIGHT", frame .. "Entry"..i, "BOTTOMRIGHT", -15, 0);
-		for j=9, 1, -1 do
-			_G[frame.."Entry"..i.."Item" .. j]:SetPoint("BOTTOMRIGHT", frame.."Entry"..i.."Item" .. (j + 1), "BOTTOMLEFT", -5, 0);
-		end
-	end
-	
-	-- do the same for achievements
-	local frame = "AltoholicFrameAchievements"
-	f = CreateFrame("Button", frame .. "Entry" .. 1, _G[frame], "AchievementEntryTemplate")
-	f:SetPoint("TOPLEFT", frame .. "ScrollFrame", "TOPLEFT", 3, 3)
-	
-	for i = 2, 8 do
-		f = CreateFrame("Button", frame .. "Entry" .. i, _G[frame], "AchievementEntryTemplate")
-		f:SetPoint("TOPLEFT", frame .. "Entry" .. (i-1), "BOTTOMLEFT", 0, 0)
-	end
-	
-	for i=1, 8 do
-		_G[frame.."Entry"..i.."Item10"]:SetPoint("BOTTOMRIGHT", frame .. "Entry"..i, "BOTTOMRIGHT", -15, 0);
-		for j=9, 1, -1 do
-			_G[frame.."Entry"..i.."Item" .. j]:SetPoint("BOTTOMRIGHT", frame.."Entry"..i.."Item" .. (j + 1), "BOTTOMLEFT", -5, 0);
-		end
-	end
-	
-	-- reuse achievement templates for pet/mounts all-in-one view
-	frame = "AltoholicFramePetsAllInOne"
-	f = CreateFrame("Button", frame .. "Entry" .. 1, _G[frame], "AchievementEntryTemplate")
-	f:SetPoint("TOPLEFT", frame .. "ScrollFrame", "TOPLEFT", 3, 3)
-	
-	for i = 2, 8 do
-		f = CreateFrame("Button", frame .. "Entry" .. i, _G[frame], "AchievementEntryTemplate")
-		f:SetPoint("TOPLEFT", frame .. "Entry" .. (i-1), "BOTTOMLEFT", 0, 0)
-	end
-	
-	for i=1, 8 do
-		_G[frame.."Entry"..i.."Item10"]:SetPoint("BOTTOMRIGHT", frame .. "Entry"..i, "BOTTOMRIGHT", -15, 0);
-		for j=9, 1, -1 do
-			_G[frame.."Entry"..i.."Item" .. j]:SetPoint("BOTTOMRIGHT", frame.."Entry"..i.."Item" .. (j + 1), "BOTTOMLEFT", -5, 0);
-		end
-	end
-	
-
 	_G["AltoholicFrameClassesItem10"]:SetPoint("BOTTOMRIGHT", "AltoholicFrameClasses", "BOTTOMRIGHT", -15, 0);
 	for j=9, 1, -1 do
 		_G["AltoholicFrameClassesItem" .. j]:SetPoint("BOTTOMRIGHT", "AltoholicFrameClassesItem" .. (j + 1), "BOTTOMLEFT", -5, 0);
 	end
-	
-	self:CreateScrollLines("AltoholicFrameSkills", "SkillsTemplate", 14);
-	self:CreateScrollLines("AltoholicFrameActivity", "ActivityTemplate", 14);
-	self:CreateScrollLines("AltoholicFrameGuildMembers", "GuildMembersTemplate", 14);
-	self:CreateScrollLines("AltoholicFrameGuildProfessions", "GuildProfessionsTemplate", 14);
-	self:CreateScrollLines("AltoholicFrameGuildBankTabs", "GuildBankTabsTemplate", 14);
-	self:CreateScrollLines("AltoholicFrameQuests", "QuestEntryTemplate", 14);
-	self:CreateScrollLines("AltoholicFrameRecipes", "RecipesEntryTemplate", 14);
-	self:CreateScrollLines("AltoholicFrameAuctions", "AuctionEntryTemplate", 7);
 
 	self.Options:RestoreToUI()
 
@@ -232,25 +129,22 @@ function Altoholic:OnEnable()
 	self:RegisterEvent("BAG_UPDATE", self.Containers.OnBagUpdate)
 	self:RegisterEvent("UNIT_INVENTORY_CHANGED", self.Equipment.Scan)
 	self:RegisterEvent("UNIT_QUEST_LOG_CHANGED", self.Quests.OnLogChanged)
-	
 	self:RegisterEvent("TRADE_SKILL_SHOW", self.TradeSkills.OnShow)
-	self:RegisterEvent("CHAT_MSG_SKILL")
-	
-	self:RegisterEvent("COMPANION_UPDATE")
+	self:RegisterEvent("COMPANION_UPDATE", self.Pets.OnUpdate)
 	self:RegisterEvent("ACHIEVEMENT_EARNED");
+	self:RegisterEvent("GLYPH_ADDED", self.Glyphs.Scan);
+	self:RegisterEvent("GLYPH_REMOVED", self.Glyphs.Scan);
+	self:RegisterEvent("GLYPH_UPDATED", self.Glyphs.Scan);
+	self:RegisterEvent("LEARNED_SPELL_IN_TAB", self.Spells.Scan);
+	self:RegisterEvent("FRIENDLIST_UPDATE", self.UpdateFriends);
+	self:RegisterEvent("CHAT_MSG_SKILL")
 	self:RegisterEvent("CHAT_MSG_COMBAT_FACTION_CHANGE")
-	
-	self:RegisterEvent("GLYPH_ADDED", Altoholic.Glyphs.Scan);
-	self:RegisterEvent("GLYPH_REMOVED", Altoholic.Glyphs.Scan);
-	self:RegisterEvent("GLYPH_UPDATED", Altoholic.Glyphs.Scan);
-	
 	self:RegisterEvent("CHAT_MSG_SYSTEM");
-	
-	self:RegisterEvent("UNIT_PET", Altoholic.Pets.OnChange);
---	self:RegisterEvent("LOCALPLAYER_PET_RENAMED");
+	self:RegisterEvent("CHAT_MSG_LOOT")
+	self:RegisterEvent("UNIT_PET", self.Pets.OnChange);
 	
 	if IsInGuild() then
-		self:RegisterEvent("GUILD_ROSTER_UPDATE", Altoholic.Guild.Members.OnRosterUpdate);
+		self:RegisterEvent("GUILD_ROSTER_UPDATE", self.Guild.Members.OnRosterUpdate);
 	end
 	
 	local currentGuild = GetGuildInfo("player")
@@ -267,7 +161,7 @@ function Altoholic:OnEnable()
 		UIDropDownMenu_SetText(AltoholicTabGuildBank_SelectGuild, 
 				GREEN .. currentGuild .. WHITE .. " (" .. GetRealmName() .. ")"	)
 
-		AltoholicTabGuildBank:LoadGuild(THIS_ACCOUNT, GetRealmName(), currentGuild)
+		Altoholic.Tabs.GuildBank:LoadGuild(THIS_ACCOUNT, GetRealmName(), currentGuild)
 	end
 	
 	self.UnsafeItems:BuildList()
@@ -279,10 +173,20 @@ function Altoholic:OnEnable()
 	self.DoInitialBroadcast = true
 	self.DoMailExpiryCheck = true	
 
+	-- create an empty frame to manager the timer via its Onupdate
+	self.TimerFrame = CreateFrame("Frame", "ConnectMMOTimerFrame", UIParent)
+	local f = self.TimerFrame
+	
+	f:SetWidth(1)
+	f:SetHeight(1)
+	f:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 1, 1)
+	f:SetScript("OnUpdate", function(self, elapsed) Altoholic.Tasks:OnUpdate(elapsed) end)
+	f:Show()
+	
 	-- temporary fix to help Bean Counter's hooking the right mail function
 	self.UpdatePlayerMail = self.Mail.Scan
 	
-	self:ConvertDB()
+	self:ConvertCraftDB()
 end
 
 function Altoholic:OnDisable()
@@ -297,19 +201,22 @@ function Altoholic:ToggleUI()
 end
 
 function Altoholic:OnShow()
-	self:UpdatePlayerStats()
+	self:ScanAll()
 	self.Containers:ScanPlayerBags()
 	
 	SetPortraitTexture(AltoholicFramePortrait, "player");	
 
 	self.Reputations:BuildView()
-	self:BuildCharacterInfoTable()
-	self:BuildCharacterInfoView()
+	self.Characters:BuildList()
+	self.Characters:BuildView()
 	
-	AltoholicTabSummary:SummaryMenuOnClick(1)
+	if not Altoholic.Tabs.current then
+		Altoholic.Tabs.current = 1
+		self.Tabs.Summary:MenuItem_OnClick(1)
+	end
 end
 
-function Altoholic:ConvertDB()
+function Altoholic:ConvertCraftDB()
 	local done = Altoholic.Options:Get("CraftDBConversionDone")
 	if done then return end
 	
@@ -334,7 +241,12 @@ function Altoholic:ConvertDB()
 									end
 								else
 									spellID = Altoholic:GetSpellIDFromLink(craft.link)
-									p.list[index] = (craft.color or 4) .. "^" .. (craft.id or "") .. "^" .. spellID .. "^" .. craft.reagents
+									if craft.reagents then
+										p.list[index] = (craft.color or 4) .. "^" .. (craft.id or "") .. "^" .. spellID .. "^" .. craft.reagents
+									else
+										corruptedList = true
+										break
+									end
 								end
 							end
 						end
@@ -361,24 +273,26 @@ function Altoholic:ConvertDB()
 end
 
 
+Altoholic.Characters = {}
+
 local SUMMARY_THISREALM = 1
 local SUMMARY_ALLREALMS = 2
 local SUMMARY_ALLACCOUNTS = 3
 
-function Altoholic:BuildCharacterInfoTable()
+function Altoholic.Characters:BuildList()
+	self.List = self.List or {}
+	wipe(self.List)
+	
 	local money = 0
 	local played = 0
 	local levels = 0
-	
-	local mode = self.Options:Get("TabSummaryMode")
-	self:ClearTable(Altoholic.CharacterInfo)
-	
 	local realmID = 0 -- will be required for sorting purposes
+	local mode = Altoholic.Options:Get("TabSummaryMode")
 
 	-- The info table is static and contains characters of all realms on all accounts
 	for AccountName, a in pairs(Altoholic.db.global.data) do
 		for RealmName, _ in pairs(a) do
-			local realmmoney, realmplayed, realmlevels = self:AddRealmTable(AccountName, RealmName, realmID)
+			local realmmoney, realmplayed, realmlevels = self:AddRealm(AccountName, RealmName, realmID)
 
 			if mode == SUMMARY_THISREALM then
 				-- if we show only this realm, then counters for other accounts or other realms are at 0
@@ -409,7 +323,7 @@ function Altoholic:BuildCharacterInfoTable()
 	AltoholicFrameTotalPlayed:SetText(floor(played / 86400) .. "|cFFFFD700d")
 end
 
-function Altoholic:AddRealmTable(AccountName, RealmName, realmID)
+function Altoholic.Characters:AddRealm(AccountName, RealmName, realmID)
 
 	local comm = Altoholic.Comm.Sharing
 	if comm.SharingInProgress then
@@ -429,14 +343,14 @@ function Altoholic:AddRealmTable(AccountName, RealmName, realmID)
 	
 	local SkillsCache = { {name = "", rank = 0}, {name = "", rank = 0} }
 	
-	table.insert(Altoholic.CharacterInfo, { linetype = INFO_REALM_LINE + (realmID*3),
+	table.insert(self.List, { linetype = INFO_REALM_LINE + (realmID*3),
 		isCollapsed = false,
 		account = AccountName,
 		realm = RealmName
 	} )
 	
-	local parentRealm = #Altoholic.CharacterInfo
-	local r = self:GetRealmTable(RealmName, AccountName)
+	local parentRealm = #self.List
+	local r = Altoholic:GetRealmTable(RealmName, AccountName)
 	
 	for CharacterName, c in pairs(r.char) do
 		SkillsCache[1].name = ""
@@ -449,8 +363,8 @@ function Altoholic:AddRealmTable(AccountName, RealmName, realmID)
 		local i = 1
 		for SkillName, s in pairs(c.skill[L["Professions"]]) do
 			SkillsCache[i].name = SkillName
-			SkillsCache[i].rank = self.TradeSkills:GetRank(s)
-			SkillsCache[i].spellID = self:GetProfessionSpellID(SkillName)
+			SkillsCache[i].rank = Altoholic.TradeSkills:GetRank(s)
+			SkillsCache[i].spellID = Altoholic:GetProfessionSpellID(SkillName)
 			i = i + 1
 			
 			if i > 2 then		-- it seems that under certain conditions, the loop continues after 2 professions.., so break
@@ -460,7 +374,7 @@ function Altoholic:AddRealmTable(AccountName, RealmName, realmID)
 		
 		local sk = c.skill[L["Secondary Skills"]]
 		
-		table.insert(Altoholic.CharacterInfo, { linetype = INFO_CHARACTER_LINE + (realmID*3),
+		table.insert(self.List, { linetype = INFO_CHARACTER_LINE + (realmID*3),
 			name = CharacterName,
 			parentID = parentRealm,
 			skillName1 = SkillsCache[1].name,
@@ -469,10 +383,10 @@ function Altoholic:AddRealmTable(AccountName, RealmName, realmID)
 			skillName2 = SkillsCache[2].name,
 			skillRank2 = SkillsCache[2].rank,
 			spellID2 = SkillsCache[2].spellID,
-			cooking = self.TradeSkills:GetRank( sk[BI["Cooking"]] ),
-			firstaid = self.TradeSkills:GetRank( sk[BI["First Aid"]] ),
-			fishing = self.TradeSkills:GetRank( sk[BI["Fishing"]] ),
-			riding = self.TradeSkills:GetRank( sk[L["Riding"]] ),
+			cooking = Altoholic.TradeSkills:GetRank( sk[BI["Cooking"]] ),
+			firstaid = Altoholic.TradeSkills:GetRank( sk[BI["First Aid"]] ),
+			fishing = Altoholic.TradeSkills:GetRank( sk[BI["Fishing"]] ),
+			riding = Altoholic.TradeSkills:GetRank( sk[L["Riding"]] ),
 		} )
 
 		realmlevels = realmlevels + c.level
@@ -484,11 +398,11 @@ function Altoholic:AddRealmTable(AccountName, RealmName, realmID)
 		realmFreeBankSlots = realmFreeBankSlots + c.numFreeBankSlots
 	end		-- end char
 
-	table.insert(Altoholic.CharacterInfo, { linetype = INFO_TOTAL_LINE + (realmID*3),
+	table.insert(self.List, { linetype = INFO_TOTAL_LINE + (realmID*3),
 		parentID = parentRealm,
 		level = WHITE .. realmlevels,
-		money = self:GetMoneyString(realmmoney, WHITE),
-		played = self:GetTimeString(realmplayed),
+		money = Altoholic:GetMoneyString(realmmoney, WHITE),
+		played = Altoholic:GetTimeString(realmplayed),
 		bagSlots = realmBagSlots,
 		freeBagSlots = realmFreeBagSlots,
 		bankSlots = realmBankSlots,
@@ -498,13 +412,14 @@ function Altoholic:AddRealmTable(AccountName, RealmName, realmID)
 	return realmmoney, realmplayed, realmlevels
 end
 
-function Altoholic:BuildCharacterInfoView()
+function Altoholic.Characters:BuildView()
 	-- The character info index is a small table that basically indexes character info
 	-- ex: character info contains data for 4 realms on two accounts, but the index only cares about the summary tab filter,
 	-- and indexes just one realm, or one account
+	self.view = self.view or {}
+	wipe(self.view)
 	
-	local mode = self.Options:Get("TabSummaryMode")
-	self:ClearTable(Altoholic.CharacterInfoView)
+	local mode = Altoholic.Options:Get("TabSummaryMode")
 	
 	if mode == SUMMARY_THISREALM then
 		self:AddRealmView(THIS_ACCOUNT, GetRealmName())
@@ -521,29 +436,304 @@ function Altoholic:BuildCharacterInfoView()
 	end
 end
 
-function Altoholic:AddRealmView(AccountName, RealmName)
-	for line, s in pairs(Altoholic.CharacterInfo) do
+function Altoholic.Characters:AddRealmView(AccountName, RealmName)
+	for line, s in pairs(self.List) do
 		if mod(s.linetype, 3) == INFO_REALM_LINE then
 			if (s.account == AccountName) and (s.realm == RealmName) then
 				-- insert index to current line (INFO_REALM_LINE)
-				table.insert(Altoholic.CharacterInfoView, line)
+				table.insert(self.view, line)
 				line = line + 1
 
 				-- insert index to the rest of the realm 
-				local linetype = mod(Altoholic.CharacterInfo[line].linetype, 3)
+				local linetype = mod(self.List[line].linetype, 3)
 				while (linetype ~= INFO_REALM_LINE) do
-					table.insert(Altoholic.CharacterInfoView, line)
+					table.insert(self.view, line)
 					line = line + 1
-					if line > #Altoholic.CharacterInfo then
+					if line > #self.List then
 						return
 					end
-					linetype = mod(Altoholic.CharacterInfo[line].linetype, 3)
+					linetype = mod(self.List[line].linetype, 3)
 				end
 				return
 			end
 		end
 	end
 end
+
+local function SortByName(a, b, ascending)
+	if (a.linetype ~= b.linetype) then			-- sort by linetype first ..
+		return a.linetype < b.linetype
+	else													-- and when they're identical, sort  by field xx
+		if mod(a.linetype, 3) ~= INFO_CHARACTER_LINE then
+			return false		-- don't swap lines if they're not INFO_CHARACTER_LINE
+		end
+		
+		if ascending then
+			return a.name < b.name
+		else
+			return a.name > b.name
+		end
+	end
+end
+
+local function SortByXP(a, b, ascending)
+	if (a.linetype ~= b.linetype) then			-- sort by linetype first ..
+		return a.linetype < b.linetype
+	else													-- and when they're identical, sort  by field xx
+		if mod(a.linetype, 3) ~= INFO_CHARACTER_LINE then
+			return false		-- don't swap lines if they're not INFO_CHARACTER_LINE
+		end
+		-- same linetype implies same account & same realm, so r could refer to either a or b
+		local r = Altoholic.db.global.data[a.account][a.realm]
+		local charA = r.char[a.name]
+		local charB = r.char[b.name]
+		
+		if ascending then
+			return (charA.xp / charA.xpmax) < (charB.xp / charB.xpmax)
+		else
+			return (charA.xp / charA.xpmax) > (charB.xp / charB.xpmax)
+		end
+	end
+end
+
+local function SortByRestXP(a, b, ascending)
+	if (a.linetype ~= b.linetype) then			-- sort by linetype first ..
+		return a.linetype < b.linetype
+	else													-- and when they're identical, sort  by field xx
+		if mod(a.linetype, 3) ~= INFO_CHARACTER_LINE then
+			return false		-- don't swap lines if they're not INFO_CHARACTER_LINE
+		end
+		-- same linetype implies same account & same realm, so r could refer to either a or b
+		local r = Altoholic.db.global.data[a.account][a.realm]
+		local charA = r.char[a.name]
+		local charB = r.char[b.name]
+		
+		local restXPA, restXPB
+		
+		if charA.level == MAX_PLAYER_LEVEL then
+			restXPA = 0
+		else
+			restXPA = select(2, Altoholic:GetRestedXP(charA.xpmax, charA.restxp, charA.lastlogout, charA.isResting))
+		end
+		
+		if charB.level == MAX_PLAYER_LEVEL then
+			restXPB = 0
+		else
+			restXPB = select(2, Altoholic:GetRestedXP(charB.xpmax, charB.restxp, charB.lastlogout, charB.isResting))
+		end
+		
+		if ascending then
+			return restXPA < restXPB
+		else
+			return restXPA > restXPB
+		end
+	end
+end
+
+local function SortByTableSize(a, b, field, ascending)
+	if (a.linetype ~= b.linetype) then			-- sort by linetype first ..
+		return a.linetype < b.linetype
+	else													-- and when they're identical, sort  by field xx
+		if mod(a.linetype, 3) ~= INFO_CHARACTER_LINE then
+			return false		-- don't swap lines if they're not INFO_CHARACTER_LINE
+		end
+		
+		-- same linetype implies same account & same realm, so r could refer to either a or b
+		local r = Altoholic.db.global.data[a.account][a.realm]
+		local tableA = r.char[a.name][field]
+		local tableB = r.char[b.name][field]
+		
+		if ascending then
+			return #tableA < #tableB
+		else
+			return #tableA > #tableB
+		end
+	end
+end
+
+local function SortByDelay(a, b, field, ascending)
+	if (a.linetype ~= b.linetype) then			-- sort by linetype first ..
+		return a.linetype < b.linetype
+	else													-- and when they're identical, sort  by field xx
+		if mod(a.linetype, 3) ~= INFO_CHARACTER_LINE then
+			return false		-- don't swap lines if they're not INFO_CHARACTER_LINE
+		end
+		
+		-- same linetype implies same account & same realm, so r could refer to either a or b
+		local r = Altoholic.db.global.data[a.account][a.realm]
+		local delayA = r.char[a.name][field]
+		if delayA ~= 0 then					-- do this because "online" means there's no delay, so leave it at zero
+			delayA = time() - delayA
+		end
+		local delayB = r.char[b.name][field]
+		if delayB ~= 0 then
+			delayB = time() - delayB
+		end		
+		
+		if ascending then
+			return delayA < delayB
+		else
+			return delayA > delayB
+		end
+	end
+end
+
+local function SortByPrimarySkill(a, b, skillName, ascending)
+	if (a.linetype ~= b.linetype) then			-- sort by linetype first ..
+		return a.linetype < b.linetype
+	else													-- and when they're identical, sort  by field xx
+		if mod(a.linetype, 3) ~= INFO_CHARACTER_LINE then
+			return false		-- don't swap lines if they're not INFO_CHARACTER_LINE
+		end
+		-- same linetype implies same account & same realm, so r could refer to either a or b
+		local r = Altoholic.db.global.data[a.account][a.realm]
+		local charA = r.char[a.name]
+		local charB = r.char[b.name]
+		
+		local skillA = Altoholic.TradeSkills:GetRank( charA.skill[L["Professions"]][a[skillName]] )
+		local skillB = Altoholic.TradeSkills:GetRank( charB.skill[L["Professions"]][b[skillName]] )
+		
+		if ascending then
+			return skillA < skillB
+		else
+			return skillA > skillB
+		end
+	end
+end
+
+local function SortBySecondarySkill(a, b, skillName, ascending)
+	if (a.linetype ~= b.linetype) then			-- sort by linetype first ..
+		return a.linetype < b.linetype
+	else													-- and when they're identical, sort  by field xx
+		if mod(a.linetype, 3) ~= INFO_CHARACTER_LINE then
+			return false		-- don't swap lines if they're not INFO_CHARACTER_LINE
+		end
+		-- same linetype implies same account & same realm, so r could refer to either a or b
+		local r = Altoholic.db.global.data[a.account][a.realm]
+		local charA = r.char[a.name]
+		local charB = r.char[b.name]
+		
+		local skillA = Altoholic.TradeSkills:GetRank( charA.skill[L["Secondary Skills"]][skillName] )
+		local skillB = Altoholic.TradeSkills:GetRank( charB.skill[L["Secondary Skills"]][skillName] )
+		
+		if ascending then
+			return skillA < skillB
+		else
+			return skillA > skillB
+		end
+	end
+end
+
+local function SortByField(a, b, field, ascending)
+	if (a.linetype ~= b.linetype) then			-- sort by linetype first ..
+		return a.linetype < b.linetype
+	else													-- and when they're identical, sort  by field xx
+		if mod(a.linetype, 3) ~= INFO_CHARACTER_LINE then
+			return false		-- don't swap lines if they're not INFO_CHARACTER_LINE
+		end
+		
+		-- same linetype implies same account & same realm, so r could refer to either a or b
+		local r = Altoholic.db.global.data[a.account][a.realm]
+		local charA = r.char[a.name]
+		local charB = r.char[b.name]
+		
+		if ascending then
+			return charA[field] < charB[field]
+		else
+			return charA[field] > charB[field]
+		end
+	end
+end
+
+function Altoholic.Characters:Sort(self, field)
+	-- Because the CharacterInfo table contains parentID's to quickly find realm & account for each character,
+	-- it is necessary to keep the indexes of the parent rows unchanged, however, lua does not guarantee this, so 
+	-- each INFO_CHARACTER_LINE will be enriched before the sort, and cleaned after it.
+	
+	local ascending = self.ascendingSort
+	local self = Altoholic.Characters
+	
+	local account, realm
+	for _, s in pairs(self.List) do
+		local lineType = mod(s.linetype, 3)
+		
+		if lineType == INFO_REALM_LINE then
+			account = s.account
+			realm = s.realm
+		elseif lineType == INFO_CHARACTER_LINE then
+			s.account = account
+			s.realm = realm
+		end
+	end
+		
+	if field == "name" then
+		table.sort(self.List, function(a, b) return SortByName(a, b, ascending)	end)
+	elseif field == "xp" then
+		table.sort(self.List, function(a, b) return SortByXP(a, b, ascending) end)
+	elseif field == "restxp" then
+		table.sort(self.List, function(a, b) return SortByRestXP(a, b, ascending) end)
+	elseif (field == "mail") or (field == "auctions") or (field == "bids") then
+		table.sort(self.List, function(a, b) return SortByTableSize(a, b, field, ascending)	end)
+	elseif (field == "lastmailcheck") or (field == "lastAHcheck") or (field == "lastlogout") then
+		table.sort(self.List, function(a, b) return SortByDelay(a, b, field, ascending) end)
+		
+	-- Primary Skill
+	elseif (field == "skillName1") or (field == "skillName2") then
+		table.sort(self.List, function(a, b) return SortByPrimarySkill(a, b, field, ascending)
+			end)
+	-- Secondary Skill
+	elseif (field == BI["Cooking"]) or (field == BI["First Aid"]) or 
+			(field == BI["Fishing"]) or (field == L["Riding"]) then
+		table.sort(self.List, function(a, b) return SortBySecondarySkill(a, b, field, ascending) end)
+	else
+		table.sort(self.List, function(a, b) return SortByField(a, b, field, ascending) end)
+	end
+	
+	for _, s in pairs(self.List) do
+		local lineType = mod(s.linetype, 3)
+		
+		if lineType == INFO_CHARACTER_LINE then
+			s.account = nil		-- clean up the additional info added just for the sort
+			s.realm = nil
+		end
+	end
+
+	Altoholic.Tabs.Summary:Refresh()
+end
+
+function Altoholic.Characters:Get(n)
+	return self.List[n]
+end
+
+function Altoholic.Characters:GetView()
+	return self.view
+end
+
+function Altoholic.Characters:GetNum()
+	return #self.List or 0
+end
+
+function Altoholic.Characters:GetInfo(line)
+	-- with the line number in the self.List table, return the realm & account based on the parent id of this line
+	local c = self.List[line]
+	local p = self.List[ c.parentID ]
+	return c.name, p.realm, p.account
+end
+
+function Altoholic.Characters:GetInfoLineNum(charName, realm, account)
+	-- with the name of a character, returns the line number in the self.List table
+	-- This prevents from saving the character name, realm and account in the search results table.
+
+	for k, v in pairs(self.List) do
+		if mod(v.linetype,3) == INFO_CHARACTER_LINE then
+			local s = self.List[ v.parentID ] 
+			if v.name == charName and s.account == account and s.realm == realm then 
+				return k
+			end
+		end
+	end
+end
+
 
 function Altoholic:SendPublicInfo(msgType, player, guildName)
 
@@ -627,24 +817,24 @@ function Altoholic:SendPublicInfo(msgType, player, guildName)
 	end
 end
 
-function Altoholic:UpdatePlayerStats()
+function Altoholic:ScanAll()
 
 	self:PLAYER_XP_UPDATE()
 	self:PLAYER_UPDATE_RESTING()
 	self:PLAYER_GUILD_UPDATE()
 	self.Talents:Scan()
-	self:UpdateSpells()
+	self.Spells:Scan()
 	self:UpdatePlayerSkills()
 	self.Equipment:Scan()
 	self:PLAYER_MONEY()
 	self.Reputations:Scan()
 	self.Quests:Scan()
 	self:UpdatePVPStats()
-	self:UpdateCompanions("CRITTER")
-	self:UpdateCompanions("MOUNT")
+	self.Pets:Scan("CRITTER")
+	self.Pets:Scan("MOUNT")
 	self:UpdateTokens()
 	self.Glyphs:Scan()
-	-- ** updates up to here take roughly 2ms altogether **
+		-- ** updates up to here take roughly 2ms altogether **
 end
 
 function Altoholic:UpdatePlayerSkills()
@@ -679,7 +869,105 @@ function Altoholic:UpdatePlayerSkills()
 	end
 end
 
+function Altoholic:UpdateStats()
+	local c = Altoholic.ThisCharacter
+	if not c then return end
+	
+	c.Stats["HealthMax"] = UnitHealthMax("player")
+	-- info on power types here : http://www.wowwiki.com/API_UnitPowerType
+	c.Stats["MaxPower"] = UnitPowerType("player") .. "|" .. UnitPowerMax("player")
+	
+	local t = {}
+	-- *** resistances  ***
+	for i = 1, 6 do
+		t[i] = UnitResistance("player", i)
+		-- base, total, bonus, minus = UnitResistance(unitId [, resistanceIndex])
+		-- base = base
+		-- total = total after all modifiers
+		-- bonus = positive modif total
+		-- minus = negative ...
+	end
+	c.Stats["Resistances"] = table.concat(t, "|")	--	["Resistances"] = "holy | fire | nature | frost | shadow | arcane"
+
+	-- *** base stats ***
+	for i = 1, 5 do
+		t[i] = UnitStat("player", i)
+		-- stat, effectiveStat, posBuff, negBuff = UnitStat("player", statIndex);
+	end
+	t[6] = UnitArmor("player")
+	c.Stats["Base"] = table.concat(t, "|")	--	["Base"] = "strength | agility | stamina | intellect | spirit | armor"
+	
+	-- *** melee stats ***
+	local minDmg, maxDmg = UnitDamage("player")
+	t[1] = floor(minDmg) .."-" ..ceil(maxDmg)				-- Damage "215-337"
+	t[2] = UnitAttackSpeed("player")
+	t[3] = UnitAttackPower("player")
+	t[4] = GetCombatRating(CR_HIT_MELEE)
+	t[5] = GetCritChance()
+	t[6] = GetExpertise()
+	c.Stats["Melee"] = table.concat(t, "|")	--	["Melee"] = "Damage | Speed | Power | Hit rating | Crit chance | Expertise"
+	
+	-- *** ranged stats ***
+	local speed
+	speed, minDmg, maxDmg = UnitRangedDamage("player")
+	t[1] = floor(minDmg) .."-" ..ceil(maxDmg)
+	t[2] = speed
+	t[3] = UnitRangedAttackPower("player")
+	t[4] = GetCombatRating(CR_HIT_RANGED)
+	t[5] = GetRangedCritChance()
+	t[6] = nil
+	c.Stats["Ranged"] = table.concat(t, "|")	--	["Ranged"] = "Damage | Speed | Power | Hit rating | Crit chance"
+	
+	-- *** spell stats ***
+	t[1] = GetSpellBonusDamage(2)			-- 2, since 1 = physical damage
+	t[2] = GetSpellBonusHealing()
+	t[3] = GetCombatRating(CR_HIT_SPELL)
+	t[4] = GetSpellCritChance(2)
+	t[5] = GetCombatRating(CR_HASTE_SPELL)
+	t[6] = floor(GetManaRegen() * 5.0)
+	c.Stats["Spell"] = table.concat(t, "|")	--	["Spell"] = "+Damage | +Healing | Hit | Crit chance | Haste | Mana Regen"
+	
+	-- *** defenses stats ***
+	t[1] = UnitArmor("player")
+	t[2] = UnitDefense("player")
+	t[3] = GetDodgeChance()
+	t[4] = GetParryChance()
+	t[5] = GetBlockChance()
+	local minResilience = min(GetCombatRating(CR_CRIT_TAKEN_MELEE), GetCombatRating(CR_CRIT_TAKEN_RANGED))
+	t[6] = min(minResilience, GetCombatRating(CR_CRIT_TAKEN_SPELL))
+	c.Stats["Defense"] = table.concat(t, "|")	--	["Defense"] = "Armor | Defense | Dodge | Parry | Block | Resilience"
+
+	-- *** PVP Stats ***
+	t[1], t[2] = GetPVPLifetimeStats()
+	t[3] = GetArenaCurrency()
+	t[4] = GetHonorCurrency()
+	t[5] = nil
+	t[6] = nil
+	c.Stats["PVP"] = table.concat(t, "|")	--	["PVP"] = "honorable kills | dishonorable kills | arena points | honor points"
+	
+	-- *** Arena Teams ***
+	for i = 1, MAX_ARENA_TEAMS do
+		local teamName, teamSize = GetArenaTeam(i)
+		if teamName then
+			c.Stats["Arena"..teamSize] = table.concat({ GetArenaTeam(i) }, "|")
+			-- more info here : http://www.wowwiki.com/API_GetArenaTeam
+		end
+	end
+end
+
+function Altoholic:UpdateFriends()
+	local c = Altoholic.ThisCharacter
+	wipe(c.Friends)
+	
+	for i = 1, GetNumFriends() do
+	   local name = GetFriendInfo(i);
+	   table.insert(c.Friends, name)
+	end
+end
+
 function Altoholic:UpdatePVPStats()
+	-- to do: remove this function, data is now in c.Stats["PVP"]
+	-- remove it when the stats pane will be implemented, and get rid of this info in the tooltip.
 	local c = Altoholic.ThisCharacter
 	
 	c.pvp_hk, c.pvp_dk = GetPVPLifetimeStats()
@@ -687,21 +975,39 @@ function Altoholic:UpdatePVPStats()
 	c.pvp_HonorPoints = GetHonorCurrency()
 end
 
-function Altoholic:UpdateSpells()
-	-- at this point, only check Cold Weather Flying
-   local name, _, offset, numSpells = GetSpellTabInfo(1);
-	
-	if not name then return end
+Altoholic.Spells = {}
 
-	local coldWeatherFlyingName = GetSpellInfo(54197)
-	
-	for s = offset + 1, offset + numSpells do
-		local	spell = GetSpellName(s, BOOKTYPE_SPELL);
-		
-		if spell == coldWeatherFlyingName then
-			local c = Altoholic.ThisCharacter
-			c.coldWeatherFlying = true
-			break
+function Altoholic.Spells:Scan()
+	local c = Altoholic.ThisCharacter
+	c.coldWeatherFlying = nil		-- clear this, was saved in an earlier version of the db.
+	wipe(c.Spells)
+
+	local name, offset, numSpells
+	local spell, rank, link, spellID
+
+	for tabID = 1, GetNumSpellTabs() do
+		name, _, offset, numSpells = GetSpellTabInfo(tabID);
+		if name then
+			c.Spells[#c.Spells+1] = "0|" .. name		-- ex: "0|Arcane", 
+			for s = offset + 1, offset + numSpells do
+			   spell, rank = GetSpellName(s, BOOKTYPE_SPELL);
+			   if spell and rank then
+					link = GetSpellLink(spell)
+					if link then
+						spellID = tonumber(link:match("spell:(%d+)")) 
+						c.Spells[#c.Spells+1] = spellID .. "|" .. rank		-- ex: "43017|Rank 1",
+					end
+				end
+			end		
+		end
+	end
+end
+
+function Altoholic.Spells:IsKnownByChar(char, spellID)
+	for _, v in pairs(char.Spells) do
+		local id = strsplit("|", v)
+		if tonumber(id) == spellID then
+			return true
 		end
 	end
 end
@@ -709,7 +1015,7 @@ end
 function Altoholic:UpdateRaidTimers()	
 	local c = Altoholic.ThisCharacter
 	
-	self:ClearTable(c.SavedInstance)
+	wipe(c.SavedInstance)
 	
 	for i=1, GetNumSavedInstances() do
 		local instanceName, instanceID, instanceReset, difficulty = GetSavedInstanceInfo(i)
@@ -719,20 +1025,6 @@ function Altoholic:UpdateRaidTimers()
 		end
 		
 		c.SavedInstance[instanceName.. "|" .. instanceID ] =  instanceReset .. "|" .. time()
-	end
-end
-
-function Altoholic:UpdateCompanions(companionType)
-	local c = Altoholic.ThisCharacter
-	local p = c.pets[companionType]
-	
-	self:ClearTable(p)
-	
-	for i = 1, GetNumCompanions(companionType) do
-		local modelID, name, spellID, icon = GetCompanionInfo(companionType, i);
-		if name and spellID and icon and modelID then
-			p[i] = name .. "|" .. spellID .. "|" .. string.gsub(icon, "Interface\\Icons\\", "") .. "|" .. modelID
-		end
 	end
 end
 
@@ -764,9 +1056,9 @@ function Altoholic:GetCharacterTable(charName, realm, account)
 	-- 	local c = Altoholic:GetCharacterTable(char, realm, account)
 	--	all 3 parameters default to current player, realm or account
 	-- use this for features that have to work regardless of an alt's location (any realm, any account)
-	charName = charName or V.CurrentAlt
-	realm = realm or V.CurrentRealm
-	account = account or V.CurrentAccount
+	charName = charName or Altoholic.CurrentAlt
+	realm = realm or Altoholic.CurrentRealm
+	account = account or Altoholic.CurrentAccount
 	
 	return Altoholic.db.global.data[account][realm].char[charName]
 end
@@ -774,7 +1066,7 @@ end
 function Altoholic:GetCharacterTableByLine(line)
 	-- shortcut to get the right character table based on the line number in the info table.
 	
-	local charName, realm, account = Altoholic:GetCharacterInfo(line)
+	local charName, realm, account = Altoholic.Characters:GetInfo(line)
 	return Altoholic.db.global.data[account][realm].char[charName]
 end
 
@@ -782,8 +1074,8 @@ function Altoholic:GetRealmTable(realm, account)
 	-- Usage: 
 	-- 	local c = Altoholic:GetRealmTable(char, realm, account)
 	--	both parameters default to current realm or account
-	realm = realm or V.CurrentRealm
-	account = account or V.CurrentAccount
+	realm = realm or Altoholic.CurrentRealm
+	account = account or Altoholic.CurrentAccount
 	
 	return Altoholic.db.global.data[account][realm]
 end
@@ -791,7 +1083,7 @@ end
 function Altoholic:GetRealmTableByLine(line)
 	-- shortcut to get the right realm table based on the line number in the info table.
 
-	local _, realm, account = Altoholic:GetCharacterInfo(line)
+	local _, realm, account = Altoholic.Characters:GetInfo(line)
 	return Altoholic.db.global.data[account][realm]
 end
 
@@ -807,8 +1099,12 @@ function Altoholic:GetClassReferenceTable(class)
 	return Altoholic.db.global.reference[class]
 end
 
+function Altoholic:GetCurrentCharacter()
+	return self.CurrentAlt, self.CurrentRealm, self.CurrentAccount
+end
+
 function Altoholic:SetCurrentCharacter(charName, realm, account)
-	V.CurrentAlt = charName
+	self.CurrentAlt = charName
 	if realm then
 		Altoholic:SetCurrentRealm(realm)
 	end
@@ -817,12 +1113,20 @@ function Altoholic:SetCurrentCharacter(charName, realm, account)
 	end
 end
 
+function Altoholic:GetCurrentRealm()
+	return self.CurrentRealm
+end
+
 function Altoholic:SetCurrentRealm(name)
-	V.CurrentRealm = name
+	self.CurrentRealm = name
+end
+
+function Altoholic:GetCurrentAccount()
+	return self.CurrentAccount
 end
 
 function Altoholic:SetCurrentAccount(name)
-	V.CurrentAccount = name
+	self.CurrentAccount = name
 end
 
 function Altoholic:GetProfessions(charName, realm, account)
@@ -863,30 +1167,6 @@ end
 
 
 -- *** Utility functions ***
-function Altoholic:ClearTable(t)
-	if type(t) ~= "table" then
-		return
-	end
-	
-	for k in pairs (t) do
-		if type(t[k]) == "table" then
-			self:ClearTable(t[k])
-		end
-		t[k] = nil
-	end
-end
-
-function Altoholic:CopyTable(src, dest)
-	for k, v in pairs (src) do
-		if type(v) == "table" then
-			dest[k] = {}
-			self:CopyTable(v, dest[k])
-		else
-			dest[k] = v
-		end
-	end	
-end
-
 function Altoholic:ClearScrollFrame(name, entry, lines, height)
 	for i=1, lines do					-- Hides all entries of the scrollframe, and updates it accordingly
 		_G[ entry..i ]:Hide()
@@ -894,28 +1174,42 @@ function Altoholic:ClearScrollFrame(name, entry, lines, height)
 	FauxScrollFrame_Update( name, lines, lines, height);
 end
 
-function Altoholic:CreateScrollLines(parentFrame, inheritsFrom, numLines, numItems)
-	local f = CreateFrame("Button", parentFrame .. "Entry1", _G[parentFrame], inheritsFrom)
-	f:SetPoint("TOPLEFT", parentFrame .. "ScrollFrame", "TOPLEFT", 0, 0)
-	
-	for i = 2, numLines do
-		f = CreateFrame("Button", parentFrame .. "Entry" .. i, _G[parentFrame], inheritsFrom)
-		f:SetPoint("TOPLEFT", parentFrame .. "Entry" .. (i-1), "BOTTOMLEFT", 0, 0)
-	end
-	
-	if not numItems then return end
-	
-	for i=1, numLines do
-		_G[parentFrame.."Entry"..i.."Item" .. numItems]:SetPoint("BOTTOMRIGHT", parentFrame .. "Entry"..i, "BOTTOMRIGHT", -15, 0);
-		for j=(numItems-1), 1, -1 do
-			_G[parentFrame.."Entry"..i.."Item" .. j]:SetPoint("BOTTOMRIGHT", parentFrame.."Entry"..i.."Item" .. (j + 1), "BOTTOMLEFT", -5, 0);
-		end
-	end
-end
-
 function Altoholic:Print(message, color)
 	color = color or WHITE
 	print(format("%sAltoholic: %s%s", TEAL, color, message))
+end
+
+function Altoholic:Item_OnEnter(frame)
+	if not frame.id then return end
+	
+	GameTooltip:SetOwner(frame, "ANCHOR_LEFT");
+	frame.link = frame.link or select(2, GetItemInfo(frame.id) )
+	
+	if frame.link then
+		GameTooltip:SetHyperlink(frame.link);
+	else
+		GameTooltip:AddLine(L["Unknown link, please relog this character"],1,1,1);
+	end
+	GameTooltip:Show();
+end
+
+function Altoholic:Item_OnClick(frame, button)
+	if not frame.id then return end
+	
+	if not frame.link then
+		frame.link = select(2, GetItemInfo(frame.id) )
+	end
+	if not frame.link then return end		-- still not valid ? exit
+	
+	if ( button == "LeftButton" ) and ( IsControlKeyDown() ) then
+		DressUpItemLink(frame.link);
+	elseif ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
+		if ( ChatFrameEditBox:IsShown() ) then
+			ChatFrameEditBox:Insert(frame.link);
+		else
+			AltoholicFrame_SearchEditBox:SetText(GetItemInfo(frame.link))
+		end
+	end
 end
 
 function Altoholic:SetItemButtonTexture(button, texture, width, height)
@@ -941,7 +1235,9 @@ function Altoholic:GetSpellIcon(spellID)
 end
 
 function Altoholic:GetIDFromLink(link)
-	return tonumber(link:match("item:(%d+)"))
+	if link then
+		return tonumber(link:match("item:(%d+)"))
+	end
 end
 
 function Altoholic:GetProfessionSpellID(name)
@@ -968,6 +1264,25 @@ function Altoholic:GetMountSpellID(itemID)
 	return Altoholic.Pets.MountToSpellID[itemID]
 end
 
+function Altoholic:GetCraftFromRecipe(link)
+	-- get the craft name from the itemlink (strsplit on | to get the 4th value, then split again on ":" )
+	local recipeName = select(4, strsplit("|", link))
+	local craftName
+
+	-- try to determine if it's a transmute (has 2 colons in the string --> Alchemy: Transmute: blablabla)
+	local pos = string.find(recipeName, L["Transmute"])
+	if pos then	-- it's a transmute
+		return string.sub(recipeName, pos, -2)
+	else
+		craftName = select(2, strsplit(":", recipeName))
+	end
+	
+	if craftName == nil then		-- will be nil for enchants
+		return string.sub(recipeName, 3, -2)		-- ex: "Enchant Weapon - Striking"
+	end
+	
+	return string.sub(craftName, 2, -2)	-- at this point, get rid of the leading space and trailing square bracket
+end
 
 function Altoholic:GetEnchantInfo(link)
 	local _, _, itemString = strsplit("|", link)
@@ -1096,7 +1411,7 @@ function Altoholic:GetRestedXP(maxXP, restXP, logout, isResting)
 	
 	-- second return value = the actual percentage of rest xp, as a numeric value (1 to 100, not 150)
 	if rate >= (100 * coeff) then 
-		return "|cFF00FF00" .. format("%d", (100 * coeff)) .. "%", 100
+		return "|cFF00FF00" .. format("%d", (100 * coeff)) .. "%", 100 * coeff
 	else
 		local color
 		if rate < (30 * coeff) then
@@ -1131,26 +1446,7 @@ function Altoholic:GetRestXPRate(maxXP, restXP)
 	return (restXP / ((maxXP / 100) * 1.5))
 end
 
-function Altoholic:GetCharacterInfo(line)
-	-- with the line number in the Altoholic.CharacterInfo table, return the realm & account based on the parent id of this line
-	local c = Altoholic.CharacterInfo[line]
-	local p = Altoholic.CharacterInfo[ c.parentID ]
-	return c.name, p.realm, p.account
-end
 
-function Altoholic:GetCharacterInfoLine(charName, realm, account)
-	-- with the name of a character, returns the line number in the Altoholic.CharacterInfo table
-	-- This prevents from saving the character name, realm and account in the search results table.
-
-	for k, v in pairs(Altoholic.CharacterInfo) do
-		if mod(v.linetype,3) == INFO_CHARACTER_LINE then
-			local s = Altoholic.CharacterInfo[ v.parentID ] 
-			if v.name == charName and s.account == account and s.realm == realm then 
-				return k
-			end
-		end
-	end
-end
 
 function Altoholic:GetGuildBankItemCount(searchedID, guildName, realm, account)
 
@@ -1237,7 +1533,7 @@ function Altoholic:GetItemCount(searchedID)
 	-- Return the total amount of times an item is present on this realm, and prepares the V.ItemCount table for later display by the tooltip
 
 	V.ItemCount = V.ItemCount or {}
-	self:ClearTable(V.ItemCount)
+	wipe(V.ItemCount)
 
 	local count = 0
 	if Altoholic.Options:Get("TooltipMultiAccount") == 1 and not Altoholic.Comm.Sharing.SharingInProgress then
@@ -1254,7 +1550,7 @@ function Altoholic:GetItemCount(searchedID)
 			if not g.hideInTooltip then
 				local guildCount = Altoholic:GetGuildBankItemCount(searchedID, guildName, GetRealmName(), THIS_ACCOUNT)
 				if guildCount > 0 then
-					V.ItemCount[GREEN .. guildName] = WHITE .. L["(Guild bank: "] .. TEAL .. guildCount .. WHITE .. ")"
+					V.ItemCount[GREEN .. guildName] = format("%s(%s: %s%s)", WHITE, GUILD_BANK, TEAL..guildCount, WHITE)
 				end
 				
 				if Altoholic.Options:Get("TooltipGuildBankCount") == 1 then
@@ -1291,8 +1587,8 @@ function Altoholic:GetSuggestion(index, level)
 end
 
 function Altoholic:UpdateSlider(name, text, field)
-	local s = getglobal(name)
-	getglobal(name .. "Text"):SetText(text .. " (" .. s:GetValue() ..")");
+	local s = _G[name]
+	_G[name .. "Text"]:SetText(text .. " (" .. s:GetValue() ..")");
 
 	if not Altoholic.db then return end
 	local a = Altoholic.db.global
@@ -1338,6 +1634,9 @@ function Altoholic:ShowClassIcons()
 		itemButton:Show()
 		
 		i = i + 1
+		if i > 10 then 	-- users of Symbolic Links might have more than 10 columns, prevent it
+			break
+		end
 	end
 	
 	while i <= 10 do
@@ -1399,52 +1698,50 @@ function ChatEdit_InsertLink(text, ...)
 end
 
 -- ** GameTooltip Hooks **
+Altoholic.Tooltip = {}
 
-local Orig_GameTooltip_SetItem = GameTooltip:GetScript("OnTooltipSetItem")
-GameTooltip:SetScript("OnTooltipSetItem", function(tooltip, ...)
-	if Orig_GameTooltip_SetItem then
-		Orig_GameTooltip_SetItem(tooltip, ...)
-	end
+function Altoholic.Tooltip:Init()
+	self.Orig_GameTooltip_OnShow = GameTooltip:GetScript("OnShow")
+	self.Orig_GameTooltip_SetItem = GameTooltip:GetScript("OnTooltipSetItem")
+	self.Orig_GameTooltip_ClearItem = GameTooltip:GetScript("OnTooltipCleared")
+	
+	self.Orig_ItemRefTooltip_OnShow = ItemRefTooltip:GetScript("OnShow")
+	self.Orig_ItemRefTooltip_SetItem = ItemRefTooltip:GetScript("OnTooltipSetItem")
+	self.Orig_ItemRefTooltip_ClearItem = ItemRefTooltip:GetScript("OnTooltipCleared")
+	
+	GameTooltip:SetScript("OnShow", self.OnGameTooltipShow)
+	GameTooltip:SetScript("OnTooltipSetItem", self.OnGameTooltipSetItem)
+	GameTooltip:SetScript("OnTooltipCleared", self.OnGameTooltipCleared)
+	
+	ItemRefTooltip:SetScript("OnShow", self.OnItemRefTooltipShow)
+	ItemRefTooltip:SetScript("OnTooltipSetItem", self.OnItemRefTooltipSetItem)
+	ItemRefTooltip:SetScript("OnTooltipCleared", self.OnItemRefTooltipCleared)
+end
 
-	if (not V.TooltipDone) and tooltip then
-		local name, link = tooltip:GetItem()
-		V.TooltipDone = true
-		if link then
-			Altoholic:ProcessTooltip(tooltip, name, link)
-		end
-	end
-end)
-
-local Orig_GameTooltip_ClearItem = GameTooltip:GetScript("OnTooltipCleared")
-GameTooltip:SetScript("OnTooltipCleared", function(tooltip, ...)
-	V.TooltipDone = nil
-	return Orig_GameTooltip_ClearItem(tooltip, ...)
-end)
-
-local Orig_GameTooltip_OnShow = GameTooltip:GetScript("OnShow")
-GameTooltip:SetScript("OnShow", function(...)
-
-	if Orig_GameTooltip_OnShow then
-		Orig_GameTooltip_OnShow(...)
+function Altoholic.Tooltip:OnGameTooltipShow(...)
+	local self = Altoholic.Tooltip
+	
+	if self.Orig_GameTooltip_OnShow then
+		self.Orig_GameTooltip_OnShow(...)
 	end	
 
 	-- exit if player does not want counters for known gathering nodes
 	if Altoholic.Options:Get("TooltipGatheringNode") == 0 then return end
 	
 	local itemID = Altoholic:IsGatheringNode( _G["GameTooltipTextLeft1"]:GetText() )
-	if itemID and (itemID ~= V.ToolTipCachedItemID) then			-- is the item in the tooltip a known type of gathering node ?
+	if itemID and (itemID ~= self.CachedItemID) then			-- is the item in the tooltip a known type of gathering node ?
 
 		-- check player bags to see how many times he owns this item, and where
 		if Altoholic.Options:Get("TooltipCount") == 1 or Altoholic.Options:Get("TooltipTotal") == 1 then
-			V.ToolTipCachedCount = Altoholic:GetItemCount(itemID) -- if one of the 2 options is active, do the count
-			if V.ToolTipCachedCount > 0 then
-				V.ToolTipCachedTotal = GOLD .. L["Total owned"] .. ": |cff00ff9a" .. V.ToolTipCachedCount
+			self.CachedCount = Altoholic:GetItemCount(itemID) -- if one of the 2 options is active, do the count
+			if self.CachedCount > 0 then
+				self.CachedTotal = GOLD .. L["Total owned"] .. ": |cff00ff9a" .. self.CachedCount
 			else
-				V.ToolTipCachedTotal = nil
+				self.CachedTotal = nil
 			end
 		end		
 		
-		if (Altoholic.Options:Get("TooltipCount") == 1) and (V.ToolTipCachedCount > 0) then			-- add count per character
+		if (Altoholic.Options:Get("TooltipCount") == 1) and (self.CachedCount > 0) then			-- add count per character
 			GameTooltip:AddLine(" ",1,1,1);
 			for CharacterName, c in pairs (V.ItemCount) do
 				--GameTooltip:AddDoubleLine(CharacterName .. ":",  TEAL .. c);
@@ -1452,82 +1749,106 @@ GameTooltip:SetScript("OnShow", function(...)
 			end
 		end
 		
-		if (Altoholic.Options:Get("TooltipTotal") == 1) and (V.ToolTipCachedTotal) then		-- add total count
-			GameTooltip:AddLine(V.ToolTipCachedTotal,1,1,1);
+		if (Altoholic.Options:Get("TooltipTotal") == 1) and (self.CachedTotal) then		-- add total count
+			GameTooltip:AddLine(self.CachedTotal,1,1,1);
 		end		
 	end
 	
 	GameTooltip:Show()
-end)
+end
 
-local Orig_ItemRefTooltip_OnShow = ItemRefTooltip:GetScript("OnShow")
-ItemRefTooltip:SetScript("OnShow", function(...)
+function Altoholic.Tooltip:OnGameTooltipSetItem(...)
+	local tooltip = self
+	local self = Altoholic.Tooltip
+
+	if self.Orig_GameTooltip_SetItem then
+		self.Orig_GameTooltip_SetItem(tooltip, ...)
+	end
+	if (not self.isDone) and tooltip then
+		local name, link = tooltip:GetItem()
+		self.isDone = true
+		if link then
+			self:Process(tooltip, name, link)
+		end
+	end
+end
+
+function Altoholic.Tooltip:OnGameTooltipCleared(...)
+	local tooltip = self
+	local self = Altoholic.Tooltip
+
+	self.isDone = nil
+	return self.Orig_GameTooltip_ClearItem(tooltip, ...)
+end
+
+function Altoholic.Tooltip:OnItemRefTooltipShow(...)
+	local self = Altoholic.Tooltip
 	
-	if Orig_ItemRefTooltip_OnShow then
-		Orig_ItemRefTooltip_OnShow(...)
+	if self.Orig_ItemRefTooltip_OnShow then
+		self.Orig_ItemRefTooltip_OnShow(...)
 	end
 
 	Altoholic.Quests:IsKnown( _G["ItemRefTooltipTextLeft1"]:GetText() )
 	ItemRefTooltip:Show()
-end)
+end
 
-local Orig_ItemRefTooltip_SetItem = ItemRefTooltip:GetScript("OnTooltipSetItem")
-ItemRefTooltip:SetScript("OnTooltipSetItem", function(tooltip, ...)
-	if Orig_ItemRefTooltip_SetItem then
-		Orig_ItemRefTooltip_SetItem(tooltip, ...)
+function Altoholic.Tooltip:OnItemRefTooltipSetItem(...)
+	local tooltip = self
+	local self = Altoholic.Tooltip
+	
+	if self.Orig_ItemRefTooltip_SetItem then
+		self.Orig_ItemRefTooltip_SetItem(tooltip, ...)
 	end
 	
-	if (not V.TooltipDone) and tooltip then
+	if (not self.isDone) and tooltip then
 		local name, link = tooltip:GetItem()
-		V.TooltipDone = true
+		self.isDone = true
 		if link then
-			Altoholic:ProcessTooltip(tooltip, name, link)
+			self:Process(tooltip, name, link)
 		end
 	end
-end)
+end
 
-local Orig_ItemRefTooltip_ClearItem = ItemRefTooltip:GetScript("OnTooltipCleared")
-ItemRefTooltip:SetScript("OnTooltipCleared", function(tooltip, ...)
-	V.TooltipDone = nil
-	return Orig_ItemRefTooltip_ClearItem(tooltip, ...)
-end)
+function Altoholic.Tooltip:OnItemRefTooltipCleared(...)
+	local tooltip = self
+	local self = Altoholic.Tooltip
+	
+	self.isDone = nil
+	return self.Orig_ItemRefTooltip_ClearItem(tooltip, ...)
+end
 
---[[	*** Note about tooltips ***
-If an error occurs with a specific item, like a gathering node, make sure its item id is valid in core.lua
-28/12/2008: I fixed an issue with black lotus, which did not display its counters at all, this was due to an invalid item id
---]]
+function Altoholic.Tooltip:Process(tooltip, name, link)
+	--	*** Note about tooltips ***
+	--	If an error occurs with a specific item, like a gathering node, make sure its item id is valid in core.lua
+	--	28/12/2008: I fixed an issue with black lotus, which did not display its counters at all, this was due to an invalid item id
 
-function Altoholic:ProcessTooltip(tooltip, name, link)
-	local itemID = self:GetIDFromLink(link)
+	local itemID = Altoholic:GetIDFromLink(link)
 	
 	-- if there's no cached item id OR if it's different from the previous one ..
-	if (not V.ToolTipCachedItemID) or 
-		(V.ToolTipCachedItemID and (itemID ~= V.ToolTipCachedItemID)) then
+	if (not self.CachedItemID) or 
+		(self.CachedItemID and (itemID ~= self.CachedItemID)) then
 
-		V.TooltipRecipeCache = nil
+		self.RecipeCache = nil
 		
 		-- these are the cpu intensive parts of the update .. so do them only if necessary
+		self.CachedSource = nil
 		if Altoholic.Options:Get("TooltipSource") == 1 then
-			local Instance, Boss = self.Loots:GetSource(itemID)
+			local Instance, Boss = Altoholic.Loots:GetSource(itemID)
 			
-			V.ToolTipCachedItemID = itemID			-- we have searched this ID ..
+			self.CachedItemID = itemID			-- we have searched this ID ..
 		
-			if (Instance == nil) then
-				V.ToolTipCachedSource = nil			--  no results found, or the option is unchecked
-			else
-				V.ToolTipCachedSource = GOLD .. L["Source"]..  ": |cff00ff9a" .. Instance .. ", " .. Boss
+			if Instance then
+				self.CachedSource = GOLD .. L["Source"]..  ": |cff00ff9a" .. Instance .. ", " .. Boss
 			end
-		else
-			V.ToolTipCachedSource = nil			--  make sure nothing is displayed if the option is unchecked
 		end
 		
 		-- .. then check player bags to see how many times he owns this item, and where
 		if Altoholic.Options:Get("TooltipCount") == 1 or Altoholic.Options:Get("TooltipTotal") == 1 then
-			V.ToolTipCachedCount = self:GetItemCount(itemID) -- if one of the 2 options is active, do the count
-			if V.ToolTipCachedCount > 0 then
-				V.ToolTipCachedTotal = GOLD .. L["Total owned"] .. ": |cff00ff9a" .. V.ToolTipCachedCount
+			self.CachedCount = Altoholic:GetItemCount(itemID) -- if one of the 2 options is active, do the count
+			if self.CachedCount > 0 then
+				self.CachedTotal = GOLD .. L["Total owned"] .. ": |cff00ff9a" .. self.CachedCount
 			else
-				V.ToolTipCachedTotal = nil
+				self.CachedTotal = nil
 			end
 		end
 	end
@@ -1539,20 +1860,20 @@ function Altoholic:ProcessTooltip(tooltip, name, link)
 				SecondsToTime(owner.duration - (GetTime() - owner.startTime))),1,1,1);
 	end
 	
-	if (Altoholic.Options:Get("TooltipCount") == 1) and (V.ToolTipCachedCount > 0) then			-- add count per character
+	if (Altoholic.Options:Get("TooltipCount") == 1) and (self.CachedCount > 0) then			-- add count per character
 		tooltip:AddLine(" ",1,1,1);
 		for CharacterName, c in pairs (V.ItemCount) do
 			tooltip:AddDoubleLine(CharacterName,  TEAL .. c);
 		end
 	end
 	
-	if (Altoholic.Options:Get("TooltipTotal") == 1) and (V.ToolTipCachedTotal) then		-- add total count
-		tooltip:AddLine(V.ToolTipCachedTotal,1,1,1);
+	if (Altoholic.Options:Get("TooltipTotal") == 1) and (self.CachedTotal) then		-- add total count
+		tooltip:AddLine(self.CachedTotal,1,1,1);
 	end
 	
-	if V.ToolTipCachedSource then		-- add item source
+	if self.CachedSource then		-- add item source
 		tooltip:AddLine(" ",1,1,1);
-		tooltip:AddLine(V.ToolTipCachedSource,1,1,1);
+		tooltip:AddLine(self.CachedSource,1,1,1);
 	end
 	
 	-- Altoholic:CheckMaterialUtility(itemID)
@@ -1570,14 +1891,14 @@ function Altoholic:ProcessTooltip(tooltip, name, link)
 	local companionID = Altoholic:GetCompanionSpellID(itemID)
 	if companionID then
 		tooltip:AddLine(" ",1,1,1);	
-		Altoholic:WhoKnowsPet(companionID, "CRITTER", tooltip)
+		self:WhoKnowsPet(companionID, "CRITTER", tooltip)
 		return	-- it's certainly not a recipe if we passed here
 	end
 	
 	local mountID = Altoholic:GetMountSpellID(itemID)
 	if mountID then
 		tooltip:AddLine(" ",1,1,1);	
-		Altoholic:WhoKnowsPet(mountID, "MOUNT", tooltip)
+		self:WhoKnowsPet(mountID, "MOUNT", tooltip)
 		return	-- it's certainly not a recipe if we passed here
 	end
 	
@@ -1588,7 +1909,7 @@ function Altoholic:ProcessTooltip(tooltip, name, link)
 	if itemType ~= BI["Recipe"] then return end		-- exit if not a recipe
 	if itemSubType == BI["Book"] then return end		-- exit if it's a book
 
-	if not V.TooltipRecipeCache then
+	if not self.RecipeCache then
 		local tooltipName = tooltip:GetName()
 		local reqLevel
 		for i = 2, tooltip:NumLines() do			-- parse all tooltip lines, one by one
@@ -1600,36 +1921,20 @@ function Altoholic:ProcessTooltip(tooltip, name, link)
 				end
 			end
 		end
-		V.TooltipRecipeCache = self:WhoKnowsRecipe(itemSubType, link, reqLevel)
+		self.RecipeCache = self:WhoKnowsRecipe(itemSubType, link, reqLevel)
 	end
 	
-	if V.TooltipRecipeCache then
+	if self.RecipeCache then
 		tooltip:AddLine(" ",1,1,1);	
-		tooltip:AddLine(V.TooltipRecipeCache, 1, 1, 1, 1, 1);
+		tooltip:AddLine(self.RecipeCache, 1, 1, 1, 1, 1);
 	end	
 end
 
-function Altoholic:GetCraftFromRecipe(link)
-	-- get the craft name from the itemlink (strsplit on | to get the 4th value, then split again on ":" )
-	local recipeName = select(4, strsplit("|", link))
-	local craftName
-
-	-- try to determine if it's a transmute (has 2 colons in the string --> Alchemy: Transmute: blablabla)
-	local pos = string.find(recipeName, L["Transmute"])
-	if pos then	-- it's a transmute
-		return string.sub(recipeName, pos, -2)
-	else
-		craftName = select(2, strsplit(":", recipeName))
-	end
-	
-	if craftName == nil then		-- will be nil for enchants
-		return string.sub(recipeName, 3, -2)		-- ex: "Enchant Weapon - Striking"
-	end
-	
-	return string.sub(craftName, 2, -2)	-- at this point, get rid of the leading space and trailing square bracket
+function Altoholic.Tooltip:ForceRefresh()
+	self.CachedItemID = nil	-- putting this at NIL will force a tooltip refresh in self:ProcessToolTip
 end
 
-function Altoholic:WhoKnowsPet(companionSpellID, petType, tooltip)
+function Altoholic.Tooltip:WhoKnowsPet(companionSpellID, petType, tooltip)
 	local know = {}				-- list of alts who know this pet
 	local couldLearn = {}		-- list of alts who could learn it
 	
@@ -1663,12 +1968,12 @@ function Altoholic:WhoKnowsPet(companionSpellID, petType, tooltip)
 	end
 end
 
-function Altoholic:WhoKnowsRecipe(profession, link, recipeLevel)
+function Altoholic.Tooltip:WhoKnowsRecipe(profession, link, recipeLevel)
 	local craftName
 
-	local spellID = self:GetSpellIDFromRecipeLink(link)
+	local spellID = Altoholic:GetSpellIDFromRecipeLink(link)
 	if not spellID then		-- spell id unknown ? let's parse the tooltip
-		craftName = self:GetCraftFromRecipe(link)
+		craftName = Altoholic:GetCraftFromRecipe(link)
 	
 		if not craftName then return end		-- still nothing usable ? then exit
 		-- keep these 2 for debug.
@@ -1717,9 +2022,9 @@ function Altoholic:WhoKnowsRecipe(profession, link, recipeLevel)
 				if (profession == BI["Cooking"]) or 
 					(profession == BI["First Aid"]) or
 					(profession == BI["Fishing"]) then
-					curRank = self.TradeSkills:GetRank( c.skill[L["Secondary Skills"]][profession] )
+					curRank = Altoholic.TradeSkills:GetRank( c.skill[L["Secondary Skills"]][profession] )
 				else
-					curRank = self.TradeSkills:GetRank( c.skill[L["Professions"]][profession] )
+					curRank = Altoholic.TradeSkills:GetRank( c.skill[L["Professions"]][profession] )
 				end
 				if curRank < recipeLevel then
 					table.insert(willLearn, CharacterName)
@@ -1785,7 +2090,7 @@ function Altoholic:PLAYER_ALIVE()
 	c.race = UnitRace("player")
 	c.class, c.englishClass = UnitClass("player")
 	
-	self:UpdatePlayerStats()
+	self:ScanAll()
 	self.Talents:Scan()
 	self.Achievements:Scan()		-- ** updating achievements takes 165 ms on my machine, try not to call this too often.
 end
@@ -1817,7 +2122,7 @@ function Altoholic:PLAYER_GUILD_UPDATE()
 	-- however, the value returned here is correct
 	if IsInGuild() then
 		local c = Altoholic.ThisCharacter
-		c.guildName = GetGuildInfo("player")
+		c.guildName, c.guildRankName, c.guildRankIndex = GetGuildInfo("player")
 		
 		if self.DoInitialBroadcast and c.guildName then
 			-- best place to do this, since it depends on the guild name returned above.
@@ -1831,11 +2136,6 @@ function Altoholic:CHAT_MSG_SKILL(self, msg)
 	if msg then
 		Altoholic:UpdatePlayerSkills()
 	end
-end
-
-function Altoholic:COMPANION_UPDATE()
-	self:UpdateCompanions("CRITTER")
-	self:UpdateCompanions("MOUNT")
 end
 
 function Altoholic:CHAT_MSG_COMBAT_FACTION_CHANGE(event, text)
@@ -1859,20 +2159,39 @@ function Altoholic:TIME_PLAYED_MSG(event, TotalTime, CurrentLevelTime)
 
 	-- I'm not entirely happy to have to put this here, but in all events triggered prior to this one, the icon button is not yet valid,
 	-- and can't be hidden programmatically. Hopefully, this event is only triggered at login and when /played is typed, so minimal impact.
-	--[[
-	if self:IsFuBarMinimapAttached() then
+--	if self:IsFuBarMinimapAttached() then
 		-- still required to test if it's not nil, when a new character  is created for instance.
-		if type(_G["LibFuBarPlugin-Mod-3.0_Altoholic_FrameMinimapButton"]) ~= "nil" then
-			_G["LibFuBarPlugin-Mod-3.0_Altoholic_FrameMinimapButton"]:Hide()
-		end
-	end
-	--]]
+--		if type(_G["LibFuBarPlugin-Mod-3.0_Altoholic_FrameMinimapButton"]) ~= "nil" then
+--			_G["LibFuBarPlugin-Mod-3.0_Altoholic_FrameMinimapButton"]:Hide()
+--		end
+--	end
 
 	self.Mail:CheckExpiries()
 end
 
 function Altoholic:RequestUpdateRaidInfo()
 	RequestRaidInfo()
+end
+
+function Altoholic:CHAT_MSG_LOOT(event, arg)
+	local item = arg:match("%b[]")
+	if not item then return end
+	
+	item = gsub(item, "[\[]", "")
+	item = gsub(item, "[\]]", "")
+	
+	local trackedItems = {		-- temporarly here, will be moved
+		[39878] = 604800, -- Mysterious Egg, 7 days
+		[44717] = 604800, -- Disgusting Jar, 7 days
+	}
+
+	for k, v in pairs(trackedItems) do
+		local name = GetItemInfo(k)
+		if name and name == item then
+			local c = Altoholic.ThisCharacter
+			table.insert(c.Timers, name .."|" .. time() .. "|" .. v)
+		end
+	end
 end
 
 function Altoholic:CHAT_MSG_SYSTEM(event, arg)

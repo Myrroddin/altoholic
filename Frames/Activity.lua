@@ -1,6 +1,5 @@
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
-local V = Altoholic.vars
 
 local INFO_REALM_LINE = 0
 local INFO_CHARACTER_LINE = 1
@@ -13,22 +12,27 @@ local GREY		= "|cFF808080"
 local GOLD		= "|cFFFFD700"
 local RED		= "|cFFFF0000"
 
-function Altoholic:Activity_Update()
+Altoholic.Activity = {}
+
+function Altoholic.Activity:Update()
 	local VisibleLines = 14
 	local frame = "AltoholicFrameActivity"
 	local entry = frame.."Entry"
 	
-	if #Altoholic.CharacterInfo == 0 then
+	local Characters = Altoholic.Characters
+	
+	if Characters:GetNum() == 0 then
+		DEFAULT_CHAT_FRAME:AddMessage("Altoholic.Activity:Update()")
+		DEFAULT_CHAT_FRAME:AddMessage("0 Characters !!")
 		-- added these 2 lines to make sur that the table is correct when the user gets here. 
 		-- For some reason, a few users get a empty window..only an empty table could cuase this
-		self:BuildCharacterInfoTable()
-		self:BuildCharacterInfoView()
+		-- Characters:BuildList()
+		-- Characters:BuildView()
 	
-		if #Altoholic.CharacterInfo == 0 then
-			-- if by any chance the table is still empty, then draw an empty frame
-			self:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
-			return
-		end
+		-- if Characters:GetNum() == 0 then			-- if by any chance the table is still empty, then draw an empty frame
+			-- Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
+			-- return
+		-- end
 	end	
 	
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
@@ -38,8 +42,8 @@ function Altoholic:Activity_Update()
 	local CurrentAccount, CurrentRealm
 	local i=1
 	
-	for _, line in pairs(Altoholic.CharacterInfoView) do
-		local s = Altoholic.CharacterInfo[line]
+	for _, line in pairs(Characters:GetView()) do
+		local s = Characters:Get(line)
 		local lineType = mod(s.linetype, 3)
 		
 		if (offset > 0) or (DisplayedCount >= VisibleLines) then		-- if the line will not be visible
@@ -97,20 +101,20 @@ function Altoholic:Activity_Update()
 				DisplayedCount = DisplayedCount + 1
 			elseif DrawRealm then
 				if (lineType == INFO_CHARACTER_LINE) then
-					local c = self.db.global.data[CurrentAccount][CurrentRealm].char[s.name]
+					local c = Altoholic.db.global.data[CurrentAccount][CurrentRealm].char[s.name]
 				
 					local icon
 					if c.faction == "Alliance" then
-						icon = self:TextureToFontstring("Interface\\Icons\\INV_BannerPVP_02", 18, 18) .. " "
+						icon = Altoholic:TextureToFontstring("Interface\\Icons\\INV_BannerPVP_02", 18, 18) .. " "
 					else
-						icon = self:TextureToFontstring("Interface\\Icons\\INV_BannerPVP_01", 18, 18) .. " "
+						icon = Altoholic:TextureToFontstring("Interface\\Icons\\INV_BannerPVP_01", 18, 18) .. " "
 					end
 					
 					_G[entry..i.."Collapse"]:Hide()
 					_G[entry..i.."Name"]:SetWidth(170)
 					_G[entry..i.."Name"]:SetPoint("TOPLEFT", 10, 0)
 					_G[entry..i.."NameNormalText"]:SetWidth(170)
-					_G[entry..i.."NameNormalText"]:SetText(icon .. format("%s%s (%s)", self:GetClassColor(c.englishClass), s.name, c.class))
+					_G[entry..i.."NameNormalText"]:SetText(icon .. format("%s%s (%s)", Altoholic:GetClassColor(c.englishClass), s.name, c.class))
 					_G[entry..i.."Level"]:SetText(GREEN .. c.level)
 				
 					local numMails = #c.mail + #c.mailCache
@@ -180,9 +184,9 @@ function Altoholic:Activity_Update()
 	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleCount, VisibleLines, 18);
 end	
 
-function Altoholic_Activity_OnEnter(self)
+function Altoholic.Activity:OnEnter(self)
 	local line = self:GetParent():GetID()
-	local s = Altoholic.CharacterInfo[line]
+	local s = Altoholic.Characters:Get(line)
 	
 	if mod(s.linetype, 3) ~= INFO_CHARACTER_LINE then		
 		return
@@ -230,9 +234,9 @@ local VIEW_MAILS = 3
 local VIEW_AUCTIONS = 5
 local VIEW_BIDS = 6
 
-function Altoholic_Activity_OnClick(self)
+function Altoholic.Activity:OnClick(self)
 	local line = self:GetParent():GetID()
-	local s = Altoholic.CharacterInfo[line]
+	local s = Altoholic.Characters:Get(line)
 	
 	if mod(s.linetype, 3) ~= INFO_CHARACTER_LINE then		
 		return
@@ -243,7 +247,7 @@ function Altoholic_Activity_OnClick(self)
 		return
 	end
 	
-	Altoholic:SetCurrentCharacter( Altoholic:GetCharacterInfo(line) )
+	Altoholic:SetCurrentCharacter( Altoholic.Characters:GetInfo(line) )
 	
 	local action
 	local c = Altoholic:GetCharacterTable()
@@ -263,13 +267,15 @@ function Altoholic_Activity_OnClick(self)
 	end
 	
 	if action then
-		AltoholicTabCharacters:SelectRealmDropDown_Initialize()
-		UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, V.CurrentAccount .."|".. V.CurrentRealm)
+		local charName, realm, account = Altoholic:GetCurrentCharacter()
+		local tc = Altoholic.Tabs.Characters
+		tc:DropDownRealm_Initialize()
+		UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, account .."|".. realm)
 		
-		AltoholicTabCharacters:SelectCharDropDown_Initialize()
-		UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, V.CurrentAlt)
+		tc:DropDownChar_Initialize()
+		UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, charName)
 		
 		Altoholic.Tabs:OnClick(2)
-		AltoholicTabCharacters:ViewCharInfo(action)	
+		tc:ViewCharInfo(action)	
 	end
 end

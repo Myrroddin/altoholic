@@ -1,11 +1,13 @@
 ﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
-	<Button name="SummaryMenuItemTemplate" inherits="MenuItemTemplate" hidden="false" virtual="true">
+	<Script file="TabSummary.lua"></Script>
+	
+	<Button name="AltoSummaryMenuItemTemplate" inherits="AltoMenuItemTemplate" hidden="false" virtual="true">
 		<Size>
 			<AbsDimension x="156" y="20"/>
 		</Size>
 		<Scripts>
 			<OnClick>
-				AltoholicTabSummary:SummaryMenuOnClick(self:GetID())
+				Altoholic.Tabs.Summary:MenuItem_OnClick(self:GetID())
 			</OnClick>
 		</Scripts>
 	</Button>
@@ -19,15 +21,6 @@
 		</Anchors>
 		<Layers>
 			<Layer level="OVERLAY">
-				<FontString name="$parent_CollapseAllText" inherits="GameFontNormalSmall" justifyH="LEFT" text="ALL">
-					<Size x="60" y="20" />
-					<Anchors>
-						<Anchor point="TOPLEFT" relativeTo="AltoholicFrameSearchLabel" relativePoint="TOPRIGHT" >
-							<Offset x="60" y="-13" />
-						</Anchor>
-					</Anchors>
-					<Color r="255" g="255" b="255" />
-				</FontString>
 				<FontString name="$parentStatus" inherits="GameFontNormal" justifyH="LEFT">
 					<Size x="320" y="24" />
 					<Anchors>
@@ -40,7 +33,7 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<Button name="$parentMenuItem1" inherits="SummaryMenuItemTemplate" id="1" text="XML_ALTO_SUMMARY_MENU1">
+			<Button name="$parentMenuItem1" inherits="AltoSummaryMenuItemTemplate" id="1" text="XML_ALTO_SUMMARY_MENU1">
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
@@ -49,7 +42,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem2" inherits="SummaryMenuItemTemplate" id="2" text="XML_ALTO_SUMMARY_MENU2">
+			<Button name="$parentMenuItem2" inherits="AltoSummaryMenuItemTemplate" id="2" text="XML_ALTO_SUMMARY_MENU2">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem1" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -58,7 +51,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem3" inherits="SummaryMenuItemTemplate" id="3" text="SKILLS">
+			<Button name="$parentMenuItem3" inherits="AltoSummaryMenuItemTemplate" id="3" text="SKILLS">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem2" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -67,7 +60,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem4" inherits="SummaryMenuItemTemplate" id="4" text="XML_ALTO_SUMMARY_MENU4">
+			<Button name="$parentMenuItem4" inherits="AltoSummaryMenuItemTemplate" id="4" text="XML_ALTO_SUMMARY_MENU4">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem3" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -76,7 +69,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem5" inherits="SummaryMenuItemTemplate" id="5" text="XML_ALTO_SUMMARY_MENU5">
+			<Button name="$parentMenuItem5" inherits="AltoSummaryMenuItemTemplate" id="5" text="XML_ALTO_SUMMARY_MENU5">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem4" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -85,7 +78,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem6" inherits="SummaryMenuItemTemplate" id="6" text="XML_ALTO_SUMMARY_MENU6">
+			<Button name="$parentMenuItem6" inherits="AltoSummaryMenuItemTemplate" id="6" text="XML_ALTO_SUMMARY_MENU6">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem5" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -94,9 +87,18 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem7" inherits="SummaryMenuItemTemplate" id="7" text="XML_ALTO_SUMMARY_MENU7">
+			<Button name="$parentMenuItem7" inherits="AltoSummaryMenuItemTemplate" id="7" text="XML_ALTO_SUMMARY_MENU7">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem6" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentMenuItem8" inherits="AltoSummaryMenuItemTemplate" id="8" text="XML_ALTO_SUMMARY_MENU8">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem7" relativePoint="BOTTOMLEFT">
 						<Offset>
 							<AbsDimension x="0" y="0"/>
 						</Offset>
@@ -210,9 +212,22 @@
 						<Offset x="40" y="-15" />
 					</Anchor>
 				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY">
+						<FontString name="$parent_CollapseAllText" inherits="GameFontNormalSmall" justifyH="LEFT" text="ALL">
+							<Size x="60" y="20" />
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPRIGHT" >
+									<Offset x="4" y="2" />
+								</Anchor>
+							</Anchors>
+							<Color r="255" g="255" b="255" />
+						</FontString>
+					</Layer>
+				</Layers>
 				<Scripts>
 					<OnClick>
-						AltoholicTabSummary:ToggleView(self)
+						Altoholic.Tabs.Summary:ToggleView(self)
 					</OnClick>
 				</Scripts>
 				<NormalTexture name="$parentIcon" file="Interface\Buttons\UI-MinusButton-UP" />
@@ -220,9 +235,9 @@
 			</Button>
 			<Frame name="$parent_SelectLocation" inherits="UIDropDownMenuTemplate">
 				<Anchors>
-					<Anchor point="LEFT" relativeTo="$parent_CollapseAllText" relativePoint="RIGHT">
+					<Anchor point="LEFT" relativeTo="$parentToggleView" relativePoint="RIGHT">
 						<Offset>
-							<AbsDimension x="0" y="-5"/>
+							<AbsDimension x="30" y="-5"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -267,6 +282,5 @@
 			</Button>
 		</Frames>
 	</Frame>
-	
-	<Script file="TabSummary.lua"></Script>
+
 </Ui>

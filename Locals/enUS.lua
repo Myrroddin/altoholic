@@ -3,7 +3,7 @@
 if not L then return end
 
 -- Note: since 2.4.004 and the support of LibBabble, certain lines are commented, but remain there for clarity (especially those concerning the menu)
--- A lot of translations, especially those concerning the loot table, comes from atlas loot, credit goes to their team for gathering this info, I (Thaoky) simply took what I needed.
+-- A lot of translations, especially those concerning the loot table, come from atlas loot, credit goes to their team for gathering this info, I (Thaoky) simply took what I needed.
 
 L["Death Knight"] = true
 
@@ -78,8 +78,6 @@ L["Mails"] = true
 L["Visited"] = true
 L["Auctions %s(%d)"] = true
 L["Bids %s(%d)"] = true
-L[", "] = true						-- required for znCH
-L["(Guild bank: "] = true
 
 L["Level"] = true
 L["Zone"] = true
@@ -93,6 +91,18 @@ L["Could be learned by "] = true
 
 L["At least one recipe could not be read"] = true
 L["Please open this window again"] = true
+
+--Calendar.lua
+L["Number of players: %s"] = true
+L["Minimum Level: %s"] = true
+L["Maximum Level: %s"] = true
+L["Private to friends: %s"] = true
+L["Private to guild: %s"] = true
+L["Attendees: "] = true
+L["%s starts in %d minutes (%s on %s)"] = true
+L["%s will be ready in %d minutes (%s on %s)"] = true
+L["%s is now ready (%s on %s)"] = true
+L["%s is now unlocked (%s on %s)"] = true
 
 --Comm.lua
 L["Sending account sharing request to %s"] = true
@@ -353,7 +363,6 @@ L["Storms Deck"] = true
 L["Blessings Deck"] = true
 L["Lunacy Deck"] = true
 L["Quest rewards"] = true
-L["Shattrath"] = true
 
 --World drop
 L["Outdoor Bosses"] = true
@@ -515,12 +524,6 @@ L["Master"] = true
 --Set & PVP
 L["Superior Rewards"] = true
 L["Epic Rewards"] = true
--- L["Lv 10-19 Rewards"] = true
--- L["Lv 20-29 Rewards"] = true
--- L["Lv 30-39 Rewards"] = true
--- L["Lv 40-49 Rewards"] = true
--- L["Lv 50-59 Rewards"] = true
--- L["Lv 60 Rewards"] = true
 L["Lv %s Rewards"] = true
 L["PVP Cloth Set"] = true
 L["PVP Leather Sets"] = true
@@ -531,10 +534,6 @@ L["Hellfire Fortifications"] = true
 L["Twin Spire Ruins"] = true
 L["Spirit Towers (Terrokar)"] = true
 L["Halaa (Nagrand)"] = true
--- L["Arena Season 1"] = true
--- L["Arena Season 2"] = true
--- L["Arena Season 3"] = true
--- L["Arena Season 4"] = true
 L["Arena Season %d"] = true
 L["Weapons"] = true
 L["Accessories"] = true
@@ -671,6 +670,7 @@ XML_ALTO_SUMMARY_MENU4 = "Activity"
 XML_ALTO_SUMMARY_MENU5 = "Guild Members"
 XML_ALTO_SUMMARY_MENU6 = "Guild Skills"
 XML_ALTO_SUMMARY_MENU7 = "Guild Bank Tabs"
+XML_ALTO_SUMMARY_MENU8 = "Calendar"
 
 XML_ALTO_SUMMARY_TEXT1 = "Account Sharing Request"
 XML_ALTO_SUMMARY_TEXT2 = "Click this button to ask a player\n"
@@ -729,6 +729,7 @@ XML_ALTO_OPT_GENERAL9 = "|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option
 				.. "Security hint: disable this if you have officer rights\n"
 				.. "on guild bank tabs that may not be viewed by everyone,\n"
 				.. "and authorize requests manually"
+XML_ALTO_OPT_GENERAL10 = "Transparency"
 				
 XML_ALTO_OPT_SEARCH1 = "AutoQuery server |cFFFF0000(disconnection risk)";
 XML_ALTO_OPT_SEARCH2 = "|cFFFFFFFFIf an item not in the local item cache\n"
@@ -768,4 +769,7 @@ XML_ALTO_OPT_TOOLTIP7 = "Show counters on gathering nodes";
 XML_ALTO_OPT_TOOLTIP8 = "Show counters for both factions";
 XML_ALTO_OPT_TOOLTIP9 = "Show counters for all accounts";
 XML_ALTO_OPT_TOOLTIP10 = "Include guild bank count in the total count";
+
+XML_ALTO_OPT_CALENDAR1 = "Week starts on Monday"; 
+XML_ALTO_OPT_CALENDAR2 = "Warn %d minutes before an event starts"; 
 end

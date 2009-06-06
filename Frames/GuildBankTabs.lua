@@ -14,7 +14,7 @@ Altoholic.Guild.BankTabs = {}
 function Altoholic.Guild.BankTabs:BuildView()
 	
 	self.view = self.view or {}
-	Altoholic:ClearTable(self.view)
+	wipe(self.view)
 		
 	local guild = Altoholic:GetThisGuild()
 	if not guild then return end
@@ -57,6 +57,7 @@ function Altoholic.Guild.BankTabs:Update()
 	local frame = "AltoholicFrameGuildBankTabs"
 	local entry = frame.."Entry"
 	
+	local self = Altoholic.Guild.BankTabs
 	if #self.view == 0 then
 		Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
 		return

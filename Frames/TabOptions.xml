@@ -1,13 +1,13 @@
 ﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="TabOptions.lua"></Script>
 
-	<Button name="OptionMenuItemTemplate" inherits="MenuItemTemplate" hidden="false" virtual="true">
+	<Button name="AltoOptionMenuItemTemplate" inherits="AltoMenuItemTemplate" hidden="false" virtual="true">
 		<Size>
 			<AbsDimension x="156" y="20"/>
 		</Size>
 		<Scripts>
 			<OnClick>
-				for i=1, 5 do 
+				for i=1, 6 do 
 					_G[ "AltoholicTabOptionsMenuItem"..i ]:UnlockHighlight();
 					_G[ "AltoholicTabOptionsFrame"..i ]:Hide();
 				end
@@ -25,7 +25,7 @@
 			<Anchor point="TOPLEFT"/>
 		</Anchors>
 		<Frames>
-			<Button name="$parentMenuItem1" inherits="OptionMenuItemTemplate" id="1" text="XML_ALTO_OPT_MENU1">
+			<Button name="$parentMenuItem1" inherits="AltoOptionMenuItemTemplate" id="1" text="XML_ALTO_OPT_MENU1">
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
@@ -34,7 +34,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem2" inherits="OptionMenuItemTemplate" id="2" text="XML_ALTO_OPT_MENU2">
+			<Button name="$parentMenuItem2" inherits="AltoOptionMenuItemTemplate" id="2" text="XML_ALTO_OPT_MENU2">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem1" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -43,7 +43,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem3" inherits="OptionMenuItemTemplate" id="3" text="XML_ALTO_OPT_MENU3">
+			<Button name="$parentMenuItem3" inherits="AltoOptionMenuItemTemplate" id="3" text="XML_ALTO_OPT_MENU3">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem2" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -52,7 +52,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem4" inherits="OptionMenuItemTemplate" id="4" text="XML_ALTO_OPT_MENU4">
+			<Button name="$parentMenuItem4" inherits="AltoOptionMenuItemTemplate" id="4" text="XML_ALTO_OPT_MENU4">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem3" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -61,9 +61,18 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem5" inherits="OptionMenuItemTemplate" id="5" text="XML_ALTO_OPT_MENU5">
+			<Button name="$parentMenuItem5" inherits="AltoOptionMenuItemTemplate" id="5" text="XML_ALTO_OPT_MENU5">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem4" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentMenuItem6" inherits="AltoOptionMenuItemTemplate" id="6" text="XML_ALTO_SUMMARY_MENU8">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem5" relativePoint="BOTTOMLEFT">
 						<Offset>
 							<AbsDimension x="0" y="0"/>
 						</Offset>
@@ -100,7 +109,7 @@
 							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "RestXPMode")
-								Altoholic:AccountSummary_Update()
+								Altoholic.Summary:Update()
 							</OnClick>
 						</Scripts>
 					</CheckButton>
@@ -259,6 +268,100 @@
 							</OnLeave>
 						</Scripts>
 					</CheckButton>
+					
+					<Slider name="$parent_SliderScale" inherits="OptionsSliderTemplate"  minValue="0.5" maxValue="4.0" defaultValue="1.0" valueStep="0.1">
+						<Size>
+							<AbsDimension x="180" y="16"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="400" y="-40" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								local name = self:GetName()
+								_G[name .. "Low"]:SetText("0.5");
+								_G[name .. "High"]:SetText("4.0"); 
+								_G[name .. "Text"]:SetText(format("%s (%1.1f)", UI_SCALE, self:GetValue()));
+							</OnLoad>
+							<OnValueChanged>
+								local value = self:GetValue()
+								_G[self:GetName() .. "Text"]:SetText(format("%s (%1.1f)", UI_SCALE, value));
+							</OnValueChanged>
+						</Scripts>
+					</Slider>
+					<Button name="$parent_ResetButton" inherits="UIPanelButtonTemplate" text="RESET">
+						<Size>
+							<AbsDimension x="80" y="24"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="400" y="-90" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								local name = self:GetParent():GetName()
+								_G[name .. "_SliderScale"]:SetValue(1.0)
+								_G[name .. "_SliderScaleText"]:SetText(format("%s (%1.1f)", UI_SCALE, 1.0));
+								AltoholicFrame:SetScale(1.0)
+								Altoholic.Options:Set("UIScale", 1.0)
+							</OnClick>
+						</Scripts>
+					</Button>
+
+					<Button name="$parent_ApplyButton" inherits="UIPanelButtonTemplate" text="APPLY">
+						<Size>
+							<AbsDimension x="80" y="24"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parent_ResetButton" relativePoint="TOPRIGHT" >
+								<Offset>
+									<AbsDimension x="20" y="0" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								local name = self:GetParent():GetName()
+								local value = _G[name .. "_SliderScale"]:GetValue()
+								AltoholicFrame:SetScale(value)
+								Altoholic.Options:Set("UIScale", value)
+							</OnClick>
+						</Scripts>
+					</Button>
+
+					<Slider name="$parent_SliderAlpha" inherits="OptionsSliderTemplate"  minValue="0.1" maxValue="1" defaultValue="1" valueStep="0.05">
+						<Size>
+							<AbsDimension x="180" y="16"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="400" y="-140" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								local name = self:GetName()
+								_G[name .. "Low"]:SetText("0.1");
+								_G[name .. "High"]:SetText("1.0"); 
+								_G[name .. "Text"]:SetText(format("%s (%1.2f)", XML_ALTO_OPT_GENERAL10, self:GetValue()));
+							</OnLoad>
+							<OnValueChanged>
+								local value = self:GetValue()
+								_G[self:GetName() .. "Text"]:SetText(format("%s (%1.2f)", XML_ALTO_OPT_GENERAL10, value));
+								AltoholicFrame:SetAlpha(value)
+								Altoholic.Options:Set("UITransparency", value)
+							</OnValueChanged>
+						</Scripts>
+					</Slider>
 				</Frames>
 			</Frame>
 			<Frame name="$parentFrame2" hidden="true">
@@ -555,11 +658,11 @@
 						<Scripts>
 							<OnLoad>
 								local name = self:GetName()
-								local s = getglobal(name)
+								local s = _G[name]
 								s.tooltipText = XML_ALTO_OPT_MINIMAP1; 
-								getglobal(name .. "Low"):SetText("1");
-								getglobal(name .. "High"):SetText("360"); 
-								getglobal(name .. "Text"):SetText(XML_ALTO_OPT_MINIMAP2 .. " (" .. s:GetValue() ..")");
+								_G[name .. "Low"]:SetText("1");
+								_G[name .. "High"]:SetText("360"); 
+								_G[name .. "Text"]:SetText(XML_ALTO_OPT_MINIMAP2 .. " (" .. s:GetValue() ..")");
 							</OnLoad>
 							<OnValueChanged>
 								Altoholic:UpdateSlider(self:GetName(), XML_ALTO_OPT_MINIMAP2, "MinimapIconAngle")
@@ -834,11 +937,185 @@
 					</CheckButton>
 				</Frames>
 			</Frame>
+			<Frame name="$parentFrame6" hidden="true">
+				<Size>
+					<AbsDimension x="615" y="306"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPRIGHT">
+						<Offset>
+							<AbsDimension x="39" y="-105"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<CheckButton name="$parentFirstDay" inherits="UICheckButtonTemplate">
+						<Size>
+							<AbsDimension x="20" y="20"/>
+						</Size>
+						<Anchors> 
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension  x="20" y="-10"/>
+								</Offset>
+							</Anchor>
+						</Anchors>      
+						<Scripts>
+							<OnLoad>
+								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_CALENDAR1);
+							</OnLoad>
+							<OnClick>
+								Altoholic.Options:Toggle(self, "WeekStartsMonday")
+							</OnClick>
+						</Scripts>
+					</CheckButton>
+					<CheckButton name="$parentWarning15" inherits="UICheckButtonTemplate">
+						<Size>
+							<AbsDimension x="20" y="20"/>
+						</Size>
+						<Anchors> 
+							<Anchor point="TOPLEFT" relativeTo="$parentFirstDay" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension  x="0" y="-10"/>
+								</Offset>
+							</Anchor>
+						</Anchors>      
+						<Scripts>
+							<OnLoad>
+								getglobal(self:GetName().."Text"):SetText(format(XML_ALTO_OPT_CALENDAR2, 15));
+							</OnLoad>
+							<OnClick>
+								Altoholic.Options:Toggle(self, "Warning15Min")
+							</OnClick>
+						</Scripts>
+					</CheckButton>
+					<CheckButton name="$parentWarning10" inherits="UICheckButtonTemplate">
+						<Size>
+							<AbsDimension x="20" y="20"/>
+						</Size>
+						<Anchors> 
+							<Anchor point="TOPLEFT" relativeTo="$parentWarning15" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension  x="0" y="-10"/>
+								</Offset>
+							</Anchor>
+						</Anchors>      
+						<Scripts>
+							<OnLoad>
+								getglobal(self:GetName().."Text"):SetText(format(XML_ALTO_OPT_CALENDAR2, 10));
+							</OnLoad>
+							<OnClick>
+								Altoholic.Options:Toggle(self, "Warning10Min")
+							</OnClick>
+						</Scripts>
+					</CheckButton>
+					<CheckButton name="$parentWarning5" inherits="UICheckButtonTemplate">
+						<Size>
+							<AbsDimension x="20" y="20"/>
+						</Size>
+						<Anchors> 
+							<Anchor point="TOPLEFT" relativeTo="$parentWarning10" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension  x="0" y="-10"/>
+								</Offset>
+							</Anchor>
+						</Anchors>      
+						<Scripts>
+							<OnLoad>
+								getglobal(self:GetName().."Text"):SetText(format(XML_ALTO_OPT_CALENDAR2, 5));
+							</OnLoad>
+							<OnClick>
+								Altoholic.Options:Toggle(self, "Warning5Min")
+							</OnClick>
+						</Scripts>
+					</CheckButton>
+					<CheckButton name="$parentWarning4" inherits="UICheckButtonTemplate">
+						<Size>
+							<AbsDimension x="20" y="20"/>
+						</Size>
+						<Anchors> 
+							<Anchor point="TOPLEFT" relativeTo="$parentWarning5" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension  x="0" y="-10"/>
+								</Offset>
+							</Anchor>
+						</Anchors>      
+						<Scripts>
+							<OnLoad>
+								getglobal(self:GetName().."Text"):SetText(format(XML_ALTO_OPT_CALENDAR2, 4));
+							</OnLoad>
+							<OnClick>
+								Altoholic.Options:Toggle(self, "Warning4Min")
+							</OnClick>
+						</Scripts>
+					</CheckButton>
+					<CheckButton name="$parentWarning3" inherits="UICheckButtonTemplate">
+						<Size>
+							<AbsDimension x="20" y="20"/>
+						</Size>
+						<Anchors> 
+							<Anchor point="TOPLEFT" relativeTo="$parentWarning4" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension  x="0" y="-10"/>
+								</Offset>
+							</Anchor>
+						</Anchors>      
+						<Scripts>
+							<OnLoad>
+								getglobal(self:GetName().."Text"):SetText(format(XML_ALTO_OPT_CALENDAR2, 3));
+							</OnLoad>
+							<OnClick>
+								Altoholic.Options:Toggle(self, "Warning3Min")
+							</OnClick>
+						</Scripts>
+					</CheckButton>
+					<CheckButton name="$parentWarning2" inherits="UICheckButtonTemplate">
+						<Size>
+							<AbsDimension x="20" y="20"/>
+						</Size>
+						<Anchors> 
+							<Anchor point="TOPLEFT" relativeTo="$parentWarning3" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension  x="0" y="-10"/>
+								</Offset>
+							</Anchor>
+						</Anchors>      
+						<Scripts>
+							<OnLoad>
+								getglobal(self:GetName().."Text"):SetText(format(XML_ALTO_OPT_CALENDAR2, 2));
+							</OnLoad>
+							<OnClick>
+								Altoholic.Options:Toggle(self, "Warning2Min")
+							</OnClick>
+						</Scripts>
+					</CheckButton>
+					<CheckButton name="$parentWarning1" inherits="UICheckButtonTemplate">
+						<Size>
+							<AbsDimension x="20" y="20"/>
+						</Size>
+						<Anchors> 
+							<Anchor point="TOPLEFT" relativeTo="$parentWarning2" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension  x="0" y="-10"/>
+								</Offset>
+							</Anchor>
+						</Anchors>      
+						<Scripts>
+							<OnLoad>
+								getglobal(self:GetName().."Text"):SetText(format(XML_ALTO_OPT_CALENDAR2, 1));
+							</OnLoad>
+							<OnClick>
+								Altoholic.Options:Toggle(self, "Warning1Min")
+							</OnClick>
+						</Scripts>
+					</CheckButton>
+				</Frames>
+			</Frame>
 		</Frames>
 		<Scripts>
 			<OnShow>
 				-- as soon as one of the frames is found to be visible, exit
-				for i=1, 5 do 
+				for i=1, 6 do 
 					if _G[ "AltoholicTabOptionsFrame"..i ]:IsVisible() then
 						return
 					end

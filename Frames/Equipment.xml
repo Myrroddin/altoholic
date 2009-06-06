@@ -1,7 +1,7 @@
 ﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="Equipment.lua"></Script>
 
-	<Button name="EquipmentEntryTemplate" virtual="true">
+	<Button name="AltoEquipmentEntryTemplate" virtual="true">
 		<Size>
 			<AbsDimension x="618" y="41"/>
 		</Size>
@@ -22,16 +22,96 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<Button name="$parentItem1" inherits="BagItemTemplate" />
-			<Button name="$parentItem2" inherits="BagItemTemplate" />
-			<Button name="$parentItem3" inherits="BagItemTemplate" />
-			<Button name="$parentItem4" inherits="BagItemTemplate" />
-			<Button name="$parentItem5" inherits="BagItemTemplate" />
-			<Button name="$parentItem6" inherits="BagItemTemplate" />
-			<Button name="$parentItem7" inherits="BagItemTemplate" />
-			<Button name="$parentItem8" inherits="BagItemTemplate" />
-			<Button name="$parentItem9" inherits="BagItemTemplate" />
-			<Button name="$parentItem10" inherits="BagItemTemplate" />
+			<Button name="$parentItem1" inherits="AltoBagItemTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="185" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentItem2" inherits="AltoBagItemTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentItem1" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentItem3" inherits="AltoBagItemTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentItem2" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentItem4" inherits="AltoBagItemTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentItem3" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentItem5" inherits="AltoBagItemTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentItem4" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentItem6" inherits="AltoBagItemTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentItem5" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentItem7" inherits="AltoBagItemTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentItem6" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentItem8" inherits="AltoBagItemTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentItem7" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentItem9" inherits="AltoBagItemTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentItem8" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentItem10" inherits="AltoBagItemTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentItem9" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
 		</Frames>
 	</Button>
 
@@ -89,12 +169,51 @@
 				</Layers>
 				<Scripts>
 					<OnVerticalScroll>
-						FauxScrollFrame_OnVerticalScroll(self, offset, 41, function(self) 
-							Altoholic.Equipment:Update()
-						end)
+						FauxScrollFrame_OnVerticalScroll(self, offset, 41, Altoholic.Equipment.Update)
 					</OnVerticalScroll>
 				</Scripts>
 			</ScrollFrame>
+			
+			<Button name="$parentEntry1" inherits="AltoEquipmentEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentScrollFrame" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="3" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry2" inherits="AltoEquipmentEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry1" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry3" inherits="AltoEquipmentEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry2" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry4" inherits="AltoEquipmentEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry3" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry5" inherits="AltoEquipmentEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry4" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry6" inherits="AltoEquipmentEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry5" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry7" inherits="AltoEquipmentEntryTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry6" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+
 		</Frames>
 	</Frame>
 	

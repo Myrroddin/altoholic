@@ -1,7 +1,6 @@
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local BZ = LibStub("LibBabble-Zone-3.0"):GetLookupTable()
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
-local V = Altoholic.vars
 
 local INFO_REALM_LINE = 0
 local INFO_CHARACTER_LINE = 1
@@ -25,22 +24,45 @@ local VIEW_MOUNTS = 8
 local ICON_FACTION_HORDE = "Interface\\Icons\\INV_BannerPVP_01"
 local ICON_FACTION_ALLIANCE = "Interface\\Icons\\INV_BannerPVP_02"
 
-function Altoholic:AccountSummary_Update()
+local function GetFactionTotals(f, line)
+	local r = Altoholic:GetRealmTableByLine(line)
+	
+	local level = 0
+	local money = 0
+	local played = 0
+	
+	for CharacterName, c in pairs(r.char) do
+		if c.faction == f then
+			level = level + c.level
+			money = money + c.money
+			played = played + c.played
+		end
+	end
+	
+	return level, money, played
+end
+
+Altoholic.Summary = {}
+
+function Altoholic.Summary:Update()
 	local VisibleLines = 14
 	local frame = "AltoholicFrameSummary"
 	local entry = frame.."Entry"
 	
-	if #Altoholic.CharacterInfo == 0 then
+	local Characters = Altoholic.Characters
+	
+	if Characters:GetNum() == 0 then
+		DEFAULT_CHAT_FRAME:AddMessage("Altoholic.Summary:Update()")
+		DEFAULT_CHAT_FRAME:AddMessage("0 Characters !!")
 		-- added these 2 lines to make sur that the table is correct when the user gets here. 
 		-- For some reason, a few users get a empty window..only an empty table could cuase this
-		self:BuildCharacterInfoTable()
-		self:BuildCharacterInfoView()
+		-- Characters:BuildList()
+		-- Characters:BuildView()
 	
-		if #Altoholic.CharacterInfo == 0 then
-			-- if by any chance the table is still empty, then draw an empty frame
-			self:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
-			return
-		end
+		-- if Characters:GetNum() == 0 then				-- if by any chance the table is still empty, then draw an empty frame
+			-- Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
+			-- return
+		-- end
 	end
 	
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
@@ -50,8 +72,8 @@ function Altoholic:AccountSummary_Update()
 	local CurrentAccount, CurrentRealm
 	local i=1
 	
-	for _, line in pairs(Altoholic.CharacterInfoView) do
-		local s = Altoholic.CharacterInfo[line]
+	for _, line in pairs(Characters:GetView()) do
+		local s = Characters:Get(line)
 		local lineType = mod(s.linetype, 3)
 		
 		if (offset > 0) or (DisplayedCount >= VisibleLines) then		-- if the line will not be visible
@@ -108,30 +130,30 @@ function Altoholic:AccountSummary_Update()
 				DisplayedCount = DisplayedCount + 1
 			elseif DrawRealm then
 				if (lineType == INFO_CHARACTER_LINE) then
-					local c = self.db.global.data[CurrentAccount][CurrentRealm].char[s.name]
+					local c = Altoholic.db.global.data[CurrentAccount][CurrentRealm].char[s.name]
 					
 					local icon
 					if c.faction == "Alliance" then
-						icon = self:TextureToFontstring(ICON_FACTION_ALLIANCE, 18, 18) .. " "
+						icon = Altoholic:TextureToFontstring(ICON_FACTION_ALLIANCE, 18, 18) .. " "
 					else
-						icon = self:TextureToFontstring(ICON_FACTION_HORDE, 18, 18) .. " "
+						icon = Altoholic:TextureToFontstring(ICON_FACTION_HORDE, 18, 18) .. " "
 					end
 					
 					_G[entry..i.."Collapse"]:Hide()
 					_G[entry..i.."Name"]:SetWidth(170)
 					_G[entry..i.."Name"]:SetPoint("TOPLEFT", 10, 0)
 					_G[entry..i.."NameNormalText"]:SetWidth(170)
-					_G[entry..i.."NameNormalText"]:SetText(icon .. format("%s%s (%s)", self:GetClassColor(c.englishClass), s.name, c.class))
+					_G[entry..i.."NameNormalText"]:SetText(icon .. format("%s%s (%s)", Altoholic:GetClassColor(c.englishClass), s.name, c.class))
 					_G[entry..i.."Level"]:SetText(GREEN .. c.level)
 
-					_G[entry..i.."Money"]:SetText(self:GetMoneyString(c.money))
-					_G[entry..i.."Played"]:SetText(self:GetTimeString(c.played))
+					_G[entry..i.."Money"]:SetText(Altoholic:GetMoneyString(c.money))
+					_G[entry..i.."Played"]:SetText(Altoholic:GetTimeString(c.played))
 					_G[entry..i.."XP"]:SetText(GREEN .. floor((c.xp / c.xpmax) * 100) .. "%")
 										
 					if c.level == MAX_PLAYER_LEVEL then
 						_G[entry..i.."Rested"]:SetText(WHITE .. "0%")
 					else
-						_G[entry..i.."Rested"]:SetText( self:GetRestedXP(c.xpmax, c.restxp, c.lastlogout, c.isResting) )
+						_G[entry..i.."Rested"]:SetText( Altoholic:GetRestedXP(c.xpmax, c.restxp, c.lastlogout, c.isResting) )
 					end
 					
 					_G[entry..i.."AvgILevelNormalText"]:SetText(YELLOW..format("%.1f", c.averageItemLvl))
@@ -167,27 +189,9 @@ function Altoholic:AccountSummary_Update()
 	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleCount, VisibleLines, 18);
 end
 
-function Altoholic:GetFactionTotals(f, line)
-	local r = Altoholic:GetRealmTableByLine(line)
-	
-	local level = 0
-	local money = 0
-	local played = 0
-	
-	for CharacterName, c in pairs(r.char) do
-		if c.faction == f then
-			level = level + c.level
-			money = money + c.money
-			played = played + c.played
-		end
-	end
-	
-	return level, money, played
-end
-
-function Altoholic_AccountSummaryLevel_OnEnter(self)
+function Altoholic.Summary:Level_OnEnter(self)
 	local line = self:GetParent():GetID()
-	local s = Altoholic.CharacterInfo[line]
+	local s = Altoholic.Characters:Get(line)
 	
 	if mod(s.linetype, 3) == INFO_REALM_LINE then		
 		return
@@ -196,8 +200,8 @@ function Altoholic_AccountSummaryLevel_OnEnter(self)
 		AltoTooltip:SetOwner(self, "ANCHOR_TOP");
 		AltoTooltip:AddLine(L["Totals"]);
 		
-		local aLevels, aMoney, aPlayed = Altoholic:GetFactionTotals("Alliance", line)
-		local hLevels, hMoney, hPlayed = Altoholic:GetFactionTotals("Horde", line)
+		local aLevels, aMoney, aPlayed = GetFactionTotals("Alliance", line)
+		local hLevels, hMoney, hPlayed = GetFactionTotals("Horde", line)
 		
 		AltoTooltip:AddLine(" ",1,1,1);
 		AltoTooltip:AddDoubleLine(WHITE..L["Levels"] , format("%s|r (%s %s|r, %s %s|r)", 
@@ -282,11 +286,12 @@ function Altoholic_AccountSummaryLevel_OnEnter(self)
 	AltoTooltip:Show();
 end
 
-function Altoholic_AccountSummaryLevel_OnClick(self, button)
-	local line = self:GetParent():GetID()
+function Altoholic.Summary:Level_OnClick(frame, button)
+	local self = Altoholic.Summary
+	local line = frame:GetParent():GetID()
 	if line == 0 then return end
 
-	local s = Altoholic.CharacterInfo[line]
+	local s = Altoholic.Characters:Get(line)
 
 	local linetype = mod(s.linetype, 3)
 	
@@ -295,29 +300,32 @@ function Altoholic_AccountSummaryLevel_OnClick(self, button)
 	end
 	
 	if button == "RightButton" then
-		V.CharInfoLine = line	-- line containing info about the alt on which action should be taken (delete, ..)
-		ToggleDropDownMenu(1, nil, AltoholicFrameSummaryRightClickMenu, self:GetName(), 0, -5);
+		self.CharInfoLine = line	-- line containing info about the alt on which action should be taken (delete, ..)
+		ToggleDropDownMenu(1, nil, AltoholicFrameSummaryRightClickMenu, frame:GetName(), 0, -5);
 		return
 	elseif button == "LeftButton" and linetype == INFO_CHARACTER_LINE then
-		Altoholic:SetCurrentCharacter( Altoholic:GetCharacterInfo(line) )
 	
-		AltoholicTabCharacters:SelectRealmDropDown_Initialize()
-		UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, V.CurrentAccount .."|".. V.CurrentRealm)
+		local tc = Altoholic.Tabs.Characters
+		local charName, realm, account = Altoholic.Characters:GetInfo(line)
+		Altoholic:SetCurrentCharacter(charName, realm, account)
+	
+		tc:DropDownRealm_Initialize()
+		UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, account .."|".. realm)
 		
-		AltoholicTabCharacters:SelectCharDropDown_Initialize()
-		UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, V.CurrentAlt)
+		tc:DropDownChar_Initialize()
+		UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, charName)
 		
 		Altoholic.Reputations:BuildView()
 		Altoholic.Tabs:OnClick(2)
-		AltoholicFrameContainers:UpdateContainerCache()
+		Altoholic.Containers:UpdateCache()
 		AltoholicFrameAchievements:Hide()
-		AltoholicTabCharacters:ViewCharInfo(VIEW_BAGS)
+		tc:ViewCharInfo(VIEW_BAGS)
 	end
 end
 
-function Altoholic_AccountSummaryAIL_OnEnter(self)
+function Altoholic.Summary:AIL_OnEnter(self)
 	local line = self:GetParent():GetID()
-	local s = Altoholic.CharacterInfo[line]
+	local s = Altoholic.Characters:Get(line)
 	
 	if mod(s.linetype, 3) ~= INFO_CHARACTER_LINE then		
 		return
@@ -357,10 +365,11 @@ function Altoholic:AiLTooltip()
 	AltoTooltip:AddDoubleLine(YELLOW .. "219", WHITE .. BZ["Ulduar"] .. " (10)")
 end
 
-function Summary_RightClickMenu_OnLoad()
+function Altoholic.Summary:RightClickMenu_OnLoad()
+	local self = Altoholic.Summary
+	if not self.CharInfoLine then return end
 	
-	if not V.CharInfoLine then return end
-	local s = Altoholic.CharacterInfo[V.CharInfoLine]
+	local s = Altoholic.Characters:Get(self.CharInfoLine)
 	if not s then return end
 	
 	local info = UIDropDownMenu_CreateInfo(); 
@@ -371,95 +380,99 @@ function Summary_RightClickMenu_OnLoad()
 
 		if r and r.lastUpdatedWith then
 			info.text		= format("Update from %s", GREEN..r.lastUpdatedWith)
-			info.func		= AltoholicFrameSummary_UpdateRealm;
+			info.func		= self.UpdateRealm
 			UIDropDownMenu_AddButton(info, 1);
 		end
 		
 		info.text		= L["Delete this Realm"]
-		info.func		= AltoholicFrameSummary_DeleteRealm;
+		info.func		= self.DeleteRealm;
 		UIDropDownMenu_AddButton(info, 1);
 		return
 	end
 
 	info.text		= L["View bags"]
 	info.value		= VIEW_BAGS
-	info.func		= Altoholic_ViewAltInfo;
+	info.func		= self.ViewAltInfo
 	UIDropDownMenu_AddButton(info, 1); 
 
 	info.text		= L["View mailbox"]
 	info.value		= VIEW_MAILS
-	info.func		= Altoholic_ViewAltInfo;
+	info.func		= self.ViewAltInfo
 	UIDropDownMenu_AddButton(info, 1); 
 	
 	info.text		= L["View quest log"]
 	info.value		= VIEW_QUESTS
-	info.func		= Altoholic_ViewAltInfo;
+	info.func		= self.ViewAltInfo
 	UIDropDownMenu_AddButton(info, 1); 
 	
 	info.text		= L["View auctions"]
 	info.value		= VIEW_AUCTIONS
-	info.func		= Altoholic_ViewAltInfo;
+	info.func		= self.ViewAltInfo
 	UIDropDownMenu_AddButton(info, 1); 
 
 	info.text		= L["View bids"]
 	info.value		= VIEW_BIDS
-	info.func		= Altoholic_ViewAltInfo;
+	info.func		= self.ViewAltInfo
 	UIDropDownMenu_AddButton(info, 1);
 	
 	info.text		= COMPANIONS
 	info.value		= VIEW_COMPANIONS
-	info.func		= Altoholic_ViewAltInfo;
+	info.func		= self.ViewAltInfo
 	UIDropDownMenu_AddButton(info, 1); 
 	
 	info.text		= MOUNTS
 	info.value		= VIEW_MOUNTS
-	info.func		= Altoholic_ViewAltInfo;
+	info.func		= self.ViewAltInfo
 	UIDropDownMenu_AddButton(info, 1); 
 	
 	info.text		= L["Delete this Alt"]
-	info.func		= AltoholicFrameSummary_DeleteAlt;
+	info.func		= self.DeleteAlt;
 	UIDropDownMenu_AddButton(info, 1); 
 end
 
-function Altoholic_ViewAltInfo()
-	local line = V.CharInfoLine
-	V.CharInfoLine = nil
-	
-	Altoholic:SetCurrentCharacter( Altoholic:GetCharacterInfo(line) )
+function Altoholic.Summary:ViewAltInfo()
+	local self = Altoholic.Summary
+	local line = self.CharInfoLine
+	self.CharInfoLine = nil
 
-	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, V.CurrentAccount .."|".. V.CurrentRealm)
-	UIDropDownMenu_SetText(AltoholicTabCharacters_SelectRealm, V.CurrentRealm)
-	AltoholicTabCharacters:SelectCharDropDown_Initialize()
-	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, V.CurrentAlt)
+	local charName, realm, account = Altoholic.Characters:GetInfo(line)
+	Altoholic:SetCurrentCharacter(charName, realm, account)
+
+	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, account .."|".. realm)
+	UIDropDownMenu_SetText(AltoholicTabCharacters_SelectRealm, realm)
+	Altoholic.Tabs.Characters:DropDownChar_Initialize()
+	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, charName)
 
 	Altoholic.Tabs:OnClick(2)
-	AltoholicTabCharacters:ViewCharInfo(this.value)
+	Altoholic.Tabs.Characters:ViewCharInfo(this.value)
 end
 
-function AltoholicFrameSummary_DeleteAlt()
-	local s = Altoholic.CharacterInfo[V.CharInfoLine] -- no validity check, this comes from the dropdownmenu, it's been secured earlier
-	local _, realm, account = Altoholic:GetCharacterInfo(V.CharInfoLine)
+function Altoholic.Summary:DeleteAlt()
+	local self = Altoholic.Summary
+	local s = Altoholic.Characters:Get(self.CharInfoLine) -- no validity check, this comes from the dropdownmenu, it's been secured earlier
+	local _, realm, account = Altoholic.Characters:GetInfo(self.CharInfoLine)
 	
 	if (account == "Default") and	(realm == GetRealmName()) and (s.name == UnitName("player")) then
-		V.CharInfoLine = nil
+		self.CharInfoLine = nil
 		Altoholic:Print(L["Cannot delete current character"])
 		return
 	end
 
-	AltoMsgBox.ButtonHandler = AltoholicFrameSummary_DeleteAltButtonHandler
+	AltoMsgBox.ButtonHandler = self.DeleteAltButtonHandler
 	AltoMsgBox_Text:SetText(L["Delete this Alt"] .. "?\n" .. s.name)
 	AltoMsgBox:Show()
 end
 
-function AltoholicFrameSummary_DeleteAltButtonHandler(self, button)
+function Altoholic.Summary:DeleteAltButtonHandler(frame, button)
+	local self = Altoholic.Summary
 	AltoMsgBox.ButtonHandler = nil		-- prevent any other call to msgbox from coming back here
-	local line = V.CharInfoLine
-	V.CharInfoLine = nil
+	local line = self.CharInfoLine
+	self.CharInfoLine = nil
 	if not button then return end
 	
-	local s = Altoholic.CharacterInfo[line] -- no validity check, this comes from the dropdownmenu, it's been secured earlier
+	local s = Altoholic.Characters:Get(line) -- no validity check, this comes from the dropdownmenu, it's been secured earlier
 	local AltName = s.name
-	local _, realm, account = Altoholic:GetCharacterInfo(line)
+	local _, realm, account = Altoholic.Characters:GetInfo(line)
 	local r = Altoholic:GetRealmTableByLine(line)
 	
 	-- delete factions
@@ -468,7 +481,7 @@ function AltoholicFrameSummary_DeleteAltButtonHandler(self, button)
 	end
 	
 	-- delete the character
-	Altoholic:ClearTable(r.char[s.name])	-- clear all content for this char ..
+	wipe(r.char[s.name])							-- clear all content for this char ..
 	r.char[s.name] = nil							-- .. then the char entry itself
 	
 	local charCount = 0
@@ -477,7 +490,7 @@ function AltoholicFrameSummary_DeleteAltButtonHandler(self, button)
 	end
 	
 	if charCount == 0 then		-- if no more chars on this realm, the realm can be deleted ..
-		Altoholic:ClearTable(Altoholic.db.global.data[account][realm])
+		wipe(Altoholic.db.global.data[account][realm])
 		Altoholic.db.global.data[account][realm] = nil
 	end
 	
@@ -487,22 +500,23 @@ function AltoholicFrameSummary_DeleteAltButtonHandler(self, button)
 	end
 
 	if realmCount == 0 then		-- if no more realms in this account, the account can be deleted ..
-		Altoholic:ClearTable(Altoholic.db.global.data[account])
+		wipe(Altoholic.db.global.data[account])
 		Altoholic.db.global.data[account] = nil
 	end	
 	
 	-- rebuild the main character table, and all the menus
-	Altoholic:BuildCharacterInfoTable()
-	Altoholic:BuildCharacterInfoView()
+	Altoholic.Characters:BuildList()
+	Altoholic.Characters:BuildView()
 	Altoholic.Reputations:BuildView()
 	AltoholicFrameAchievements:Hide()
-	Altoholic:AccountSummary_Update()
+	Altoholic.Summary:Update()
 		
 	Altoholic:Print(format( L["Character %s successfully deleted"], AltName))
 end
 
-function AltoholicFrameSummary_UpdateRealm()
-	local s = Altoholic.CharacterInfo[V.CharInfoLine] -- no validity check, this comes from the dropdownmenu, it's been secured earlier
+function Altoholic.Summary:UpdateRealm()
+	local self = Altoholic.Summary
+	local s = Altoholic.Characters:Get(self.CharInfoLine) -- no validity check, this comes from the dropdownmenu, it's been secured earlier
 	local r = Altoholic:GetRealmTable(s.realm, s.account)
 	
 	AltoAccountSharing_AccNameEditBox:SetText(s.account)
@@ -519,54 +533,59 @@ function AltoholicFrameSummary_UpdateRealm()
 	AltoAccountSharing:Show()
 end
 
-function AltoholicFrameSummary_DeleteRealm()
-	local s = Altoholic.CharacterInfo[V.CharInfoLine] -- no validity check, this comes from the dropdownmenu, it's been secured earlier
+function Altoholic.Summary:DeleteRealm()
+	local self = Altoholic.Summary
+	local s = Altoholic.Characters:Get(self.CharInfoLine) -- no validity check, this comes from the dropdownmenu, it's been secured earlier
 		
 	if (s.account == "Default") and	(s.realm == GetRealmName()) then
-		V.CharInfoLine = nil
+		self.CharInfoLine = nil
 		Altoholic:Print(L["Cannot delete current realm"])
 		return
 	end
 
-	AltoMsgBox.ButtonHandler = AltoholicFrameSummary_DeleteRealmButtonHandler
+	AltoMsgBox.ButtonHandler = self.DeleteRealmButtonHandler
 	AltoMsgBox_Text:SetText(L["Delete this Realm"] .. "?\n" .. s.realm)
 	AltoMsgBox:Show()
 end
 
-function AltoholicFrameSummary_DeleteRealmButtonHandler(self, button)
+function Altoholic.Summary:DeleteRealmButtonHandler(frame, button)
+	local self = Altoholic.Summary
 	AltoMsgBox.ButtonHandler = nil		-- prevent any other call to msgbox from coming back here
-	local line = V.CharInfoLine
-	V.CharInfoLine = nil
+	local line = self.CharInfoLine
+	self.CharInfoLine = nil
 	if not button then return end
 
-	local s = Altoholic.CharacterInfo[line] -- no validity check, this comes from the dropdownmenu, it's been secured earlier
+	local s = Altoholic.Characters:Get(line) -- no validity check, this comes from the dropdownmenu, it's been secured earlier
 	local realmName = s.realm
 	
-	Altoholic:ClearTable(Altoholic.db.global.data[s.account][s.realm])
+	wipe(Altoholic.db.global.data[s.account][s.realm])
 	Altoholic.db.global.data[s.account][s.realm] = nil
 
 	-- if the realm being deleted was the current ..
-	if V.CurrentRealm == s.realm and V.CurrentAccount == s.account then
+	if Altoholic:GetCurrentRealm() == s.realm and Altoholic:GetCurrentAccount() == s.account then
 		
 		-- reset to this player
-		Altoholic:SetCurrentCharacter(UnitName("player"), GetRealmName(), THIS_ACCOUNT)
+		local tc = Altoholic.Tabs.Characters
+		local player = UnitName("player")
+		local realm = GetRealmName()
+		Altoholic:SetCurrentCharacter(player, realm, THIS_ACCOUNT)
 		
-		AltoholicTabCharacters:SelectRealmDropDown_Initialize()
-		UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, THIS_ACCOUNT .."|".. GetRealmName())
+		tc:DropDownRealm_Initialize()
+		UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, THIS_ACCOUNT .."|".. realm)
 		
-		AltoholicTabCharacters:SelectCharDropDown_Initialize()
-		UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, V.CurrentAlt)
+		tc:DropDownChar_Initialize()
+		UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, player)
 		
-		AltoholicFrameContainers:UpdateContainerCache()
-		AltoholicTabCharacters:ViewCharInfo(VIEW_BAGS)
+		Altoholic.Containers:UpdateCache()
+		tc:ViewCharInfo(VIEW_BAGS)
 	end
 	
 	-- rebuild the main character table, and all the menus
-	Altoholic:BuildCharacterInfoTable()
-	Altoholic:BuildCharacterInfoView()
+	Altoholic.Characters:BuildList()
+	Altoholic.Characters:BuildView()
 	Altoholic.Reputations:BuildView()
 	AltoholicFrameAchievements:Hide()
-	Altoholic:AccountSummary_Update()
+	Altoholic.Summary:Update()
 		
 	Altoholic:Print(format( L["Realm %s successfully deleted"], realmName))
 end

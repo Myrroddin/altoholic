@@ -15,7 +15,7 @@ Altoholic.Guild.Members.List = {}
 function Altoholic.Guild.Members:BuildView()
 	
 	self.view = self.view or {}
-	Altoholic:ClearTable(self.view)
+	wipe(self.view)
 	
 	for k, v in pairs(self.List) do
 		if v.version == L["N/A"] then		-- non altoholic user
@@ -51,6 +51,7 @@ function Altoholic.Guild.Members:BuildView()
 end
 
 function Altoholic.Guild.Members:Update()
+	local self = Altoholic.Guild.Members
 	if AltoholicFrameGuildMembers.InitRequired then
 		self:LoadTextures()
 		AltoholicFrameGuildMembers.InitRequired = nil
@@ -302,13 +303,30 @@ function Altoholic.Guild.Members:OnRosterUpdate()
 				version = L["N/A"]
 			})
 			rosterChanged = true
+		else
+			for k, v in pairs(self.List) do
+				if v.name == charName and v.level == 0 then		-- if data was not auto-populated correctly, fix it
+
+					local level, class, englishClass = self:GetInfo(charName)
+					v.level = level or 0
+					v.class = class or ""
+					v.englishClass = englishClass or ""
+
+					for altName, alt in pairs(v.skills) do
+						level, class, englishClass = self:GetInfo(altName)
+						alt.level = level or 0
+						alt.class = class or ""
+						alt.englishClass = englishClass or ""
+					end
+				end
+			end
 		end
 	end
 	
 	AltoholicTabSummaryMenuItem5:SetText(format("%s %s(%d)", XML_ALTO_SUMMARY_MENU5, GREEN, self.GetNumber()))
 	
 	if rosterChanged then
-		AltoholicTabSummary:RefreshCurrentFrame()
+		Altoholic.Tabs.Summary:Refresh()
 	end
 	self.UpdateInProgress = nil
 end
@@ -406,7 +424,7 @@ function Altoholic.Guild.Members:Save(player)
 	for k, v in pairs(player.skills) do
 		-- if this alt has at least one profession link..
 		if v.prof1link or v.prof2link or v.cookinglink then
-			Altoholic:ClearTable(guild.members[v.name])
+			wipe(guild.members[v.name])
 			local m = guild.members[v.name]		-- copy fields manually, we don't want everything that's under v
 			m.prof1link = v.prof1link
 			m.prof2link = v.prof2link
@@ -477,7 +495,6 @@ function Altoholic.Guild.Members:Sort(orderBy, ascending)
 		end
 	end
 end
-
 
 local EquipmentToFrame = { 1,3,5,9,10,6,7,8,11,12,13,14,15,4,2,19,16,17,18 }
 

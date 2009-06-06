@@ -6,7 +6,7 @@ addon.Profiler = {}
 
 function addon.Profiler:Init() 
 	self.Samples = self.Samples or {}
-	addon.ClearTable(self.Samples)
+	wipe(self.Samples)
 	self.startProfile = GetTime()
 	self.level = 0		-- for the code hierarchy, unused for now, but already valid, will be useful when Dumping into a real frame
 	self.count = 0		-- to sort samples

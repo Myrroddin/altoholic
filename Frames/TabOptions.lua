@@ -13,6 +13,9 @@ function Altoholic.Options:RestoreToUI()
 	AltoholicTabOptionsFrame1_GuildBankAutoUpdate:SetChecked(O.GuildBankAutoUpdate)
 	AltoholicTabOptionsFrame1_AccSharingComm:SetChecked(O.AccSharingHandlerEnabled)
 	AltoholicTabOptionsFrame1_GuildComm:SetChecked(O.GuildHandlerEnabled)
+	AltoholicTabOptionsFrame1_SliderScale:SetValue(O.UIScale)
+	AltoholicFrame:SetScale(O.UIScale)
+	AltoholicTabOptionsFrame1_SliderAlpha:SetValue(O.UITransparency)
 
 	-- set communication handlers according to user settings.
 	if O.AccSharingHandlerEnabled == 1 then
@@ -55,6 +58,15 @@ function Altoholic.Options:RestoreToUI()
 	AltoholicTabOptionsFrame5GatheringNode:SetChecked(O.TooltipGatheringNode)
 	AltoholicTabOptionsFrame5CrossFaction:SetChecked(O.TooltipCrossFaction)
 	AltoholicTabOptionsFrame5MultiAccount:SetChecked(O.TooltipMultiAccount)
+	
+	AltoholicTabOptionsFrame6FirstDay:SetChecked(O.WeekStartsMonday)
+	AltoholicTabOptionsFrame6Warning15:SetChecked(O.Warning15Min)
+	AltoholicTabOptionsFrame6Warning10:SetChecked(O.Warning10Min)
+	AltoholicTabOptionsFrame6Warning5:SetChecked(O.Warning5Min)
+	AltoholicTabOptionsFrame6Warning4:SetChecked(O.Warning4Min)
+	AltoholicTabOptionsFrame6Warning3:SetChecked(O.Warning3Min)
+	AltoholicTabOptionsFrame6Warning2:SetChecked(O.Warning2Min)
+	AltoholicTabOptionsFrame6Warning1:SetChecked(O.Warning1Min)
 end
 
 function Altoholic:UpdateMinimapIconCoords()

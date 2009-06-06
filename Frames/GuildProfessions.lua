@@ -45,7 +45,7 @@ end
 function Altoholic.Guild.Professions:BuildView()
 	
 	self.view = self.view or {}
-	Altoholic:ClearTable(self.view)
+	wipe(self.view)
 	
 	local line = 0
 	
@@ -102,10 +102,10 @@ function Altoholic.Guild.Professions:BuildView()
 		end
 	end
 	
-	local field = AltoholicTabSummary.GuildProfessionsSortBy
+	local field = Altoholic.Tabs.Summary.GuildProfessionsSortBy
 	
 	if field then
-		local ascending = AltoholicTabSummary.GuildProfessionsSortOrder
+		local ascending = Altoholic.Tabs.Summary.GuildProfessionsSortOrder
 	
 		if field == "level" then
 			table.sort(offlineMembers, function(a, b) return SortByMemberInfo(a, b, 1, ascending) end)
@@ -135,6 +135,7 @@ function Altoholic.Guild.Professions:Update()
 	local frame = "AltoholicFrameGuildProfessions"
 	local entry = frame.."Entry"
 	
+	local self = Altoholic.Guild.Professions
 	if #self.view == 0 then
 		Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
 		return

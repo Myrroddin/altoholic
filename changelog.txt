@@ -1,7 +1,22 @@
 Altoholic Changelog (dates in dd/mm/yyyy)
 ===================
 
+3.1.003
+
+- Finalized a massive code update started several versions ago, the goal is to facilitate the implementation of new features, so the effort was definitely worth it, even if it caused a small delay in my schedule.
+- Brought a few changes that should address the issue of empty Account Summary/Bag Usage/Skills/Activity. Please let me know if this is still happening !
+- Fixed a rare refresh bug that could trigger a Lua error in the recipes pane.
+- Added an option to change the UI transparency.
+- Added an option to change the UI scale.
+- Fixed a bug when sorting alts on rest xp in the account summary (Thanks Dreamsmith !).
+- Fixed invalid tooltip counters when mousing over an item in the mailbox.
+- Added the possibility to search your guildmates' professions, since the search can be a bit long (100-200msn this causes a tiny freeze) depending on the size of your guild, it is disabled by default, and I advise turning it on only when necessary.
+- Updated zhCN localization (thanks ALADDINN).
+- Updated zhTW localization (thanks NightOwl).
+- Added a calendar pane to track the following events: standard calendar events, profession cooldowns, raid timers, mysterious egg/disgusting jar.
+
 3.1.002b (05/05/2009)
+
 - Better tracking of raid id's, they should hopefully no longer be reset at login.
 - Added a workaround to the database conversion failing due to a partial DB corruption.
 - Added a missing mount.
@@ -284,7 +299,7 @@ IMPORTANT NOTES - PLEASE READ BEFORE INSTALLING !!
 - The options that were moved to the option pane in 2.4.016 are now permanent.
 
 2.4.016 (not officially released)
-- The UI now uses tabs, like at the real AH, this will leave room to add new features and simplifies navigation. Don't worry if some frame feel a bit empty, this will change over time as new features are added.
+- The UI now uses tabs, like at the real AH, this will leave room to add new features and simplifies navigation. Don't worry if some frames feel a bit empty, this will change over time as new features are added.
 - Added the possibility to see bag contents as one large bag.
 - Loot table updated with AtlasLoot 4.06.00
 - Fixed trade skills being partially wiped when a filter was active in a tradeskill window.

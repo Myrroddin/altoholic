@@ -1,5 +1,4 @@
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
-local V = Altoholic.vars
 
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
@@ -334,7 +333,7 @@ Altoholic.Pets.CompanionToSpellID = {		-- updated April 17, 2009
 	[45942] = 64351,
 }
 
-function Altoholic_Pets_OnEnter(self)
+function Altoholic.Pets:OnEnter(self)
 	if not self.spellID then return end
 	
 	AltoTooltip:SetOwner(self, "ANCHOR_LEFT");
@@ -343,60 +342,55 @@ function Altoholic_Pets_OnEnter(self)
 	AltoTooltip:Show();
 end
 
-function Altoholic_Pets_OnClick(self)
+function Altoholic.Pets:OnClick(self)
 	self:SetChecked(true);
 	
-	local parent = self:GetParent():GetParent()
-	local offset = (parent.CurrentPage-1) * PETS_PER_PAGE
-	parent.selectedID = offset + self:GetID()
-	parent:UpdatePets()
+	local p = Altoholic.Pets
+	local offset = (p.CurrentPage-1) * PETS_PER_PAGE
+	p.selectedID = offset + self:GetID()
+	p:UpdatePets()
 end
 
-function AltoholicFramePets:Initialize()
-	UIDropDownMenu_SetSelectedValue(AltoholicFramePets_SelectPetView, 1);
-	UIDropDownMenu_SetText(AltoholicFramePets_SelectPetView, COMPANIONS)
-
-	UIDropDownMenu_Initialize(AltoholicFramePets_SelectPetView, function(self) 
-		AltoholicFramePets:DropDownPets_Initialize()
-	end)
-end
-
-function AltoholicFramePets:DropDownPets_Initialize()
+function Altoholic.Pets:DropDownPets_Initialize()
+	local self = Altoholic.Pets
 	local info = UIDropDownMenu_CreateInfo(); 
 	
 	info.text =  COMPANIONS
 	info.value = 1
-	info.func = AltoholicFramePets.ChangePetView
+	info.func = self.ChangePetView
 	info.checked = nil; 
 	info.icon = nil; 
 	UIDropDownMenu_AddButton(info, 1); 
 	
 	info.text =  COMPANIONS .. GREEN .. " (" .. L["All-in-one"] .. ")"
 	info.value = 2
-	info.func = AltoholicFramePets.ChangePetView
+	info.func = self.ChangePetView
 	info.checked = nil; 
 	info.icon = nil; 
 	UIDropDownMenu_AddButton(info, 1); 
 	
 	info.text =  MOUNTS
 	info.value = 3
-	info.func = AltoholicFramePets.ChangePetView
+	info.func = self.ChangePetView
 	info.checked = nil; 
 	info.icon = nil; 
 	UIDropDownMenu_AddButton(info, 1); 
 	
 	info.text =  MOUNTS .. GREEN .. " (" .. L["All-in-one"] .. ")"
 	info.value = 4
-	info.func = AltoholicFramePets.ChangePetView
+	info.func = self.ChangePetView
 	info.checked = nil; 
 	info.icon = nil; 
 	UIDropDownMenu_AddButton(info, 1); 
 end
 
-function AltoholicFramePets:ChangePetView()
-	UIDropDownMenu_SetSelectedValue(AltoholicFramePets_SelectPetView, self.value);
+function Altoholic.Pets:ChangePetView()
+	local value = self.value
+	local self = Altoholic.Pets
 	
-	if (self.value == 1) or (self.value == 3) then
+	UIDropDownMenu_SetSelectedValue(AltoholicFramePets_SelectPetView, value);
+	
+	if value == 1 or value == 3 then
 		AltoholicFrameClasses:Hide()
 		AltoholicFramePetsNormal:Show()
 		AltoholicFramePetsAllInOne:Hide()
@@ -408,34 +402,34 @@ function AltoholicFramePets:ChangePetView()
 	
 	AltoholicFramePets:Show()
 	
-	if self.value == 1 then
-		AltoholicFramePets:SetType("CRITTER")
-	elseif self.value == 2 then
+	if value == 1 then
+		self:SetType("CRITTER")
+	elseif value == 2 then
 		table.sort(CompanionList, function(a, b)
 					local textA = GetSpellInfo(a) or ""
 					local textB = GetSpellInfo(b) or ""
 					return textA < textB
 				end)
-		AltoholicFramePets:UpdatePetsAllInOne()
-	elseif self.value == 3 then
-		AltoholicFramePets:SetType("MOUNT")
-	elseif self.value == 4 then
+		self:UpdatePetsAllInOne()
+	elseif value == 3 then
+		self:SetType("MOUNT")
+	elseif value == 4 then
 		table.sort(MountList, function(a, b)
 					local textA = GetSpellInfo(a) or ""
 					local textB = GetSpellInfo(b) or ""
 					return textA < textB
 				end)
-		AltoholicFramePets:UpdatePetsAllInOne()
+		self:UpdatePetsAllInOne()
 	end
 end
 
-function AltoholicFramePets:SetType(petType)
+function Altoholic.Pets:SetType(petType)
 	self.selectedID = 1
 	self.PetType = petType
 	self:SetPage(1)
 end
 
-function AltoholicFramePets:SetPage(pageNum)
+function Altoholic.Pets:SetPage(pageNum)
 	self.CurrentPage = pageNum
 	
 	local c = Altoholic:GetCharacterTable()
@@ -467,7 +461,7 @@ function AltoholicFramePets:SetPage(pageNum)
 	self:UpdatePets()
 end
 
-function AltoholicFramePets:UpdatePets()
+function Altoholic.Pets:UpdatePets()
 	local c = Altoholic:GetCharacterTable()
 	local p = c.pets[self.PetType]
 	
@@ -522,7 +516,7 @@ function AltoholicFramePets:UpdatePets()
 	end
 end
 
-function AltoholicFramePets:UpdatePetsAllInOne()
+function Altoholic.Pets:UpdatePetsAllInOne()
 	local VisibleLines = 8
 	local frame = "AltoholicFramePetsAllInOne"
 	local entry = frame.."Entry"
@@ -559,7 +553,7 @@ function AltoholicFramePets:UpdatePetsAllInOne()
 				_G[entry..i.."Name"]:SetJustifyH("LEFT")
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 15, 0)
 			else
-				DEFAULT_CHAT_FRAME:AddMessage(spellID)
+--				DEFAULT_CHAT_FRAME:AddMessage(spellID)
 			end
 			
 			local j = 1
@@ -568,7 +562,7 @@ function AltoholicFramePets:UpdatePetsAllInOne()
 				local itemButton = _G[itemName]
 				local itemTexture = _G[itemName .. "_Background"]
 				
-				itemButton:SetScript("OnEnter", Altoholic_Pets_OnEnter)
+				itemButton:SetScript("OnEnter", function(self) Altoholic.Pets:OnEnter(self) end)
 	
 				itemTexture:SetTexture(petTexture)
 				
@@ -614,6 +608,25 @@ function AltoholicFramePets:UpdatePetsAllInOne()
 	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], numItems, VisibleLines, 41);
 end
 
+function Altoholic.Pets:Scan(companionType)
+	local c = Altoholic.ThisCharacter
+	local p = c.pets[companionType]
+	
+	wipe(p)
+	
+	for i = 1, GetNumCompanions(companionType) do
+		local modelID, name, spellID, icon = GetCompanionInfo(companionType, i);
+		if name and spellID and icon and modelID then
+			p[i] = name .. "|" .. spellID .. "|" .. string.gsub(icon, "Interface\\Icons\\", "") .. "|" .. modelID
+		end
+	end
+end
+
+function Altoholic.Pets:OnUpdate()
+	local self = Altoholic.Pets
+	self:Scan("CRITTER")
+	self:Scan("MOUNT")
+end
 
 function Altoholic.Pets:OnChange()
 	-- this event is triggered too often for our needs, some filtering is required  to avoid scanning pet data too often

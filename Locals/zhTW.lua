@@ -26,6 +26,7 @@ XML_ALTO_SUMMARY_MENU4 = "活躍度"
 XML_ALTO_SUMMARY_MENU5 = "公會成員"
 XML_ALTO_SUMMARY_MENU6 = "公會技能"
 XML_ALTO_SUMMARY_MENU7 = "公會金庫分頁"
+XML_ALTO_SUMMARY_MENU8 = "Calendar"
 
 XML_ALTO_SUMMARY_TEXT1 = "要求帳戶共享資料"
 XML_ALTO_SUMMARY_TEXT2 = "按一下這個按鈕來詢問玩家\n"
@@ -83,6 +84,7 @@ XML_ALTO_OPT_GENERAL9 = "|cFFFFFFFF當 |cFF00FF00啟用|cFFFFFFFF時, 此選項�
 				.. "安全提示：如果您有公會理事的權利請關閉\n"
 				.. "有查看限制的公會金庫分頁來防止被任何人觀看,\n"
 				.. "如需要同步時請用手動受權."
+XML_ALTO_OPT_GENERAL10 = "Transparency"
 
 XML_ALTO_OPT_SEARCH1 = "自動向伺服器查詢 |cFFFF0000(有可能導至斷線)";
 XML_ALTO_OPT_SEARCH2 = "|cFFFFFFFF當物品不在本機的內存時\n"
@@ -122,4 +124,7 @@ XML_ALTO_OPT_TOOLTIP7 = "在採集點上顯示數量";
 XML_ALTO_OPT_TOOLTIP8 = "顯示兩方的聲望數值";
 XML_ALTO_OPT_TOOLTIP9 = "顯示所有帳戶的數值";
 XML_ALTO_OPT_TOOLTIP10 = "總數包括公會金庫計數";
+
+XML_ALTO_OPT_CALENDAR1 = "Week starts on Monday"; 
+XML_ALTO_OPT_CALENDAR2 = "Warn %d minutes before an event starts"; 
 end
