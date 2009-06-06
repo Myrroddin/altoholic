@@ -2,6 +2,8 @@
 ..\FrameXML\UI.xsd">
 
 <Script file="libs\LibDataBroker-1.1\LibDataBroker-1.1.lua"/>
+<Script file="libs\LibTradeLinks-1.0\LibTradeLinks-1.0.lua"/>
+<Script file="libs\LibTradeLinks-1.0\9901.lua"/>
 
 </Ui>
 
