@@ -1,6 +1,5 @@
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
-local V = Altoholic.vars
 
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
@@ -11,7 +10,7 @@ Altoholic.Tabs.Search = {}
 function Altoholic.Tabs.Search:BuildView()
 	
 	self.view = self.view or {}
-	Altoholic:ClearTable(self.view)
+	wipe(self.view)
 	
 	local itemClasses =  { GetAuctionItemClasses() };
 	local classNum = 1
@@ -160,22 +159,22 @@ function Altoholic.Tabs.Search:DropDownRarity_Initialize()
 end 
 
 function Altoholic.Tabs.Search:DropDownSlot_Initialize()
-	local info = UIDropDownMenu_CreateInfo(); 
-	
-	info.text = L["Any"]
-	info.value = 0
-	info.func = function(self)	
+	local function SetSearchSlot(self) 
 		UIDropDownMenu_SetSelectedValue(AltoholicTabSearch_SelectSlot, self.value);
 	end
+	
+	local info = UIDropDownMenu_CreateInfo(); 
+	info.text = L["Any"]
+	info.value = 0
+	info.func = SetSearchSlot
 	info.checked = nil; 
 	info.icon = nil; 
 	UIDropDownMenu_AddButton(info, 1); 	
+	
 	for i = 1, 18 do
 		info.text = Altoholic.Equipment.Slots[i]
 		info.value = i
-		info.func = function(self)	
-			UIDropDownMenu_SetSelectedValue(AltoholicTabSearch_SelectSlot, self.value);
-		end
+		info.func = SetSearchSlot
 		info.checked = nil; 
 		info.icon = nil; 
 		UIDropDownMenu_AddButton(info, 1); 
@@ -241,38 +240,19 @@ end
 
 function Altoholic.Tabs.Search:SetMode(mode)
 
-	for i = 1, 8 do 
-		_G[ "AltoholicTabSearch_Sort" .. i .. "Arrow"]:Hide()
-		_G[ "AltoholicTabSearch_Sort"..i ].ascendingSort = nil	-- not sorted by default
-	end
-
+	local Columns = Altoholic.Tabs.Columns
+	Columns:Init()
+	
 	-- sets the search mode, and prepares the frame accordingly (search update callback, column sizes, headers, etc..)
 	if mode == "realm" then
 		Altoholic.Search:SetUpdateHandler("Realm_Update")
 		
-		AltoholicTabSearch_Sort1:SetText(XML_ALTO_SEARCH_COL1)
-		AltoholicTabSearch_Sort2:SetText(XML_ALTO_CHAR_DD2)
-		AltoholicTabSearch_Sort3:SetText(XML_ALTO_CHAR_DD1)
-		
-		AltoholicTabSearch_Sort1:SetWidth(240)
-		AltoholicTabSearch_Sort2:SetWidth(160)
-		AltoholicTabSearch_Sort3:SetWidth(150)
-		
-		AltoholicTabSearch_Sort1:SetScript("OnClick", function(self) 
-			Altoholic.Search.Results:Sort(self, "item") 
-		end)
-		AltoholicTabSearch_Sort2:SetScript("OnClick", function(self) 
-			Altoholic.Search.Results:Sort(self, "char") 
-		end)
+		Columns:Add(XML_ALTO_SEARCH_COL1, 240, function(self) Altoholic.Search.Results:Sort(self, "item") end)
+		Columns:Add(XML_ALTO_CHAR_DD2, 160, function(self) Altoholic.Search.Results:Sort(self, "char") end)
+		Columns:Add(XML_ALTO_CHAR_DD1, 150, function(self) Altoholic.Search.Results:Sort(self, "realm") end)
+
 		AltoholicTabSearch_Sort2:SetPoint("LEFT", AltoholicTabSearch_Sort1, "RIGHT", 5, 0)
-		AltoholicTabSearch_Sort3:SetScript("OnClick", function(self) 
-			Altoholic.Search.Results:Sort(self, "realm") 
-		end)
 		AltoholicTabSearch_Sort3:SetPoint("LEFT", AltoholicTabSearch_Sort2, "RIGHT", 5, 0)
-		
-		for i = 4, 8 do
-			_G["AltoholicTabSearch_Sort"..i]:Hide()
-		end
 		
 		for i=1, 7 do
 			_G[ "AltoholicFrameSearchEntry"..i.."Name" ]:SetWidth(240)
@@ -293,29 +273,12 @@ function Altoholic.Tabs.Search:SetMode(mode)
 	elseif mode == "loots" then
 		Altoholic.Search:SetUpdateHandler("Loots_Update")
 		
-		AltoholicTabSearch_Sort1:SetText(XML_ALTO_SEARCH_COL1)
-		AltoholicTabSearch_Sort2:SetText(L["Source"])
-		AltoholicTabSearch_Sort3:SetText(L["Item Level"])
-
-		AltoholicTabSearch_Sort1:SetWidth(240)
-		AltoholicTabSearch_Sort2:SetWidth(160)
+		Columns:Add(XML_ALTO_SEARCH_COL1, 240, function(self) Altoholic.Search.Results:Sort(self, "item") end)
+		Columns:Add(L["Source"], 160, function(self) Altoholic.Search.Results:Sort(self, "bossName") end)
+		Columns:Add(L["Item Level"], 150, function(self) Altoholic.Search.Results:Sort(self, "iLvl") end)
+		
 		AltoholicTabSearch_Sort2:SetPoint("LEFT", AltoholicTabSearch_Sort1, "RIGHT", 5, 0)
-		AltoholicTabSearch_Sort3:SetWidth(150)
 		AltoholicTabSearch_Sort3:SetPoint("LEFT", AltoholicTabSearch_Sort2, "RIGHT", 5, 0)
-		
-		AltoholicTabSearch_Sort1:SetScript("OnClick", function(self) 
-			Altoholic.Search.Results:Sort(self, "item") 
-		end)
-		AltoholicTabSearch_Sort2:SetScript("OnClick", function(self) 
-			Altoholic.Search.Results:Sort(self, "bossName") 
-		end)
-		AltoholicTabSearch_Sort3:SetScript("OnClick", function(self) 
-			Altoholic.Search.Results:Sort(self, "iLvl") 
-		end)
-		
-		for i = 4, 8 do
-			_G["AltoholicTabSearch_Sort"..i]:Hide()
-		end
 		
 		for i=1, 7 do
 			_G[ "AltoholicFrameSearchEntry"..i.."Name" ]:SetWidth(240)
@@ -335,37 +298,25 @@ function Altoholic.Tabs.Search:SetMode(mode)
 		
 	elseif mode == "upgrade" then
 		Altoholic.Search:SetUpdateHandler("Upgrade_Update")
-		
-		AltoholicTabSearch_Sort1:SetText(XML_ALTO_SEARCH_COL1)
-	
-		AltoholicTabSearch_Sort1:SetWidth(200)
-		AltoholicTabSearch_Sort2:SetWidth(50)
-		AltoholicTabSearch_Sort2:SetPoint("LEFT", AltoholicTabSearch_Sort1, "RIGHT", 0, 0)
-		AltoholicTabSearch_Sort3:SetWidth(50)
-		AltoholicTabSearch_Sort3:SetPoint("LEFT", AltoholicTabSearch_Sort2, "RIGHT", 0, 0)
 
-		AltoholicTabSearch_Sort1:SetScript("OnClick", function(self) 
-			Altoholic.Search.Results:Sort(self, "item") 
-		end)
+		Columns:Add(XML_ALTO_SEARCH_COL1, 200, function(self) Altoholic.Search.Results:Sort(self, "item") end)
 		
 		for i=1, 6 do 
-			local button = _G[ "AltoholicTabSearch_Sort"..(i+1) ]
 			local text = select(i, strsplit("|", Altoholic.Equipment.FormatStats[Altoholic.Search:GetClass()]))
+			
 			if text then
-				button:SetText(string.sub(text, 1, 3))
-				button:Show()
-				button:SetScript("OnClick", function(self) 
+				Columns:Add(string.sub(text, 1, 3), 50, function(self)
 					Altoholic.Search.Results:Sort(self, "stat") -- use a getID to know which stat
 				end)
 			else
-				button:Hide()
+				Columns:Add(nil)
 			end
 		end
-		AltoholicTabSearch_Sort8:SetText("iLvl")
-		AltoholicTabSearch_Sort8:Show()
-		AltoholicTabSearch_Sort8:SetScript("OnClick", function(self) 
-			Altoholic.Search.Results:Sort(self, "iLvl") 
-		end)
+		
+		AltoholicTabSearch_Sort2:SetPoint("LEFT", AltoholicTabSearch_Sort1, "RIGHT", 0, 0)
+		AltoholicTabSearch_Sort3:SetPoint("LEFT", AltoholicTabSearch_Sort2, "RIGHT", 0, 0)
+
+		Columns:Add("iLvl", 50, function(self) Altoholic.Search.Results:Sort(self, "iLvl") end)
 		
 		for i=1, 7 do
 			_G[ "AltoholicFrameSearchEntry"..i.."Name" ]:SetWidth(190)
@@ -382,10 +333,6 @@ function Altoholic.Tabs.Search:SetMode(mode)
 			end)
 		end
 	end
-	
-	AltoholicTabSearch_Sort1:Show()
-	AltoholicTabSearch_Sort2:Show()
-	AltoholicTabSearch_Sort3:Show()
 end
 
 function Altoholic.Tabs.Search:TooltipStats(self)

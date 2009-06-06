@@ -1,5 +1,4 @@
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
-local V = Altoholic.vars
 
 local GREEN		= "|cFF00FF00"
 
@@ -21,65 +20,65 @@ local ContainerViewLabels = {
 	L["Bank"] .. GREEN .. " (" .. L["All-in-one"] .. ")"
 }
 
-function AltoholicFrameContainers:Initialize()
+function Altoholic.Containers:Init()
 	local mode = Altoholic.Options:Get("lastContainerView")
 	mode = mode or 1
 	
-	UIDropDownMenu_SetSelectedValue(AltoholicFrameContainers_SelectContainerView, mode);
-	UIDropDownMenu_SetText(AltoholicFrameContainers_SelectContainerView, ContainerViewLabels[mode])
+	local f = AltoholicFrameContainers_SelectContainerView
+	UIDropDownMenu_SetSelectedValue(f, mode);
+	UIDropDownMenu_SetText(f, ContainerViewLabels[mode])
+	UIDropDownMenu_Initialize(f, self.DropDownContainerView_Initialize)
 	
-	UIDropDownMenu_Initialize(AltoholicFrameContainers_SelectContainerView, function(self) 
-		AltoholicFrameContainers:DropDownContainerView_Initialize()
-	end)
+	f = AltoholicFrameContainers_SelectRarity
+	UIDropDownMenu_SetSelectedValue(f, 0);
+	UIDropDownMenu_SetText(f, L["Any"])
+	UIDropDownMenu_Initialize(f, self.DropDownRarity_Initialize)
 	
-	UIDropDownMenu_SetSelectedValue(AltoholicFrameContainers_SelectRarity, 0);
-	UIDropDownMenu_SetText(AltoholicFrameContainers_SelectRarity, L["Any"])
-
-	UIDropDownMenu_Initialize(AltoholicFrameContainers_SelectRarity, function(self) 
-		AltoholicFrameContainers:DropDownRarity_Initialize()
-	end)
-	
-	AltoholicFrameContainers:SetContainerView(mode)
+	self:SetView(mode)
 end
 
-function AltoholicFrameContainers:DropDownContainerView_Initialize() 
+function Altoholic.Containers:DropDownContainerView_Initialize() 
+	local self = Altoholic.Containers
 	local info = UIDropDownMenu_CreateInfo(); 
 	
 	for i = 1, #ContainerViewLabels do
 		info.text = ContainerViewLabels[i]
 		info.value = i
-		info.func = AltoholicFrameContainers.ChangeContainerView
+		info.func = self.ChangeContainerView
 		info.checked = nil; 
 		info.icon = nil; 
 		UIDropDownMenu_AddButton(info, 1); 
 	end
 end
 
-function AltoholicFrameContainers:ChangeContainerView()
-	UIDropDownMenu_SetSelectedValue(AltoholicFrameContainers_SelectContainerView, self.value);
+function Altoholic.Containers:ChangeContainerView()
+	local value = self.value
+	local self = Altoholic.Containers
 	
-	Altoholic.Options:Set("lastContainerView", self.value)
-	AltoholicFrameContainers:SetContainerView(self.value)
-	AltoholicFrameContainers:Update();
+	UIDropDownMenu_SetSelectedValue(AltoholicFrameContainers_SelectContainerView, value);
+	Altoholic.Options:Set("lastContainerView", value)
+	self:SetView(value)
+	self:Update();
 end
 
-function AltoholicFrameContainers:SetContainerView(view)
+function Altoholic.Containers:SetView(view)
 	view = view or 1
 	if mod(view, 2) ~= 0 then	-- not an all-in-one view
 		self.Update = self.UpdateSpread
-		self:UpdateContainerCache()
+		self:UpdateCache()
 		FauxScrollFrame_SetOffset( AltoholicFrameContainersScrollFrame, 0)
 	else
 		self.Update = self.UpdateAllInOne
 	end
 end
 
-function AltoholicFrameContainers:DropDownRarity_Initialize() 
+function Altoholic.Containers:DropDownRarity_Initialize() 
+	local self = Altoholic.Containers
 	local info = UIDropDownMenu_CreateInfo(); 
 	
 	info.text =  L["Any"]
 	info.value = 0
-	info.func = AltoholicFrameContainers.ChangeRarity
+	info.func = self.ChangeRarity
 	info.checked = nil; 
 	info.icon = nil; 
 	UIDropDownMenu_AddButton(info, 1); 
@@ -87,26 +86,26 @@ function AltoholicFrameContainers:DropDownRarity_Initialize()
 	for i = 2, 6 do		-- Quality: 0 = poor .. 5 = legendary
 		info.text = ITEM_QUALITY_COLORS[i].hex .. _G["ITEM_QUALITY"..i.."_DESC"]
 		info.value = i
-		info.func = AltoholicFrameContainers.ChangeRarity
+		info.func = self.ChangeRarity
 		info.checked = nil; 
 		info.icon = nil; 
 		UIDropDownMenu_AddButton(info, 1); 
 	end
 end
 
-function AltoholicFrameContainers:ChangeRarity()
+function Altoholic.Containers:ChangeRarity()
 	UIDropDownMenu_SetSelectedValue(AltoholicFrameContainers_SelectRarity, self.value);
-	AltoholicFrameContainers:Update();
+	Altoholic.Containers:Update();
 end
 
-function AltoholicFrameContainers:UpdateContainerCache()
+function Altoholic.Containers:UpdateCache()
 	local mode = UIDropDownMenu_GetSelectedValue(AltoholicFrameContainers_SelectContainerView)
 	local c = Altoholic:GetCharacterTable()
 	
 	self.BagIndices = self.BagIndices or {}
 
 	if #self.BagIndices > 0 then
-		Altoholic:ClearTable(self.BagIndices)
+		wipe(self.BagIndices)
 	end
 	
 	local bagMin = 0
@@ -137,7 +136,7 @@ function AltoholicFrameContainers:UpdateContainerCache()
 	end
 end
 
-function AltoholicFrameContainers:UpdateBagIndices(bag, size)
+function Altoholic.Containers:UpdateBagIndices(bag, size)
 	-- the BagIndices table will be used by self:Containers_Update to determine which part of a bag should be displayed on a given line
 	-- ex: [1] = bagID = 0, from 1, to 12
 	-- ex: [2] = bagID = 0, from 13, to 16
@@ -156,12 +155,14 @@ function AltoholicFrameContainers:UpdateBagIndices(bag, size)
 	end
 end
 
-function AltoholicFrameContainers:UpdateSpread()
+function Altoholic.Containers:UpdateSpread()
 	local mode = UIDropDownMenu_GetSelectedValue(AltoholicFrameContainers_SelectContainerView)
 	local rarity = UIDropDownMenu_GetSelectedValue(AltoholicFrameContainers_SelectRarity)
 	local VisibleLines = 7
 	local frame = "AltoholicFrameContainers"
 	local entry = frame.."Entry"
+	
+	local self = Altoholic.Containers
 	
 	if #self.BagIndices == 0 then
 		self:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
@@ -206,7 +207,8 @@ function AltoholicFrameContainers:UpdateSpread()
 						GameTooltip:AddLine(L["28 Slot"],1,1,1);
 					else
 						local r = Altoholic:GetRealmTable()
-						GameTooltip:SetHyperlink( r.char[V.CurrentAlt].bag["Bag" .. id].link );
+						local player = Altoholic:GetCurrentCharacter()
+						GameTooltip:SetHyperlink( r.char[player].bag["Bag" .. id].link );
 						if (id >= 5) and (id <= 11) then
 							GameTooltip:AddLine(L["Bank bag"],0,1,0);
 						end
@@ -317,7 +319,7 @@ function AltoholicFrameContainers:UpdateSpread()
 	end	
 end	
 
-function AltoholicFrameContainers:UpdateAllInOne()
+function Altoholic.Containers:UpdateAllInOne()
 
 	local mode = UIDropDownMenu_GetSelectedValue(AltoholicFrameContainers_SelectContainerView)
 	local rarity = UIDropDownMenu_GetSelectedValue(AltoholicFrameContainers_SelectRarity)
@@ -453,40 +455,6 @@ function AltoholicFrameContainers:UpdateAllInOne()
 	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], ceil(currentSlotIndex / 14), VisibleLines, 41);
 end
 
-function Altoholic:Item_OnEnter(frame)
-	if not frame.id then return end
-	
-	GameTooltip:SetOwner(frame, "ANCHOR_LEFT");
-	
-	if not frame.link then								-- if there's no full item link .. get it
-		frame.link = select(2, GetItemInfo(frame.id) )
-	end
-	if not frame.link then	-- still not valid ?
-		GameTooltip:AddLine(L["Unknown link, please relog this character"],1,1,1);
-	else
-		GameTooltip:SetHyperlink(frame.link);
-	end
-	GameTooltip:Show();
-end
-
-function Altoholic:Item_OnClick(frame, button)
-	if not frame.id then return end
-	
-	if not frame.link then
-		frame.link = select(2, GetItemInfo(frame.id) )
-	end
-	if not frame.link then return end		-- still not valid ? exit
-	
-	if ( button == "LeftButton" ) and ( IsControlKeyDown() ) then
-		DressUpItemLink(frame.link);
-	elseif ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
-		if ( ChatFrameEditBox:IsShown() ) then
-			ChatFrameEditBox:Insert(frame.link);
-		else
-			AltoholicFrame_SearchEditBox:SetText(GetItemInfo(frame.link))
-		end
-	end
-end
 
 -- *** Scanning functions ***
 
@@ -660,7 +628,7 @@ function Altoholic.Containers:OnBagUpdate(bag)
 		return
 	end
 	
-	V.ToolTipCachedItemID = nil		-- putting this at NIL will force a tooltip refresh in self:ProcessToolTip
+	Altoholic.Tooltip:ForceRefresh()
 	
 	local self = Altoholic.Containers
 	if (bag >= 5) and (bag <= 11) and not self.isBankOpen then

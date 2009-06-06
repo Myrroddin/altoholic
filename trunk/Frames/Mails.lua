@@ -1,5 +1,4 @@
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
-local V = Altoholic.vars
 
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
@@ -14,12 +13,100 @@ local MAILCACHE_LINE = 2
 
 Altoholic.Mail = {}
 
-function Altoholic.Mail:BuildView(field, sortOrder)
+local function SortByName(a, b, ascending)
+	local c = Altoholic:GetCharacterTable()
+	local aRef, bRef
+	
+	if a.linetype == MAIL_LINE then
+		aRef = c.mail[a.parentID]
+	else
+		aRef = c.mailCache[a.parentID]
+	end
+
+	if b.linetype == MAIL_LINE then
+		bRef = c.mail[b.parentID]
+	else
+		bRef = c.mailCache[b.parentID]
+	end
+
+	local textA, textB
+	
+	if aRef.link then
+		local id = Altoholic:GetIDFromLink(aRef.link)
+		textA = GetItemInfo(id)	or ""		-- item name
+	else
+		textA = aRef.subject
+	end
+	
+	if bRef.link then
+		local id = Altoholic:GetIDFromLink(bRef.link)
+		textB = GetItemInfo(id)	or ""	-- item name
+	else
+		textB = bRef.subject
+	end
+
+	if ascending then
+		return textA < textB
+	else
+		return textA > textB
+	end
+end
+
+local function SortBySender(a, b, ascending)
+	local c = Altoholic:GetCharacterTable()
+	local aRef, bRef
+	
+	if a.linetype == MAIL_LINE then
+		aRef = c.mail[a.parentID]
+	else
+		aRef = c.mailCache[a.parentID]
+	end
+
+	if b.linetype == MAIL_LINE then
+		bRef = c.mail[b.parentID]
+	else
+		bRef = c.mailCache[b.parentID]
+	end
+
+	if ascending then
+		return aRef.sender < bRef.sender
+	else
+		return aRef.sender > bRef.sender
+	end
+end
+
+local function SortByExpiry(a, b, ascending)
+	local c = Altoholic:GetCharacterTable()
+	local aRef, bRef
+	
+	if a.linetype == MAIL_LINE then
+		aRef = c.mail[a.parentID]
+	else
+		aRef = c.mailCache[a.parentID]
+	end
+
+	if b.linetype == MAIL_LINE then
+		bRef = c.mail[b.parentID]
+	else
+		bRef = c.mailCache[b.parentID]
+	end
+	
+	local _, expiryA = Altoholic.Mail:GetExpiry(aRef.lastcheck, aRef.daysleft)
+	local _, expiryB = Altoholic.Mail:GetExpiry(bRef.lastcheck, bRef.daysleft)
+	
+	if ascending then
+		return expiryA < expiryB
+	else
+		return expiryA > expiryB
+	end
+end
+
+function Altoholic.Mail:BuildView(field, ascending)
 	
 	field = field or "expiry"
 
 	self.view = self.view or {}
-	Altoholic:ClearTable(self.view)
+	wipe(self.view)
 	
 	local c = Altoholic:GetCharacterTable()
 	if not c then return end
@@ -39,94 +126,11 @@ function Altoholic.Mail:BuildView(field, sortOrder)
 	end
 	
 	if field == "name" then
-		table.sort(self.view, function(a, b)
-				local c = Altoholic:GetCharacterTable()
-				local aRef, bRef
-				
-				if a.linetype == MAIL_LINE then
-					aRef = c.mail[a.parentID]
-				else
-					aRef = c.mailCache[a.parentID]
-				end
-		
-				if b.linetype == MAIL_LINE then
-					bRef = c.mail[b.parentID]
-				else
-					bRef = c.mailCache[b.parentID]
-				end
-		
-				local textA, textB
-				
-				if aRef.link then
-					local id = Altoholic:GetIDFromLink(aRef.link)
-					textA = GetItemInfo(id)		-- item name
-				else
-					textA = aRef.subject
-				end
-				
-				if bRef.link then
-					local id = Altoholic:GetIDFromLink(bRef.link)
-					textB = GetItemInfo(id)		-- item name
-				else
-					textB = bRef.subject
-				end
-				
-				if sortOrder then
-					return textA < textB
-				else
-					return textA > textB
-				end
-			end)
-	
+		table.sort(self.view, function(a, b) return SortByName(a, b, ascending) end)
 	elseif field == "from" then
-		table.sort(self.view, function(a, b)
-				local c = Altoholic:GetCharacterTable()
-				local aRef, bRef
-				
-				if a.linetype == MAIL_LINE then
-					aRef = c.mail[a.parentID]
-				else
-					aRef = c.mailCache[a.parentID]
-				end
-		
-				if b.linetype == MAIL_LINE then
-					bRef = c.mail[b.parentID]
-				else
-					bRef = c.mailCache[b.parentID]
-				end
-		
-				if sortOrder then
-					return aRef.sender < bRef.sender
-				else
-					return aRef.sender > bRef.sender
-				end
-			end)
+		table.sort(self.view, function(a, b) return SortBySender(a, b, ascending) end)
 	elseif field == "expiry" then
-		table.sort(self.view, function(a, b)
-				local c = Altoholic:GetCharacterTable()
-				local aRef, bRef
-				
-				if a.linetype == MAIL_LINE then
-					aRef = c.mail[a.parentID]
-				else
-					aRef = c.mailCache[a.parentID]
-				end
-		
-				if b.linetype == MAIL_LINE then
-					bRef = c.mail[b.parentID]
-				else
-					bRef = c.mailCache[b.parentID]
-				end
-				
-				local _, expiryA = Altoholic.Mail:GetExpiry(aRef.lastcheck, aRef.daysleft)
-				local _, expiryB = Altoholic.Mail:GetExpiry(bRef.lastcheck, bRef.daysleft)
-				
-				if sortOrder then
-					return expiryA < expiryB
-				else
-					return expiryA > expiryB
-				end
-			end)
+		table.sort(self.view, function(a, b) return SortByExpiry(a, b, ascending) end)
 	end
 end
 
@@ -136,7 +140,8 @@ function Altoholic.Mail:Update()
 	local frame = "AltoholicFrameMail"
 	local entry = frame.."Entry"
 	
-	local player = V.CurrentAlt
+	local player = Altoholic:GetCurrentCharacter()
+	local self = Altoholic.Mail
 	
 	if c.MailCheckClientDate then
 		-- new timestamps
@@ -162,13 +167,13 @@ function Altoholic.Mail:Update()
 			if c.lastmailcheck == 0 then
 				AltoholicTabCharactersStatus:SetText(player .. L[" has not visited his/her mailbox yet"])
 			else
-				AltoholicTabCharactersStatus:SetText(player .. L[" has no mail, last check "] .. self:GetDelayInDays(c.lastmailcheck).. L[" days ago"])
+				AltoholicTabCharactersStatus:SetText(player .. L[" has no mail, last check "] .. Altoholic:GetDelayInDays(c.lastmailcheck).. L[" days ago"])
 			end
 		
 			Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
 			return
 		end
-		AltoholicTabCharactersStatus:SetText(L["Mail was last checked "] .. self:GetDelayInDays(c.lastmailcheck).. L[" days ago"])
+		AltoholicTabCharactersStatus:SetText(L["Mail was last checked "] .. Altoholic:GetDelayInDays(c.lastmailcheck).. L[" days ago"])
 	end
 	
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
@@ -212,6 +217,11 @@ function Altoholic.Mail:Update()
 	else
 		FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], #self.view, VisibleLines, 41);
 	end
+end
+
+function Altoholic.Mail:Sort(self, field)
+	Altoholic.Mail:BuildView(field, self.ascendingSort)
+	Altoholic.Mail:Update()
 end
 
 function Altoholic.Mail:FormatExpiry(lastcheck, mailexpiry)
@@ -281,14 +291,14 @@ function AltoholicMailExpiry_ButtonHandler(self, button)
 	if not button then return end
 	
 	Altoholic:ToggleUI()
-	AltoholicTabSummary:SummaryMenuOnClick(4)
+	Altoholic.Tabs.Summary:MenuItem_OnClick(4)
 end
 
 function Altoholic.Mail:Scan()
 	local c = Altoholic.ThisCharacter
 	local numItems = GetInboxNumItems();
 	
-	Altoholic:ClearTable(c.mail)
+	wipe(c.mail)
 	if numItems == 0 then
 		return
 	end
@@ -456,7 +466,7 @@ function SendMail(recipient, subject, body, ...)
 		end
 	end
 	
-	Altoholic:ClearTable(attachments)
+	wipe(attachments)
 	Orig_SendMail(recipient, subject, body, ...)
 end
 
@@ -483,13 +493,13 @@ end)
 
 function Altoholic.Mail:OnShow()
 	local self = Altoholic.Mail
+	if self.isOpen then return end	-- the event may be triggered multiple times, exit if the mailbox is already open
 	
 	CheckInbox()
 	Altoholic:RegisterEvent("MAIL_CLOSED", self.OnClose)
 	Altoholic:RegisterEvent("MAIL_INBOX_UPDATE", self.OnInboxUpdate)
 	Altoholic:RegisterEvent("MAIL_SEND_INFO_UPDATE", self.OnSendInfoUpdate)
 	self.Attachments = self.Attachments or {}	-- create a temporary table to hold the attachments that will be sent, keep it local since the event is rare
-	self.AllowMailUpdate = true
 	self.isOpen = true
 end
 
@@ -511,26 +521,19 @@ function Altoholic.Mail:OnClose()
 	c.MailCheckClientMinute = tonumber(date("%M"))
 	
 	Altoholic.Containers:ScanPlayerBags()
-	Altoholic:UnregisterEvent("MAIL_INBOX_UPDATE");
 	Altoholic:UnregisterEvent("MAIL_SEND_INFO_UPDATE");
-	
-	Altoholic:ClearTable(self.Attachments)
+	wipe(self.Attachments)
 end
 
 function Altoholic.Mail:OnInboxUpdate()
-	local self = Altoholic.Mail
-	
-	-- don't try to update mail if MAIL_SHOW did not happen, or if an update is already happening, only do it once
-	if self.AllowMailUpdate then
-		self:Scan()
-		self.AllowMailUpdate = false
-	end
+	Altoholic:UnregisterEvent("MAIL_INBOX_UPDATE");	-- process only one occurence of the event, right after MAIL_SHOW
+	Altoholic.Mail:Scan()
 end
 
 function Altoholic.Mail:OnSendInfoUpdate()
 	local self = Altoholic.Mail
 	
-	Altoholic:ClearTable(self.Attachments)
+	wipe(self.Attachments)
 
 	for i=1, 12 do
 		local name, itemIcon, itemCount = GetSendMailItem(i)

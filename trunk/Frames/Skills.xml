@@ -1,7 +1,7 @@
 ﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="Skills.lua"></Script>
 
-	<Button name="SkillButtonTemplate" virtual="true">
+	<Button name="AltoSkillButtonTemplate" virtual="true">
 		<Size>
 			<AbsDimension x="65" y="18"/>
 		</Size>
@@ -32,7 +32,7 @@
 		<HighlightFont style="GameFontHighlightSmallLeft"/>
 	</Button>
 	
-	<Button name="SkillsTemplate" virtual="true">
+	<Button name="AltoSkillsTemplate" virtual="true">
 		<Size>
 			<AbsDimension x="615" y="22"/>
 		</Size>
@@ -68,7 +68,7 @@
 					<OnClick>
 						local id = self:GetParent():GetID()
 						if id ~= 0 then
-							local s = Altoholic.CharacterInfo[id]
+							local s = Altoholic.Characters:Get(id)
 							if s.isCollapsed ~= nil then
 								if s.isCollapsed == true then
 									s.isCollapsed = false
@@ -118,7 +118,7 @@
 				<NormalFont style="GameFontNormalSmallLeft"/>
 				<HighlightFont style="GameFontHighlightSmallLeft"/>
 			</Button>
-			<Button name="$parentSkill1" inherits="SkillButtonTemplate" id="1">
+			<Button name="$parentSkill1" inherits="AltoSkillButtonTemplate" id="1">
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" relativeTo="$parentLevel" relativePoint="BOTTOMRIGHT">
 						<Offset>
@@ -127,7 +127,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentSkill2" inherits="SkillButtonTemplate" id="2">
+			<Button name="$parentSkill2" inherits="AltoSkillButtonTemplate" id="2">
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" relativeTo="$parentSkill1" relativePoint="BOTTOMRIGHT">
 						<Offset>
@@ -136,7 +136,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentCooking" inherits="SkillButtonTemplate" id="3">
+			<Button name="$parentCooking" inherits="AltoSkillButtonTemplate" id="3">
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" relativeTo="$parentSkill2" relativePoint="BOTTOMRIGHT">
 						<Offset>
@@ -145,7 +145,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentFirstAid" inherits="SkillButtonTemplate" id="4">
+			<Button name="$parentFirstAid" inherits="AltoSkillButtonTemplate" id="4">
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" relativeTo="$parentCooking" relativePoint="BOTTOMRIGHT">
 						<Offset>
@@ -154,7 +154,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentFishing" inherits="SkillButtonTemplate" id="5">
+			<Button name="$parentFishing" inherits="AltoSkillButtonTemplate" id="5">
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" relativeTo="$parentFirstAid" relativePoint="BOTTOMRIGHT">
 						<Offset>
@@ -163,7 +163,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentRiding" inherits="SkillButtonTemplate" id="6">
+			<Button name="$parentRiding" inherits="AltoSkillButtonTemplate" id="6">
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" relativeTo="$parentFishing" relativePoint="BOTTOMRIGHT">
 						<Offset>
@@ -224,12 +224,85 @@
 				</Layers>
 				<Scripts>
 					<OnVerticalScroll>
-						FauxScrollFrame_OnVerticalScroll(self, offset, 18, function(self) 
-							Altoholic.TradeSkills:Update()
-						end)
+						FauxScrollFrame_OnVerticalScroll(self, offset, 18, Altoholic.TradeSkills.Update)
 					</OnVerticalScroll>
 				</Scripts>
 			</ScrollFrame>
+			
+			<Button name="$parentEntry1" inherits="AltoSkillsTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentScrollFrame" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry2" inherits="AltoSkillsTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry1" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry3" inherits="AltoSkillsTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry2" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry4" inherits="AltoSkillsTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry3" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry5" inherits="AltoSkillsTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry4" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry6" inherits="AltoSkillsTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry5" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry7" inherits="AltoSkillsTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry6" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry8" inherits="AltoSkillsTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry7" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry9" inherits="AltoSkillsTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry8" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry10" inherits="AltoSkillsTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry9" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry11" inherits="AltoSkillsTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry10" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry12" inherits="AltoSkillsTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry11" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry13" inherits="AltoSkillsTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry12" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry14" inherits="AltoSkillsTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry13" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
 		</Frames>
 	</Frame>
 	

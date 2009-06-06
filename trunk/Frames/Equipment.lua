@@ -457,6 +457,9 @@ function Altoholic.Equipment:Update()
 			
 			_G[ itemName ]:Show()
 			j = j + 1
+			if j > 10 then 	-- users of Symbolic Links might have more than 10 columns, prevent it
+				break
+			end
 		end
 		
 		while j <= 10 do
@@ -498,6 +501,8 @@ function Altoholic.Equipment:Scan()
 	end
 	
 	c.averageItemLvl = totalItemLevel / itemCount
+	
+	Altoholic:UpdateStats()		-- changing equipment requires to rescan stats
 end
 
 function Altoholic.Equipment:OnEnter()

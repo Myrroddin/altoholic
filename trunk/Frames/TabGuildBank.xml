@@ -1,6 +1,7 @@
 ﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="TabGuildBank.lua"></Script>
 
-	<Button name="GuildBankMenuItemTemplate" inherits="MenuItemTemplate" virtual="true">
+	<Button name="AltoGuildBankMenuItemTemplate" inherits="AltoMenuItemTemplate" virtual="true">
 		<Size>
 			<AbsDimension x="156" y="20"/>
 		</Size>
@@ -83,6 +84,7 @@
 					<OnLoad>
 						UIDropDownMenu_SetWidth(self, 160) 
 						UIDropDownMenu_SetButtonWidth(self, 20)
+						UIDropDownMenu_Initialize(self, Altoholic.Tabs.GuildBank.DropDownGuild_Initialize)
 					</OnLoad>
 				</Scripts>
 			</Frame>
@@ -99,7 +101,7 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						AltoholicTabGuildBank:DeleteGuild();
+						Altoholic.Tabs.GuildBank:DeleteGuild();
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -119,11 +121,11 @@
 						getglobal(self:GetName().."Text"):SetText(XML_ALTO_GUILD_TEXT1);
 					</OnLoad>
 					<OnClick>
-						AltoholicTabGuildBank:HideGuild(self);
+						Altoholic.Tabs.GuildBank:HideGuild(self);
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<Button name="$parentMenuItem1" inherits="GuildBankMenuItemTemplate" id="1">
+			<Button name="$parentMenuItem1" inherits="AltoGuildBankMenuItemTemplate" id="1">
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
@@ -132,7 +134,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem2" inherits="GuildBankMenuItemTemplate" id="2">
+			<Button name="$parentMenuItem2" inherits="AltoGuildBankMenuItemTemplate" id="2">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem1" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -141,7 +143,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem3" inherits="GuildBankMenuItemTemplate" id="3">
+			<Button name="$parentMenuItem3" inherits="AltoGuildBankMenuItemTemplate" id="3">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem2" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -150,7 +152,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem4" inherits="GuildBankMenuItemTemplate" id="4">
+			<Button name="$parentMenuItem4" inherits="AltoGuildBankMenuItemTemplate" id="4">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem3" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -159,7 +161,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem5" inherits="GuildBankMenuItemTemplate" id="5">
+			<Button name="$parentMenuItem5" inherits="AltoGuildBankMenuItemTemplate" id="5">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem4" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -168,7 +170,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem6" inherits="GuildBankMenuItemTemplate" id="6">
+			<Button name="$parentMenuItem6" inherits="AltoGuildBankMenuItemTemplate" id="6">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem5" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -184,6 +186,5 @@
 			</OnShow>
 		</Scripts>
 	</Frame>
-	
-	<Script file="TabGuildBank.lua"></Script>
+
 </Ui>

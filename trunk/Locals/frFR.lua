@@ -31,6 +31,7 @@ XML_ALTO_SUMMARY_MENU4 = "Activité"
 XML_ALTO_SUMMARY_MENU5 = "Membres de guilde"
 XML_ALTO_SUMMARY_MENU6 = "Métiers de guilde"
 XML_ALTO_SUMMARY_MENU7 = "Onglets banque de guilde"
+XML_ALTO_SUMMARY_MENU8 = "Calendrier"
 
 XML_ALTO_SUMMARY_TEXT1 = "Demande de partage de compte"
 XML_ALTO_SUMMARY_TEXT2 = "Cliquez sur ce bouton pour demander\n"
@@ -89,6 +90,7 @@ XML_ALTO_OPT_GENERAL9 = "|cFFFFFFFFQuand elle est |cFF00FF00activée|cFFFFFFFF, 
 				.. "Conseil Sécurité: désactivez cette option si vous avez des droits d'officier\n"
 				.. "sur des onglets de banque de guilde qui ne peuvent pas être vus de tous,\n"
 				.. "et autorisez les requêtes manuellement"
+XML_ALTO_OPT_GENERAL10 = "Transparence"
 
 XML_ALTO_OPT_SEARCH1 = "AutoQuery server |cFFFF0000(risques de déconnexion)";
 XML_ALTO_OPT_SEARCH2 = "|cFFFFFFFFSi un objet n'existant pas dans le cache local\n"
@@ -128,4 +130,7 @@ XML_ALTO_OPT_TOOLTIP7 = "Afficher les compteurs sur mines et plantes";
 XML_ALTO_OPT_TOOLTIP8 = "Afficher les compteurs des deux factions";
 XML_ALTO_OPT_TOOLTIP9 = "Afficher les compteurs de tous les comptes";
 XML_ALTO_OPT_TOOLTIP10 = "Inclure la banque de guilde dans le décompte total";
+
+XML_ALTO_OPT_CALENDAR1 = "Commencer la semaine le lundi"; 
+XML_ALTO_OPT_CALENDAR2 = "Avertir %d minutes avant le début d'un évènement"; 
 end

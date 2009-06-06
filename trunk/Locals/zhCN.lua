@@ -26,6 +26,7 @@ XML_ALTO_SUMMARY_MENU4 = "活跃度"
 XML_ALTO_SUMMARY_MENU5 = "公会成员"
 XML_ALTO_SUMMARY_MENU6 = "公会技能"
 XML_ALTO_SUMMARY_MENU7 = "公会银行标签"
+XML_ALTO_SUMMARY_MENU8 = "Calendar"
 
 XML_ALTO_SUMMARY_TEXT1 = "账户共享请求"
 XML_ALTO_SUMMARY_TEXT2 = "点击此按钮来询问玩家\n"
@@ -85,6 +86,7 @@ XML_ALTO_OPT_GENERAL9 = "|cFFFFFFFF当 |cFF00FF00启用|cFFFFFFFF时, 此选项�
 				.. "安全提示：如果您有公会管理的权利请关闭\n"
 				.. "有查看限制的公会金库分页来防止被任何人观看,\n"
 				.. "如需要同步时请用手动授权."
+XML_ALTO_OPT_GENERAL10 = "Transparency"
 
 XML_ALTO_OPT_SEARCH1 = "自动向服务器查询|cFFFF0000(可能会掉线！)";
 XML_ALTO_OPT_SEARCH2 = "|cFFFFFFFF如果一个不在本地缓存中物品\n"
@@ -124,4 +126,7 @@ XML_ALTO_OPT_TOOLTIP7 = "在采集点上显示数量";
 XML_ALTO_OPT_TOOLTIP8 = "显示双方的声望数值";
 XML_ALTO_OPT_TOOLTIP9 = "显示所有账户的数值";
 XML_ALTO_OPT_TOOLTIP10 = "Include guild bank count in the total count";
+
+XML_ALTO_OPT_CALENDAR1 = "Week starts on Monday"; 
+XML_ALTO_OPT_CALENDAR2 = "Warn %d minutes before an event starts"; 
 end

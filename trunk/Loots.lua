@@ -1493,7 +1493,7 @@ Altoholic.Loots.List = {
 		[FACTION_STANDING_LABEL7] = { 29180, 29179, 24182, 29191, 22915, 28281, 13517, 22537, 33159	},
 		[FACTION_STANDING_LABEL8] = { 29177, 29175, 29176, 33153, 31354, 31781 }
 	},
-	[L["Shattrath"]] = {	
+	[BZ["Shattrath City"]] = {	
 		["Flasks"] = { 32898, 32899, 32901, 32900 }
 	},
 	[BF["Sha'tari Skyguard"]] = {	
@@ -2709,11 +2709,11 @@ function Altoholic.Loots:FindUpgradeByStats(currentID, class, Search_iLvl, Searc
 	self.Exclude = nil
 	self.Base = nil
 	
-	Altoholic:ClearTable(self.SearchItemStats)
+	wipe(self.SearchItemStats)
 	self.SearchItemStats = nil
-	Altoholic:ClearTable(self.TooltipLines)
+	wipe(self.TooltipLines)
 	self.TooltipLines = nil
-	Altoholic:ClearTable(self.RawItemStats)
+	wipe(self.RawItemStats)
 	self.RawItemStats = nil
 end
 
@@ -2739,7 +2739,7 @@ function Altoholic.Loots:MatchUpgradeByStats(itemID, Search_iLvl, SearchType, Se
 	AltoTooltip:SetHyperlink(itemLink)
 	
 	-- save some time by trying to find out if the item could be excluded
-	Altoholic:ClearTable(self.TooltipLines)
+	wipe(self.TooltipLines)
 	for i = 4, AltoTooltip:NumLines() do	-- parse all tooltip lines, one by one, start at 4 since 1= item name, 2 = binds on.., 3 = type/slot/unique ..etc
 		-- in this first pass, save the lines into a cache, reused below
 		local tooltipLine = _G[ "AltoTooltipTextLeft" .. i]:GetText()

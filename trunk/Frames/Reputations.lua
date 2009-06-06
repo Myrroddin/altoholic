@@ -112,7 +112,7 @@ function Altoholic.Reputations:BuildView()
 	local repDB = r.reputation
 	
 	self.view = self.view or {}
-	Altoholic:ClearTable(self.view)
+	wipe(self.view)
 	
 	local factionGroup
 	for i, f in pairs(self.RefTable) do		-- browse the reference table
@@ -139,6 +139,7 @@ function Altoholic.Reputations:BuildView()
 end
 
 function Altoholic.Reputations:Update()
+	local self = Altoholic.Reputations
 	local VisibleLines = 14
 	local frame = "AltoholicFrameReputations"
 	local entry = frame.."Entry"
@@ -233,7 +234,11 @@ function Altoholic.Reputations:Update()
 						itemButton.CharName = nil
 						itemButton:Hide()
 					end
+
 					j = j + 1
+					if j > 10 then 	-- users of Symbolic Links might have more than 10 columns, prevent it
+						break
+					end
 				end
 				
 				while j <= 10 do

@@ -185,22 +185,6 @@
 			<OnClick>
 				Altoholic.Glyphs.Buttons:OnClick(self, button);
 			</OnClick>
-		<!--
-			<OnShow>
-				GlyphFrameGlyph_UpdateSlot(self);
-			</OnShow>
-			<OnClick>
-				GlyphFrameGlyph_OnClick(self, button);
-			</OnClick>
-			<OnEnter>
-				self.hasCursor = true;
-				GlyphFrameGlyph_OnEnter(self);
-			</OnEnter>
-
-			<OnUpdate>
-				GlyphFrameGlyph_OnUpdate(self, elapsed);
-			</OnUpdate>
-		-->
 		</Scripts>
 	</Button>
 	

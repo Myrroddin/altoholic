@@ -1,6 +1,5 @@
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
-local V = Altoholic.vars
 
 local INFO_REALM_LINE = 0
 local INFO_CHARACTER_LINE = 1
@@ -12,22 +11,55 @@ local YELLOW	= "|cFFFFFF00"
 local GOLD		= "|cFFFFD700"
 local CYAN		= "|cFF1CFAFE"
 
-function Altoholic:BagUsage_Update()
+local function GetBagTypeString(bagType)
+	if bagType == 0 then
+		return ""
+	elseif bagType == 1 then
+		return BI["Quiver"]
+	elseif bagType == 2 then
+		return BI["Ammo Pouch"]
+	elseif bagType == 4 then
+		return BI["Soul Bag"]
+	elseif bagType == 8 then
+		return BI["Leatherworking Bag"]
+	elseif bagType == 16 then
+		return BI["Inscription Bag"]
+	elseif bagType == 32 then
+		return BI["Herb Bag"]
+	elseif bagType == 64 then
+		return BI["Enchanting Bag"]
+	elseif bagType == 128 then
+		return BI["Engineering Bag"]
+	elseif bagType == 512 then
+		return BI["Gem Bag"]
+	elseif bagType == 1024 then
+		return BI["Mining Bag"]
+	end
+	return L["Unknown"]
+end
+
+Altoholic.BagUsage = {}
+
+function Altoholic.BagUsage:Update()
 	local VisibleLines = 14
 	local frame = "AltoholicFrameBagUsage"
 	local entry = frame.."Entry"
 	
-	if #Altoholic.CharacterInfo == 0 then
+	local Characters = Altoholic.Characters
+	
+	if Characters:GetNum() == 0 then
+		DEFAULT_CHAT_FRAME:AddMessage("Altoholic.BagUsage:Update()")
+		DEFAULT_CHAT_FRAME:AddMessage("0 Characters !!")
+		
 		-- added these 2 lines to make sur that the table is correct when the user gets here. 
 		-- For some reason, a few users get a empty window..only an empty table could cuase this
-		self:BuildCharacterInfoTable()
-		self:BuildCharacterInfoView()
+		-- Characters:BuildList()
+		-- Characters:BuildView()
 	
-		if #Altoholic.CharacterInfo == 0 then
-			-- if by any chance the table is still empty, then draw an empty frame
-			self:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
-			return
-		end
+		-- if Characters:GetNum() == 0 then			-- if by any chance the table is still empty, then draw an empty frame
+			-- Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
+			-- return
+		-- end
 	end	
 	
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
@@ -37,8 +69,8 @@ function Altoholic:BagUsage_Update()
 	local CurrentAccount, CurrentRealm
 	local i=1
 	
-	for _, line in pairs(Altoholic.CharacterInfoView) do
-		local s = Altoholic.CharacterInfo[line]
+	for _, line in pairs(Characters:GetView()) do
+		local s = Characters:Get(line)
 		local lineType = mod(s.linetype, 3)
 		
 		if (offset > 0) or (DisplayedCount >= VisibleLines) then		-- if the line will not be visible
@@ -93,20 +125,20 @@ function Altoholic:BagUsage_Update()
 				DisplayedCount = DisplayedCount + 1
 			elseif DrawRealm then
 				if (lineType == INFO_CHARACTER_LINE) then
-					local c = self.db.global.data[CurrentAccount][CurrentRealm].char[s.name]
+					local c = Altoholic.db.global.data[CurrentAccount][CurrentRealm].char[s.name]
 				
 					local icon
 					if c.faction == "Alliance" then
-						icon = self:TextureToFontstring("Interface\\Icons\\INV_BannerPVP_02", 18, 18) .. " "
+						icon = Altoholic:TextureToFontstring("Interface\\Icons\\INV_BannerPVP_02", 18, 18) .. " "
 					else
-						icon = self:TextureToFontstring("Interface\\Icons\\INV_BannerPVP_01", 18, 18) .. " "
+						icon = Altoholic:TextureToFontstring("Interface\\Icons\\INV_BannerPVP_01", 18, 18) .. " "
 					end
 					
 					_G[entry..i.."Collapse"]:Hide()
 					_G[entry..i.."Name"]:SetWidth(170)
 					_G[entry..i.."Name"]:SetPoint("TOPLEFT", 10, 0)
 					_G[entry..i.."NameNormalText"]:SetWidth(170)
-					_G[entry..i.."NameNormalText"]:SetText(icon .. format("%s%s (%s)", self:GetClassColor(c.englishClass), s.name, c.class))
+					_G[entry..i.."NameNormalText"]:SetText(icon .. format("%s%s (%s)", Altoholic:GetClassColor(c.englishClass), s.name, c.class))
 					_G[entry..i.."Level"]:SetText(GREEN .. c.level)
 				
 					_G[entry..i.."FreeBags"]:SetText(GREEN .. c.numFreeBagSlots)
@@ -171,9 +203,9 @@ function Altoholic:BagUsage_Update()
 	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleCount, VisibleLines, 18);
 end	
 
-function Altoholic_BagUsage_OnEnter(self)
+function Altoholic.BagUsage:OnEnter(self)
 	local line = self:GetParent():GetID()
-	local s = Altoholic.CharacterInfo[line]
+	local s = Altoholic.Characters:Get(line)
 	
 	if mod(s.linetype, 3) ~= INFO_CHARACTER_LINE then		
 		return
@@ -202,7 +234,7 @@ function Altoholic_BagUsage_OnEnter(self)
 				if (b.bagtype == 0) then
 					bag = ""
 				else
-					bag = YELLOW .. "(" .. Altoholic:GetBagTypeString(b.bagtype) .. ")"
+					bag = YELLOW .. "(" .. GetBagTypeString(b.bagtype) .. ")"
 				end
 
 				AltoTooltip:AddLine(GOLD .. b.size .. " |r" .. L["slots"] .. " ("  .. GREEN
@@ -225,7 +257,7 @@ function Altoholic_BagUsage_OnEnter(self)
 				if (b.bagtype == 0) then
 					bag = ""
 				else
-					bag = YELLOW .. "(" .. Altoholic:GetBagTypeString(b.bagtype) .. ")"
+					bag = YELLOW .. "(" .. GetBagTypeString(b.bagtype) .. ")"
 				end
 			
 				AltoTooltip:AddLine(GOLD .. b.size .. " |r" .. L["slots"] .. " ("  .. GREEN
@@ -239,31 +271,4 @@ function Altoholic_BagUsage_OnEnter(self)
 	AltoTooltip:AddLine(" ",1,1,1);
 	AltoTooltip:AddLine(CYAN .. numSlots .. " |r" .. L["slots"] .. " ("  .. GREEN .. numFree .. "|r " ..L["free"] .. ") ",1,1,1);
 	AltoTooltip:Show();	
-end
-
-function Altoholic:GetBagTypeString(bagType)
-	if bagType == 0 then
-		return ""
-	elseif bagType == 1 then
-		return BI["Quiver"]
-	elseif bagType == 2 then
-		return BI["Ammo Pouch"]
-	elseif bagType == 4 then
-		return BI["Soul Bag"]
-	elseif bagType == 8 then
-		return BI["Leatherworking Bag"]
-	elseif bagType == 16 then
-		return BI["Inscription Bag"]
-	elseif bagType == 32 then
-		return BI["Herb Bag"]
-	elseif bagType == 64 then
-		return BI["Enchanting Bag"]
-	elseif bagType == 128 then
-		return BI["Engineering Bag"]
-	elseif bagType == 512 then
-		return BI["Gem Bag"]
-	elseif bagType == 1024 then
-		return BI["Mining Bag"]
-	end
-	return L["Unknown"]
 end

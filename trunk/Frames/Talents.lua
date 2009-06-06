@@ -18,13 +18,8 @@ Altoholic.Glyphs = {}
 Altoholic.Glyphs.Buttons = {}
 
 function Altoholic.Talents:Update(treeIndex)
-	
-	-- Altoholic.Profiler:Begin("TalentUpdate")
-	
 	Altoholic.Glyphs:Update()
-	
 	treeIndex = treeIndex or 1
-	
 	AltoholicFrameTalents_ScrollFrameScrollBar:SetMinMaxValues(0, 330);
 	
 	-- stop all autocast
@@ -47,7 +42,6 @@ function Altoholic.Talents:Update(treeIndex)
 	local tree = ref[c.englishClass].talentInfo[treeIndex]
 	
 	if not tree.background then
-		-- Altoholic.Profiler:End("TalentUpdate")
 		return
 	end
 	
@@ -58,7 +52,6 @@ function Altoholic.Talents:Update(treeIndex)
 		Altoholic:SetItemButtonTexture("AltoholicFrameTalents_SpecIcon"..k, TALENT_ICON_PATH .. v.icon, 30, 30)
 		
 		if strfind(c.talent, ":") then			-- new format =	name:points | name:points | name:points
-			-- local talent = select(k, strsplit("|", c.talent))
 			local talent = select(((self.group-1)*3) + k, strsplit("|", c.talent))
 			local name, points = strsplit(":", talent)
 
@@ -146,8 +139,6 @@ function Altoholic.Talents:Update(treeIndex)
 	self.Branches:HideUnused()
 	self.Branches:ClearArray()
 	AltoholicFrameTalents:Show()
-	
-	-- Altoholic.Profiler:End("TalentUpdate")
 end
 
 function Altoholic.Talents.Buttons:ResetCount()
@@ -155,8 +146,6 @@ function Altoholic.Talents.Buttons:ResetCount()
 end
 
 function Altoholic.Talents.Buttons:Draw(texture, tier, column, count, id)
-	-- Altoholic.Profiler:Begin("TalentButtonsDraw")
-
 	local itemName = "AltoholicFrameTalents_ScrollFrameTalent" .. self.count
 	local itemButton = _G[itemName]
 
@@ -183,7 +172,6 @@ function Altoholic.Talents.Buttons:Draw(texture, tier, column, count, id)
 	itemButton:Show()
 
 	self.count = self.count + 1
-	-- Altoholic.Profiler:End("TalentButtonsDraw")
 end
 
 function Altoholic.Talents.Buttons:HideUnused()
@@ -200,7 +188,6 @@ function Altoholic.Talents.Arrows:ResetCount()
 end
 
 function Altoholic.Talents.Arrows:Draw(tier, column, prereqTier, prereqColumn, blocked)
-	-- Altoholic.Profiler:Begin("TalentArrowsDraw")
 	local arrowType					-- algorithm taken from TalentFrameBase.lua, adjusted for my needs
 	
 	if (column == prereqColumn) then			-- Same column ? ==> TOP
@@ -224,7 +211,6 @@ function Altoholic.Talents.Arrows:Draw(tier, column, prereqTier, prereqColumn, b
 	end
 	
 	if not arrowType then
-		-- Altoholic.Profiler:End("TalentArrowsDraw")
 		return
 	end
 	
@@ -251,7 +237,6 @@ function Altoholic.Talents.Arrows:Draw(tier, column, prereqTier, prereqColumn, b
 	arrow:Show()
 	
 	self.count = self.count + 1
-	-- Altoholic.Profiler:End("TalentArrowsDraw")
 end
 
 function Altoholic.Talents.Arrows:HideUnused()
@@ -267,9 +252,8 @@ function Altoholic.Talents.Branches:ResetCount()
 end
 
 function Altoholic.Talents.Branches:InitializeArray()
-	
 	self.Array = self.Array or {};		-- branch array
-	Altoholic.ClearTable(self.Array)
+	wipe(self.Array)
 	
 	for i = 1, MAX_NUM_TALENT_TIERS do
 		self.Array[i] = {};
@@ -280,7 +264,7 @@ function Altoholic.Talents.Branches:InitializeArray()
 end
 
 function Altoholic.Talents.Branches:ClearArray()
-	Altoholic.ClearTable(self.Array)
+	wipe(self.Array)
 	self.Array = nil
 end
 
@@ -331,7 +315,6 @@ function Altoholic.Talents.Branches:Init(tier, column, prereqTier, prereqColumn,
 end
 
 function Altoholic.Talents.Branches:Draw()
-	-- Altoholic.Profiler:Begin("TalentBranchesDraw")
 	local x, y
 	local ignoreUp
 	
@@ -391,7 +374,6 @@ function Altoholic.Talents.Branches:Draw()
 			p.node = nil
 		end
 	end
-	-- Altoholic.Profiler:End("TalentBranchesDraw")
 end
 
 function Altoholic.Talents.Branches:SetTexture(branchType, x, y)
@@ -474,7 +456,6 @@ function Altoholic.Talents:Scan()
 end
 
 function Altoholic.Talents:GetLink(self)
-
 	local c = Altoholic:GetCharacterTable()
 	local ref = Altoholic:GetReferenceTable()
 	local treeIndex = self:GetParent():GetParent():GetID()
@@ -517,11 +498,9 @@ function Altoholic.Glyphs:Update()
 	--	6		4
 	--		2
 
-	-- Altoholic.Profiler:Begin("GlyphsUpdate")
 	for i = 1, 6 do
 		self.Buttons:Draw(i)
 	end
-	-- Altoholic.Profiler:End("GlyphsUpdate")
 end
 
 function Altoholic.Glyphs:Scan()

@@ -1,4 +1,5 @@
 ﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="TabCharacters.lua"></Script>
 
  	<Button name="AltoViewIconTemplate" virtual="true">
 		<Size>
@@ -45,7 +46,7 @@
 				AltoTooltip:Hide();
 			</OnLeave>
 			<OnClick>
-				AltoholicTabCharacters:ViewIcon_OnClick(self, button)
+				Altoholic.Tabs.Characters:MenuItem_OnClick(self, button)
 			</OnClick>
 		</Scripts>
 		<PushedTexture file="Interface\Buttons\UI-Quickslot-Depress"/>
@@ -111,6 +112,11 @@
 					<OnLoad>
 						UIDropDownMenu_SetWidth(self, 120) 
 						UIDropDownMenu_SetButtonWidth(self, 20)
+						
+						local realm = GetRealmName()
+						UIDropDownMenu_SetSelectedValue(self, "Default|".. realm)
+						UIDropDownMenu_SetText(self, realm)
+						UIDropDownMenu_Initialize(self, Altoholic.Tabs.Characters.DropDownRealm_Initialize)
 					</OnLoad>
 				</Scripts>
 			</Frame>
@@ -126,6 +132,11 @@
 					<OnLoad>
 						UIDropDownMenu_SetWidth(self, 120) 
 						UIDropDownMenu_SetButtonWidth(self, 20)
+
+						local player = UnitName("player")
+						UIDropDownMenu_SetSelectedValue(self, player);
+						UIDropDownMenu_SetText(self, player)
+						UIDropDownMenu_Initialize(self, Altoholic.Tabs.Characters.DropDownChar_Initialize)
 					</OnLoad>
 				</Scripts>
 			</Frame>
@@ -288,12 +299,13 @@
 					AltoholicFrameClasses:Show()
 				end
 				
-				if not Altoholic.vars.InfoType then
-					AltoholicTabCharacters:StartAutoCastShine(AltoholicTabCharacters_Bags)
-					AltoholicTabCharacters:ViewCharInfo(1)
+				local tc = Altoholic.Tabs.Characters
+				if not tc.InfoType then
+					tc:StartAutoCastShine(AltoholicTabCharacters_Bags)
+					tc:ViewCharInfo(1)
 				end
 				
-				AltoholicTabCharacters:UpdateViewIcons()
+				tc:UpdateViewIcons()
 			</OnShow>
 			<OnHide>
 				AltoholicFrameClasses:Hide()
@@ -301,5 +313,4 @@
 		</Scripts>
 	</Frame>
 	
-	<Script file="TabCharacters.lua"></Script>
 </Ui>

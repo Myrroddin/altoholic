@@ -21,6 +21,9 @@
 <Include file="libs\LibBabble-Inventory-3.0\lib.xml"/>
 <Include file="libs\LibFuBarPlugin-3.0\lib.xml"/>
 
+<Script file="libs\LibTradeLinks-1.0\LibTradeLinks-1.0.lua"/>
+<Script file="libs\LibTradeLinks-1.0\9901.lua"/>
+
 </Ui>
 
 

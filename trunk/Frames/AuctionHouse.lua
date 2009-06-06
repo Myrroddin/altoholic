@@ -1,6 +1,5 @@
 local BZ = LibStub("LibBabble-Zone-3.0"):GetLookupTable()
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
-local V = Altoholic.vars
 
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
@@ -10,13 +9,71 @@ local TEAL		= "|cFF00FF9A"
 
 Altoholic.AuctionHouse = {}
 
+local function SortByName(a, b, ascending)
+	local textA = GetItemInfo(a.id) or ""
+	local textB = GetItemInfo(b.id) or ""
+	
+	if ascending then
+		return textA < textB
+	else
+		return textA > textB
+	end
+end
+
+local function SortByHighBidder(a, b, ascending)
+	local textA = a.highBidder or ""
+	local textB = b.highBidder or ""
+
+	if ascending then
+		return textA < textB
+	else
+		return textA > textB
+	end
+end
+
+local function SortByField(a, b, field, ascending)
+	if ascending then
+		return a[field] < b[field]
+	else
+		return a[field] > b[field]
+	end
+end
+
+function Altoholic.AuctionHouse:SortAuctions(self, field)
+	local c = Altoholic:GetCharacterTable()
+	
+	if field == "name" then
+		table.sort(c.auctions, function(a, b) return SortByName(a, b, self.ascendingSort) end)
+	elseif field == "highBidder" then
+		table.sort(c.auctions, function(a, b) return SortByHighBidder(a, b, self.ascendingSort) end)
+	elseif field == "buyoutPrice" then
+		table.sort(c.auctions, function(a, b) return SortByField(a, b, field, self.ascendingSort) end)
+	end
+
+	Altoholic.AuctionHouse:UpdateAuctions()
+end
+
+function Altoholic.AuctionHouse:SortBids(self, field)
+	local c = Altoholic:GetCharacterTable()
+	
+	if field == "name" then
+		table.sort(c.bids, function(a, b) return SortByName(a, b, self.ascendingSort) end)
+	elseif field == "owner" then
+		table.sort(c.bids, function(a, b) return SortByField(a, b, field, self.ascendingSort) end)
+	elseif field == "buyoutPrice" then
+		table.sort(c.bids, function(a, b) return SortByField(a, b, field, self.ascendingSort) end)
+	end
+
+	Altoholic.AuctionHouse:UpdateBids()
+end
+
 function Altoholic.AuctionHouse:UpdateAuctions()
 	local c = Altoholic:GetCharacterTable()
 	local VisibleLines = 7
 	local frame = "AltoholicFrameAuctions"
 	local entry = frame.."Entry"
 
-	local player = V.CurrentAlt
+	local player = Altoholic:GetCurrentCharacter()
 	
 	if c.AHCheckClientDate then
 		-- new timestamps
@@ -108,7 +165,7 @@ function Altoholic.AuctionHouse:UpdateBids()
 	local frame = "AltoholicFrameAuctions"
 	local entry = frame.."Entry"
 	
-	local player = V.CurrentAlt
+	local player = Altoholic:GetCurrentCharacter()
 	
 	if c.AHCheckClientDate then
 		-- new timestamps

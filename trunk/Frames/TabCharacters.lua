@@ -1,24 +1,12 @@
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 
-local V = Altoholic.vars
 local THIS_ACCOUNT = "Default"
 local WHITE		= "|cFFFFFFFF"
 local TEAL		= "|cFF00FF9A"
 local ORANGE	= "|cFFFF7F00"
 local GREEN		= "|cFF00FF00"
 local YELLOW	= "|cFFFFFF00"
-
--- local SPELLID_ALCHEMY				= 2259
--- local SPELLID_BLACKSMITHING		= 3100
--- local SPELLID_COOKING				= 2550
--- local SPELLID_ENCHANTING			= 7411
--- local SPELLID_ENGINEERING			= 4036
--- local SPELLID_FIRSTAID				= 3279
--- local SPELLID_JEWELCRAFTING		= 25229
--- local SPELLID_LEATHERWORKING		= 2108
--- local SPELLID_TAILORING				= 3908
--- local SPELLID_INSCRIPTION			= 45357
 
 -- These match the id's of the buttons in TabCharacters.xml
 local VIEW_BAGS = 1
@@ -43,6 +31,8 @@ local ICON_VIEW_REP = "Interface\\Icons\\INV_BannerPVP_02"
 local ICON_VIEW_EQUIP = "Interface\\Icons\\INV_Chest_Plate04"
 local ICON_VIEW_TALENTS = "Interface\\Icons\\Spell_Nature_NatureGuardian"
 
+Altoholic.Tabs.Characters = {}
+
 local CharInfoButtons = {
 	"AltoholicTabCharacters_Bags",
 	"AltoholicTabCharacters_Talents",
@@ -56,23 +46,7 @@ local CharInfoButtons = {
 	"AltoholicTabCharacters_Equipment",
 }
 
-function AltoholicTabCharacters:Initialize()
-	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, V.CurrentAccount .."|".. V.CurrentRealm)
-	UIDropDownMenu_SetText(AltoholicTabCharacters_SelectRealm, V.CurrentRealm)
-	
-	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, UnitName("player"));
-	UIDropDownMenu_SetText(AltoholicTabCharacters_SelectChar, UnitName("player"))
-	
-	UIDropDownMenu_Initialize(AltoholicTabCharacters_SelectRealm, function(self) 
-		AltoholicTabCharacters:SelectRealmDropDown_Initialize();
-	end)
-	
-	UIDropDownMenu_Initialize(AltoholicTabCharacters_SelectChar, function(self) 
-		AltoholicTabCharacters:SelectCharDropDown_Initialize();
-	end)
-end
-
-function AltoholicTabCharacters:UpdateViewIcons()
+function Altoholic.Tabs.Characters:UpdateViewIcons()
 	
 	local c = Altoholic:GetCharacterTable()
 	
@@ -197,85 +171,98 @@ function AltoholicTabCharacters:UpdateViewIcons()
 	
 end
 
-function AltoholicTabCharacters:ViewIcon_OnClick(self, button)
-	AltoholicTabCharacters:StopAutoCastShine()
-	AltoholicTabCharacters:StartAutoCastShine(self)
+function Altoholic.Tabs.Characters:MenuItem_OnClick(frame, button)
+	local self = Altoholic.Tabs.Characters
+	self:StopAutoCastShine()
+	self:StartAutoCastShine(frame)
 	
-	local id = self:GetID()
+	local id = frame:GetID()
 	if id > 0 then
-		AltoholicTabCharacters:ViewCharInfo(id, true)
+		self:ViewCharInfo(id, true)
 		return
 	end
 	
-	if self.text then		-- profession button
-		AltoholicTabCharacters:ViewCharSkills(self.text)
+	if frame.text then		-- profession button
+		self:ViewRecipes(frame.text)
 	end
 end
 
-function AltoholicTabCharacters:StartAutoCastShine(button)
+function Altoholic.Tabs.Characters:StartAutoCastShine(button)
 	local item = button:GetName()
 	AutoCastShine_AutoCastStart(_G[ item .. "Shine" ]);
 	self.LastButton = item
 end
 
-function AltoholicTabCharacters:StopAutoCastShine()
+function Altoholic.Tabs.Characters:StopAutoCastShine()
 	-- stop autocast shine on the last button that was clicked
 	if self.LastButton then
 		AutoCastShine_AutoCastStop(_G[ self.LastButton .. "Shine" ]);
 	end
 end
 
-function AltoholicTabCharacters:SelectRealmDropDown_Initialize()
+function Altoholic.Tabs.Characters:DropDownRealm_Initialize()
+	if not Altoholic:GetCurrentAccount() or 
+		not Altoholic:GetCurrentRealm() then return end
+
+	local self = Altoholic.Tabs.Characters
 	-- this account first ..
 	for RealmName, _ in pairs(Altoholic.db.global.data[THIS_ACCOUNT]) do
-		AltoholicTabCharacters:AddRealm(RealmName, THIS_ACCOUNT)
+		self:AddRealm(RealmName, THIS_ACCOUNT)
 	end
 
 	-- .. then all other accounts
 	for AccountName, a in pairs(Altoholic.db.global.data) do
 		if AccountName ~= THIS_ACCOUNT then
 			for RealmName, _ in pairs(a) do
-				AltoholicTabCharacters:AddRealm(RealmName, AccountName)
+				self:AddRealm(RealmName, AccountName)
 			end
 		end
 	end
 end
 
-function AltoholicTabCharacters:AddRealm(realm, account)
+function Altoholic.Tabs.Characters:AddRealm(realm, account)
 	local info = UIDropDownMenu_CreateInfo(); 
 
 	info.text = GREEN .. account .. ": " .. WHITE.. realm
 	info.value = account .."|" .. realm
-	info.checked = nil; 
-	info.func = function(self)
-		local OldAccount = V.CurrentAccount
-		local OldRealm = V.CurrentRealm
-		V.CurrentAccount, V.CurrentRealm = strsplit("|", self.value)
-		UIDropDownMenu_ClearAll(AltoholicTabCharacters_SelectRealm);
-		UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, V.CurrentAccount .."|".. V.CurrentRealm)
-		UIDropDownMenu_SetText(AltoholicTabCharacters_SelectRealm, GREEN .. V.CurrentAccount .. ": " .. WHITE.. V.CurrentRealm)
-		
-		if OldRealm and OldAccount then	-- clear the "select char" drop down if realm or account has changed
-			if (OldRealm ~= V.CurrentRealm) or (OldAccount ~= V.CurrentAccount) then
-				UIDropDownMenu_ClearAll(AltoholicTabCharacters_SelectChar);
-				AltoholicTabCharactersStatus:SetText("")
-				V.CurrentAlt = nil
-				Altoholic.TradeSkills.CurrentProfession = nil
-				Altoholic.Reputations:BuildView()
-				
-				AltoholicTabCharacters:HideAll()
-				AltoholicTabCharacters:StopAutoCastShine()
-				AltoholicFrameAchievements:Hide()
-				AltoholicTabCharacters:UpdateViewIcons()
-			end
-		end
-	end
+	info.checked = nil
+	info.func = self.ChangeRealm
+	info.arg1 = account
+	info.arg2 = realm
 	UIDropDownMenu_AddButton(info, 1); 
 end
 
-function AltoholicTabCharacters:SelectCharDropDown_Initialize()
-	if not V.CurrentAccount or 
-		not V.CurrentRealm then return end
+function Altoholic.Tabs.Characters:ChangeRealm(account, realm, checked)
+	local self = Altoholic.Tabs.Characters
+	local OldAccount = Altoholic:GetCurrentAccount()
+	local OldRealm = Altoholic:GetCurrentRealm()
+
+	Altoholic:SetCurrentAccount(account)
+	Altoholic:SetCurrentRealm(realm)
+	
+	UIDropDownMenu_ClearAll(AltoholicTabCharacters_SelectRealm);
+	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, account .."|".. realm)
+	UIDropDownMenu_SetText(AltoholicTabCharacters_SelectRealm, GREEN .. account .. ": " .. WHITE.. realm)
+	
+	if OldRealm and OldAccount then	-- clear the "select char" drop down if realm or account has changed
+		if (OldRealm ~= realm) or (OldAccount ~= account) then
+			UIDropDownMenu_ClearAll(AltoholicTabCharacters_SelectChar);
+			AltoholicTabCharactersStatus:SetText("")
+			Altoholic:SetCurrentCharacter(nil)
+			Altoholic.TradeSkills.CurrentProfession = nil
+			Altoholic.Reputations:BuildView()
+			
+			self:HideAll()
+			self:StopAutoCastShine()
+			AltoholicFrameAchievements:Hide()
+			self:UpdateViewIcons()
+		end
+	end
+end
+
+function Altoholic.Tabs.Characters:DropDownChar_Initialize()
+	if not Altoholic:GetCurrentAccount() or 
+		not Altoholic:GetCurrentRealm() then return end
 	
 	local info = UIDropDownMenu_CreateInfo(); 
 	local r = Altoholic:GetRealmTable()
@@ -283,70 +270,72 @@ function AltoholicTabCharacters:SelectCharDropDown_Initialize()
 	for CharacterName, c in pairs(r.char) do
 		info.text = CharacterName
 		info.value = CharacterName
-		info.func = AltoholicTabCharacters.ChangeAlt
+		info.func = Altoholic.Tabs.Characters.ChangeAlt
 		info.checked = nil; 
 		UIDropDownMenu_AddButton(info, 1); 
 	end
 end
 
-function AltoholicTabCharacters:ChangeAlt()
-	local OldAlt = V.CurrentAlt
+function Altoholic.Tabs.Characters:ChangeAlt()
+	local OldAlt = Altoholic:GetCurrentCharacter()
+	local NewAlt = self.value
 	
-	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, self.value);
-	V.CurrentAlt = self.value
+	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, NewAlt);
+	Altoholic:SetCurrentCharacter(NewAlt)
 	
-	AltoholicTabCharacters:UpdateViewIcons()
-	if (not OldAlt) or (OldAlt == V.CurrentAlt) then return end
+	local self = Altoholic.Tabs.Characters
+	self:UpdateViewIcons()
+	if (not OldAlt) or (OldAlt == NewAlt) then return end
 
-	if (type(V.InfoType) == "string") or
-		((type(V.InfoType) == "number") and (V.InfoType > VIEW_MOUNTS)) then		-- true if we're dealing with a profession
+	if (type(self.InfoType) == "string") or
+		((type(self.InfoType) == "number") and (self.InfoType > VIEW_MOUNTS)) then		-- true if we're dealing with a profession
 		Altoholic.TradeSkills.CurrentProfession = nil
-		AltoholicTabCharacters:HideAll()
-		AltoholicTabCharacters:StopAutoCastShine()
+		self:HideAll()
+		self:StopAutoCastShine()
 	else
-		AltoholicTabCharacters:ShowCharInfo(V.InfoType)		-- self will show the same info from another alt (ex: containers/mail/ ..)
+		self:ShowCharInfo(self.InfoType)		-- self will show the same info from another alt (ex: containers/mail/ ..)
 	end
 end
 
-function AltoholicTabCharacters:ViewCharInfo(index, autoCastDone)
-	if not index then
-		index = self.value
-	end
+function Altoholic.Tabs.Characters:ViewCharInfo(index, autoCastDone)
+	index = index or self.value
+	local self = Altoholic.Tabs.Characters
 	
 	if not autoCastDone then
-		AltoholicTabCharacters:StopAutoCastShine()
-		AltoholicTabCharacters:StartAutoCastShine(_G[ CharInfoButtons[index] ] )
+		self:StopAutoCastShine()
+		self:StartAutoCastShine(_G[ CharInfoButtons[index] ] )
 	end
 	
-	V.InfoType = index
-	AltoholicTabCharacters:HideAll()
-	AltoholicTabCharacters:SetMode(index)
-	AltoholicTabCharacters:ShowCharInfo(index)
+	self.InfoType = index
+	self:HideAll()
+	self:SetMode(index)
+	self:ShowCharInfo(index)
 end
 
-function AltoholicTabCharacters:ViewCharSkills(profession)
+function Altoholic.Tabs.Characters:ViewRecipes(profession)
+	local self = Altoholic.Tabs.Characters
 	local ts = Altoholic.TradeSkills
 	ts.CurrentProfession = profession
 	
-	V.InfoType = profession
-	AltoholicTabCharacters:HideAll()
-	AltoholicTabCharacters:SetMode()
+	self.InfoType = profession
+	self:HideAll()
+	self:SetMode()
 	
 	ts.Recipes:ResetDropDownMenus()
-	ts.Recipes:BuildView()
 	AltoholicFrameRecipes:Show()
+	ts.Recipes:BuildView()
+	ts.Recipes:Update()
 end
 
-function AltoholicTabCharacters:ShowCharInfo(infoType)
-
+function Altoholic.Tabs.Characters:ShowCharInfo(infoType)
 	local c = Altoholic:GetCharacterTable()
 
 	if infoType == VIEW_BAGS then
 		Altoholic:ClearScrollFrame(_G[ "AltoholicFrameContainersScrollFrame" ], "AltoholicFrameContainersEntry", 7, 41)
 		
-		AltoholicFrameContainers:SetContainerView(Altoholic.Options:Get("lastContainerView"))
+		Altoholic.Containers:SetView(Altoholic.Options:Get("lastContainerView"))
 		AltoholicFrameContainers:Show()
-		AltoholicFrameContainers:Update()
+		Altoholic.Containers:Update()
 		
 	elseif infoType == VIEW_TALENTS then
 		AltoholicFrameTalents:Show()
@@ -374,14 +363,14 @@ function AltoholicTabCharacters:ShowCharInfo(infoType)
 	elseif infoType == VIEW_COMPANIONS then
 		UIDropDownMenu_SetSelectedValue(AltoholicFramePets_SelectPetView, 1);
 		UIDropDownMenu_SetText(AltoholicFramePets_SelectPetView, COMPANIONS)
-		AltoholicFramePets:SetType("CRITTER")
+		Altoholic.Pets:SetType("CRITTER")
 		AltoholicFramePetsNormal:Show()
 		AltoholicFramePetsAllInOne:Hide()
 		AltoholicFramePets:Show()
 	elseif infoType == VIEW_MOUNTS then
 		UIDropDownMenu_SetSelectedValue(AltoholicFramePets_SelectPetView, 3);
 		UIDropDownMenu_SetText(AltoholicFramePets_SelectPetView, MOUNTS)
-		AltoholicFramePets:SetType("MOUNT")
+		Altoholic.Pets:SetType("MOUNT")
 		AltoholicFramePetsNormal:Show()
 		AltoholicFramePetsAllInOne:Hide()
 		AltoholicFramePets:Show()
@@ -396,7 +385,7 @@ function AltoholicTabCharacters:ShowCharInfo(infoType)
 	end
 end
 
-function AltoholicTabCharacters:HideAll()
+function Altoholic.Tabs.Characters:HideAll()
 	AltoholicFrameContainers:Hide()
 	AltoholicFrameTalents:Hide()
 	AltoholicFrameMail:Hide()
@@ -409,225 +398,27 @@ function AltoholicTabCharacters:HideAll()
 	AltoholicFrameClasses:Hide()
 end
 
-function AltoholicTabCharacters:SetMode(mode)
+function Altoholic.Tabs.Characters:SetMode(mode)
 	self.mode = mode
 	
-	for i = 1, 4 do 
-		_G[ "AltoholicTabCharacters_Sort" .. i .. "Arrow"]:Hide()
-		_G[ "AltoholicTabCharacters_Sort"..i ].ascendingSort = nil	-- not sorted by default
-		_G[ "AltoholicTabCharacters_Sort"..i ]:Hide()
-	end
+	local Columns = Altoholic.Tabs.Columns
+	Columns:Init()
 	
 	if not mode then return end		-- called without parameter for professions
-	
+
 	if mode == VIEW_MAILS then
-		AltoholicTabCharacters_Sort1:SetText(MAIL_SUBJECT_LABEL)
-		AltoholicTabCharacters_Sort2:SetText(FROM)
-		AltoholicTabCharacters_Sort3:SetText(L["Expiry:"])
-		
-		AltoholicTabCharacters_Sort1:SetWidth(220)
-		AltoholicTabCharacters_Sort2:SetWidth(140)
-		AltoholicTabCharacters_Sort3:SetWidth(130)
+		Columns:Add(MAIL_SUBJECT_LABEL, 220, function(self) Altoholic.Mail:Sort(self, "name") end)
+		Columns:Add(FROM, 140, function(self) Altoholic.Mail:Sort(self, "from") end)
+		Columns:Add(L["Expiry:"], 130, function(self) Altoholic.Mail:Sort(self, "expiry") end)
 
-		AltoholicTabCharacters_Sort1:SetScript("OnClick", function(self) 
-			AltoholicTabCharacters:SortMails(self, "name") 
-		end)
-		AltoholicTabCharacters_Sort2:SetScript("OnClick", function(self) 
-			AltoholicTabCharacters:SortMails(self, "from") 
-		end)
-		AltoholicTabCharacters_Sort3:SetScript("OnClick", function(self) 
-			AltoholicTabCharacters:SortMails(self, "expiry") 
-		end)
-
-		AltoholicTabCharacters_Sort1:Show()
-		AltoholicTabCharacters_Sort2:Show()
-		AltoholicTabCharacters_Sort3:Show()
-
-	
 	elseif mode == VIEW_AUCTIONS then
-		AltoholicTabCharacters_Sort1:SetText(HELPFRAME_ITEM_TITLE)
-		AltoholicTabCharacters_Sort2:SetText(HIGH_BIDDER)
-		AltoholicTabCharacters_Sort3:SetText(CURRENT_BID)
-		
-		AltoholicTabCharacters_Sort1:SetWidth(220)
-		AltoholicTabCharacters_Sort2:SetWidth(160)
-		AltoholicTabCharacters_Sort3:SetWidth(170)
-		
-		AltoholicTabCharacters_Sort1:SetScript("OnClick", function(self) 
-			AltoholicTabCharacters:SortAuctions(self, "name") 
-		end)
-		AltoholicTabCharacters_Sort2:SetScript("OnClick", function(self) 
-			AltoholicTabCharacters:SortAuctions(self, "highBidder") 
-		end)
-		AltoholicTabCharacters_Sort3:SetScript("OnClick", function(self) 
-			AltoholicTabCharacters:SortAuctions(self, "buyoutPrice") 
-		end)
-		
-		AltoholicTabCharacters_Sort1:Show()
-		AltoholicTabCharacters_Sort2:Show()
-		AltoholicTabCharacters_Sort3:Show()
-	
+		Columns:Add(HELPFRAME_ITEM_TITLE, 220, function(self) Altoholic.AuctionHouse:SortAuctions(self, "name") end)
+		Columns:Add(HIGH_BIDDER, 160, function(self) Altoholic.AuctionHouse:SortAuctions(self, "highBidder") end)
+		Columns:Add(CURRENT_BID, 170, function(self) Altoholic.AuctionHouse:SortAuctions(self, "buyoutPrice")	end)
 	
 	elseif mode == VIEW_BIDS then
-		AltoholicTabCharacters_Sort1:SetText(HELPFRAME_ITEM_TITLE)
-		AltoholicTabCharacters_Sort2:SetText(NAME)
-		AltoholicTabCharacters_Sort3:SetText(CURRENT_BID)
-		
-		AltoholicTabCharacters_Sort1:SetWidth(220)
-		AltoholicTabCharacters_Sort2:SetWidth(160)
-		AltoholicTabCharacters_Sort3:SetWidth(170)
-
-		AltoholicTabCharacters_Sort1:SetScript("OnClick", function(self) 
-			AltoholicTabCharacters:SortBids(self, "name") 
-		end)
-		AltoholicTabCharacters_Sort2:SetScript("OnClick", function(self) 
-			AltoholicTabCharacters:SortBids(self, "owner") 
-		end)
-		AltoholicTabCharacters_Sort3:SetScript("OnClick", function(self) 
-			AltoholicTabCharacters:SortBids(self, "buyoutPrice") 
-		end)
-
-		AltoholicTabCharacters_Sort1:Show()
-		AltoholicTabCharacters_Sort2:Show()
-		AltoholicTabCharacters_Sort3:Show()
+		Columns:Add(HELPFRAME_ITEM_TITLE, 220, function(self) Altoholic.AuctionHouse:SortBids(self, "name") end)
+		Columns:Add(NAME, 160, function(self) Altoholic.AuctionHouse:SortBids(self, "owner") end)
+		Columns:Add(CURRENT_BID, 170, function(self) Altoholic.AuctionHouse:SortBids(self, "buyoutPrice") end)
 	end
-end
-
-function AltoholicTabCharacters:SortMails(self, field)
-
-	for i = 1, 4 do 
-		_G[ "AltoholicTabCharacters_Sort" .. i .. "Arrow"]:Hide()
-	end
-	
-	local button = _G[ "AltoholicTabCharacters_Sort" .. self:GetID() .. "Arrow"]
-	button:Show()
-	
-	if not self.ascendingSort then
-		self.ascendingSort = true
-		button:SetTexCoord(0, 0.5625, 1.0, 0);		-- arrow pointing up
-	else
-		self.ascendingSort = nil
-		button:SetTexCoord(0, 0.5625, 0, 1.0);		-- arrow pointing down
-	end
-
-	Altoholic.Mail:BuildView(field, self.ascendingSort)
-	Altoholic.Mail:Update()
-end
-
-function AltoholicTabCharacters:SortAuctions(self, field)
-
-	for i = 1, 4 do 
-		_G[ "AltoholicTabCharacters_Sort" .. i .. "Arrow"]:Hide()
-	end
-	
-	local button = _G[ "AltoholicTabCharacters_Sort" .. self:GetID() .. "Arrow"]
-	button:Show()
-	
-	if not self.ascendingSort then
-		self.ascendingSort = true
-		button:SetTexCoord(0, 0.5625, 1.0, 0);		-- arrow pointing up
-	else
-		self.ascendingSort = nil
-		button:SetTexCoord(0, 0.5625, 0, 1.0);		-- arrow pointing down
-	end
-
-	local c = Altoholic:GetCharacterTable()
-	
-	if field == "name" then
-		table.sort(c.auctions, function(a, b)
-				local textA = GetItemInfo(a.id)
-				local textB = GetItemInfo(b.id)
-				
-				if self.ascendingSort then
-					return textA < textB
-				else
-					return textA > textB
-				end
-			end)
-	
-	elseif field == "highBidder" then
-		table.sort(c.auctions, function(a, b)
-				local textA, textB
-
-				if a.highBidder then
-					textA = a.highBidder
-				else
-					textA = ""
-				end
-				
-				if b.highBidder then
-					textB = b.highBidder
-				else
-					textB = ""
-				end
-		
-				if self.ascendingSort then
-					return textA < textB
-				else
-					return textA > textB
-				end
-			end)
-	elseif field == "buyoutPrice" then
-		table.sort(c.auctions, function(a, b)
-				if self.ascendingSort then
-					return a.buyoutPrice < b.buyoutPrice
-				else
-					return a.buyoutPrice > b.buyoutPrice
-				end
-			end)
-	end
-
-	Altoholic.AuctionHouse:UpdateAuctions()
-end
-
-function AltoholicTabCharacters:SortBids(self, field)
-
-	for i = 1, 4 do 
-		_G[ "AltoholicTabCharacters_Sort" .. i .. "Arrow"]:Hide()
-	end
-	
-	local button = _G[ "AltoholicTabCharacters_Sort" .. self:GetID() .. "Arrow"]
-	button:Show()
-	
-	if not self.ascendingSort then
-		self.ascendingSort = true
-		button:SetTexCoord(0, 0.5625, 1.0, 0);		-- arrow pointing up
-	else
-		self.ascendingSort = nil
-		button:SetTexCoord(0, 0.5625, 0, 1.0);		-- arrow pointing down
-	end
-
-	local c = Altoholic:GetCharacterTable()
-	
-	if field == "name" then
-		table.sort(c.bids, function(a, b)
-				local textA = GetItemInfo(a.id)
-				local textB = GetItemInfo(b.id)
-				
-				if self.ascendingSort then
-					return textA < textB
-				else
-					return textA > textB
-				end
-			end)
-	
-	elseif field == "owner" then
-		table.sort(c.bids, function(a, b)
-				if self.ascendingSort then
-					return a.owner < b.owner
-				else
-					return a.owner > b.owner
-				end
-			end)
-	elseif field == "buyoutPrice" then
-		table.sort(c.bids, function(a, b)
-				if self.ascendingSort then
-					return a.buyoutPrice < b.buyoutPrice
-				else
-					return a.buyoutPrice > b.buyoutPrice
-				end
-			end)
-	end
-
-	Altoholic.AuctionHouse:UpdateBids()
 end

@@ -1,6 +1,5 @@
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
-local V = Altoholic.vars
 
 local INFO_REALM_LINE = 0
 local INFO_CHARACTER_LINE = 1
@@ -22,17 +21,22 @@ function Altoholic.TradeSkills:Update()
 	local frame = "AltoholicFrameSkills"
 	local entry = frame.."Entry"
 	
-	if #Altoholic.CharacterInfo == 0 then
+	local self = Altoholic.TradeSkills
+	local Characters = Altoholic.Characters
+	
+	if Characters:GetNum() == 0 then
+		DEFAULT_CHAT_FRAME:AddMessage("Altoholic.TradeSkills:Update()")
+		DEFAULT_CHAT_FRAME:AddMessage("0 Characters !!")
+		
 		-- added these 2 lines to make sur that the table is correct when the user gets here. 
 		-- For some reason, a few users get a empty window..only an empty table could cuase this
-		Altoholic:BuildCharacterInfoTable()
-		Altoholic:BuildCharacterInfoView()
+		-- Characters:BuildList()
+		-- Characters:BuildView()
 	
-		if #Altoholic.CharacterInfo == 0 then
-			-- if by any chance the table is still empty, then draw an empty frame
-			Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
-			return
-		end
+		-- if Characters:GetNum() == 0 then			-- if by any chance the table is still empty, then draw an empty frame
+			-- Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
+			-- return
+		-- end
 	end
 	
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
@@ -42,8 +46,8 @@ function Altoholic.TradeSkills:Update()
 	local CurrentAccount, CurrentRealm
 	local i=1
 	
-	for _, line in pairs(Altoholic.CharacterInfoView) do
-		local s = Altoholic.CharacterInfo[line]
+	for _, line in pairs(Characters:GetView()) do
+		local s = Characters:Get(line)
 		local lineType = mod(s.linetype, 3)
 		
 		if (offset > 0) or (DisplayedCount >= VisibleLines) then		-- if the line will not be visible
@@ -138,7 +142,7 @@ function Altoholic.TradeSkills:Update()
 					icon = Altoholic:TextureToFontstring(Altoholic:GetSpellIcon(Altoholic:GetProfessionSpellID(BI["Fishing"])), 18, 18) .. " "
 					_G[entry..i.."FishingNormalText"]:SetText(icon .. self:GetColor(s.fishing) .. s.fishing)
 					
-					if c.coldWeatherFlying then
+					if c.coldWeatherFlying or Altoholic.Spells:IsKnownByChar(c, 54197) then
 						icon = Altoholic:TextureToFontstring(Altoholic:GetSpellIcon(54197), 18, 18) .. " "
 					elseif s.riding >= 225 then
 						icon = Altoholic:TextureToFontstring("Interface\\Icons\\Ability_Mount_Gryphon_01", 18, 18) .. " "
@@ -180,7 +184,7 @@ end
 
 function Altoholic.TradeSkills:OnEnter(self)
 	local line = self:GetParent():GetID()
-	local s = Altoholic.CharacterInfo[line]
+	local s = Altoholic.Characters:Get(line)
 	
 	if mod(s.linetype, 3) ~= INFO_CHARACTER_LINE then		
 		return
@@ -298,7 +302,7 @@ local VIEW_MOUNTS = 8
 
 function Altoholic.TradeSkills:OnClick(self, button)
 	local line = self:GetParent():GetID()
-	local s = Altoholic.CharacterInfo[line]
+	local s = Altoholic.Characters:Get(line)
 	
 	if mod(s.linetype, 3) ~= INFO_CHARACTER_LINE then		
 		return
@@ -307,7 +311,7 @@ function Altoholic.TradeSkills:OnClick(self, button)
 	
 	if id == 5 then return end		-- fishing ? do nothing
 	
-	Altoholic:SetCurrentCharacter( Altoholic:GetCharacterInfo(line) )
+	Altoholic:SetCurrentCharacter( Altoholic.Characters:GetInfo(line) )
 
 	local c = Altoholic:GetCharacterTable()
 	local skillName
@@ -327,17 +331,19 @@ function Altoholic.TradeSkills:OnClick(self, button)
 		end
 	end
 	
-	AltoholicTabCharacters:SelectRealmDropDown_Initialize()
-	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, V.CurrentAccount .."|".. V.CurrentRealm)
+	local tc = Altoholic.Tabs.Characters
+	local charName, realm, account = Altoholic:GetCurrentCharacter()
+	tc:DropDownRealm_Initialize()
+	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, account .."|".. realm)
 	
-	AltoholicTabCharacters:SelectCharDropDown_Initialize()
-	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, V.CurrentAlt)
+	tc:DropDownChar_Initialize()
+	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, charName)
 	Altoholic.Tabs:OnClick(2)
 
 	if id == 6 then
-		AltoholicTabCharacters:ViewCharInfo(VIEW_MOUNTS)
+		tc:ViewCharInfo(VIEW_MOUNTS)
 	else
-		AltoholicTabCharacters:ViewCharSkills(skillName)
+		tc:ViewRecipes(skillName)
 	end
 end
 
@@ -401,7 +407,7 @@ function Altoholic.TradeSkills:RestoreActiveFilters()
 	end	
 	
 	self.subClassID = nil
-	Altoholic:ClearTable(self.subClasses)
+	wipe(self.subClasses)
 	self.subClasses = nil
 	
 	-- Inventory slots
@@ -415,7 +421,7 @@ function Altoholic.TradeSkills:RestoreActiveFilters()
 	end
 	
 	self.invSlotID = nil
-	Altoholic:ClearTable(self.invSlots)
+	wipe(self.invSlots)
 	self.invSlots = nil
 	
 	-- Have Materials
@@ -481,7 +487,7 @@ function Altoholic.TradeSkills:Scan(tradeskillName, mandatoryScan)
 		end
 	end
 	
-	Altoholic:ClearTable(r)
+	wipe(r)
 	
 	for k, v in pairs(c.ProfessionCooldowns) do
 		local skill = strsplit("|", k)		-- keys are like : ["Tailoring|craftName"] = "315459.769|1211033170"
@@ -531,6 +537,7 @@ function Altoholic.TradeSkills:Scan(tradeskillName, mandatoryScan)
 			local cooldown = GetTradeSkillCooldown(i)
 			if cooldown then
 				c.ProfessionCooldowns[ tradeskillName .. "|" .. skillName ] = cooldown .. "|" .. time()
+				Altoholic.Calendar.Events:BuildList()
 			end
 			
 			local reagents = {}
@@ -584,7 +591,7 @@ function AbandonSkill(index, ...)
 	
 	c.skill[L["Professions"]][skillName] = nil			-- clear the skill entry
 	
-	Altoholic:ClearTable(c.recipes[skillName])			-- and the list of recipes
+	wipe(c.recipes[skillName])			-- and the list of recipes
 	c.recipes[skillName] = nil
 end
 

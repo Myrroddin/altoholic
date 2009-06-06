@@ -54,6 +54,8 @@ local AltoholicDB_Defaults = { global = {		-- global written here to keep the sa
 		SortDescending = 0, 				-- display search results in the loot table in ascending (0) or descending (1) order ?
 		RestXPMode = 0, 					-- display max rest xp in normal 100% mode or in level equivalent 150% mode (1) ?
 		ScanMailBody = 1,					-- by default, scan the body of a mail (this action marks it as read)
+		UITransparency = 1.0,
+		UIScale = 1.0,
 		IncludeNoMinLevel = 1,
 		IncludeMailbox = 1,
 		IncludeGuildBank = 1,
@@ -78,7 +80,17 @@ local AltoholicDB_Defaults = { global = {		-- global written here to keep the sa
 		SearchAutoQuery = 0,
 		lastContainerView = 1,			-- default container view = bags+bank
 		TotalLoots = 0,					-- make at least one search in the loot tables to initialize these values
-		UnknownLoots = 0
+		UnknownLoots = 0,
+		
+		-- ** Calendar options **
+		WeekStartsMonday = 0,
+		Warning15Min = 1,
+		Warning10Min = 1,
+		Warning5Min = 1,
+		Warning4Min = 1,
+		Warning3Min = 1,
+		Warning2Min = 1,
+		Warning1Min = 1,
 	},
 	reference = {
 		['*'] = {							-- "englishClass" like "MAGE", "DRUID" etc..
@@ -155,7 +167,9 @@ local AltoholicDB_Defaults = { global = {		-- global written here to keep the sa
 						tree6 = { ['*'] = 0 },
 						activeTalents = nil,
 						guildName = nil,		-- nil = not in a guild, as returned by GetGuildInfo("player")
-						numBagSlots = 0,
+						guildRankName = nil,
+						guildRankIndex = nil,
+ 						numBagSlots = 0,
 						numFreeBagSlots = 0,
 						numBankSlots = 0,
 						numFreeBankSlots = 0,
@@ -183,6 +197,12 @@ local AltoholicDB_Defaults = { global = {		-- global written here to keep the sa
 						inventory = {},		-- 19 inventory slots, a simple table containing item id's
 						SavedInstance = {},	-- raid timers
 						ProfessionCooldowns = {},
+						Spells = {},
+						Friends = {},
+						Stats = {},
+						Calendar = {},
+						Timers = {},			-- goes in pair with Calendar, different table to prevent messing with Calendar, SavedInstance and ProfessionCooldowns, used for eggs among others
+						ConnectMMO = {},		-- Imported events come here
 						questlog = {
 							['*'] = {
 								name = nil,		-- name: name of the header (usually the location)
@@ -192,6 +212,7 @@ local AltoholicDB_Defaults = { global = {		-- global written here to keep the sa
 								tag = nil,			-- quest tag=  "Elite", "Dungeon", "PVP", "Raid", "Group", "Heroic" or nil
 								groupsize = nil,
 								money = nil,
+								rewards = nil,
 								isComplete = nil
 							}
 						},
@@ -349,8 +370,6 @@ function Altoholic:ChatCommand(input)
 	end
 end
 
-Altoholic.CharacterInfo = {}
-Altoholic.CharacterInfoView = {}
 Altoholic.vars = {}
 
 Altoholic.Guild = {}
@@ -375,8 +394,71 @@ end
 function Altoholic.Tabs:OnClick(index)
 	PanelTemplates_SetTab(AltoholicFrame, index);
 	self:HideAll()
+	self.current = index
+	self.Columns.prefix = "AltoholicTab"..self.List[index].."_Sort"
 	_G["AltoholicTab" .. self.List[index]]:Show()
 end
+
+Altoholic.Tabs.Columns = {}
+
+function Altoholic.Tabs.Columns:Init()
+	local i = 1
+	local prefix = self.prefix or "AltoholicTabSummary_Sort"
+	local button = _G[ prefix .. i ]
+	local arrow = _G[ prefix .. i .. "Arrow"]
+	
+	while button do
+		arrow:Hide()
+		button.ascendingSort = nil		-- not sorted by default
+		button:Hide()
+		
+		i = i + 1
+		button = _G[ prefix .. i ]
+		arrow = _G[ prefix .. i .. "Arrow"]
+	end
+	self.count = 0
+	self.prefix = prefix
+end
+
+function Altoholic.Tabs.Columns:Add(title, width, func)
+	local prefix = self.prefix
+	self.count = self.count + 1
+	local button = _G[ prefix..self.count ]
+
+	if not title then		-- no title ? count the column, but hide it
+		button:Hide()
+		return
+	end
+	
+	button:SetText(title)
+	button:SetWidth(width)
+	button:SetScript("OnClick", function(self)
+			local prefix = Altoholic.Tabs.Columns.prefix
+			local i = 1
+			local arrow = _G[ prefix .. i .. "Arrow"]
+			
+			while arrow do		-- hide all arrows
+				arrow:Hide()
+				i = i + 1
+				arrow = _G[ prefix .. i .. "Arrow"]
+			end
+
+			arrow = _G[ prefix .. self:GetID() .. "Arrow"]
+			arrow:Show()	-- show selected arrow
+			
+			if not self.ascendingSort then
+				self.ascendingSort = true
+				arrow:SetTexCoord(0, 0.5625, 1.0, 0);		-- arrow pointing up
+			else
+				self.ascendingSort = nil
+				arrow:SetTexCoord(0, 0.5625, 0, 1.0);		-- arrow pointing down
+			end
+	
+			func(self)
+		end)
+	button:Show()
+end
+
 
 -- Allow ESC to close the main frame
 tinsert(UISpecialFrames, "AltoholicFrame");
@@ -422,8 +504,6 @@ Altoholic.Gathering = {
 	["Rich Saronite Node"]						= 36912, -- Saronite Ore
 	["Titanium Node"]								= 36910, -- Titanium Ore
 
-	
-
 	-- Herbs
 	[L["Ancient Lichen"]]       = 22790,
 	[L["Arthas' Tears"]]        =  8836,
@@ -467,10 +547,16 @@ Altoholic.Gathering = {
 	[L["Glowcap"]]              = 24245,
 	[L["Netherdust Bush"]]      = 32468, -- Netherdust Pollen
 	[L["Sanguine Hibiscus"]]    = 24246,
-	
+
 	["Fel Lotus"]					= 22794,
 	["Goldclover"]					= 36901,
+	["Adder's Tongue"]			= 36903,
 	["Tiger Lily"]					= 36904,
+	["Lichbloom"]					= 36905,
+	["Icethorn"]					= 36906,
+	["Talandra's Rose"]			= 36907,
+	["Frost Lotus"]				= 36908,
+	["Firethorn"]					= 39970,
 }
 
 function Altoholic:CmdSearchBags(arg1, arg2)

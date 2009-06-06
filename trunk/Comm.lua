@@ -191,7 +191,8 @@ function Altoholic.Comm.Sharing:RequestNext(player)
 
 	Altoholic:Print(L["Transfer complete"])
 	self:Whisper(player, MSG_ACCOUNT_SHARING_COMPLETED)
-	Altoholic:ClearTable(self.DestTOC)
+	
+	wipe(self.DestTOC)
 	self.DestTOC = nil
 	
 	self.SharingInProgress = nil
@@ -202,9 +203,9 @@ function Altoholic.Comm.Sharing:RequestNext(player)
 	r.lastAccountSharing = date()
 	r.lastUpdatedWith = player		-- last player with whom the account sharing took place
 	
-	Altoholic:BuildCharacterInfoTable()
-	Altoholic:BuildCharacterInfoView()
-	AltoholicTabSummary:RefreshCurrentFrame()
+	Altoholic.Characters:BuildList()
+	Altoholic.Characters:BuildView()
+	Altoholic.Tabs.Summary:Refresh()
 end
 
 function Altoholic.Comm.Sharing:MsgBoxHandler(button)
@@ -333,7 +334,8 @@ function Altoholic.Comm.Sharing:OnSharingCompleted(sender, data)
 	self.AuthorizedRecipient = nil
 	self.NetSrcCurItem = nil
 	self.NetSrcNumItems = nil
-	Altoholic:ClearTable(self.SourceTOC)
+	wipe(self.SourceTOC)
+	
 	self.SourceTOC = nil
 	Altoholic:Print(L["Transfer complete"])
 end
@@ -358,21 +360,21 @@ end
 
 function Altoholic.Comm.Sharing:OnFactionReceived(sender, data)
 	Altoholic:Print(L["Reputations received !"])
-	Altoholic:ClearTable( Altoholic:GetRealmTable(GetRealmName(), self.account).reputation )
+	wipe( Altoholic:GetRealmTable(GetRealmName(), self.account).reputation )
 	Altoholic:GetRealmTable(GetRealmName(), self.account).reputation = data
 	self:RequestNext(sender)
 end
 
 function Altoholic.Comm.Sharing:OnCurrenciesReceived(sender, data)
 	Altoholic:Print(L["Currencies received !"])
-	Altoholic:ClearTable( Altoholic:GetRealmTable(GetRealmName(), self.account).tokens )
+	wipe( Altoholic:GetRealmTable(GetRealmName(), self.account).tokens )
 	Altoholic:GetRealmTable(GetRealmName(), self.account).tokens = data
 	self:RequestNext(sender)
 end
 
 function Altoholic.Comm.Sharing:OnGuildsReceived(sender, data)
 	Altoholic:Print(L["Guilds received !"])
-	Altoholic:ClearTable( Altoholic:GetRealmTable(GetRealmName(), self.account).guild )
+	wipe( Altoholic:GetRealmTable(GetRealmName(), self.account).guild )
 	Altoholic:GetRealmTable(GetRealmName(), self.account).guild = data
 	self:RequestNext(sender)
 end
@@ -386,7 +388,7 @@ function Altoholic.Comm.Sharing:OnCharacterReceived(sender, data)
 	if type(r.char) ~= "table" then
 		r.char = {}
 	else
-		Altoholic:ClearTable( r.char[self.Character] )
+		wipe(r.char[self.Character])
 	end
 	r.char[self.Character] = data
 
@@ -524,21 +526,24 @@ end
 function Altoholic.Comm.Guild:OnAnnounceLogin(sender, data)
 	local m = Altoholic.Guild.Members
 	
-	-- complete data that will not be sent later on, this will minimize the amount of data broadcaster over the guild channel
+	-- complete data that will not be sent later on, this will minimize the amount of data broadcasted over the guild channel
 	m:Clear(data.name)
-	data.name = sender
 	
-	local level, class, englishClass = m:GetInfo(sender)
-	data.level = level or 0
-	data.class = class or ""
-	data.englishClass = englishClass or ""
+	if sender ~= UnitName("player") then
+		data.name = sender
+	
+		local level, class, englishClass = m:GetInfo(sender)
+		data.level = level or 0
+		data.class = class or ""
+		data.englishClass = englishClass or ""
 
-	for k, v in pairs(data.skills) do
-		level, class, englishClass = m:GetInfo(v.name)
-		v.level = level or 0
-		v.class = class or ""
-		v.englishClass = englishClass or ""
-	end	
+		for k, v in pairs(data.skills) do
+			level, class, englishClass = m:GetInfo(v.name)
+			v.level = level or 0
+			v.class = class or ""
+			v.englishClass = englishClass or ""
+		end
+	end
 	
 	m:Add(data)
 	
@@ -554,7 +559,7 @@ function Altoholic.Comm.Guild:OnAnnounceLogin(sender, data)
 	if IsInGuild() then
 		GuildRoster()
 	end
-	AltoholicTabSummary:RefreshCurrentFrame()
+	Altoholic.Tabs.Summary:Refresh()
 end
 
 function Altoholic.Comm.Guild:OnAnnounceLogout(sender, data)
@@ -572,31 +577,34 @@ function Altoholic.Comm.Guild:OnAnnounceLogout(sender, data)
 			end
 		end
 	end
-	AltoholicTabSummary:RefreshCurrentFrame()
+	Altoholic.Tabs.Summary:Refresh()
 end
 
 function Altoholic.Comm.Guild:OnPublicInfoReceived(sender, data)
 	local m = Altoholic.Guild.Members
 	
-	-- complete data that will not be sent later on, this will minimize the amount of data broadcaster over the guild channel
+	-- complete data that will not be sent later on, this will minimize the amount of data broadcasted over the guild channel
 	m:Clear(data.name)
-	data.name = sender
 	
-	local level, class, englishClass = m:GetInfo(sender)
-	data.level = level or 0
-	data.class = class or ""
-	data.englishClass = englishClass or ""
+	if sender ~= UnitName("player") then
+		data.name = sender
+		
+		local level, class, englishClass = m:GetInfo(sender)
+		data.level = level or 0
+		data.class = class or ""
+		data.englishClass = englishClass or ""
 
-	for k, v in pairs(data.skills) do
-		level, class, englishClass = m:GetInfo(v.name)
-		v.level = level or 0
-		v.class = class or ""
-		v.englishClass = englishClass or ""
+		for k, v in pairs(data.skills) do
+			level, class, englishClass = m:GetInfo(v.name)
+			v.level = level or 0
+			v.class = class or ""
+			v.englishClass = englishClass or ""
+		end
 	end
 	
 	m:Add(data)
 	m:Save(data)
-	AltoholicTabSummary:RefreshCurrentFrame()
+	Altoholic.Tabs.Summary:Refresh()
 end
 
 function Altoholic.Comm.Guild:OnCommDisabled(sender, data)
@@ -630,12 +638,12 @@ function Altoholic.Comm.Guild:OnBankUpdateReply(sender, data)
 			local tab = r.guild[guildName].bank[i]
 		
 			if tab.name then		-- if there's data for this tab, clean it first
-				Altoholic:ClearTable(tab)
+				wipe(tab)
 			end
 			
 			r.guild[GetGuildInfo("player")].bank[i] = data
 
-			AltoholicTabGuildBank:LoadGuild("Default", GetRealmName(), guildName)
+			Altoholic.Tabs.GuildBank:LoadGuild("Default", GetRealmName(), guildName)
 			Altoholic:Print(format(L["Guild bank tab %s successfully updated !"], data.name ))
 			
 			-- since bank tab info has been updated, broadcast updated data to the guild
@@ -654,7 +662,7 @@ function Altoholic.Comm.Guild:OnBankUpdateReply(sender, data)
 			break
 		end
 	end
-	AltoholicTabSummary:RefreshCurrentFrame()
+	Altoholic.Tabs.Summary:Refresh()
 end
 
 function Altoholic.Comm.Guild:OnBankUpdateInfo(sender, data)
@@ -670,7 +678,7 @@ function Altoholic.Comm.Guild:OnBankUpdateInfo(sender, data)
 					tab.ServerHour = data.ServerHour
 					tab.ServerMinute = data.ServerMinute
 					
-					AltoholicTabSummary:RefreshCurrentFrame()
+					Altoholic.Tabs.Summary:Refresh()
 					break
 				end
 			end

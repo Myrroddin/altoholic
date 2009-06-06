@@ -39,7 +39,7 @@ function Altoholic.GuildBank:DrawTab(tabID)
 	local b = guild.bank[tabID]
 	if not b.name then return end	-- tab not yet scanned ? exit
 	
-	local entry = "GuildBankEntry"
+	local entry = "AltoGuildBankEntry"
 	
 	AltoholicTabGuildBankInfo1:SetText(format(L["Last visit: %s by %s"], GREEN..b.ClientDate..WHITE, GREEN..b.visitedBy))
 	local localTime, realmTime
@@ -132,14 +132,16 @@ function Altoholic.GuildBank:Scan()
 	if not bUpdateUI then return end
 	
 	for i = 1, 6 do
-		_G[ "AltoholicTabGuildBankMenuItem"..i ]:UnlockHighlight();
+		local button = _G[ "AltoholicTabGuildBankMenuItem"..i ]
+		
+		button:UnlockHighlight();
 		t = guild.bank[i]
 		if t.name then
-			_G[ "AltoholicTabGuildBankMenuItem" .. i ]:SetText(WHITE .. t.name)
+			button:SetText(WHITE .. t.name)
 		else
-			_G[ "AltoholicTabGuildBankMenuItem" .. i ]:SetText(YELLOW .. L["N/A"])
+			button:SetText(YELLOW .. L["N/A"])
 		end
-		_G[ "AltoholicTabGuildBankMenuItem" .. i ]:Show()
+		button:Show()
 	end
 end
 
@@ -156,14 +158,16 @@ function Altoholic.GuildBank:OnClose()
 	
 	local g = Altoholic:GetThisGuild()
 	
-	for k, v in ipairs(g.bank) do
-		Altoholic.Comm.Guild:Broadcast(14, {		-- MSG_GUILD_BANKUPDATEINFO = 14
-					name = v.name,
-					ClientDate = v.ClientDate,
-					ClientHour = v.ClientHour,
-					ClientMinute = v.ClientMinute,
-					ServerHour = v.ServerHour,
-					ServerMinute = v.ServerMinute
-				})
+	if g and g.bank then
+		for k, v in ipairs(g.bank) do
+			Altoholic.Comm.Guild:Broadcast(14, {		-- MSG_GUILD_BANKUPDATEINFO = 14
+						name = v.name,
+						ClientDate = v.ClientDate,
+						ClientHour = v.ClientHour,
+						ClientMinute = v.ClientMinute,
+						ServerHour = v.ServerHour,
+						ServerMinute = v.ServerMinute
+					})
+		end
 	end
 end
