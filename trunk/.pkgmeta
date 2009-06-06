@@ -49,7 +49,8 @@ externals:
   url: svn://svn.wowace.com/wow/libbabble-inventory-3-0/mainline/trunk
  libs/LibCompress:
   url: svn://svn.wowace.com/wow/libcompress/mainline/trunk
- libs/LibDataBroker-1.1:
+ libs/LibDataBroker-1.1: 
   url: git://github.com/tekkub/libdatabroker-1-1.git
+  tag: latest
  libs/LibFuBarPlugin-3.0:
   url: svn://svn.wowace.com/wow/libfubarplugin-3-0/mainline/trunk
