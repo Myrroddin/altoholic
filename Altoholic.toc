@@ -21,7 +21,9 @@
 # Libraries
 embeds.xml
 #@end-no-lib-strip@
-ldb.xml
+
+# Hard-Embedded libraries from other sites
+embedded.xml
 
 local.xml
 
