@@ -238,9 +238,6 @@
 		<Scripts>
 			<OnLoad>
 				Altoholic.Tabs.Achievements:BuildView()
-				AltoholicTabAchievements_NotStarted:SetText("\124TInterface\\RaidFrame\\ReadyCheck-NotReady:14\124t" .. XML_ALTO_ACH_NOTSTARTED)
-				AltoholicTabAchievements_Partial:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Waiting:14\124t" .. XML_ALTO_ACH_STARTED)
-				AltoholicTabAchievements_Completed:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Ready:14\124t" .. COMPLETE)
 			</OnLoad>
 			<OnShow>
 				AltoholicFrameClasses:Show()

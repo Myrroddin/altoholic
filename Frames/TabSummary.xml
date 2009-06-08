@@ -33,7 +33,7 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<Button name="$parentMenuItem1" inherits="AltoSummaryMenuItemTemplate" id="1" text="XML_ALTO_SUMMARY_MENU1">
+			<Button name="$parentMenuItem1" inherits="AltoSummaryMenuItemTemplate" id="1">
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
@@ -42,7 +42,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem2" inherits="AltoSummaryMenuItemTemplate" id="2" text="XML_ALTO_SUMMARY_MENU2">
+			<Button name="$parentMenuItem2" inherits="AltoSummaryMenuItemTemplate" id="2">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem1" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -60,7 +60,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem4" inherits="AltoSummaryMenuItemTemplate" id="4" text="XML_ALTO_SUMMARY_MENU4">
+			<Button name="$parentMenuItem4" inherits="AltoSummaryMenuItemTemplate" id="4">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem3" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -69,7 +69,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem5" inherits="AltoSummaryMenuItemTemplate" id="5" text="XML_ALTO_SUMMARY_MENU5">
+			<Button name="$parentMenuItem5" inherits="AltoSummaryMenuItemTemplate" id="5">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem4" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -78,7 +78,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem6" inherits="AltoSummaryMenuItemTemplate" id="6" text="XML_ALTO_SUMMARY_MENU6">
+			<Button name="$parentMenuItem6" inherits="AltoSummaryMenuItemTemplate" id="6">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem5" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -87,7 +87,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem7" inherits="AltoSummaryMenuItemTemplate" id="7" text="XML_ALTO_SUMMARY_MENU7">
+			<Button name="$parentMenuItem7" inherits="AltoSummaryMenuItemTemplate" id="7">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem6" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -96,7 +96,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem8" inherits="AltoSummaryMenuItemTemplate" id="8" text="XML_ALTO_SUMMARY_MENU8">
+			<Button name="$parentMenuItem8" inherits="AltoSummaryMenuItemTemplate" id="8">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem7" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -248,7 +248,7 @@
 					</OnLoad>
 				</Scripts>
 			</Frame>
-			<Button name="$parent_RequestSharing" inherits="UIPanelButtonTemplate" text="XML_ALTO_SUMMARY_TEXT4">
+			<Button name="$parent_RequestSharing" inherits="UIPanelButtonTemplate">
 				<Size>
 					<AbsDimension x="200" y="24"/>
 				</Size>
@@ -261,22 +261,13 @@
 				</Anchors>
 				<Scripts>
 					<OnEnter>
-						AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
-						AltoTooltip:ClearLines();
-						AltoTooltip:SetText(XML_ALTO_SUMMARY_TEXT1); 
-						AltoTooltip:AddLine(XML_ALTO_SUMMARY_TEXT2,1,1,1);
-						AltoTooltip:Show(); 
+						Altoholic.Tabs.Summary:AccountSharingButton_OnEnter(self)
 					</OnEnter>
 					<OnLeave>
 						AltoTooltip:Hide();
 					</OnLeave>
 					<OnClick>
-						if Altoholic.Options:Get("AccSharingHandlerEnabled") == 0 then
-							Altoholic:Print(XML_ALTO_SUMMARY_TEXT3)
-							return
-						end
-						Altoholic:ToggleUI()
-						AltoAccountSharing:Show()
+						Altoholic.Tabs.Summary:AccountSharingButton_OnClick()
 					</OnClick>
 				</Scripts>
 			</Button>

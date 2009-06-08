@@ -60,7 +60,93 @@ local INFO_REALM_LINE = 0
 local INFO_CHARACTER_LINE = 1
 local INFO_TOTAL_LINE = 2
 
+function Altoholic:InitLocalization()
+	-- this function's purpose is to initialize the text attribute of widgets created in XML.
+	-- in versions prior to 3.1.003, they were initialized through global constants named XML_ALTO_???
+	-- the strings stayed in memory for no reason, and could not be included in the automated localization offered by curse, hence the change of approach.
+	
+	AltoholicMinimapButton.tooltip = format("%s\n%s\n%s",
+		"Altoholic", WHITE..L["Left-click to |cFF00FF00open"], WHITE..L["Right-click to |cFF00FF00drag"] )
+	
+	AltoAccountSharing_InfoButton.tooltip = format("%s|r\n%s\n%s\n\n%s",
+		WHITE..L["Account Name"], 
+		L["Enter an account name that will be\nused for |cFF00FF00display|r purposes only."],
+		L["This name can be anything you like,\nit does |cFF00FF00NOT|r have to be the real account name."],
+		L["This field |cFF00FF00cannot|r be left empty."])
+	
+	AltoholicFrameTab1:SetText(L["Summary"])
+	AltoholicFrameTab2:SetText(L["Characters"])
+	AltoholicTabSummaryMenuItem1:SetText(L["Account Summary"])
+	AltoholicTabSummaryMenuItem2:SetText(L["Bag Usage"])
+	AltoholicTabSummaryMenuItem4:SetText(L["Activity"])
+	AltoholicTabSummaryMenuItem5:SetText(L["Guild Members"])
+	AltoholicTabSummaryMenuItem6:SetText(L["Guild Skills"])
+	AltoholicTabSummaryMenuItem7:SetText(L["Guild Bank Tabs"])
+	AltoholicTabSummaryMenuItem8:SetText(L["Calendar"])
+	AltoholicTabSummary_RequestSharing:SetText(L["Account Sharing"])
+	
+	AltoholicTabCharactersText1:SetText(L["Realm"])
+	AltoholicTabCharactersText2:SetText(L["Character"])
+	
+	AltoholicTabSearch_Sort1:SetText(L["Item / Location"])
+	AltoholicTabSearch_Sort2:SetText(L["Character"])
+	AltoholicTabSearch_Sort3:SetText(L["Realm"])
+	AltoholicTabSearchSlot:SetText(L["Equipment Slot"])
+	AltoholicTabSearchLocation:SetText(L["Location"])
+	
+	AltoholicTabOptionsMenuItem1:SetText(L["General"])
+	AltoholicTabOptionsMenuItem5:SetText(L["Tooltip"])
+	AltoholicTabOptionsMenuItem6:SetText(L["Calendar"])
+	
+	AltoholicFramePetsText1:SetText(L["View"])
+	
+	AltoholicTabGuildBank_HideInTooltipText:SetText(L["Hide this guild in the tooltip"])
+	
+	AltoAccountSharingName:SetText(L["Account Name"])
+	AltoAccountSharingText1:SetText(L["Send account sharing request to:"])
+	AltoAccountSharing_UseNameText:SetText(L["Character"])
+	
+	AltoholicTabAchievements_NotStarted:SetText("\124TInterface\\RaidFrame\\ReadyCheck-NotReady:14\124t" .. L["Not started"])
+	AltoholicTabAchievements_Partial:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Waiting:14\124t" .. L["Started"])
+	AltoholicTabAchievements_Completed:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Ready:14\124t" .. COMPLETE)
+	
+	AltoholicFrameTotals:SetText(L["Totals"])
+	AltoholicFrameSearchLabel:SetText(L["Search Containers"])
+	AltoholicFrame_ResetButton:SetText(L["Reset"])
+	
+	
+	-- nil strings to save memory, since they are not used later on.
+	L["Summary"] = nil
+	L["Characters"] = nil
+	L["Account Summary"] = nil
+	L["Bag Usage"] = nil
+	L["Activity"] = nil
+	L["Guild Skills"] = nil
+	L["Guild Bank Tabs"] = nil
+	L["Calendar"] = nil
+	L["Account Sharing"] = nil
+	L["View"] = nil
+	L["Hide this guild in the tooltip"] = nil
+	L["Not started"] = nil
+	L["Started"] = nil
+	L["General"] = nil
+	L["Tooltip"] = nil
+	L["Search Containers"] = nil
+	L["Equipment Slot"] = nil
+	L["Location"] = nil
+	L["Reset"] = nil
+	L["Send account sharing request to:"] = nil
+	L["Left-click to |cFF00FF00open"] = nil
+	L["Right-click to |cFF00FF00drag"] = nil
+	L["Enter an account name that will be\nused for |cFF00FF00display|r purposes only."] = nil
+	L["This name can be anything you like,\nit does |cFF00FF00NOT|r have to be the real account name."] = nil
+	L["This field |cFF00FF00cannot|r be left empty."] = nil
+
+end
+
 function Altoholic:OnEnable()
+	self:InitLocalization()
+	self.Options:Init()
 	self.Tasks:Init()
 	self.Profiler:Init()
 	self.Tooltip:Init()
@@ -174,7 +260,7 @@ function Altoholic:OnEnable()
 	self.DoMailExpiryCheck = true	
 
 	-- create an empty frame to manager the timer via its Onupdate
-	self.TimerFrame = CreateFrame("Frame", "ConnectMMOTimerFrame", UIParent)
+	self.TimerFrame = CreateFrame("Frame", "AltoholicTimerFrame", UIParent)
 	local f = self.TimerFrame
 	
 	f:SetWidth(1)
@@ -1598,6 +1684,15 @@ function Altoholic:UpdateSlider(name, text, field)
 	self:MoveMinimapIcon()
 end
 
+function Altoholic:ShowWidgetTooltip(frame)
+	if not frame.tooltip then return end
+	
+	AltoTooltip:SetOwner(frame, "ANCHOR_LEFT");
+	AltoTooltip:ClearLines();
+	AltoTooltip:AddLine(frame.tooltip)
+	AltoTooltip:Show(); 
+end
+
 function Altoholic:ShowClassIcons()
 	local r = Altoholic:GetRealmTable()
 	local i = 1
@@ -1753,10 +1848,12 @@ function Altoholic.Tooltip.OnGameTooltipShow(tooltip, ...)
 			GameTooltip:AddLine(self.CachedTotal,1,1,1);
 		end		
 	end
+
 	GameTooltip:Show()
 end
 
 function Altoholic.Tooltip.OnGameTooltipSetItem(tooltip, ...)
+
 	local self = Altoholic.Tooltip
 
 	if self.Orig_GameTooltip_SetItem then
@@ -1772,6 +1869,7 @@ function Altoholic.Tooltip.OnGameTooltipSetItem(tooltip, ...)
 end
 
 function Altoholic.Tooltip.OnGameTooltipCleared(tooltip, ...)
+
 	local self = Altoholic.Tooltip
 
 	self.isDone = nil
@@ -1790,6 +1888,7 @@ function Altoholic.Tooltip.OnItemRefTooltipShow(tooltip, ...)
 end
 
 function Altoholic.Tooltip.OnItemRefTooltipSetItem(tooltip, ...)
+
 	local self = Altoholic.Tooltip
 	
 	if self.Orig_ItemRefTooltip_SetItem then
@@ -1806,12 +1905,12 @@ function Altoholic.Tooltip.OnItemRefTooltipSetItem(tooltip, ...)
 end
 
 function Altoholic.Tooltip.OnItemRefTooltipCleared(tooltip, ...)
+
 	local self = Altoholic.Tooltip
 	
 	self.isDone = nil
 	return self.Orig_ItemRefTooltip_ClearItem(tooltip, ...)
 end
-
 function Altoholic.Tooltip:Process(tooltip, name, link)
 	--	*** Note about tooltips ***
 	--	If an error occurs with a specific item, like a gathering node, make sure its item id is valid in core.lua

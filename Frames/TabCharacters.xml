@@ -64,7 +64,7 @@
 		</Anchors>
 		<Layers>
 			<Layer level="OVERLAY">
-				<FontString name="$parentText1" inherits="GameFontNormalSmall" justifyH="LEFT" text="XML_ALTO_CHAR_DD1">
+				<FontString name="$parentText1" inherits="GameFontNormalSmall" justifyH="LEFT">
 					<Size>
 						<AbsDimension x="100" y="18"/>
 					</Size>
@@ -76,7 +76,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentText2" inherits="GameFontNormalSmall" justifyH="LEFT" text="XML_ALTO_CHAR_DD2">
+				<FontString name="$parentText2" inherits="GameFontNormalSmall" justifyH="LEFT">
 					<Size>
 						<AbsDimension x="100" y="18"/>
 					</Size>

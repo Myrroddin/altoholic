@@ -159,7 +159,7 @@
 					</Anchors>
 					<Color r="255" g="255" b="255" />
 				</FontString>
-				<FontString name="$parentRarity" inherits="GameFontNormalSmall" text="XML_TEXT_4">
+				<FontString name="$parentRarity" inherits="GameFontNormalSmall" text="RARITY">
 					<Size x="70" y="20" />
 					<Anchors>
 						<Anchor point="LEFT" relativeTo="$parentText1" relativePoint="RIGHT" >

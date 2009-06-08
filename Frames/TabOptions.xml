@@ -25,7 +25,7 @@
 			<Anchor point="TOPLEFT"/>
 		</Anchors>
 		<Frames>
-			<Button name="$parentMenuItem1" inherits="AltoOptionMenuItemTemplate" id="1" text="XML_ALTO_OPT_MENU1">
+			<Button name="$parentMenuItem1" inherits="AltoOptionMenuItemTemplate" id="1">
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
@@ -34,7 +34,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem2" inherits="AltoOptionMenuItemTemplate" id="2" text="XML_ALTO_OPT_MENU2">
+			<Button name="$parentMenuItem2" inherits="AltoOptionMenuItemTemplate" id="2" text="SEARCH">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem1" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -43,7 +43,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem3" inherits="AltoOptionMenuItemTemplate" id="3" text="XML_ALTO_OPT_MENU3">
+			<Button name="$parentMenuItem3" inherits="AltoOptionMenuItemTemplate" id="3" text="MAIL_LABEL">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem2" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -52,7 +52,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem4" inherits="AltoOptionMenuItemTemplate" id="4" text="XML_ALTO_OPT_MENU4">
+			<Button name="$parentMenuItem4" inherits="AltoOptionMenuItemTemplate" id="4" text="MINIMAP_LABEL">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem3" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -61,7 +61,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem5" inherits="AltoOptionMenuItemTemplate" id="5" text="XML_ALTO_OPT_MENU5">
+			<Button name="$parentMenuItem5" inherits="AltoOptionMenuItemTemplate" id="5">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem4" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -70,7 +70,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem6" inherits="AltoOptionMenuItemTemplate" id="6" text="XML_ALTO_SUMMARY_MENU8">
+			<Button name="$parentMenuItem6" inherits="AltoOptionMenuItemTemplate" id="6">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem5" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -104,9 +104,6 @@
 							</Anchor>
 						</Anchors>
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_GENERAL1);
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "RestXPMode")
 								Altoholic.Summary:Update()
@@ -125,9 +122,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_GENERAL2);
-							</OnLoad>
 							<OnClick>
 								if self:GetChecked() then 
 									Altoholic.Options:Set("FuBarIconShown", 1)
@@ -151,9 +145,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_GENERAL3);
-							</OnLoad>
 							<OnClick>
 								if self:GetChecked() then 
 									Altoholic.Options:Set("FuBarTextShown", 1)
@@ -177,9 +168,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_GENERAL4);
-							</OnLoad>
 							<OnClick>
 								if self:GetChecked() then 
 									Altoholic.Options:Set("AccSharingHandlerEnabled", 1)
@@ -190,10 +178,7 @@
 								end
 							</OnClick>
 							<OnEnter>
-								AltoTooltip:SetOwner(self, "ANCHOR_LEFT");
-								AltoTooltip:ClearLines();
-								AltoTooltip:AddLine(XML_ALTO_OPT_GENERAL6)
-								AltoTooltip:Show();
+								Altoholic:ShowWidgetTooltip(self)
 							</OnEnter>
 							<OnLeave>
 								AltoTooltip:Hide();
@@ -212,9 +197,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_GENERAL8);
-							</OnLoad>
 							<OnClick>
 								if self:GetChecked() then 
 									Altoholic.Options:Set("GuildBankAutoUpdate", 1)
@@ -223,10 +205,7 @@
 								end
 							</OnClick>
 							<OnEnter>
-								AltoTooltip:SetOwner(self, "ANCHOR_LEFT");
-								AltoTooltip:ClearLines();
-								AltoTooltip:AddLine(XML_ALTO_OPT_GENERAL9)
-								AltoTooltip:Show();
+								Altoholic:ShowWidgetTooltip(self)
 							</OnEnter>
 							<OnLeave>
 								AltoTooltip:Hide();
@@ -245,9 +224,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_GENERAL5);
-							</OnLoad>
 							<OnClick>
 								if self:GetChecked() then 
 									Altoholic.Options:Set("GuildHandlerEnabled", 1)
@@ -258,9 +234,12 @@
 								end
 							</OnClick>
 							<OnEnter>
+								local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+								
 								AltoTooltip:SetOwner(self, "ANCHOR_LEFT");
 								AltoTooltip:ClearLines();
-								AltoTooltip:AddLine(XML_ALTO_OPT_GENERAL7)
+								AltoTooltip:AddLine(L["|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option will allow your guildmates\nto see your alts and their professions.\n\n"])
+								AltoTooltip:AddLine(L["When |cFFFF0000disabled|cFFFFFFFF, there will be no communication with the guild."])
 								AltoTooltip:Show();
 							</OnEnter>
 							<OnLeave>
@@ -348,15 +327,11 @@
 							</Anchor>
 						</Anchors>
 						<Scripts>
-							<OnLoad>
-								local name = self:GetName()
-								_G[name .. "Low"]:SetText("0.1");
-								_G[name .. "High"]:SetText("1.0"); 
-								_G[name .. "Text"]:SetText(format("%s (%1.2f)", XML_ALTO_OPT_GENERAL10, self:GetValue()));
-							</OnLoad>
 							<OnValueChanged>
+								local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+								
 								local value = self:GetValue()
-								_G[self:GetName() .. "Text"]:SetText(format("%s (%1.2f)", XML_ALTO_OPT_GENERAL10, value));
+								_G[self:GetName() .. "Text"]:SetText(format("%s (%1.2f)", L["Transparency"], value));
 								AltoholicFrame:SetAlpha(value)
 								Altoholic.Options:Set("UITransparency", value)
 							</OnValueChanged>
@@ -400,17 +375,11 @@
 							</Anchor>
 						</Anchors>
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_SEARCH1);
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "SearchAutoQuery")
 							</OnClick>
 							<OnEnter>
-								AltoTooltip:SetOwner(self, "ANCHOR_LEFT");
-								AltoTooltip:ClearLines();
-								AltoTooltip:AddLine(XML_ALTO_OPT_SEARCH2)
-								AltoTooltip:Show();
+								Altoholic:ShowWidgetTooltip(self)
 							</OnEnter>
 							<OnLeave>
 								AltoTooltip:Hide();
@@ -429,9 +398,6 @@
 							</Anchor>
 						</Anchors>
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_SEARCH3);
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "SortDescending")
 							</OnClick>
@@ -449,9 +415,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_SEARCH4);
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "IncludeNoMinLevel")
 							</OnClick>
@@ -469,9 +432,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_SEARCH5);
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "IncludeMailbox")
 							</OnClick>
@@ -489,9 +449,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_SEARCH6);
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "IncludeGuildBank")
 							</OnClick>
@@ -509,9 +466,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_SEARCH7);
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "IncludeRecipes")
 							</OnClick>
@@ -544,18 +498,12 @@
 							</Anchor>
 						</Anchors>
 						<Scripts>
-							<OnLoad>
-								local name = self:GetName()
-								local s = getglobal(name)
-								s.tooltipText = XML_ALTO_OPT_MAIL1; 
-								getglobal(name .. "Low"):SetText("1");
-								getglobal(name .. "High"):SetText("15"); 
-								getglobal(name .. "Text"):SetText(XML_ALTO_OPT_MAIL2 .. " (" .. s:GetValue() ..")");
-							</OnLoad>
 							<OnValueChanged>
+								local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+								
 								local name = self:GetName()
 								local s = getglobal(name)
-								getglobal(name .. "Text"):SetText(XML_ALTO_OPT_MAIL2 .. " (" .. s:GetValue() ..")");
+								getglobal(name .. "Text"):SetText(L["Mail Expiry Warning"] .. " (" .. s:GetValue() ..")");
 								Altoholic.Options:Set("MailWarningThreshold", self:GetValue())
 							</OnValueChanged>
 						</Scripts>
@@ -573,9 +521,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_MAIL2);
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "CheckMailExpiry")
 							</OnClick>
@@ -593,9 +538,6 @@
 							</Anchor>
 						</Anchors> 
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_MAIL3);
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "ScanMailBody")
 							</OnClick>
@@ -613,17 +555,11 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_MAIL4);
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "GuildMailWarning")
 							</OnClick>
 							<OnEnter>
-								AltoTooltip:SetOwner(self, "ANCHOR_LEFT");
-								AltoTooltip:ClearLines();
-								AltoTooltip:AddLine(XML_ALTO_OPT_MAIL5)
-								AltoTooltip:Show();
+								Altoholic:ShowWidgetTooltip(self)
 							</OnEnter>
 							<OnLeave>
 								AltoTooltip:Hide();
@@ -656,16 +592,9 @@
 							</Anchor>
 						</Anchors>
 						<Scripts>
-							<OnLoad>
-								local name = self:GetName()
-								local s = _G[name]
-								s.tooltipText = XML_ALTO_OPT_MINIMAP1; 
-								_G[name .. "Low"]:SetText("1");
-								_G[name .. "High"]:SetText("360"); 
-								_G[name .. "Text"]:SetText(XML_ALTO_OPT_MINIMAP2 .. " (" .. s:GetValue() ..")");
-							</OnLoad>
 							<OnValueChanged>
-								Altoholic:UpdateSlider(self:GetName(), XML_ALTO_OPT_MINIMAP2, "MinimapIconAngle")
+								local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+								Altoholic:UpdateSlider(self:GetName(), L["Minimap Icon Angle"], "MinimapIconAngle")
 							</OnValueChanged>
 						</Scripts>
 					</Slider>
@@ -681,16 +610,9 @@
 							</Anchor>
 						</Anchors>
 						<Scripts>
-							<OnLoad>
-								local name = self:GetName()
-								local s = getglobal(name)
-								s.tooltipText = XML_ALTO_OPT_MINIMAP3; 
-								getglobal(name .. "Low"):SetText("1");
-								getglobal(name .. "High"):SetText("200"); 
-								getglobal(name .. "Text"):SetText(XML_ALTO_OPT_MINIMAP4 .. " (" .. s:GetValue() ..")");
-							</OnLoad>
 							<OnValueChanged>
-								Altoholic:UpdateSlider(self:GetName(), XML_ALTO_OPT_MINIMAP4, "MinimapIconRadius")
+								local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+								Altoholic:UpdateSlider(self:GetName(), L["Minimap Icon Radius"], "MinimapIconRadius")
 							</OnValueChanged>
 						</Scripts>
 					</Slider>
@@ -706,9 +628,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_MINIMAP5);
-							</OnLoad>
 							<OnClick>
 								if self:GetChecked() then 
 									Altoholic.Options:Set("ShowMinimap", 1)
@@ -746,9 +665,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_TOOLTIP1);
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "TooltipSource")
 							</OnClick>
@@ -766,9 +682,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_TOOLTIP2);
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "TooltipCount")
 							</OnClick>
@@ -786,9 +699,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_TOOLTIP3);
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "TooltipTotal")
 							</OnClick>
@@ -806,9 +716,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_TOOLTIP5);
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "TooltipRecipeInfo")
 							</OnClick>
@@ -826,9 +733,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_TOOLTIP6);
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "TooltipItemID")
 							</OnClick>
@@ -846,9 +750,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_TOOLTIP7);
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "TooltipGatheringNode")
 							</OnClick>
@@ -866,9 +767,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_TOOLTIP8);
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "TooltipCrossFaction")
 							</OnClick>
@@ -886,9 +784,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_TOOLTIP9);
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "TooltipMultiAccount")
 							</OnClick>
@@ -907,9 +802,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_TOOLTIP4);
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "TooltipGuildBank")
 							</OnClick>
@@ -927,9 +819,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_TOOLTIP10);
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "TooltipGuildBankCount")
 							</OnClick>
@@ -961,9 +850,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(XML_ALTO_OPT_CALENDAR1);
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "WeekStartsMonday")
 							</OnClick>
@@ -981,9 +867,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(format(XML_ALTO_OPT_CALENDAR2, 15));
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "Warning15Min")
 							</OnClick>
@@ -1001,9 +884,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(format(XML_ALTO_OPT_CALENDAR2, 10));
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "Warning10Min")
 							</OnClick>
@@ -1021,9 +901,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(format(XML_ALTO_OPT_CALENDAR2, 5));
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "Warning5Min")
 							</OnClick>
@@ -1041,9 +918,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(format(XML_ALTO_OPT_CALENDAR2, 4));
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "Warning4Min")
 							</OnClick>
@@ -1061,9 +935,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(format(XML_ALTO_OPT_CALENDAR2, 3));
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "Warning3Min")
 							</OnClick>
@@ -1081,9 +952,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(format(XML_ALTO_OPT_CALENDAR2, 2));
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "Warning2Min")
 							</OnClick>
@@ -1101,9 +969,6 @@
 							</Anchor>
 						</Anchors>      
 						<Scripts>
-							<OnLoad>
-								getglobal(self:GetName().."Text"):SetText(format(XML_ALTO_OPT_CALENDAR2, 1));
-							</OnLoad>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "Warning1Min")
 							</OnClick>
