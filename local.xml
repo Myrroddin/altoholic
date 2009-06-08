@@ -2,8 +2,14 @@
 <Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.blizzard.com/wow/ui/" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
 
-<Include file="Locals\deDE.lua"/>
+<!--@debug@-->
+<Include file="Locals\repoenUS.lua"/>
+<!--@end-debug@-->
+
+<!--@non-debug@
 <Include file="Locals\enUS.lua"/>
+@end-non-debug@-->
+<Include file="Locals\deDE.lua"/>
 <Include file="Locals\esES.lua"/>
 <Include file="Locals\esMX.lua"/>
 <Include file="Locals\frFR.lua"/>
