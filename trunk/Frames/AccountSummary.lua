@@ -524,13 +524,7 @@ function Altoholic.Summary:UpdateRealm()
 	AltoAccountSharing_UseName:SetChecked(1)
 	AltoAccountSharing_AccTargetEditBox:SetText(r.lastUpdatedWith)
 	
-	-- this part is the OnClick of AltoholicTabSummary_RequestSharing, avoid duplicating the code
-	if Altoholic.Options:Get("AccSharingHandlerEnabled") == 0 then
-		Altoholic:Print(XML_ALTO_SUMMARY_TEXT3)
-		return
-	end
-	Altoholic:ToggleUI()
-	AltoAccountSharing:Show()
+	Altoholic.Tabs.Summary:AccountSharingButton_OnClick()
 end
 
 function Altoholic.Summary:DeleteRealm()

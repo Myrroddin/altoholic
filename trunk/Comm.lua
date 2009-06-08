@@ -122,7 +122,7 @@ function Altoholic.Comm.Sharing:Request()
 
 	self.account = AltoAccountSharing_AccNameEditBox:GetText()
 	if not self.account or strlen(self.account) == 0 then 		-- account name cannot be empty
-		Altoholic:Print("[" .. XML_ALTO_TEXT10 .. "] " .. XML_ALTO_SHARING_HINT2)
+		Altoholic:Print("[" .. L["Account Name"] .. "] " .. L["This field |cFF00FF00cannot|r be left empty."])
 		return 
 	end
 

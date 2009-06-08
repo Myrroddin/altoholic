@@ -1,5 +1,7 @@
 ﻿local L = LibStub("AceLocale-3.0"):NewLocale("Altoholic", "enUS", true)
 
+--@localization(locale="enUS", format="lua_additive_table", same-key-is-true=true, handle-subnamespaces="concat")@
+
 if not L then return end
 
 -- Note: since 2.4.004 and the support of LibBabble, certain lines are commented, but remain there for clarity (especially those concerning the menu)
@@ -647,129 +649,117 @@ L["Netherdust Bush"] = true
 L["Glowcap"] = true
 L["Sanguine Hibiscus"] = true
 	
+-- Old XML strings
 
-if GetLocale() == "enUS" then
--- Altoholic.xml local
-LEFT_HINT = "Left-click to |cFF00FF00open";
-RIGHT_HINT = "Right-click to |cFF00FF00drag";
+L["Location"] = true
+L["Left-click to |cFF00FF00open"] = true
+L["Right-click to |cFF00FF00drag"] = true
+L["Enter an account name that will be\nused for |cFF00FF00display|r purposes only."] = true
+L["This name can be anything you like,\nit does |cFF00FF00NOT|r have to be the real account name."] = true
+L["This field |cFF00FF00cannot|r be left empty."] = true
 
-XML_ALTO_SHARING_HINT1 = "Enter an account name that will be\nused for |cFF00FF00display|r purposes only.\n"
-				.. "This name can be anything you like,\nit does |cFF00FF00NOT|r have to be the real account name.\n\n"
-XML_ALTO_SHARING_HINT2 = "This field |cFF00FF00cannot|r be left empty."
+L["Summary"] = true
+L["Characters"] = true
 
-XML_ALTO_TAB1 = "Summary"
-XML_ALTO_TAB2 = "Characters"
--- XML_ALTO_TAB3 = SEARCH
--- XML_ALTO_TAB4 = GUILD_BANK
--- XML_ALTO_TABOPTIONS = GAMEOPTIONS_MENU
+L["Account Summary"] = true
+L["Bag Usage"] = true
+L["Activity"] = true
+L["Guild Members"] = true
+L["Guild Skills"] = true
+L["Guild Bank Tabs"] = true
+L["Calendar"] = true
 
-XML_ALTO_SUMMARY_MENU1 = "Account Summary"
-XML_ALTO_SUMMARY_MENU2 = "Bag Usage"
--- XML_ALTO_SUMMARY_MENU3 = SKILLS
-XML_ALTO_SUMMARY_MENU4 = "Activity"
-XML_ALTO_SUMMARY_MENU5 = "Guild Members"
-XML_ALTO_SUMMARY_MENU6 = "Guild Skills"
-XML_ALTO_SUMMARY_MENU7 = "Guild Bank Tabs"
-XML_ALTO_SUMMARY_MENU8 = "Calendar"
-
-XML_ALTO_SUMMARY_TEXT1 = "Account Sharing Request"
-XML_ALTO_SUMMARY_TEXT2 = "Click this button to ask a player\n"
-				.. "to share his entire Altoholic Database\n"
-				.. "and add it to your own"
-XML_ALTO_SUMMARY_TEXT3 = "Both parties must enable account sharing\nbefore using this feature (see options)"
-XML_ALTO_SUMMARY_TEXT4 = "Account Sharing"
+L["Account Sharing Request"] = true
+L["Click this button to ask a player\nto share his entire Altoholic Database\nand add it to your own"] = true
+L["Both parties must enable account sharing\nbefore using this feature (see options)"] = true
+L["Account Sharing"] = true
 				
-XML_ALTO_CHAR_DD1 = "Realm"
-XML_ALTO_CHAR_DD2 = "Character"
-XML_ALTO_CHAR_DD3 = "View"
+L["Realm"] = true
+L["Character"] = true
+L["View"] = true
 
-XML_ALTO_SEARCH_COL1 = "Item / Location"
+L["Item / Location"] = true
 
-XML_ALTO_GUILD_TEXT1 = "Hide this guild in the tooltip"
+L["Hide this guild in the tooltip"] = true
 
-XML_ALTO_ACH_NOTSTARTED = "Not started"
-XML_ALTO_ACH_STARTED = "Started"
+L["Not started"] = true
+L["Started"] = true
 
-XML_ALTO_OPT_MENU1 = "General"
-XML_ALTO_OPT_MENU2 = "Search"
-XML_ALTO_OPT_MENU3 = "Mail"
-XML_ALTO_OPT_MENU4 = "Minimap"
-XML_ALTO_OPT_MENU5 = "Tooltip"
+L["General"] = true
+L["Tooltip"] = true
 
-XML_TEXT_1 = "Totals";
-XML_TEXT_2 = "Search Containers";
-XML_TEXT_3 = "Level Range";
-XML_TEXT_4 = "Rarity";
-XML_TEXT_5 = "Equipment Slot";
-XML_TEXT_6 = "Reset";
--- XML_TEXT_7 = SEARCH;
+L["Totals"] = true
+L["Search Containers"] = true
+L["Equipment Slot"] = true
+L["Reset"] = true
 
-XML_ALTO_TEXT10 = "Account Name"
-XML_ALTO_TEXT11 = "Send account sharing request to:"
+L["Account Name"] = true
+L["Send account sharing request to:"] = true
 
---Options.xml
-XML_ALTO_OPT_GENERAL1 = "Max rest XP displayed as 150%";
-XML_ALTO_OPT_GENERAL2 = "Show FuBar icon";
-XML_ALTO_OPT_GENERAL3 = "Show FuBar text";
-XML_ALTO_OPT_GENERAL4 = "Account Sharing Enabled";
-XML_ALTO_OPT_GENERAL5 = "Guild Communication Enabled";
-XML_ALTO_OPT_GENERAL6 = "|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option will allow other Altoholic users\n"
-				.. "to send you account sharing requests.\n"
-				.. "Your confirmation will still be required any time someone requests your information.\n\n"
-				.. "When |cFFFF0000disabled|cFFFFFFFF, all requests will be automatically rejected.\n\n"
-				.. "Security hint: Only enable this when you actually need to transfer data,\ndisable otherwise"
-XML_ALTO_OPT_GENERAL7 = "|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option will allow your guildmates\n"
-				.. "to see your alts and their professions.\n\n"
-				.. "When |cFFFF0000disabled|cFFFFFFFF, there will be no communication with the guild."
-XML_ALTO_OPT_GENERAL8 = "Automatically authorize guild bank updates"
-XML_ALTO_OPT_GENERAL9 = "|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option will allow other Altoholic users\n"
-				.. "to update their guild bank information with yours automatically.\n\n"
-				.. "When |cFFFF0000disabled|cFFFFFFFF, your confirmation will be\n"
-				.. "required before sending any information.\n\n"
-				.. "Security hint: disable this if you have officer rights\n"
-				.. "on guild bank tabs that may not be viewed by everyone,\n"
-				.. "and authorize requests manually"
-XML_ALTO_OPT_GENERAL10 = "Transparency"
-				
-XML_ALTO_OPT_SEARCH1 = "AutoQuery server |cFFFF0000(disconnection risk)";
-XML_ALTO_OPT_SEARCH2 = "|cFFFFFFFFIf an item not in the local item cache\n"
-				.. "is encountered while searching loot tables,\n"
-				.. "Altoholic will attempt to query the server for 5 new items.\n\n"
-				.. "This will gradually improve the consistency of the searches,\n"
-				.. "as more items are available in the item cache.\n\n"
-				.. "There is a risk of disconnection if the queried item\n"
-				.. "is a loot from a high level dungeon.\n\n"
-				.. "|cFF00FF00Disable|r to avoid this risk";
-XML_ALTO_OPT_SEARCH3 = "Sort loots in descending order";
-XML_ALTO_OPT_SEARCH4 = "Include items without level requirement";
-XML_ALTO_OPT_SEARCH5 = "Include mailboxes";
-XML_ALTO_OPT_SEARCH6 = "Include guild bank(s)";
-XML_ALTO_OPT_SEARCH7 = "Include known recipes";
+--TabOptions.lua
 
-XML_ALTO_OPT_MAIL1 = "Warn when mail expires in less days than this value";
-XML_ALTO_OPT_MAIL2 = "Mail Expiry Warning";
-XML_ALTO_OPT_MAIL3 = "Scan mail body (marks it as read)";
-XML_ALTO_OPT_MAIL4 = "New mail notification";
-XML_ALTO_OPT_MAIL5 = "Be informed when a guildmate sends a mail to one of my alts.\n\n"
-				.. "Mail content is directly visible without having to reconnect the character";
+-- ** Frame 1 : General **
+L["Max rest XP displayed as 150%"] = true
+L["Show FuBar icon"] = true
+L["Show FuBar text"] = true
+L["Account Sharing Enabled"] = true
+L["Guild Communication Enabled"] = true
 
-XML_ALTO_OPT_MINIMAP1 = "Move to change the angle of the minimap icon";
-XML_ALTO_OPT_MINIMAP2 = "Minimap Icon Angle";
-XML_ALTO_OPT_MINIMAP3 = "Move to change the radius of the minimap icon";
-XML_ALTO_OPT_MINIMAP4 = "Minimap Icon Radius";
-XML_ALTO_OPT_MINIMAP5 = "Show Minimap Icon";
+L["|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option will allow other Altoholic users\nto send you account sharing requests.\n"] = true
+L["Your confirmation will still be required any time someone requests your information.\n\n"] = true
+L["When |cFFFF0000disabled|cFFFFFFFF, all requests will be automatically rejected.\n\n"] = true
+L["Security hint: Only enable this when you actually need to transfer data,\ndisable otherwise"] = true
 
-XML_ALTO_OPT_TOOLTIP1 = "Show item source"; 
-XML_ALTO_OPT_TOOLTIP2 = "Show item count per character";
-XML_ALTO_OPT_TOOLTIP3 = "Show total item count";
-XML_ALTO_OPT_TOOLTIP4 = "Show guild bank count";
-XML_ALTO_OPT_TOOLTIP5 = "Show already known/learnable by";
-XML_ALTO_OPT_TOOLTIP6 = "Show item ID and item level";
-XML_ALTO_OPT_TOOLTIP7 = "Show counters on gathering nodes";
-XML_ALTO_OPT_TOOLTIP8 = "Show counters for both factions";
-XML_ALTO_OPT_TOOLTIP9 = "Show counters for all accounts";
-XML_ALTO_OPT_TOOLTIP10 = "Include guild bank count in the total count";
+L["|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option will allow your guildmates\nto see your alts and their professions.\n\n"] = true
+L["When |cFFFF0000disabled|cFFFFFFFF, there will be no communication with the guild."] = true
 
-XML_ALTO_OPT_CALENDAR1 = "Week starts on Monday"; 
-XML_ALTO_OPT_CALENDAR2 = "Warn %d minutes before an event starts"; 
-end
+L["Automatically authorize guild bank updates"] = true
+
+L["|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option will allow other Altoholic users\nto update their guild bank information with yours automatically.\n\n"] = true
+L["When |cFFFF0000disabled|cFFFFFFFF, your confirmation will be\nrequired before sending any information.\n\n"] = true
+L["Security hint: disable this if you have officer rights\non guild bank tabs that may not be viewed by everyone,\nand authorize requests manually"] = true
+L["Transparency"] = true
+
+-- ** Frame 2 : Search **				
+L["AutoQuery server |cFFFF0000(disconnection risk)"] = true
+L["|cFFFFFFFFIf an item not in the local item cache\nis encountered while searching loot tables,\nAltoholic will attempt to query the server for 5 new items.\n\n"] = true
+L["This will gradually improve the consistency of the searches,\nas more items are available in the item cache.\n\n"] = true
+L["There is a risk of disconnection if the queried item\nis a loot from a high level dungeon.\n\n"] = true
+L["|cFF00FF00Disable|r to avoid this risk"] = true
+
+
+L["Sort loots in descending order"] = true
+L["Include items without level requirement"] = true
+L["Include mailboxes"] = true
+L["Include guild bank(s)"] = true
+L["Include known recipes"] = true
+
+-- ** Frame 3 : Mail **
+L["Warn when mail expires in less days than this value"] = true
+L["Mail Expiry Warning"] = true
+L["Scan mail body (marks it as read)"] = true
+L["New mail notification"] = true
+L["Be informed when a guildmate sends a mail to one of my alts.\n\nMail content is directly visible without having to reconnect the character"] = true
+
+-- ** Frame 4 : Minimap **
+L["Move to change the angle of the minimap icon"] = true
+L["Minimap Icon Angle"] = true
+L["Move to change the radius of the minimap icon"] = true
+L["Minimap Icon Radius"] = true
+L["Show Minimap Icon"] = true
+
+-- ** Frame 5 : Tooltip **
+L["Show item source"] = true
+L["Show item count per character"] = true
+L["Show total item count"] = true
+L["Show guild bank count"] = true
+L["Show already known/learnable by"] = true
+L["Show item ID and item level"] = true
+L["Show counters on gathering nodes"] = true
+L["Show counters for both factions"] = true
+L["Show counters for all accounts"] = true
+L["Include guild bank count in the total count"] = true
+
+-- ** Frame 6 : Calendar **
+L["Week starts on Monday"] = true
+L["Warn %d minutes before an event starts"] = true

@@ -247,9 +247,9 @@ function Altoholic.Tabs.Search:SetMode(mode)
 	if mode == "realm" then
 		Altoholic.Search:SetUpdateHandler("Realm_Update")
 		
-		Columns:Add(XML_ALTO_SEARCH_COL1, 240, function(self) Altoholic.Search.Results:Sort(self, "item") end)
-		Columns:Add(XML_ALTO_CHAR_DD2, 160, function(self) Altoholic.Search.Results:Sort(self, "char") end)
-		Columns:Add(XML_ALTO_CHAR_DD1, 150, function(self) Altoholic.Search.Results:Sort(self, "realm") end)
+		Columns:Add(L["Item / Location"], 240, function(self) Altoholic.Search.Results:Sort(self, "item") end)
+		Columns:Add(L["Character"], 160, function(self) Altoholic.Search.Results:Sort(self, "char") end)
+		Columns:Add(L["Realm"], 150, function(self) Altoholic.Search.Results:Sort(self, "realm") end)
 
 		AltoholicTabSearch_Sort2:SetPoint("LEFT", AltoholicTabSearch_Sort1, "RIGHT", 5, 0)
 		AltoholicTabSearch_Sort3:SetPoint("LEFT", AltoholicTabSearch_Sort2, "RIGHT", 5, 0)
@@ -273,7 +273,7 @@ function Altoholic.Tabs.Search:SetMode(mode)
 	elseif mode == "loots" then
 		Altoholic.Search:SetUpdateHandler("Loots_Update")
 		
-		Columns:Add(XML_ALTO_SEARCH_COL1, 240, function(self) Altoholic.Search.Results:Sort(self, "item") end)
+		Columns:Add(L["Item / Location"], 240, function(self) Altoholic.Search.Results:Sort(self, "item") end)
 		Columns:Add(L["Source"], 160, function(self) Altoholic.Search.Results:Sort(self, "bossName") end)
 		Columns:Add(L["Item Level"], 150, function(self) Altoholic.Search.Results:Sort(self, "iLvl") end)
 		
@@ -299,7 +299,7 @@ function Altoholic.Tabs.Search:SetMode(mode)
 	elseif mode == "upgrade" then
 		Altoholic.Search:SetUpdateHandler("Upgrade_Update")
 
-		Columns:Add(XML_ALTO_SEARCH_COL1, 200, function(self) Altoholic.Search.Results:Sort(self, "item") end)
+		Columns:Add(L["Item / Location"], 200, function(self) Altoholic.Search.Results:Sort(self, "item") end)
 		
 		for i=1, 6 do 
 			local text = select(i, strsplit("|", Altoholic.Equipment.FormatStats[Altoholic.Search:GetClass()]))

@@ -323,7 +323,7 @@ function Altoholic.Guild.Members:OnRosterUpdate()
 		end
 	end
 	
-	AltoholicTabSummaryMenuItem5:SetText(format("%s %s(%d)", XML_ALTO_SUMMARY_MENU5, GREEN, self.GetNumber()))
+	AltoholicTabSummaryMenuItem5:SetText(format("%s %s(%d)", L["Guild Members"], GREEN, self.GetNumber()))
 	
 	if rosterChanged then
 		Altoholic.Tabs.Summary:Refresh()

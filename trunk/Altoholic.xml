@@ -47,12 +47,7 @@
 				self.isMoving = false;
 			</OnDragStop>
 			<OnEnter> 
-				AltoTooltip:SetOwner(self, "ANCHOR_LEFT");
-				AltoTooltip:ClearLines();
-				AltoTooltip:SetText("Altoholic"); 
-				AltoTooltip:AddLine(LEFT_HINT,1,1,1);
-				AltoTooltip:AddLine(RIGHT_HINT,1,1,1);
-				AltoTooltip:Show(); 
+				Altoholic:ShowWidgetTooltip(self)
 			</OnEnter>
 			<OnLeave>
 				AltoTooltip:Hide();
@@ -220,7 +215,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentTotals" inherits="GameFontNormal" text="XML_TEXT_1">
+				<FontString name="$parentTotals" inherits="GameFontNormal">
 					<Size x="60" y="24" />
 					<Anchors>
 						<Anchor point="BOTTOMRIGHT">
@@ -254,7 +249,7 @@
 					</Anchors>
 					<Color r="255" g="255" b="255" />
 				</FontString>
-				<FontString name="$parentSearchLabel" inherits="GameFontNormalSmall" text="XML_TEXT_2">
+				<FontString name="$parentSearchLabel" inherits="GameFontNormalSmall">
 					<Size x="120" y="20" />
 					<Anchors>
 						<Anchor point="TOPLEFT">
@@ -266,7 +261,7 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<Button name="$parentTab1" inherits="AltoTabTemplate" id="1" text="XML_ALTO_TAB1">
+			<Button name="$parentTab1" inherits="AltoTabTemplate" id="1">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -275,7 +270,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentTab2" inherits="AltoTabTemplate" id="2" text="XML_ALTO_TAB2">
+			<Button name="$parentTab2" inherits="AltoTabTemplate" id="2">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentTab1" relativePoint="TOPRIGHT">
 						<Offset>
@@ -344,7 +339,7 @@
 					</OnEscapePressed>
 				</Scripts>
 			</EditBox>
-			<Button name="$parent_ResetButton" inherits="UIPanelButtonTemplate" text="XML_TEXT_6">
+			<Button name="$parent_ResetButton" inherits="UIPanelButtonTemplate">
 				<Size>
 					<AbsDimension x="80" y="24"/>
 				</Size>
@@ -519,7 +514,7 @@
 		</Anchors>
 		<Layers>
 			<Layer>
-				<FontString name="$parentName" inherits="GameFontNormal" text="XML_ALTO_TEXT10" justifyH="CENTER">
+				<FontString name="$parentName" inherits="GameFontNormal" justifyH="CENTER">
 					<Size>
 						<AbsDimension x="140" y="18"/>
 					</Size>
@@ -531,7 +526,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentText1" inherits="GameFontNormal" text="XML_ALTO_TEXT11" justifyH="LEFT">
+				<FontString name="$parentText1" inherits="GameFontNormal" justifyH="LEFT">
 					<Size>
 						<AbsDimension x="250" y="18"/>
 					</Size>
@@ -595,12 +590,7 @@
 				</Anchors>
 				<Scripts>
 					<OnEnter>
-						AltoTooltip:SetOwner(self, "ANCHOR_LEFT");
-						AltoTooltip:ClearLines();
-						AltoTooltip:SetText(XML_ALTO_TEXT10); 
-						AltoTooltip:AddLine(XML_ALTO_SHARING_HINT1,1,1,1);
-						AltoTooltip:AddLine(XML_ALTO_SHARING_HINT2,1,1,1);
-						AltoTooltip:Show(); 
+						Altoholic:ShowWidgetTooltip(self)
 					</OnEnter>
 					<OnLeave>
 						AltoTooltip:Hide();
@@ -636,7 +626,6 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad>
-						getglobal(self:GetName().."Text"):SetText(XML_ALTO_CHAR_DD2);
 						AltoAccountSharing_UseName:SetChecked(nil)
 					</OnLoad>
 					<OnClick>

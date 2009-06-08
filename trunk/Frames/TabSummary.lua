@@ -254,3 +254,21 @@ function Altoholic.Tabs.Summary:ToggleView(self)
 		Altoholic.Guild.BankTabs:Update()
 	end
 end
+
+function Altoholic.Tabs.Summary:AccountSharingButton_OnEnter(self)
+	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT")
+	AltoTooltip:ClearLines()
+	AltoTooltip:SetText(L["Account Sharing Request"])
+	AltoTooltip:AddLine(L["Click this button to ask a player\nto share his entire Altoholic Database\nand add it to your own"],1,1,1)
+	AltoTooltip:Show()
+end
+
+function Altoholic.Tabs.Summary:AccountSharingButton_OnClick()
+	if Altoholic.Options:Get("AccSharingHandlerEnabled") == 0 then
+		Altoholic:Print(L["Both parties must enable account sharing\nbefore using this feature (see options)"])
+		return
+	end
+	Altoholic:ToggleUI()
+	AltoAccountSharing:Show()
+end
+

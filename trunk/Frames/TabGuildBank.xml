@@ -117,9 +117,6 @@
 					</Anchor>
 				</Anchors>
 				<Scripts>
-					<OnLoad>
-						getglobal(self:GetName().."Text"):SetText(XML_ALTO_GUILD_TEXT1);
-					</OnLoad>
 					<OnClick>
 						Altoholic.Tabs.GuildBank:HideGuild(self);
 					</OnClick>

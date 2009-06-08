@@ -19,7 +19,7 @@
 					</Anchors>
 					<Color r="255" g="255" b="255" />
 				</FontString>
-				<FontString name="$parentRarity" inherits="GameFontNormalSmall" text="XML_TEXT_4">
+				<FontString name="$parentRarity" inherits="GameFontNormalSmall" text="RARITY">
 					<Size x="90" y="20" />
 					<Anchors>
 						<Anchor point="LEFT" relativeTo="$parentLevelRange" relativePoint="RIGHT" >
@@ -28,7 +28,7 @@
 					</Anchors>
 					<Color r="255" g="255" b="255" />
 				</FontString>
-				<FontString name="$parentSlot" inherits="GameFontNormalSmall" text="XML_TEXT_5">
+				<FontString name="$parentSlot" inherits="GameFontNormalSmall">
 					<Size x="100" y="20" />
 					<Anchors>
 						<Anchor point="LEFT" relativeTo="$parentRarity" relativePoint="RIGHT" >
@@ -37,7 +37,7 @@
 					</Anchors>
 					<Color r="255" g="255" b="255" />
 				</FontString>
-				<FontString name="$parentLocation" inherits="GameFontNormalSmall" text="Location">
+				<FontString name="$parentLocation" inherits="GameFontNormalSmall">
 					<Size x="100" y="20" />
 					<Anchors>
 						<Anchor point="LEFT" relativeTo="$parentSlot" relativePoint="RIGHT" >
@@ -335,7 +335,7 @@
 				</Scripts>
 			</Frame>		
 			
-			<Button name="$parent_Sort1" inherits="AltoSortButtonTemplate" hidden="true" id="1" text="XML_ALTO_SEARCH_COL1">
+			<Button name="$parent_Sort1" inherits="AltoSortButtonTemplate" hidden="true" id="1">
 				<Size>
 					<AbsDimension x="240" y="19"/>
 				</Size>
@@ -347,7 +347,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parent_Sort2" inherits="AltoSortButtonTemplate" hidden="true" id="2" text="XML_ALTO_CHAR_DD2">
+			<Button name="$parent_Sort2" inherits="AltoSortButtonTemplate" hidden="true" id="2">
 				<Size>
 					<AbsDimension x="160" y="19"/>
 				</Size>
@@ -359,7 +359,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parent_Sort3" inherits="AltoSortButtonTemplate" hidden="true" id="3" text="XML_ALTO_CHAR_DD1">
+			<Button name="$parent_Sort3" inherits="AltoSortButtonTemplate" hidden="true" id="3">
 				<Size>
 					<AbsDimension x="150" y="19"/>
 				</Size>

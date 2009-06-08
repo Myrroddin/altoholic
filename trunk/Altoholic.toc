@@ -5,6 +5,10 @@
 ## X-Curse-Project-Name: Altoholic
 ## X-Curse-Project-ID: altoholic
 ## X-Curse-Repository-ID: wow/altoholic/mainline
+## X-Curse-Packaged-Version: r13
+## X-Curse-Project-Name: Altoholic
+## X-Curse-Project-ID: altoholic
+## X-Curse-Repository-ID: wow/altoholic/mainline
 
 ## Notes: Provides information about your alts
 ## Notes-zhTW: 讓你即時撿閱你所有角色的資料
