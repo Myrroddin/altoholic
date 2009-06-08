@@ -1718,11 +1718,11 @@ function Altoholic.Tooltip:Init()
 	ItemRefTooltip:SetScript("OnTooltipCleared", self.OnItemRefTooltipCleared)
 end
 
-function Altoholic.Tooltip:OnGameTooltipShow(...)
+function Altoholic.Tooltip.OnGameTooltipShow(tooltip, ...)
 	local self = Altoholic.Tooltip
 	
 	if self.Orig_GameTooltip_OnShow then
-		self.Orig_GameTooltip_OnShow(...)
+		self.Orig_GameTooltip_OnShow(tooltip, ...)
 	end	
 
 	-- exit if player does not want counters for known gathering nodes
@@ -1753,12 +1753,10 @@ function Altoholic.Tooltip:OnGameTooltipShow(...)
 			GameTooltip:AddLine(self.CachedTotal,1,1,1);
 		end		
 	end
-	
 	GameTooltip:Show()
 end
 
-function Altoholic.Tooltip:OnGameTooltipSetItem(...)
-	local tooltip = self
+function Altoholic.Tooltip.OnGameTooltipSetItem(tooltip, ...)
 	local self = Altoholic.Tooltip
 
 	if self.Orig_GameTooltip_SetItem then
@@ -1773,27 +1771,25 @@ function Altoholic.Tooltip:OnGameTooltipSetItem(...)
 	end
 end
 
-function Altoholic.Tooltip:OnGameTooltipCleared(...)
-	local tooltip = self
+function Altoholic.Tooltip.OnGameTooltipCleared(tooltip, ...)
 	local self = Altoholic.Tooltip
 
 	self.isDone = nil
 	return self.Orig_GameTooltip_ClearItem(tooltip, ...)
 end
 
-function Altoholic.Tooltip:OnItemRefTooltipShow(...)
+function Altoholic.Tooltip.OnItemRefTooltipShow(tooltip, ...)
 	local self = Altoholic.Tooltip
 	
 	if self.Orig_ItemRefTooltip_OnShow then
-		self.Orig_ItemRefTooltip_OnShow(...)
+		self.Orig_ItemRefTooltip_OnShow(tooltip, ...)
 	end
 
 	Altoholic.Quests:IsKnown( _G["ItemRefTooltipTextLeft1"]:GetText() )
 	ItemRefTooltip:Show()
 end
 
-function Altoholic.Tooltip:OnItemRefTooltipSetItem(...)
-	local tooltip = self
+function Altoholic.Tooltip.OnItemRefTooltipSetItem(tooltip, ...)
 	local self = Altoholic.Tooltip
 	
 	if self.Orig_ItemRefTooltip_SetItem then
@@ -1809,8 +1805,7 @@ function Altoholic.Tooltip:OnItemRefTooltipSetItem(...)
 	end
 end
 
-function Altoholic.Tooltip:OnItemRefTooltipCleared(...)
-	local tooltip = self
+function Altoholic.Tooltip.OnItemRefTooltipCleared(tooltip, ...)
 	local self = Altoholic.Tooltip
 	
 	self.isDone = nil
