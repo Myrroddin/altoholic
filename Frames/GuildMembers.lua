@@ -172,6 +172,11 @@ function Altoholic.Guild.Members:Name_OnEnter(self)
 	
 	local player = self.view[line]
 	local c = self:Get(player.parentID)
+	if not c then		-- if c is invalid here, it means that a player known in the table is no longer valid and the roster hasn't been updated
+		GuildRoster()
+		return
+	end
+	
 	if not c.skills then return end	-- not an altoholic user
 	
 	local char = c.skills[player.skillIndex]

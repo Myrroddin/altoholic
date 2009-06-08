@@ -14,6 +14,8 @@ Altoholic Changelog (dates in dd/mm/yyyy)
 - Updated zhCN localization (thanks ALADDINN).
 - Updated zhTW localization (thanks NightOwl).
 - Added a calendar pane to track the following events: standard calendar events, profession cooldowns, raid timers, mysterious egg/disgusting jar.
+- Localization update in order to comply with the CurseForge localization tool. A few large strings may need review in ruRU, zhCN & zhTW (those that are used as option tooltips).
+- Fixed a bug with the option "Include guild bank count in the total count".
 
 3.1.002b (05/05/2009)
 
