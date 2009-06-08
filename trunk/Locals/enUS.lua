@@ -1,7 +1,5 @@
 ﻿local L = LibStub("AceLocale-3.0"):NewLocale("Altoholic", "enUS", true)
 
---@localization(locale="enUS", format="lua_additive_table", same-key-is-true=true, handle-subnamespaces="concat")@
-
 if not L then return end
 
 -- Note: since 2.4.004 and the support of LibBabble, certain lines are commented, but remain there for clarity (especially those concerning the menu)
