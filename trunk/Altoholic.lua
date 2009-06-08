@@ -142,6 +142,10 @@ function Altoholic:InitLocalization()
 	L["This name can be anything you like,\nit does |cFF00FF00NOT|r have to be the real account name."] = nil
 	L["This field |cFF00FF00cannot|r be left empty."] = nil
 
+	if GetLocale() == "deDE" then
+		-- This is a global string from wow, for some reason the original is causing problem. DO NOT copy this line in localization files
+		ITEM_MOD_SPELL_POWER = "Erh\195\182ht die Zaubermacht um %d."; 
+	end
 end
 
 function Altoholic:OnEnable()
@@ -1836,7 +1840,7 @@ function Altoholic.Tooltip.OnGameTooltipShow(tooltip, ...)
 			end
 		end		
 		
-		if (Altoholic.Options:Get("TooltipCount") == 1) and (self.CachedCount > 0) then			-- add count per character
+		if (Altoholic.Options:Get("TooltipCount") == 1) then			-- add count per character
 			GameTooltip:AddLine(" ",1,1,1);
 			for CharacterName, c in pairs (V.ItemCount) do
 				--GameTooltip:AddDoubleLine(CharacterName .. ":",  TEAL .. c);
@@ -1954,7 +1958,7 @@ function Altoholic.Tooltip:Process(tooltip, name, link)
 				SecondsToTime(owner.duration - (GetTime() - owner.startTime))),1,1,1);
 	end
 	
-	if (Altoholic.Options:Get("TooltipCount") == 1) and (self.CachedCount > 0) then			-- add count per character
+	if (Altoholic.Options:Get("TooltipCount") == 1) then			-- add count per character
 		tooltip:AddLine(" ",1,1,1);
 		for CharacterName, c in pairs (V.ItemCount) do
 			tooltip:AddDoubleLine(CharacterName,  TEAL .. c);

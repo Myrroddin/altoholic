@@ -4,131 +4,114 @@ if not L then return end
 
 --@localization(locale="esES", format="lua_additive_table", handle-unlocalized="ignore", escape-non-ascii=false, same-key-is-true=true)@
 
-if GetLocale() == "esES" then
--- Altoholic.xml local
-LEFT_HINT = "Botón izquierdo para |cFF00FF00abrir";
-RIGHT_HINT = "Botón derecho para |cFF00FF00desplazar";
+L["Location"] = true
+L["Left-click to |cFF00FF00open"] = "Botón izquierdo para |cFF00FF00abrir"
+L["Right-click to |cFF00FF00drag"] = "Botón derecho para |cFF00FF00desplazar"
+L["Enter an account name that will be\nused for |cFF00FF00display|r purposes only."] = "Introduce un nombre que sólo se usará para |cFF00FF00mostrar|r."
+L["This name can be anything you like,\nit does |cFF00FF00NOT|r have to be the real account name."] = "Este nombre puede ser cualquiera,\n|cFF00FF00NO|r hace falta que sea un nombre real."
+L["This field |cFF00FF00cannot|r be left empty."] = "Este campo |cFF00FF00no puede|r ser dejado en blanco."
 
-XML_ALTO_SHARING_HINT1 = "Introduce un nombre que sólo se usará para |cFF00FF00mostrar|r.\n"
-                .. "Este nombre puede ser cualquiera,\n|cFF00FF00NO|r hace falta que sea un nombre real.\n\n"
+L["Summary"] = "Resumen"
+L["Characters"] = "Personajes"
 
-XML_ALTO_SHARING_HINT2 = "Este campo |cFF00FF00no puede|r ser dejado en blanco."
+L["Account Summary"] = "Resumen de la Cuenta"
+L["Bag Usage"] = "Bolsas"
+L["Activity"] = "Actividad"
+L["Guild Members"] = "Miembros hermandad"
+L["Guild Skills"] = "Habilidades hermandad"
+L["Guild Bank Tabs"] = "Banco de hermandad"
+L["Calendar"] = true
 
-XML_ALTO_TAB1 = "Resumen"
-XML_ALTO_TAB2 = "Personajes"
-XML_ALTO_TAB3 = "Buscar"
--- XML_ALTO_TAB4 = GUILD_BANK
-XML_ALTO_TABOPTIONS = "Opciones"
+L["Account Sharing Request"] = "Petición de compartir cuenta"
+L["Click this button to ask a player\nto share his entire Altoholic Database\nand add it to your own"] = "Click en este botón para pedir a un jugador\nque comparta su base de datos de Altoholic entera\ny añadirla a la tuya"
+L["Both parties must enable account sharing\nbefore using this feature (see options)"] = "Ambas partes han de activar la compartición de cuenta\nantes de usar esta característica (ver opciones)"
+L["Account Sharing"] = "Compartición de cuenta"
 
-XML_ALTO_SUMMARY_MENU1 = "Resumen de la Cuenta"
-XML_ALTO_SUMMARY_MENU2 = "Bolsas"
--- XML_ALTO_SUMMARY_MENU3 = SKILLS
-XML_ALTO_SUMMARY_MENU4 = "Actividad"
-XML_ALTO_SUMMARY_MENU5 = "Miembros hermandad"
-XML_ALTO_SUMMARY_MENU6 = "Habilidades hermandad"
-XML_ALTO_SUMMARY_MENU7 = "Banco de hermandad"
-XML_ALTO_SUMMARY_MENU8 = "Calendar"
+L["Realm"] = "Reino"
+L["Character"] = "Personaje"
+L["View"] = "Ver"
 
-XML_ALTO_SUMMARY_TEXT1 = "Petición de compartir cuenta"
-XML_ALTO_SUMMARY_TEXT2 = "Click en este botón para pedir a un jugador\n"
-                .. "que comparta su base de datos de Altoholic entera\n"
-                .. "y añadirla a la tuya"
-XML_ALTO_SUMMARY_TEXT3 = "Ambas partes han de activar la compartición de cuenta\nantes de usar esta característica (ver opciones)"
-XML_ALTO_SUMMARY_TEXT4 = "Compartición de cuenta"
+L["Item / Location"] = "Objeto / Ubicación"
 
-XML_ALTO_CHAR_DD1 = "Reino"
-XML_ALTO_CHAR_DD2 = "Personaje"
-XML_ALTO_CHAR_DD3 = "Ver"
+L["Hide this guild in the tooltip"] = "Oculta esta hermandad de la lista"
 
-XML_ALTO_SEARCH_COL1 = "Objeto / Ubicación"
+L["Not started"] = "No iniciado"
+L["Started"] = "Iniciado"
 
-XML_ALTO_GUILD_TEXT1 = "Oculta esta hermandad de la lista"
+L["General"] = true
+L["Tooltip"] = true
 
-XML_ALTO_ACH_NOTSTARTED = "No iniciado"
-XML_ALTO_ACH_STARTED = "Iniciado"
+L["Totals"] = "Totales"
+L["Search Containers"] = "Buscar contenedores"
+L["Equipment Slot"] = "Tipo de equipo"
+L["Reset"] = "Reiniciar"
 
-XML_ALTO_OPT_MENU1 = "General"
-XML_ALTO_OPT_MENU2 = "Buscar"
-XML_ALTO_OPT_MENU3 = "Correo"
-XML_ALTO_OPT_MENU4 = "Minimapa"
-XML_ALTO_OPT_MENU5 = "Tooltip"
+L["Account Name"] = "Nombre de cuenta"
+L["Send account sharing request to:"] = "Mandar petición de compartir cuenta a:"
 
-XML_TEXT_1 = "Totales";
-XML_TEXT_2 = "Buscar contenedores";
-XML_TEXT_3 = "Niveles";
-XML_TEXT_4 = "Rareza";
-XML_TEXT_5 = "Tipo de equipo";
-XML_TEXT_6 = "Reiniciar";
-XML_TEXT_7 = "Buscar";
+--TabOptions.lua
 
-XML_ALTO_TEXT10 = "Nombre de cuenta"
-XML_ALTO_TEXT11 = "Mandar petición de compartir cuenta a:"
+-- ** Frame 1 : General **
+L["Max rest XP displayed as 150%"] = "Mostrar el maximo de XP reposado como 150%"
+L["Show FuBar icon"] = "Mostrar icono FuBar"
+L["Show FuBar text"] = "Mostrar texto FuBar"
+L["Account Sharing Enabled"] = "Compartición de cuenta activado"
+L["Guild Communication Enabled"] = "Comunicación con hermandad activada"
 
+L["|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option will allow other Altoholic users\nto send you account sharing requests.\n"] = "|cFFFFFFFFSi está |cFF00FF00activada|cFFFFFFFF, esta opción permitirá a otros usuarios\nde Altoholic enviarte peticiones para compartir cuenta.\n"
+L["Your confirmation will still be required any time someone requests your information.\n\n"] = "Se te pedirá confirmación cada vez que alguien solicite tu información.\n\n"
+L["When |cFFFF0000disabled|cFFFFFFFF, all requests will be automatically rejected.\n\n"] = "Si está |cFFFF0000desactivada|cFFFFFFFF, todas las peticiones serán automáticamente rechazadas.\n\n"
+L["Security hint: Only enable this when you actually need to transfer data,\ndisable otherwise"] = "Consejo de seguridad: Actívalo sólo cuando necesites transferir datos,\ndesactívalo el resto del tiempo"
 
---Options.xml
-XML_ALTO_OPT_GENERAL1 = "Mostrar el maximo de XP reposado como 150%";
-XML_ALTO_OPT_GENERAL2 = "Mostrar icono FuBar";
-XML_ALTO_OPT_GENERAL3 = "Mostrar texto FuBar";
-XML_ALTO_OPT_GENERAL4 = "Compartición de cuenta activado";
-XML_ALTO_OPT_GENERAL5 = "Comunicación con hermandad activada";
-XML_ALTO_OPT_GENERAL6 = "|cFFFFFFFFSi está |cFF00FF00activada|cFFFFFFFF, esta opción permitirá a otros usuarios\n"
-                .. "de Altoholic enviarte peticiones para compartir cuenta.\n"
-                .. "Se te pedirá confirmación cada vez que alguien solicite tu información.\n\n"
-                .. "Si está |cFFFF0000desactivada|cFFFFFFFF, todas las peticiones serán automáticamente rechazadas.\n\n"
-                .. "Consejo de seguridad: Actívalo sólo cuando necesites transferir datos,\ndesactívalo el resto del tiempo"
-XML_ALTO_OPT_GENERAL7 = "|cFFFFFFFFSi está |cFF00FF00activada|cFFFFFFFF, esta opción permitirá a tus compañeros de hermandad\n"
-                .. "ver tus alters y sus profesiones.\n\n"
-                .. "Si está |cFFFF0000desactivada|cFFFFFFFF, no habrá comunicación con la hermandad."
-XML_ALTO_OPT_GENERAL8 = "Autorizar automáticamente las actualizaciones el banco de la hermandad"
-XML_ALTO_OPT_GENERAL9 = "|cFFFFFFFFSi está |cFF00FF00activada|cFFFFFFFF, esta opción permitirá a otros usuarios de Altoholic\n"
-                .. "actualizar su información del banco de la hermandad con la tuya..\n\n"
-                .. "Si está |cFFFF0000desactivada|cFFFFFFFF, se te pedirá confirmación\n"
-                .. "antes de mandar ninguna información.\n\n"
-                .. "Consejo de seguridad: desaciva esto si tienes permisos de oficial\n"
-                .. "en pestañas del banco de la hermandad que no deben ser vistas por todos,\n"
-                .. "y autoriza las peticiones manualmente"
-XML_ALTO_OPT_GENERAL10 = "Transparency"
+L["|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option will allow your guildmates\nto see your alts and their professions.\n\n"] = "|cFFFFFFFFSi está |cFF00FF00activada|cFFFFFFFF, esta opción permitirá a tus compañeros de hermandad\nver tus alters y sus profesiones.\n\n"
+L["When |cFFFF0000disabled|cFFFFFFFF, there will be no communication with the guild."] = "Si está |cFFFF0000desactivada|cFFFFFFFF, no habrá comunicación con la hermandad."
 
-XML_ALTO_OPT_SEARCH1 = "Comprobación automática |cFFFF0000(riesgo de desconexión)";
-XML_ALTO_OPT_SEARCH2 = "|cFFFFFFFFSi un objeto no esta en la caché local de objetos\n"
-                .. "y es encontrado mientras se realiza una búsqueda,\n"
-                .. "Altoholic preguntará al servidor por 5 nuevos objetos.\n\n"
-                .. "Esto mejorará gradualmente la consistencia de las busquedas,\n"
-                .. "ya que habrá mas objetos en la cache de objetos.\n\n"
-                .. "Aun así, hay un riesgo de desconexión al preguntar por un objeto\n"
-                .. "si es un drop de una instancia de alto nivel.\n\n"
-                .. "|cFF00FF00deshabilitar|r para evitar este riesgo";
+L["Automatically authorize guild bank updates"] = "Autorizar automáticamente las actualizaciones el banco de la hermandad"
 
-XML_ALTO_OPT_SEARCH3 = "Ordenar saqueos en orden decreciente";
-XML_ALTO_OPT_SEARCH4 = "Incluir objetos sin requerimientos de nivel";
-XML_ALTO_OPT_SEARCH5 = "Incluir buzones de correo";
-XML_ALTO_OPT_SEARCH6 = "Incluir bancos de hermandad";
-XML_ALTO_OPT_SEARCH7 = "Incluir recetas conocidas";
+L["|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option will allow other Altoholic users\nto update their guild bank information with yours automatically.\n\n"] = "|cFFFFFFFFSi está |cFF00FF00activada|cFFFFFFFF, esta opción permitirá a otros usuarios de Altoholic\nactualizar su información del banco de la hermandad con la tuya..\n\n"
+L["When |cFFFF0000disabled|cFFFFFFFF, your confirmation will be\nrequired before sending any information.\n\n"] = "Si está |cFFFF0000desactivada|cFFFFFFFF, se te pedirá confirmación\nantes de mandar ninguna información.\n\n"
+L["Security hint: disable this if you have officer rights\non guild bank tabs that may not be viewed by everyone,\nand authorize requests manually"] = "Consejo de seguridad: desaciva esto si tienes permisos de oficial\nen pestañas del banco de la hermandad que no deben ser vistas por todos,\ny autoriza las peticiones manualmente"
+L["Transparency"] = true
 
-XML_ALTO_OPT_MAIL1 = "Advertir cuando el correo expira en menos días que los indicados";
-XML_ALTO_OPT_MAIL2 = "Advertencia de expiración del correo";
-XML_ALTO_OPT_MAIL3 = "Analizar el contenido de los correos (marcarlos como leídos)";
-XML_ALTO_OPT_MAIL4 = "Notificación de nuevo correo";
-XML_ALTO_OPT_MAIL5 = "Serás avisado cuando un compañero de hermandad mande un correo a uno de tus alters.\n\n"
-                .. "El contenido del correo se verá directamente sin tener que reconectar con ese personaje";
+-- ** Frame 2 : Search **				
+L["AutoQuery server |cFFFF0000(disconnection risk)"] = "Comprobación automática |cFFFF0000(riesgo de desconexión)"
+L["|cFFFFFFFFIf an item not in the local item cache\nis encountered while searching loot tables,\nAltoholic will attempt to query the server for 5 new items.\n\n"] = "|cFFFFFFFFSi un objeto no esta en la caché local de objetos\ny es encontrado mientras se realiza una búsqueda,\nAltoholic preguntará al servidor por 5 nuevos objetos.\n\n"
+L["This will gradually improve the consistency of the searches,\nas more items are available in the item cache.\n\n"] = "Esto mejorará gradualmente la consistencia de las busquedas,\nya que habrá mas objetos en la cache de objetos.\n\n"
+L["There is a risk of disconnection if the queried item\nis a loot from a high level dungeon.\n\n"] = "Aun así, hay un riesgo de desconexión al preguntar por un objeto\nsi es un drop de una instancia de alto nivel.\n\n"
+L["|cFF00FF00Disable|r to avoid this risk"] = "|cFF00FF00deshabilitar|r para evitar este riesgo"
 
-XML_ALTO_OPT_MINIMAP1 = "Mover para cambiar el ángulo del icono en el minimapa";
-XML_ALTO_OPT_MINIMAP2 = "Angulo del icono del minimapa";
-XML_ALTO_OPT_MINIMAP3 = "Mover para cambiar el angulo del icono en el minimapa";
-XML_ALTO_OPT_MINIMAP4 = "Radio del icono del minimapa";
-XML_ALTO_OPT_MINIMAP5 = "Mostrar icono del minimapa";
+L["Sort loots in descending order"] = "Ordenar saqueos en orden decreciente"
+L["Include items without level requirement"] = "Incluir objetos sin requerimientos de nivel"
+L["Include mailboxes"] = "Incluir buzones de correo"
+L["Include guild bank(s)"] = "Incluir bancos de hermandad"
+L["Include known recipes"] = "Incluir recetas conocidas"
 
-XML_ALTO_OPT_TOOLTIP1 = "Mostrar origen del objeto"; 
-XML_ALTO_OPT_TOOLTIP2 = "Mostrar recuento de objetos por personaje";
-XML_ALTO_OPT_TOOLTIP3 = "Mostrar recuento total de objetos";
-XML_ALTO_OPT_TOOLTIP4 = "Mostrar recuento de objetos en el banco de la hermandad";
-XML_ALTO_OPT_TOOLTIP5 = "Mostrar conocido/puede aprenderse por";
-XML_ALTO_OPT_TOOLTIP6 = "Mostrar ID y nivel del objeto";
-XML_ALTO_OPT_TOOLTIP7 = "Mostrar contadores en los nodos de recolección";
-XML_ALTO_OPT_TOOLTIP8 = "Mostrar contadores de ambas facciones";
-XML_ALTO_OPT_TOOLTIP9 = "Mostrar contadores de todas las cuentas";
-XML_ALTO_OPT_TOOLTIP10 = "Include guild bank count in the total count";
+-- ** Frame 3 : Mail **
+L["Warn when mail expires in less days than this value"] = "Advertir cuando el correo expira en menos días que los indicados"
+L["Mail Expiry Warning"] = "Advertencia de expiración del correo"
+L["Scan mail body (marks it as read)"] = "Analizar el contenido de los correos (marcarlos como leídos)"
+L["New mail notification"] = "Notificación de nuevo correo"
+L["Be informed when a guildmate sends a mail to one of my alts.\n\nMail content is directly visible without having to reconnect the character"] = "Serás avisado cuando un compañero de hermandad mande un correo a uno de tus alters.\n\nEl contenido del correo se verá directamente sin tener que reconectar con ese personaje"
 
-XML_ALTO_OPT_CALENDAR1 = "Week starts on Monday"; 
-XML_ALTO_OPT_CALENDAR2 = "Warn %d minutes before an event starts"; 
-end
+-- ** Frame 4 : Minimap **
+L["Move to change the angle of the minimap icon"] = "Mover para cambiar el ángulo del icono en el minimapa"
+L["Minimap Icon Angle"] = "Angulo del icono del minimapa"
+L["Move to change the radius of the minimap icon"] = "Mover para cambiar el angulo del icono en el minimapa"
+L["Minimap Icon Radius"] = "Radio del icono del minimapa"
+L["Show Minimap Icon"] = "Mostrar icono del minimapa"
+
+-- ** Frame 5 : Tooltip **
+L["Show item source"] = "Mostrar origen del objeto"
+L["Show item count per character"] = "Mostrar recuento de objetos por personaje"
+L["Show total item count"] = "Mostrar recuento total de objetos"
+L["Show guild bank count"] = "Mostrar recuento de objetos en el banco de la hermandad"
+L["Show already known/learnable by"] = "Mostrar conocido/puede aprenderse por"
+L["Show item ID and item level"] = "Mostrar ID y nivel del objeto"
+L["Show counters on gathering nodes"] = "Mostrar contadores en los nodos de recolección"
+L["Show counters for both factions"] = "Mostrar contadores de ambas facciones"
+L["Show counters for all accounts"] = "Mostrar contadores de todas las cuentas"
+L["Include guild bank count in the total count"] = "Include guild bank count in the total count"
+
+-- ** Frame 6 : Calendar **
+L["Week starts on Monday"] = true
+L["Warn %d minutes before an event starts"] = true

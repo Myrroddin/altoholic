@@ -619,6 +619,30 @@ function Altoholic.Calendar.Events:OnEnter(frame)
 	AltoTooltip:Show();
 end
 
+function Altoholic.Calendar.Events:OnClick(frame, button)
+	-- if an event is left-clicked, try to invite attendees. ConnectMMO events only
+	
+	local self = Altoholic.Calendar.Events
+	local s = self.view[frame:GetID()]
+	if not s or s.linetype == EVENT_DATE then return end		-- date line ? exit
+	
+	local e = self.List[s.parentID]		-- dereference event
+	-- not a connectmmo event ? or wrong realm ? exit
+	if not e or e.eventType ~= CONNECTMMO_LINE or e.realm ~= GetRealmName() then return end	
+	
+	local c = Altoholic:GetCharacterTable(e.char, e.realm)
+	if not c then return end	-- invalid char table ? exit
+	
+	local _, _, _, _, _, attendees = strsplit("|", c.ConnectMMO[e.parentID])
+
+	-- TODO, add support for raid groups
+	for _, name in pairs({ strsplit(",", attendees) }) do
+		if name ~= UnitName("player") then
+			InviteUnit(name) 
+		end
+	end
+end
+
 function Altoholic.Calendar.Events:GetIndex(year, month, day)
 	local eventDate = format("%04d-%02d-%02d", year, month, day)
 	for k, v in pairs(self.view) do

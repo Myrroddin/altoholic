@@ -117,6 +117,9 @@
 			</Layer>
 		</Layers>
 		<Scripts>
+			<OnClick>
+				Altoholic.Calendar.Events:OnClick(self, button)
+			</OnClick>
 			<OnEnter>
 				Altoholic.Calendar.Events:OnEnter(self)
 			</OnEnter>

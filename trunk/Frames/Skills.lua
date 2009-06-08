@@ -331,8 +331,18 @@ function Altoholic.TradeSkills:OnClick(self, button)
 		end
 	end
 	
-	local tc = Altoholic.Tabs.Characters
 	local charName, realm, account = Altoholic:GetCurrentCharacter()
+	
+	if ChatFrameEditBox:IsShown() and IsShiftKeyDown() and realm == GetRealmName() and id ~= 6 then
+		-- if shift-click, then display the profession link and exit
+		local link = c.recipes[skillName].FullLink	
+		if link and link:match("trade:") then
+			ChatFrameEditBox:Insert(link);
+		end
+		return
+	end
+	
+	local tc = Altoholic.Tabs.Characters
 	tc:DropDownRealm_Initialize()
 	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, account .."|".. realm)
 	
