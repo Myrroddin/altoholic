@@ -974,6 +974,24 @@
 							</OnClick>
 						</Scripts>
 					</CheckButton>
+					
+					<CheckButton name="$parentDialogBox" inherits="UICheckButtonTemplate">
+						<Size>
+							<AbsDimension x="20" y="20"/>
+						</Size>
+						<Anchors> 
+							<Anchor point="TOPLEFT" relativeTo="$parentFirstDay" relativePoint="TOPRIGHT">
+								<Offset>
+									<AbsDimension  x="250" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>      
+						<Scripts>
+							<OnClick>
+								Altoholic.Options:Toggle(self, "WarningDialogBox")
+							</OnClick>
+						</Scripts>
+					</CheckButton>
 				</Frames>
 			</Frame>
 		</Frames>
