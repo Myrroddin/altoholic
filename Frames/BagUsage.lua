@@ -47,21 +47,6 @@ function Altoholic.BagUsage:Update()
 	
 	local Characters = Altoholic.Characters
 	
-	if Characters:GetNum() == 0 then
-		DEFAULT_CHAT_FRAME:AddMessage("Altoholic.BagUsage:Update()")
-		DEFAULT_CHAT_FRAME:AddMessage("0 Characters !!")
-		
-		-- added these 2 lines to make sur that the table is correct when the user gets here. 
-		-- For some reason, a few users get a empty window..only an empty table could cuase this
-		-- Characters:BuildList()
-		-- Characters:BuildView()
-	
-		-- if Characters:GetNum() == 0 then			-- if by any chance the table is still empty, then draw an empty frame
-			-- Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
-			-- return
-		-- end
-	end	
-	
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
 	local DisplayedCount = 0
 	local VisibleCount = 0
