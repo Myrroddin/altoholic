@@ -178,10 +178,11 @@ function Altoholic.Calendar:CheckEvents(elapsed)
 end
 
 function Altoholic.Calendar:WarnUser(eventType, title, minutes, char, realm)
+	local warning
 	
 	if minutes == 0 then
 		if eventType == CALENDAR_LINE or eventType == CONNECTMMO_LINE then
-			Altoholic:Print(format(CALENDAR_EVENTNAME_FORMAT_START .. " (%s/%s)", title, char, realm))
+			warning = format(CALENDAR_EVENTNAME_FORMAT_START .. " (%s/%s)", title, char, realm)
 		end
 	else
 		local text
@@ -190,9 +191,29 @@ function Altoholic.Calendar:WarnUser(eventType, title, minutes, char, realm)
 		else
 			text = L["%s starts in %d minutes (%s on %s)"]
 		end
-		Altoholic:Print(format(text, title, minutes, char, realm))
+		
+		warning = format(text, title, minutes, char, realm)
+	end
+	
+	if not warning then return end
+	
+	if Altoholic.Options:Get("WarningDialogBox") == 1 then
+		AltoMsgBox.ButtonHandler = self.WarningButtonHandler
+		AltoMsgBox_Text:SetText(format("%s\n%s", WHITE..warning, L["Do you want to open Altoholic's calendar for details ?"]))
+		AltoMsgBox:Show()
+	else
+		Altoholic:Print(warning)
 	end
 end
+
+function Altoholic.Calendar:WarningButtonHandler(button)
+	AltoMsgBox.ButtonHandler = nil		-- prevent any other call to msgbox from coming back here
+	if not button then return end
+
+	Altoholic:ToggleUI()
+	Altoholic.Tabs.Summary:MenuItem_OnClick(8)
+end
+
 
 function Altoholic.Calendar:Update()
 	-- taken from CalendarFrame_Update() in Blizzard_Calendar.lua, adjusted for my needs.
@@ -555,6 +576,8 @@ function Altoholic.Calendar.Events:GetInfo(index)
 			for _, name in pairs(attendeesTable) do
 				table.insert(eventTable, " " .. name )
 			end
+			table.insert(eventTable, "")
+			table.insert(eventTable, GREEN .. L["Left-click to invite attendees"])
 		end
 		
 		desc = table.concat(eventTable, "\n")

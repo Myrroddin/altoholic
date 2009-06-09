@@ -91,6 +91,7 @@ local AltoholicDB_Defaults = { global = {		-- global written here to keep the sa
 		Warning3Min = 1,
 		Warning2Min = 1,
 		Warning1Min = 1,
+		WarningDialogBox = 0,			-- use a dialog box for warnings (1), or default chat frame (0)
 	},
 	reference = {
 		['*'] = {							-- "englishClass" like "MAGE", "DRUID" etc..

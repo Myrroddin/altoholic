@@ -134,8 +134,10 @@ function Altoholic.Options:Init()
 	AltoholicTabOptionsFrame6Warning3Text:SetText(format(L["Warn %d minutes before an event starts"], 3))
 	AltoholicTabOptionsFrame6Warning2Text:SetText(format(L["Warn %d minutes before an event starts"], 2))
 	AltoholicTabOptionsFrame6Warning1Text:SetText(format(L["Warn %d minutes before an event starts"], 1))
+	AltoholicTabOptionsFrame6DialogBoxText:SetText(L["Display warnings in a dialog box"])
 	L["Week starts on Monday"] = nil
 	L["Warn %d minutes before an event starts"] = nil
+	L["Display warnings in a dialog box"] = nil
 end
 
 function Altoholic.Options:RestoreToUI()
@@ -201,6 +203,7 @@ function Altoholic.Options:RestoreToUI()
 	AltoholicTabOptionsFrame6Warning3:SetChecked(O.Warning3Min)
 	AltoholicTabOptionsFrame6Warning2:SetChecked(O.Warning2Min)
 	AltoholicTabOptionsFrame6Warning1:SetChecked(O.Warning1Min)
+	AltoholicTabOptionsFrame6DialogBox:SetChecked(O.WarningDialogBox)
 end
 
 function Altoholic:UpdateMinimapIconCoords()

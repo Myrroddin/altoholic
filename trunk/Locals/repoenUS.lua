@@ -103,6 +103,9 @@ L["%s starts in %d minutes (%s on %s)"] = true
 L["%s will be ready in %d minutes (%s on %s)"] = true
 L["%s is now ready (%s on %s)"] = true
 L["%s is now unlocked (%s on %s)"] = true
+L["Left-click to invite attendees"] = true
+L["Display warnings in a dialog box"] = true
+L["Do you want to open Altoholic's calendar for details ?"] = true
 
 --Comm.lua
 L["Sending account sharing request to %s"] = true

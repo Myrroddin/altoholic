@@ -449,7 +449,7 @@ function Altoholic.Summary:DeleteAlt()
 	AltoMsgBox:Show()
 end
 
-function Altoholic.Summary:DeleteAltButtonHandler(frame, button)
+function Altoholic.Summary:DeleteAltButtonHandler(button)
 	local self = Altoholic.Summary
 	AltoMsgBox.ButtonHandler = nil		-- prevent any other call to msgbox from coming back here
 	local line = self.CharInfoLine
@@ -528,7 +528,7 @@ function Altoholic.Summary:DeleteRealm()
 	AltoMsgBox:Show()
 end
 
-function Altoholic.Summary:DeleteRealmButtonHandler(frame, button)
+function Altoholic.Summary:DeleteRealmButtonHandler(button)
 	local self = Altoholic.Summary
 	AltoMsgBox.ButtonHandler = nil		-- prevent any other call to msgbox from coming back here
 	local line = self.CharInfoLine
