@@ -76,6 +76,10 @@ function Altoholic.Guild.Members:Update()
 	
 	for line, v in pairs(self.view) do
 		local c = self:Get(v.parentID)
+		if not c then		-- if c is invalid here, it means that a player known in the table is no longer valid and the roster hasn't been updated
+			GuildRoster()
+			return
+		end
 		
 		if (offset > 0) or (DisplayedCount >= VisibleLines) then		-- if the line will not be visible
 			if v.linetype == NORMALPLAYER_LINE then
@@ -228,6 +232,11 @@ function Altoholic.Guild.Members:Level_OnClick(self, button)
 	local self = Altoholic.Guild.Members
 	local player = self.view[line]
 	local c = self:Get(player.parentID)
+	if not c then		-- if c is invalid here, it means that a player known in the table is no longer valid and the roster hasn't been updated
+		GuildRoster()
+		return
+	end
+	
 	if not c.skills then return end	-- not an altoholic user
 	
 	local char = c.skills[player.skillIndex]
@@ -247,6 +256,11 @@ function Altoholic.Guild.Members:Level_OnEnter(self)
 	local self = Altoholic.Guild.Members
 	local player = self.view[line]
 	local c = self:Get(player.parentID)
+	if not c then		-- if c is invalid here, it means that a player known in the table is no longer valid and the roster hasn't been updated
+		GuildRoster()
+		return
+	end
+	
 	if not c.skills then return end	-- not an altoholic user
 	
 	local char = c.skills[player.skillIndex]
