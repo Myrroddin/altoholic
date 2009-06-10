@@ -214,6 +214,9 @@ function Altoholic.Calendar:WarningButtonHandler(button)
 	Altoholic.Tabs.Summary:MenuItem_OnClick(8)
 end
 
+function Altoholic.Calendar:SetFirstDayOfWeek(day)
+	CALENDAR_FIRST_WEEKDAY = day
+end
 
 function Altoholic.Calendar:Update()
 	-- taken from CalendarFrame_Update() in Blizzard_Calendar.lua, adjusted for my needs.
@@ -226,7 +229,7 @@ function Altoholic.Calendar:Update()
 
 	-- set title
 	AltoholicFrameCalendar_MonthYear:SetText(CALENDAR_MONTH_NAMES[month] .. " ".. year)
-
+	
 	-- initialize weekdays
 	for i = 1, 7 do
 		_G["AltoholicFrameCalendarWeekday"..i.."Name"]:SetText(string.sub(CALENDAR_WEEKDAY_NAMES[GetWeekdayIndex(i)], 1, 3));
@@ -446,11 +449,16 @@ function Altoholic.Calendar.Events:BuildList()
 			
 			-- Other timers (like mysterious egg, etc..)
 			for k, v in pairs(c.Timers) do
-				local _, lastcheck, duration = strsplit("|", v)
+				local item, lastcheck, duration = strsplit("|", v)
 				lastcheck = tonumber(lastcheck)
 				duration = tonumber(duration)
 				local expires = duration + lastcheck
-				self:Add(TIMER_LINE, date("%Y-%m-%d",expires), date("%H:%M",expires), CharacterName, RealmName, k)
+				if (expires - time()) > 0 then
+					self:Add(TIMER_LINE, date("%Y-%m-%d",expires), date("%H:%M",expires), CharacterName, RealmName, k)
+				else
+					Altoholic:Print(format(L["%s is now ready (%s on %s)"], item, CharacterName, RealmName ))
+					c.Timers[k] = nil
+				end
 			end
 		end
 	end
