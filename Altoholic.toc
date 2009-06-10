@@ -11,6 +11,7 @@
 ## X-Curse-Repository-ID: wow/altoholic/mainline
 
 ## Notes: Provides information about your alts
+## Notes-ruRU: Предоставляет информацию о вашем персонажах
 ## Notes-zhTW: 讓你即時撿閱你所有角色的資料
 ## Notes-zhCN: 能让你全面掌握你的所有角色的信息。
 
