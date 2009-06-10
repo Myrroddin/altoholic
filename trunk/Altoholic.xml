@@ -6,6 +6,7 @@
 	<Script file="Loots.lua"></Script>
 	<Script file="RecipeDB.lua"></Script>
 	<Script file="Suggestions.lua"></Script>
+	<Script file="Suggestions_ruRU.lua"></Script>
 	<Script file="Suggestions_deDE.lua"></Script>
 	<Script file="Suggestions_frFR.lua"></Script>
 	<Script file="Suggestions_zhCN.lua"></Script>
