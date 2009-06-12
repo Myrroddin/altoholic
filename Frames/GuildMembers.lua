@@ -457,6 +457,9 @@ local function SortByMemberInfo(a, b, fieldID, ascending)
 	local levelA = select(fieldID, m:GetInfo(a.name))
 	local levelB = select(fieldID, m:GetInfo(b.name))
 	
+	levelA = tonumber(levelA) or 0
+	levelB = tonumber(levelB) or 0
+	
 	if ascending then
 		return levelA < levelB
 	else

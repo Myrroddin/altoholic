@@ -13,6 +13,8 @@ Altoholic Changelog (dates in dd/mm/yyyy)
 - Added the possibility to search your guildmates' professions, since the search can be a bit long (100-200msn this causes a tiny freeze) depending on the size of your guild, it is disabled by default, and I advise turning it on only when necessary.
 - Updated zhCN localization (thanks ALADDINN).
 - Updated zhTW localization (thanks NightOwl).
+- Updated ruRU localization (thanks StingerSoft).
+- Added ruRU suggestions (thanks StingerSoft).
 - Added a calendar pane to track the following events: standard calendar events, profession cooldowns, raid timers, mysterious egg/disgusting jar.
 - Localization update in order to comply with the CurseForge localization tool. A few large strings may need review in ruRU, zhCN & zhTW (those that are used as option tooltips).
 - Fixed a bug with the option "Include guild bank count in the total count".
