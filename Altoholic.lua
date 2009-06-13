@@ -1915,6 +1915,7 @@ function Altoholic.Tooltip.OnItemRefTooltipCleared(tooltip, ...)
 	self.isDone = nil
 	return self.Orig_ItemRefTooltip_ClearItem(tooltip, ...)
 end
+
 function Altoholic.Tooltip:Process(tooltip, name, link)
 	--	*** Note about tooltips ***
 	--	If an error occurs with a specific item, like a gathering node, make sure its item id is valid in core.lua
@@ -2257,12 +2258,12 @@ function Altoholic:TIME_PLAYED_MSG(event, TotalTime, CurrentLevelTime)
 
 	-- I'm not entirely happy to have to put this here, but in all events triggered prior to this one, the icon button is not yet valid,
 	-- and can't be hidden programmatically. Hopefully, this event is only triggered at login and when /played is typed, so minimal impact.
---	if self:IsFuBarMinimapAttached() then
-		-- still required to test if it's not nil, when a new character  is created for instance.
---		if type(_G["LibFuBarPlugin-Mod-3.0_Altoholic_FrameMinimapButton"]) ~= "nil" then
---			_G["LibFuBarPlugin-Mod-3.0_Altoholic_FrameMinimapButton"]:Hide()
---		end
---	end
+	if self:IsFuBarMinimapAttached() then
+		--	still required to test if it's not nil, when a new character  is created for instance.
+		if type(_G["LibFuBarPlugin-3.0_Altoholic_FrameMinimapButton"]) ~= "nil" then
+			_G["LibFuBarPlugin-3.0_Altoholic_FrameMinimapButton"]:Hide()
+		end
+	end
 
 	self.Mail:CheckExpiries()
 end
@@ -2288,6 +2289,8 @@ function Altoholic:CHAT_MSG_LOOT(event, arg)
 		if name and name == item then
 			local c = Altoholic.ThisCharacter
 			table.insert(c.Timers, name .."|" .. time() .. "|" .. v)
+			Altoholic.Calendar.Events:BuildList()
+			Altoholic.Tabs.Summary:Refresh()
 		end
 	end
 end
