@@ -1,7 +1,12 @@
 Altoholic Changelog (dates in dd/mm/yyyy)
 ===================
 
-3.1.003
+3.1.003b (12/06/2009)
+
+- Fixed FuBar icon issues introduced in the previous release.
+
+
+3.1.003 (12/06/2009)
 
 - Finalized a massive code update started several versions ago, the goal is to facilitate the implementation of new features, so the effort was definitely worth it, even if it caused a small delay in my schedule.
 - Brought a few changes that should address the issue of empty Account Summary/Bag Usage/Skills/Activity. Please let me know if this is still happening !
@@ -10,7 +15,6 @@ Altoholic Changelog (dates in dd/mm/yyyy)
 - Added an option to change the UI scale.
 - Fixed a bug when sorting alts on rest xp in the account summary (Thanks Dreamsmith !).
 - Fixed invalid tooltip counters when mousing over an item in the mailbox.
-- Added the possibility to search your guildmates' professions, since the search can be a bit long (100-200msn this causes a tiny freeze) depending on the size of your guild, it is disabled by default, and I advise turning it on only when necessary.
 - Updated zhCN localization (thanks ALADDINN).
 - Updated zhTW localization (thanks NightOwl).
 - Updated ruRU localization (thanks StingerSoft).

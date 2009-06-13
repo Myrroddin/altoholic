@@ -318,9 +318,6 @@ local AltoholicDB_Defaults = { global = {		-- global written here to keep the sa
 	}
 }}
 
--- Let's try Omen's approach to fubar integration
-LibStub("AceAddon-3.0"):EmbedLibrary(Altoholic, "LibFuBarPlugin-Mod-3.0", true)
-
 -- ** LDB Launcher **
 LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("Altoholic", {
 	type = "launcher",
@@ -329,6 +326,9 @@ LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("Altoholic", {
 		Altoholic:ToggleUI()
 	end,
 })
+
+local WHITE		= "|cFFFFFFFF"
+local GREEN		= "|cFF00FF00"
 
 function Altoholic:OnInitialize()
 	Altoholic.db = LibStub("AceDB-3.0"):New("AltoholicDB", AltoholicDB_Defaults)
@@ -339,28 +339,29 @@ function Altoholic:OnInitialize()
 	
 	Altoholic.title = "Altoholic"	-- this is for fubar
 	-- borrowed from Omen
-	if LibStub:GetLibrary("LibFuBarPlugin-Mod-3.0", true) then
+	if LibStub:GetLibrary("LibFuBarPlugin-3.0", true) and not IsAddOnLoaded("FuBar2Broker") then
+		local LFBP = LibStub:GetLibrary("LibFuBarPlugin-3.0")
+		LibStub("AceAddon-3.0"):EmbedLibrary(self, "LibFuBarPlugin-3.0")
+	
 		-- Create the FuBarPlugin bits.
 		self:SetFuBarOption("tooltipType", "GameTooltip")
 		self:SetFuBarOption("hasNoColor", true)
 		self:SetFuBarOption("cannotDetachTooltip", true)
 		self:SetFuBarOption("hideWithoutStandby", true)
 		self:SetFuBarOption("iconPath", [[Interface\Icons\INV_Drink_05]])
+		
+		LFBP:OnEmbedInitialize(self)
+		function Altoholic:OnUpdateFuBarTooltip()
+			GameTooltip:AddLine(WHITE .. L["Left-click to"] .. " " .. GREEN ..L["open/close"] )
+		end
+		
+		function Altoholic:OnFuBarClick(button)
+			Altoholic:ToggleUI();
+		end
 	end
 	
 	Altoholic:RegisterComm("AltoShare", "AccSharingHandler")
 	Altoholic:RegisterComm("AltoGuild", "GuildCommHandler")
-end
-
-local WHITE		= "|cFFFFFFFF"
-local GREEN		= "|cFF00FF00"
-
-function Altoholic:OnUpdateFuBarTooltip()
-	GameTooltip:AddLine(WHITE .. L["Left-click to"] .. " " .. GREEN ..L["open/close"] )
-end
-
-function Altoholic:OnFuBarClick(button)
-	Altoholic:ToggleUI();
 end
 
 function Altoholic:ChatCommand(input)
