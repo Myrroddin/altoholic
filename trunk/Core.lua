@@ -349,6 +349,10 @@ function Altoholic:OnInitialize()
 		self:SetFuBarOption("cannotDetachTooltip", true)
 		self:SetFuBarOption("hideWithoutStandby", true)
 		self:SetFuBarOption("iconPath", [[Interface\Icons\INV_Drink_05]])
+		self:SetFuBarOption("hasIcon", true)
+		self:SetFuBarOption("defaultPosition", "RIGHT")
+		self:SetFuBarOption("tooltipHiddenWhenEmpty", true)
+		self:SetFuBarOption("configType", "None")		
 		
 		LFBP:OnEmbedInitialize(self)
 		function Altoholic:OnUpdateFuBarTooltip()
@@ -500,11 +504,11 @@ Altoholic.Gathering = {
 	[L["Small Obsidian Chunk"]]				= 22202,	-- Small Obsidian Shard
 	
 	-- wotlk
-	["Cobalt Node"]								= 36909, -- Cobalt Ore
-	["Rich Cobalt Node"]							= 36909, -- Cobalt Ore
-	["Saronite Node"]								= 36912, -- Saronite Ore
-	["Rich Saronite Node"]						= 36912, -- Saronite Ore
-	["Titanium Node"]								= 36910, -- Titanium Ore
+	["Cobalt Deposit"]							= 36909, -- Cobalt Ore
+	["Rich Cobalt Deposit"]						= 36909, -- Cobalt Ore
+	["Saronite Deposit"]							= 36912, -- Saronite Ore
+	["Rich Saronite Deposit"]					= 36912, -- Saronite Ore
+	["Titanium Vein"]								= 36910, -- Titanium Ore
 
 	-- Herbs
 	[L["Ancient Lichen"]]       = 22790,

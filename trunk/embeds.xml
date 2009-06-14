@@ -20,7 +20,6 @@
 <Include file="libs\LibBabble-Faction-3.0\lib.xml"/>
 <Include file="libs\LibBabble-Inventory-3.0\lib.xml"/>
 <Include file="libs\LibFuBarPlugin-3.0\lib.xml"/>
-
 </Ui>
 
 
