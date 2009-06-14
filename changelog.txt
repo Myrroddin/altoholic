@@ -1,10 +1,11 @@
 Altoholic Changelog (dates in dd/mm/yyyy)
 ===================
 
-3.1.003b (12/06/2009)
+3.1.003b
 
 - Fixed FuBar icon issues introduced in the previous release.
-
+- Fixed a lua error in the calendar pane when mousing over a day.
+- Fixed a bug when scanning the talents of a low level alt (under lv 10). 10 mottled boars were rageously slain to fix this bug.
 
 3.1.003 (12/06/2009)
 

@@ -6,7 +6,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 
 local V = Altoholic.vars
-Altoholic.Version = "v3.1.003"
+Altoholic.Version = "v3.1.003b"
 Altoholic.VersionNum = 301003
 
 local WHITE		= "|cFFFFFFFF"
@@ -2025,7 +2025,7 @@ function Altoholic.Tooltip:Process(tooltip, name, link)
 	
 	if self.RecipeCache then
 		tooltip:AddLine(" ",1,1,1);	
-		tooltip:AddLine(self.RecipeCache, 1, 1, 1, 1, 1);
+		tooltip:AddLine(self.RecipeCache, 1, 1, 1, 1);
 	end	
 end
 
@@ -2059,11 +2059,11 @@ function Altoholic.Tooltip:WhoKnowsPet(companionSpellID, petType, tooltip)
 	end
 	
 	if #know > 0 then
-		tooltip:AddLine(TEAL .. L["Already known by "] ..": ".. WHITE.. table.concat(know, ", "), 1, 1, 1, 1, 1);
+		tooltip:AddLine(TEAL .. L["Already known by "] ..": ".. WHITE.. table.concat(know, ", "), 1, 1, 1, 1);
 	end
 	
 	if #couldLearn > 0 then
-		tooltip:AddLine(YELLOW .. L["Could be learned by "] ..": ".. WHITE.. table.concat(couldLearn, ", "), 1, 1, 1, 1, 1);
+		tooltip:AddLine(YELLOW .. L["Could be learned by "] ..": ".. WHITE.. table.concat(couldLearn, ", "), 1, 1, 1, 1);
 	end
 end
 

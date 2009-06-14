@@ -355,7 +355,9 @@ function Altoholic.Calendar.Days:OnEnter(self)
 	AltoTooltip:SetOwner(self, "ANCHOR_LEFT");
 	AltoTooltip:ClearLines();
 	local eventDate = format("%04d-%02d-%02d", self.year, self.month, self.day)
-	local weekday = GetWeekdayIndex(mod(self:GetID(), 7))
+	local weekday = GetWeekdayIndex(mod(self:GetID(), 7)) 
+	weekday = (weekday == 0) and 7 or weekday
+	
 	AltoTooltip:AddLine(TEAL..format(FULLDATE, GetFullDate(weekday, self.month, self.day, self.year)));
 
 	for k, v in pairs(Events.List) do

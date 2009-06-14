@@ -157,7 +157,9 @@ Altoholic.Suggestions = {
 		{ 355, "Up to 355: Any blue quality gem" },
 		{ 360, "Up to 360: World drop recipes like:\nLiving Ruby Pendant\nor Thick Felsteel Necklace" },
 		{ 365, "Up to 365: Ring of Arcane Shielding\nThe Sha'tar - Honored" },
-		{ 375, "Up to 375: Transmute diamonds\nWorld drops (blue quality)\nRevered with Sha'tar, Honor Hold, Thrallmar" }
+		{ 375, "Up to 375: Transmute diamonds\nWorld drops (blue quality)\nRevered with Sha'tar, Honor Hold, Thrallmar" },
+		{ 400, "Up to 400: Any green quality gem" },
+		{ 420, "Up to 420: Shadowmight ring" },
 	},
 	[BI["Enchanting"]] = {
 		{ 2, "Up to 2: Runed Copper Rod" },

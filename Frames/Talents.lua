@@ -416,24 +416,33 @@ function Altoholic.Talents:Scan()
 		ti.name = name
 		ti.background = fileName
 		ti.icon = select(2, GetSpellTabInfo(i+1))
-		ti.icon = string.gsub(ti.icon, TALENT_ICON_PATH, "")
 		
-		for j = 1, GetNumTalents(i) do
-			local nameTalent, iconPath, tier, column, currentRank, maximumRank = GetTalentInfo(i, j, nil, nil, 1 )
+		-- the icon may be nil on a low level char. 
+		-- Example : rogue lv 2
+			-- GetSpellTabInfo(1) returns the General tab
+			-- GetSpellTabInfo(2) returns the Assassination tab
+			-- GetSpellTabInfo(3) returns the Combat tab
+			-- GetSpellTabInfo(4) returns nil, instead of Subtelty
+		if ti.icon then
+			ti.icon = string.gsub(ti.icon, TALENT_ICON_PATH, "")
+			
+			for j = 1, GetNumTalents(i) do
+				local nameTalent, iconPath, tier, column, currentRank, maximumRank = GetTalentInfo(i, j, nil, nil, 1 )
 
-			-- all paths start with this prefix, let's hope blue does not change this :)
-			-- saves a lot of memory not to keep the full path for each talent (about 16k in total for all classes)
-			iconPath = string.gsub(iconPath, TALENT_ICON_PATH, "")
-			
-			local link = GetTalentLink(i, j)
-			local id = tonumber(link:match("talent:(%d+)"))
-			
-			c["tree"..i][j] = currentRank
-			ti.list[j] = id .. "|" .. nameTalent .. "|" .. iconPath .. "|" .. tier .. "|" ..  column .. "|" .. maximumRank
-			
-			prereqTier, prereqColumn = GetTalentPrereqs(i, j)		-- talent prerequisites
-			if prereqTier and prereqColumn then
-				ti.prereqs[j] = prereqTier .. "|" .. prereqColumn
+				-- all paths start with this prefix, let's hope blue does not change this :)
+				-- saves a lot of memory not to keep the full path for each talent (about 16k in total for all classes)
+				iconPath = string.gsub(iconPath, TALENT_ICON_PATH, "")
+				
+				local link = GetTalentLink(i, j)
+				local id = tonumber(link:match("talent:(%d+)"))
+				
+				c["tree"..i][j] = currentRank
+				ti.list[j] = id .. "|" .. nameTalent .. "|" .. iconPath .. "|" .. tier .. "|" ..  column .. "|" .. maximumRank
+				
+				prereqTier, prereqColumn = GetTalentPrereqs(i, j)		-- talent prerequisites
+				if prereqTier and prereqColumn then
+					ti.prereqs[j] = prereqTier .. "|" .. prereqColumn
+				end
 			end
 		end
 	end
