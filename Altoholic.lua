@@ -6,7 +6,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 
 local V = Altoholic.vars
-Altoholic.Version = "v3.1.003b"
+Altoholic.Version = "v3.1.003c"
 Altoholic.VersionNum = 301003
 
 local WHITE		= "|cFFFFFFFF"

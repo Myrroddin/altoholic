@@ -1,7 +1,11 @@
 Altoholic Changelog (dates in dd/mm/yyyy)
 ===================
 
-3.1.003b
+3.1.003c
+
+- Fixed the calendar to use server time instead of local time. Note that in order to determine the difference between these, the addon waits until time rolls over to the next minute, so in the first minute, values shown in the calendar will not take this offset into account. Warnings are now also triggered after this happened, rather than right after login.
+
+3.1.003b (14/06/2009)
 
 - Fixed FuBar icon issues introduced in the previous release.
 - Fixed a lua error in the calendar pane when mousing over a day.
