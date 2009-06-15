@@ -85,10 +85,8 @@ function Altoholic.Calendar:Init()
 	
 	self.Events:BuildList()
 	
-	local timer = Altoholic.TimerFrame
-	local sec = date("%S")
-	sec = tonumber(sec)
-	Altoholic.Tasks:Add("EventWarning", (60-sec), Altoholic.Calendar.CheckEvents, timer)
+	-- determine the difference between local time and server time
+	Altoholic.Tasks:Add("SetClockDiff", 0, Altoholic.Calendar.SetClockDiff, Altoholic.Calendar)
 end
 
 local function GetWeekdayIndex(index)
@@ -133,8 +131,46 @@ local function GetDay(fullday)
 	return t.year, t.month, t.day, weekday
 end
 
-local TimerThresholds = { 15, 10, 5, 4, 3, 2, 1	}
 local TimeTable = {}	-- to pass as an argument to time()	see http://lua-users.org/wiki/OsLibraryTutorial for details
+
+function Altoholic.Calendar:SetClockDiff(elapsed)
+	-- this function is called every second until the server time changes (track minutes only)
+	local ServerHour, ServerMinute = GetGameTime()
+	local continue = true		-- keeps the task running
+	
+	if not self.ServerMinute then		-- ServerMinute not set ? this is the first pass, save it
+		self.ServerMinute = ServerMinute
+	else
+		if self.ServerMinute ~= ServerMinute then		-- next minute ? do our stuff and stop
+			local _, ServerMonth, ServerDay, ServerYear = CalendarGetDate()
+			TimeTable.year = ServerYear
+			TimeTable.month = ServerMonth
+			TimeTable.day = ServerDay
+			TimeTable.hour = ServerHour
+			TimeTable.min = ServerMinute
+			TimeTable.sec = 0					-- minute just changed, so second is 0
+
+			-- our goal is achieved, we can calculate the difference between server time and local time, in seconds.
+			-- a positive value means that the server time is ahead of local time.
+			-- ex: server: 21:05, local 21.02 could lead to something like 180 (or close to it, depending on seconds)
+			self.ClockDiff = difftime(time(TimeTable), time())
+			self.Events:BuildList()		-- rebuild the event list to take the known difference into account
+			
+			-- now that the difference is known, we can check events for warnings, first check should occur right now (hence 0)
+			Altoholic.Tasks:Add("EventWarning", 0, Altoholic.Calendar.CheckEvents, self)
+		
+			self.ServerMinute = nil
+			continue = nil
+		end
+	end
+	
+	if continue then
+		Altoholic.Tasks:Reschedule("SetClockDiff", 1)	-- 1 second later
+		return true
+	end
+end
+
+local TimerThresholds = { 15, 10, 5, 4, 3, 2, 1	}
 
 function Altoholic.Calendar:CheckEvents(elapsed)
 	-- called every 60 seconds
@@ -150,7 +186,7 @@ function Altoholic.Calendar:CheckEvents(elapsed)
 		TimeTable.hour = tonumber(hour)
 		TimeTable.min = tonumber(minute)
 		
-		local numMin = floor(difftime(time(TimeTable), time()) / 60)
+		local numMin = floor(difftime(time(TimeTable), time() + self.ClockDiff) / 60)
 		
 		if numMin == 0 then
 			local _, _, title = Altoholic.Calendar.Events:GetInfo(k)
@@ -173,6 +209,7 @@ function Altoholic.Calendar:CheckEvents(elapsed)
 		end
 	end
 	
+	-- the task was executed right after the minute changed server side, so reschedule exactly 60 seconds later
 	Altoholic.Tasks:Reschedule("EventWarning", 60)
 	return true
 end
@@ -402,6 +439,8 @@ function Altoholic.Calendar.Events:BuildList()
 	self.List = self.List or {}
 	wipe(self.List)
 
+	local ClockDiff = Altoholic.Calendar.ClockDiff or 0
+	
 	for RealmName, r in pairs(Altoholic.ThisAccount) do
 		for CharacterName, c in pairs(r.char) do
 			-- Profession Cooldowns
@@ -411,7 +450,7 @@ function Altoholic.Calendar.Events:BuildList()
 				lastcheck = tonumber(lastcheck)
 				
 				if reset - (time() - lastcheck) > 0 then	-- expires later
-					local expires = reset + lastcheck
+					local expires = reset + lastcheck + ClockDiff
 					self:Add(COOLDOWN_LINE, date("%Y-%m-%d",expires), date("%H:%M",expires), CharacterName, RealmName, k)
 				else	-- has expired
 					local _, item = strsplit("|", k)
@@ -427,7 +466,7 @@ function Altoholic.Calendar.Events:BuildList()
 				lastcheck = tonumber(lastcheck)
 				
 				if reset - (time() - lastcheck) > 0 then	-- expires later
-					local expires = reset + lastcheck
+					local expires = reset + lastcheck + ClockDiff
 					self:Add(INSTANCE_LINE, date("%Y-%m-%d",expires), date("%H:%M",expires), CharacterName, RealmName, k)
 				else	-- has expired
 					local instance = strsplit("|", k)
@@ -454,7 +493,7 @@ function Altoholic.Calendar.Events:BuildList()
 				local item, lastcheck, duration = strsplit("|", v)
 				lastcheck = tonumber(lastcheck)
 				duration = tonumber(duration)
-				local expires = duration + lastcheck
+				local expires = duration + lastcheck + ClockDiff
 				if (expires - time()) > 0 then
 					self:Add(TIMER_LINE, date("%Y-%m-%d",expires), date("%H:%M",expires), CharacterName, RealmName, k)
 				else
