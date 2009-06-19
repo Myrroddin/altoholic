@@ -46,41 +46,54 @@ but this is a little trade-off I accept.
  
 local AltoholicDB_Defaults = { global = {		-- global written here to keep the same identation as in the Ace2 version
 	options = {
+		-- ** Misc options **
 		TabSummaryMode = 2,
-		MinimapIconAngle = 180,
-		MinimapIconRadius = 78,
-		MailWarningThreshold = 5,
-		CheckMailExpiry = 1,				-- check mail expiry or not
-		SortDescending = 0, 				-- display search results in the loot table in ascending (0) or descending (1) order ?
+		lastContainerView = 1,			-- default container view = bags+bank
+		
+		-- ** General options **
 		RestXPMode = 0, 					-- display max rest xp in normal 100% mode or in level equivalent 150% mode (1) ?
-		ScanMailBody = 1,					-- by default, scan the body of a mail (this action marks it as read)
-		UITransparency = 1.0,
+		FuBarIconShown = 1,
+		FuBarTextShown = 1,
+		AccSharingHandlerEnabled = 0,	-- account sharing communication handler is disabled by default
+		GuildBankAutoUpdate = 0,		-- can the guild bank tabs update requests be answered automatically or not.
+		GuildHandlerEnabled = 1,		-- guild communication handler is enabled by default
 		UIScale = 1.0,
+		UITransparency = 1.0,
+		
+		-- ** Search options **
+		TotalLoots = 0,					-- make at least one search in the loot tables to initialize these values
+		UnknownLoots = 0,
+		SearchAutoQuery = 0,
+		SortDescending = 0, 				-- display search results in the loot table in ascending (0) or descending (1) order ?
 		IncludeNoMinLevel = 1,
 		IncludeMailbox = 1,
 		IncludeGuildBank = 1,
 		IncludeRecipes = 1,
+		IncludeGuildSkills = 1,			-- search other guild members' professions ? (via their profession links)
+
+		-- ** Mail options **
+		MailWarningThreshold = 5,
+		CheckMailExpiry = 1,				-- check mail expiry or not
+		ScanMailBody = 1,					-- by default, scan the body of a mail (this action marks it as read)
+		GuildMailWarning = 1,			-- be informed when a guildie sends a mail to one of my alts
+		
+		-- ** Minimap options **
+		MinimapIconAngle = 180,
+		MinimapIconRadius = 78,
+		ShowMinimap = 1,
+		
+		-- ** Tooltip options **
 		TooltipSource = 1,
 		TooltipCount = 1,
 		TooltipTotal = 1,
-		TooltipGuildBank = 1,
-		TooltipGuildBankCount = 1,		-- total count = alts + guildbank (1) or alts only (0)
 		TooltipRecipeInfo = 1,
 		TooltipItemID = 0,				-- display item id & item level in the tooltip (default: off)
 		TooltipGatheringNode = 1,		-- display counters when mousing over a gathering node (default:  on)
 		TooltipCrossFaction = 1,		-- display counters for both factions on a pve server
 		TooltipMultiAccount = 1,		-- display counters for all accounts on the same realm
-		GuildHandlerEnabled = 1,		-- guild communication handler is enabled by default
-		AccSharingHandlerEnabled = 0,	-- account sharing communication handler is disabled by default
-		GuildBankAutoUpdate = 0,		-- can the guild bank tabs update requests be answered automatically or not.
-		GuildMailWarning = 1,			-- be informed when a guildie sends a mail to one of my alts
-		ShowMinimap = 1,
-		FuBarIconShown = 1,
-		FuBarTextShown = 1,
-		SearchAutoQuery = 0,
-		lastContainerView = 1,			-- default container view = bags+bank
-		TotalLoots = 0,					-- make at least one search in the loot tables to initialize these values
-		UnknownLoots = 0,
+		
+		TooltipGuildBank = 1,
+		TooltipGuildBankCount = 1,		-- total count = alts + guildbank (1) or alts only (0)
 		
 		-- ** Calendar options **
 		WeekStartsMonday = 0,
@@ -92,6 +105,7 @@ local AltoholicDB_Defaults = { global = {		-- global written here to keep the sa
 		Warning2Min = 1,
 		Warning1Min = 1,
 		WarningDialogBox = 0,			-- use a dialog box for warnings (1), or default chat frame (0)
+		DisableWarnings = 0,
 	},
 	reference = {
 		['*'] = {							-- "englishClass" like "MAGE", "DRUID" etc..

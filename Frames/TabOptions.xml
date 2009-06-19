@@ -471,7 +471,23 @@
 							</OnClick>
 						</Scripts>
 					</CheckButton>
-					
+					<CheckButton name="$parent_IncludeGuildSkills" inherits="UICheckButtonTemplate">
+						<Size>
+							<AbsDimension x="20" y="20"/>
+						</Size>
+						<Anchors> 
+							<Anchor point="TOP" relativeTo="$parent_IncludeRecipes" relativePoint="BOTTOM" >
+								<Offset>
+									<AbsDimension  x="0" y="-10"/>
+								</Offset>
+							</Anchor>
+						</Anchors>      
+						<Scripts>
+							<OnClick>
+								Altoholic.Options:Toggle(self, "IncludeGuildSkills")
+							</OnClick>
+						</Scripts>
+					</CheckButton>
 				</Frames>
 			</Frame>
 			<Frame name="$parentFrame3" hidden="true">
@@ -995,6 +1011,23 @@
 						<Scripts>
 							<OnClick>
 								Altoholic.Options:Toggle(self, "WarningDialogBox")
+							</OnClick>
+						</Scripts>
+					</CheckButton>
+					<CheckButton name="$parentDisableWarnings" inherits="UICheckButtonTemplate">
+						<Size>
+							<AbsDimension x="20" y="20"/>
+						</Size>
+						<Anchors> 
+							<Anchor point="TOPLEFT" relativeTo="$parentDialogBox" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension  x="0" y="-10"/>
+								</Offset>
+							</Anchor>
+						</Anchors>      
+						<Scripts>
+							<OnClick>
+								Altoholic.Options:Toggle(self, "DisableWarnings")
 							</OnClick>
 						</Scripts>
 					</CheckButton>

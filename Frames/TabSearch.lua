@@ -28,6 +28,7 @@ function Altoholic.Tabs.Search:BuildView()
 end
 
 function Altoholic.Tabs.Search:Update()
+	local self = Altoholic.Tabs.Search
 	local VisibleLines = 15
 
 	local itemTypeIndex				-- index of the item type in the menu table
@@ -128,6 +129,7 @@ function Altoholic.Tabs.Search:Reset()
 	AltoholicTabSearchStatus:SetText("")				-- .. the search results
 	AltoholicFrameSearch:Hide()
 	Altoholic.Search.Results:Clear()
+	collectgarbage()
 	
 	for k, v in pairs (self.view) do		-- rebuild the cache
 		if type(v) == "table" then		-- header
@@ -181,61 +183,27 @@ function Altoholic.Tabs.Search:DropDownSlot_Initialize()
 	end
 end 
 
-local SEARCH_THISCHAR = 1
-local SEARCH_THISREALM_THISFACTION = 2
-local SEARCH_THISREALM_BOTHFACTIONS = 3
-local SEARCH_ALLREALMS = 4
-local SEARCH_ALLACCOUNTS = 5
-local SEARCH_LOOTS = 6
-
 function Altoholic.Tabs.Search:DropDownLocation_Initialize()
-	local function SetSearchLocation(self) 
-		UIDropDownMenu_SetSelectedValue(AltoholicTabSearch_SelectLocation, self.value)
-	end
-
 	local info = UIDropDownMenu_CreateInfo();
+	local text = {
+		L["This character"],
+		format("%s %s(%s)", L["This realm"], GREEN, L["This faction"]),
+		format("%s %s(%s)", L["This realm"], GREEN, L["Both factions"]),
+		L["All realms"],
+		L["All accounts"],
+		L["Loot tables"]
+	}
 	
-	info.text = L["This character"]
-	info.value = SEARCH_THISCHAR
-	info.func = SetSearchLocation
-	info.checked = nil; 
-	info.icon = nil; 
-	UIDropDownMenu_AddButton(info, 1); 	
-	
-	info.text = format("%s %s(%s)", L["This realm"], GREEN, L["This faction"])
-	info.value = SEARCH_THISREALM_THISFACTION
-	info.func = SetSearchLocation
-	info.checked = nil; 
-	info.icon = nil; 
-	UIDropDownMenu_AddButton(info, 1); 	
-	
-	info.text = format("%s %s(%s)", L["This realm"], GREEN, L["Both factions"])
-	info.value = SEARCH_THISREALM_BOTHFACTIONS
-	info.func = SetSearchLocation
-	info.checked = nil; 
-	info.icon = nil; 
-	UIDropDownMenu_AddButton(info, 1); 	
-	
-	info.text = L["All realms"]
-	info.value = SEARCH_ALLREALMS
-	info.func = SetSearchLocation
-	info.checked = nil; 
-	info.icon = nil; 
-	UIDropDownMenu_AddButton(info, 1); 
-	
-	info.text = L["All accounts"]
-	info.value = SEARCH_ALLACCOUNTS
-	info.func = SetSearchLocation
-	info.checked = nil; 
-	info.icon = nil; 
-	UIDropDownMenu_AddButton(info, 1); 	
-
-	info.text = L["Loot tables"]
-	info.value = SEARCH_LOOTS
-	info.func = SetSearchLocation
-	info.checked = nil; 
-	info.icon = nil; 
-	UIDropDownMenu_AddButton(info, 1); 	
+	for i = 1, #text do
+		info.text = text[i]
+		info.value = i
+		info.func = function(self) 
+				UIDropDownMenu_SetSelectedValue(AltoholicTabSearch_SelectLocation, self.value)
+			end
+		info.checked = nil; 
+		info.icon = nil; 
+		UIDropDownMenu_AddButton(info, 1); 		
+	end
 end
 
 function Altoholic.Tabs.Search:SetMode(mode)
@@ -247,7 +215,7 @@ function Altoholic.Tabs.Search:SetMode(mode)
 	if mode == "realm" then
 		Altoholic.Search:SetUpdateHandler("Realm_Update")
 		
-		Columns:Add(L["Item / Location"], 240, function(self) Altoholic.Search.Results:Sort(self, "item") end)
+		Columns:Add(L["Item / Location"], 240, function(self) Altoholic.Search.Results:Sort(self, "name") end)
 		Columns:Add(L["Character"], 160, function(self) Altoholic.Search.Results:Sort(self, "char") end)
 		Columns:Add(L["Realm"], 150, function(self) Altoholic.Search.Results:Sort(self, "realm") end)
 

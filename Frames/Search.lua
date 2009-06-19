@@ -8,6 +8,8 @@ local RED		= "|cFFFF0000"
 local TEAL		= "|cFF00FF9A"
 local YELLOW	= "|cFFFFFF00"
 
+
+
 Altoholic.Search = {}
 Altoholic.Search.Results = {}
 
@@ -24,65 +26,34 @@ local PLAYER_ITEM_LINE = 1
 local PLAYER_CRAFT_LINE = 2
 local GUILD_CRAFT_LINE = 3
 
-function Altoholic.Search:Realm_Update()
-	local VisibleLines = 7
-	local frame = "AltoholicFrameSearch"
-	local entry = frame.."Entry"
+function Altoholic.Search:Realm_UpdateEx(offset, entry, desc)
+	local line, LineDesc
 	
-	local numResults = self.Results:GetNumber()
-	
-	if numResults == 0 then
-		Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
-		return
-	end
-
-	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
-	
-	for i=1, VisibleLines do
-		local line = i + offset
-		local s = self.Results:Get(line)
-		if s then
-			local account, realm, guildName
-			local charName
-			local location
+	for i=1, desc.NumLines do
+		line = i + offset
+		local result = Altoholic.Search.Results:Get(line)
+		if result then
+			LineDesc = desc.Lines[result.linetype]
 			
-			if type(s.char) == "number" then
-				charName, realm, account = Altoholic.Characters:GetInfo(s.char)
-				local c = Altoholic:GetCharacterTableByLine(s.char)
-				_G[ entry..i.."Stat1" ]:SetText(Altoholic:GetClassColor(c.englishClass) .. charName)
-				
-				location = Altoholic:GetFactionColour(c.faction) .. realm
-				if account ~= THIS_ACCOUNT then
-					location = location .. "\n" ..WHITE.. L["Account"] .. ": " ..GREEN.. account
-				end
-			else
-				if s.linetype == GUILD_CRAFT_LINE then
-					location = Altoholic:GetFactionColour(UnitFactionGroup("player")) .. GetRealmName()
-					local _, _, englishClass = Altoholic.Guild.Members:GetInfo(s.char)
-					_G[ entry..i.."Stat1" ]:SetText(Altoholic:GetClassColor(englishClass) .. s.char)
-				else
-					account, realm, guildName = strsplit("|", s.char)
-					local r = Altoholic:GetRealmTable(realm, account)
-					_G[ entry..i.."Stat1" ]:SetText(GREEN .. guildName)
-					
-					location = Altoholic:GetFactionColour(r.guild[guildName].faction) .. realm
-					if account ~= THIS_ACCOUNT then
-						location = location .. "\n" ..WHITE.. L["Account"] .. ": " ..GREEN.. account
-					end
-				end
+			local owner, color = LineDesc:GetCharacter(result)
+			_G[ entry..i.."Stat1" ]:SetText(color .. owner)
+			
+			local realm, account, faction = LineDesc:GetRealm(result)
+			local location = Altoholic:GetFactionColour(faction) .. realm
+			if account ~= THIS_ACCOUNT then
+				location = location .. "\n" ..WHITE.. L["Account"] .. ": " ..GREEN.. account
 			end
-			
 			_G[ entry..i.."Stat2" ]:SetText(location)
-				
-			local itemName, itemRarity, hex
+			
+			local itemRarity
 			local hex = WHITE
 			local itemButton = _G[ entry..i.."Item" ]
 			
 			Altoholic:CreateButtonBorder(itemButton)
 			itemButton.border:Hide()
 			
-			if s.id then
-				itemName, _, itemRarity = GetItemInfo(s.id)
+			if result.id then
+				_, _, itemRarity = GetItemInfo(result.id)
 				if itemRarity then
 					local r, g, b
 					r, g, b, hex = GetItemQualityColor(itemRarity)
@@ -92,73 +63,22 @@ function Altoholic.Search:Realm_Update()
 					end
 				end
 			end
-
-			local icon
-			icon = (s.id) and GetItemIcon(s.id) or "Interface\\Icons\\Trade_Engraving"
-
-			local name, source, sourceID
-			if s.linetype == PLAYER_ITEM_LINE then
-				name = GetItemInfo(s.id)
-				source = TEAL .. s.location
-				sourceID = 0
-				
-			elseif s.linetype == PLAYER_CRAFT_LINE then
-				local c = Altoholic:GetCharacterTableByLine(s.char)
-				local _, _, spellID = strsplit("^", c.recipes[s.location].list[s.craftNum])
-				name = GetSpellInfo(tonumber(spellID))
-				source = Altoholic.TradeSkills.Recipes:GetLink(spellID, s.location)
-				sourceID = line
-
-			elseif s.linetype == GUILD_CRAFT_LINE then
-				name = GetSpellInfo(s.spellID)
-				local profession = LTL:GetSkillName(s.skillID)
-				source = Altoholic.TradeSkills.Recipes:GetLink(s.spellID, profession)
-				sourceID = line
-				
-				icon = Altoholic:GetSpellIcon(Altoholic.ProfessionSpellID[profession])
-			end
+			
+			local name, source, sourceID = LineDesc:GetItemData(result, line)
 
 			_G[ entry..i.."Name" ]:SetText(hex .. name)
 			_G[ entry..i.."SourceNormalText" ]:SetText(source)
 			_G[ entry..i.."Source" ]:SetID(sourceID)
-			_G[ entry..i.."ItemIconTexture" ]:SetTexture(icon);			
+			_G[ entry..i.."ItemIconTexture" ]:SetTexture(LineDesc:GetItemTexture(result));				
 			
 			-- draw count
-			if s.count and s.count > 1 then
-				_G[ entry..i.."ItemCount" ]:SetText(s.count)
+			if result.count and result.count > 1 then
+				_G[ entry..i.."ItemCount" ]:SetText(result.count)
 				_G[ entry..i.."ItemCount" ]:Show()
 			else
 				_G[ entry..i.."ItemCount" ]:Hide()
 			end
 			
-					-- local itemCooldown = _G[ entry..i.."Cooldown" ]
-					-- local startTime = 0
-					-- local duration = 0
-					-- local	isEnabled = 0
-					
-					-- if b.cooldowns[itemIndex] then
-						-- startTime, duration, isEnabled = strsplit("|", b.cooldowns[itemIndex])
-						-- startTime = tonumber(startTime)
-						-- duration = tonumber(duration)
-						-- isEnabled = tonumber(isEnabled)
-						
-						-- local remaining = duration - (GetTime() - startTime)
-						-- if remaining <= 0 then
-							-- b.cooldowns[itemIndex] = nil
-							-- startTime = 0
-							-- duration = 0
-							-- isEnabled = 0
-						-- else
-							-- itemButton.startTime = startTime
-							-- itemButton.duration = duration
-						-- end
-					-- else
-						-- itemButton.startTime = nil
-						-- itemButton.duration = nil
-					-- end
-					
-					-- CooldownFrame_SetTimer(itemCooldown, startTime, duration, isEnabled)
-
 			_G[ entry..i.."Item" ]:SetID(line)
 			_G[ entry..i ]:Show()
 		else
@@ -166,21 +86,131 @@ function Altoholic.Search:Realm_Update()
 		end
 	end
 
-	if (offset+VisibleLines) <= numResults then
-		AltoholicTabSearchStatus:SetText(numResults .. L[" results found (Showing "] .. (offset+1) .. "-" .. (offset+VisibleLines) .. ")")
+	local numResults = desc:GetSize()
+	if (offset+desc.NumLines) <= numResults then
+		AltoholicTabSearchStatus:SetText(numResults .. L[" results found (Showing "] .. (offset+1) .. "-" .. (offset+desc.NumLines) .. ")")
 	else
 		AltoholicTabSearchStatus:SetText(numResults .. L[" results found (Showing "] .. (offset+1) .. "-" .. numResults .. ")")
-	end
-	
-	if numResults < VisibleLines then
-		FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleLines, VisibleLines, 41);
-	else
-		FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], numResults, VisibleLines, 41);
 	end
 	
 	if not AltoholicFrameSearch:IsVisible() then
 		AltoholicFrameSearch:Show()
 	end
+end
+
+-- The principle behind ScrollFrame description is the following:
+-- FauxScrollframes follow a roughly similar pattern, and are usually displaying different types of lines
+-- so the idea is to standardize data collection from the raw tables that are used to populate the scrollframe
+-- that way, a function called GetXXX can be used to display this info regardless of the line type, but can also be reused by sort functions
+Altoholic.Search.Realms_Desc = {
+	NumLines = 7,
+	LineHeight = 41,
+	Frame = "AltoholicFrameSearch",
+	GetSize = function() return Altoholic.Search.Results:GetNumber() end,
+	Update = Altoholic.Search.Realm_UpdateEx,
+	Lines = {
+		[PLAYER_ITEM_LINE] = {
+			GetItemData = function(self, result)		-- GetItemData..just to avoid calling it GetItemInfo
+					-- return name, source, sourceID
+					return GetItemInfo(result.id), TEAL .. result.location, 0 
+				end,
+			GetItemTexture = function(self, result)
+					return (result.id) and GetItemIcon(result.id) or "Interface\\Icons\\Trade_Engraving"
+				end,
+			GetCharacter = function(self, result)
+					if type(result.char) == "number" then	-- it's a character
+						local name = Altoholic.Characters:GetInfo(result.char)
+						local c = Altoholic:GetCharacterTableByLine(result.char)
+						
+						-- name, color
+						return name, Altoholic:GetClassColor(c.englishClass)
+					else		-- it's a guild
+						local _, _, guildName = strsplit("|", result.char)
+						return guildName, GREEN
+					end
+				end,
+			GetRealm = function(self, result)
+					if type(result.char) == "number" then	-- it's a character
+						local _, realm, account = Altoholic.Characters:GetInfo(result.char)
+						local c = Altoholic:GetCharacterTableByLine(result.char)
+		
+						return realm, account, c.faction
+					else		-- it's a guild
+						local account, realm, guildName = strsplit("|", result.char)
+						local r = Altoholic:GetRealmTable(realm, account)
+						
+						return realm, account, r.guild[guildName].faction
+					end
+				end,
+		},
+		[PLAYER_CRAFT_LINE] = {
+			GetItemData = function(self, result, line)
+					-- return name, source, sourceID
+					local c = Altoholic:GetCharacterTableByLine(result.char)
+					local _, _, spellID = strsplit("^", c.recipes[result.location].list[result.craftNum])
+					local source = Altoholic.TradeSkills.Recipes:GetLink(spellID, result.location)
+					
+					return GetSpellInfo(tonumber(spellID)), source, line
+				end,
+			GetItemTexture = function(self, result)
+					return (result.id) and GetItemIcon(result.id) or "Interface\\Icons\\Trade_Engraving"
+				end,
+			GetCharacter = function(self, result)
+					if type(result.char) == "number" then	-- it's a character
+						local name = Altoholic.Characters:GetInfo(result.char)
+						local c = Altoholic:GetCharacterTableByLine(result.char)
+						
+						-- name, color
+						return name, Altoholic:GetClassColor(c.englishClass)
+					else		-- it's a guild
+						local _, _, guildName = strsplit("|", result.char)
+						return guildName, GREEN
+					end
+				end,
+			GetRealm = function(self, result)
+					if type(result.char) == "number" then	-- it's a character
+						local _, realm, account = Altoholic.Characters:GetInfo(result.char)
+						local c = Altoholic:GetCharacterTableByLine(result.char)
+		
+						return realm, account, c.faction
+					else		-- it's a guild
+						local account, realm, guildName = strsplit("|", result.char)
+						local r = Altoholic:GetRealmTable(realm, account)
+						
+						return realm, account, r.guild[guildName].faction
+					end
+				end,
+		},
+		[GUILD_CRAFT_LINE] = {
+			GetItemData = function(self, result, line)
+					-- return name, source, sourceID
+					local profession = LTL:GetSkillName(result.skillID)
+					local source = Altoholic.TradeSkills.Recipes:GetLink(result.spellID, profession)
+					
+					return GetSpellInfo(result.spellID), source, line
+				end,
+			GetItemTexture = function(self, result)
+					local itemID = Altoholic.CraftDB[result.spellID]
+					if itemID then		-- if the craft is known, return its icon, else return the profession icon
+						return GetItemIcon(itemID)	
+					end
+			
+					local profession = LTL:GetSkillName(result.skillID)
+					return Altoholic:GetSpellIcon(Altoholic.ProfessionSpellID[profession])
+				end,
+			GetCharacter = function(self, result)
+					local _, _, englishClass = Altoholic.Guild.Members:GetInfo(result.char)
+					return result.char, Altoholic:GetClassColor(englishClass)
+				end,
+			GetRealm = function(self, result)
+					return GetRealmName(), THIS_ACCOUNT, UnitFactionGroup("player")
+				end,
+		},
+	}
+}
+
+function Altoholic.Search:Realm_Update()
+	Altoholic:ScrollFrameUpdate(Altoholic.Search.Realms_Desc)
 end
 
 function Altoholic.Search:Loots_Update()
@@ -399,31 +429,31 @@ local function SortByItemName(a, b, ascending)
 	end
 end
 
+local function SortByName(a, b, ascending)
+	local desc = Altoholic.Search.Realms_Desc			-- get the line description for the 2 items
+	local LineDescA = desc.Lines[a.linetype]
+	local LineDescB = desc.Lines[b.linetype]
+
+	local nameA = LineDescA:GetItemData(a)			-- retrieve the name ..
+	local nameB = LineDescB:GetItemData(b)
+	
+	if ascending then
+		return nameA < nameB
+	else
+		return nameA > nameB
+	end
+end
+
 local function SortByChar(a, b, ascending)
-	local nameA, nameB
-	
-	if type(a.char) == "number" then
-		nameA = Altoholic.Characters:Get(a.char).name	-- a character
-	else
-		if a.linetype == GUILD_CRAFT_LINE then
-			nameA = a.char
-		else
-			nameA = select(3, strsplit("|", a.char))		-- a guild
-		end
-	end
-	
-	if type(b.char) == "number" then
-		nameB = Altoholic.Characters:Get(b.char).name
-	else
-		if b.linetype == GUILD_CRAFT_LINE then
-			nameB = b.char
-		else
-			nameB = select(3, strsplit("|", b.char))
-		end
-	end
+	local desc = Altoholic.Search.Realms_Desc			-- get the line description for the 2 items
+	local LineDescA = desc.Lines[a.linetype]
+	local LineDescB = desc.Lines[b.linetype]
+
+	local nameA = LineDescA:GetCharacter(a)			-- retrieve the name ..
+	local nameB = LineDescB:GetCharacter(b)
 
 	if nameA == nameB then								-- if it's the same character name ..
-		return SortByItemName(a, b, ascending)	-- .. then sort by item name
+		return SortByName(a, b, ascending)			-- .. then sort by item name
 	elseif ascending then
 		return nameA < nameB
 	else
@@ -432,27 +462,12 @@ local function SortByChar(a, b, ascending)
 end
 
 local function SortByRealm(a, b, ascending)
-	local nameA, nameB
-	
-	if type(a.char) == "number" then
-		nameA = select(2, Altoholic.Characters:GetInfo(a.char))	-- a character
-	else
-		if a.linetype == GUILD_CRAFT_LINE then
-			nameA = GetRealmName()
-		else
-			nameA = select(2, strsplit("|", a.char))		-- a guild
-		end
-	end
-	
-	if type(b.char) == "number" then
-		nameB = select(2, Altoholic.Characters:GetInfo(b.char))
-	else
-		if b.linetype == GUILD_CRAFT_LINE then
-			nameB = GetRealmName()
-		else
-			nameB = select(2, strsplit("|", b.char))
-		end
-	end
+	local desc = Altoholic.Search.Realms_Desc			-- get the line description for the 2 items
+	local LineDescA = desc.Lines[a.linetype]
+	local LineDescB = desc.Lines[b.linetype]
+
+	local nameA = LineDescA:GetRealm(a)					-- retrieve the name ..
+	local nameB = LineDescB:GetRealm(b)	
 	
 	if nameA == nameB then								-- if it's the same realm ..
 		return SortByChar(a, b, ascending)	-- .. then sort by character name
@@ -493,7 +508,9 @@ function Altoholic.Search.Results:Sort(self, field)
 	
 	if self:GetNumber() == 0 then return end
 		
-	if field == "item" then
+	if field == "name" then
+		table.sort(self.List, function(a, b) return SortByName(a, b, ascending) end)
+	elseif field == "item" then
 		table.sort(self.List, function(a, b) return SortByItemName(a, b, ascending) end)
 	elseif field == "char" then
 		table.sort(self.List, function(a, b) return SortByChar(a, b, ascending) end)
@@ -581,7 +598,7 @@ function Altoholic.Search:FindItem(searchType, searchSubType)
 	end
 	self.ongoingsearch = nil 	-- search done
 	
-	self.SearchValue = nil
+	-- self.SearchValue = nil				-- don't nil it, it may be required by the task checking guild professions
 	self.SearchType = nil
 	self.SearchSubType = nil
 	
@@ -600,8 +617,6 @@ function Altoholic.Search:FindItem(searchType, searchSubType)
 
 	self:Update()
 end
-
-
 
 function Altoholic.Search:BrowseRealm(realm, account, bothFactions)
 	
@@ -635,40 +650,56 @@ function Altoholic.Search:BrowseRealm(realm, account, bothFactions)
 		self.SearchLocation = nil
 	end
 	
-	-- search guild crafts
-	-- if account == "Default" and realm == GetRealmName() then		-- this realm and account ? 
-		-- local guild = Altoholic:GetThisGuild()
-		-- Altoholic.Profiler:Begin("SearchCrafts")
-		-- local t = {}
-		-- local skillID
-
-		-- for player, p in pairs(guild.members) do			-- browse all known members
-		   -- for _, v in pairs(p) do								-- browse all links ..
-				-- if v:match("trade:") then							-- .. assuming they're valid of course
-					-- t, skillID = LTL:Decode(v)
-					-- if t then
-				      -- for spellID, _ in pairs(t) do
-				         -- local name = GetSpellInfo(spellID)
-				         -- if string.find(strlower(name), self.SearchValue, 1, true) then
-								-- self.Results:Add(	{
-									-- linetype = GUILD_CRAFT_LINE,
-									-- spellID = spellID,
-									-- char = player,
-									-- skillID = skillID,
-								-- } )
-
-				         -- end
-				      -- end
-					-- end
-			   -- end
-			-- end
-		-- end
+	if Altoholic.Options:Get("IncludeGuildSkills") == 1 then	-- Check guild professions ?
+		local guild = Altoholic:GetThisGuild()
+		self.GuildMembers = {}
 		
-		-- Altoholic.Profiler:End("SearchCrafts") 
-		-- DEFAULT_CHAT_FRAME:AddMessage(Altoholic.Profiler:GetSampleDuration("SearchCrafts"))
-	-- end
-	
+		for member, _ in pairs(guild.members) do			-- add all known members into a table
+			table.insert(self.GuildMembers, member)
+		end
+		Altoholic.Tasks:Add("BrowseGuildProfessions", 0, Altoholic.Search.BrowseGuildProfessions, Altoholic.Search)
+	end
 end
+
+function Altoholic.Search:BrowseGuildProfessions()
+	if #self.GuildMembers == 0 then	-- no more members ? kill the task
+		self.GuildMembers = nil
+		self:Update()
+		return
+	end
+	
+	-- The professions of 1 guild member will be scanned in each pass
+	local guild = Altoholic:GetThisGuild()
+	local member = self.GuildMembers[#self.GuildMembers]	-- get the last item in the table
+	local t = {}
+	local skillID
+	
+	for _, v in pairs(guild.members[member]) do		-- browse all links ..
+		if v:match("trade:") then							-- .. assuming they're valid of course
+			t, skillID = LTL:Decode(v)
+			if t then
+				for spellID, _ in pairs(t) do
+					local name = GetSpellInfo(spellID)
+					if string.find(strlower(name), self.SearchValue, 1, true) then
+						self.Results:Add(	{
+							linetype = GUILD_CRAFT_LINE,
+							id = Altoholic.CraftDB[spellID],
+							spellID = spellID,
+							char = member,
+							skillID = skillID,
+						} )
+
+					end
+				end
+			end
+		end
+	end
+	
+	table.remove(self.GuildMembers)	-- kill the last item
+	Altoholic.Tasks:Reschedule("BrowseGuildProfessions", 0.005)
+	return true
+end
+
 
 function Altoholic.Search:BrowseCharacter(charName, realm, account)
 	local c = Altoholic:GetCharacterTable(charName, realm, account)

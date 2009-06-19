@@ -508,13 +508,15 @@ function Altoholic.TradeSkills:Scan(tradeskillName, mandatoryScan)
 			numTotal = numTotal + 1
 			local spellID = Altoholic:GetSpellIDFromLink(GetTradeSkillRecipeLink(i))
 			
-			local itemLink = GetTradeSkillItemLink(i)		-- in certain cases, scanning the item link will fail
-			if not itemLink then				-- this usually happens  after a patch, when the local skills  cache has been reset
-				bScanFailed = true
-				break
+			local itemID = Altoholic.CraftDB[spellID]		-- use the craft db, this will decrease the risk of failure
+			if not itemID then
+				local itemLink = GetTradeSkillItemLink(i)		-- in certain cases, scanning the item link will fail
+				if not itemLink then				-- this usually happens  after a patch, when the local skills  cache has been reset
+					bScanFailed = true
+					break
+				end
+				itemID = Altoholic:GetIDFromLink(itemLink)
 			end
-
-			local itemID = Altoholic:GetIDFromLink(itemLink)
 			
 			if skillType == "easy" then
 				color = 1								-- 1 = green
@@ -603,6 +605,7 @@ function Altoholic.TradeSkills:OnShow()
 	Altoholic:RegisterEvent("TRADE_SKILL_CLOSE", self.OnClose)
 	
 	self:Scan(GetTradeSkillLine(), nil)
+	-- self:Scan(GetTradeSkillLine(), true)
 end
 
 function Altoholic.TradeSkills:OnUpdate()

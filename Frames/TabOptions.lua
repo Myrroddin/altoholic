@@ -60,12 +60,14 @@ function Altoholic.Options:Init()
 	AltoholicTabOptionsFrame2_IncludeMailboxText:SetText(L["Include mailboxes"])
 	AltoholicTabOptionsFrame2_IncludeGuildBankText:SetText(L["Include guild bank(s)"])
 	AltoholicTabOptionsFrame2_IncludeRecipesText:SetText(L["Include known recipes"])
+	AltoholicTabOptionsFrame2_IncludeGuildSkillsText:SetText(L["Include guild members' professions"])
 	L["AutoQuery server |cFFFF0000(disconnection risk)"] = nil
 	L["Sort loots in descending order"] = nil
 	L["Include items without level requirement"] = nil
 	L["Include mailboxes"] = nil
 	L["Include guild bank(s)"] = nil
 	L["Include known recipes"] = nil
+	L["Include guild members' professions"] = nil
 	
 	-- ** Frame 3 : Mail **
 	value = AltoholicTabOptionsFrame3_SliderMailExpiry:GetValue()
@@ -135,6 +137,7 @@ function Altoholic.Options:Init()
 	AltoholicTabOptionsFrame6Warning2Text:SetText(format(L["Warn %d minutes before an event starts"], 2))
 	AltoholicTabOptionsFrame6Warning1Text:SetText(format(L["Warn %d minutes before an event starts"], 1))
 	AltoholicTabOptionsFrame6DialogBoxText:SetText(L["Display warnings in a dialog box"])
+	AltoholicTabOptionsFrame6DisableWarningsText:SetText(L["Disable warnings"])
 	L["Week starts on Monday"] = nil
 	L["Warn %d minutes before an event starts"] = nil
 	L["Display warnings in a dialog box"] = nil
@@ -172,6 +175,7 @@ function Altoholic.Options:RestoreToUI()
 	AltoholicTabOptionsFrame2_IncludeMailbox:SetChecked(O.IncludeMailbox)
 	AltoholicTabOptionsFrame2_IncludeGuildBank:SetChecked(O.IncludeGuildBank)
 	AltoholicTabOptionsFrame2_IncludeRecipes:SetChecked(O.IncludeRecipes)
+	AltoholicTabOptionsFrame2_IncludeGuildSkills:SetChecked(O.IncludeGuildSkills)
 	AltoholicTabOptionsFrame2LootInfo:SetText(GREEN .. O.TotalLoots .. "|r " .. L["Loots"] .. " / "
 										.. GREEN .. O.UnknownLoots .. "|r " .. L["Unknown"])
 
@@ -204,6 +208,7 @@ function Altoholic.Options:RestoreToUI()
 	AltoholicTabOptionsFrame6Warning2:SetChecked(O.Warning2Min)
 	AltoholicTabOptionsFrame6Warning1:SetChecked(O.Warning1Min)
 	AltoholicTabOptionsFrame6DialogBox:SetChecked(O.WarningDialogBox)
+	AltoholicTabOptionsFrame6DisableWarnings:SetChecked(O.DisableWarnings)
 end
 
 function Altoholic:UpdateMinimapIconCoords()
