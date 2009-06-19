@@ -1,9 +1,15 @@
 Altoholic Changelog (dates in dd/mm/yyyy)
 ===================
 
-3.1.003c
+3.1.004
 
+- Added the possibility to search guild members recipe (enabled by default). Ex: simply type "glacial bag" to see which guild members can craft it.
 - Fixed the calendar to use server time instead of local time. Note that in order to determine the difference between these, the addon waits until time rolls over to the next minute, so in the first minute, values shown in the calendar will not take this offset into account. Warnings are now also triggered after this happened, rather than right after login.
+- Fixed a lua error in the search categories.
+- Fixed a lua error in the achievements categories.
+- Fixed profession scanning when gaining a skill point.
+- Added a small test to prevent a wall of text being displayed when a profession cooldown is available again.
+- Recipe database updated (thanks Ackis !).
 
 3.1.003b (14/06/2009)
 

@@ -173,6 +173,11 @@ end
 local TimerThresholds = { 15, 10, 5, 4, 3, 2, 1	}
 
 function Altoholic.Calendar:CheckEvents(elapsed)
+	if Altoholic.Options:Get("DisableWarnings") == 1 then	-- warnings disabled ? do nothing
+		Altoholic.Tasks:Reschedule("EventWarning", 60)
+		return true
+	end
+
 	-- called every 60 seconds
 	local year, month, day, hour, minute
 	
@@ -444,6 +449,7 @@ function Altoholic.Calendar.Events:BuildList()
 	for RealmName, r in pairs(Altoholic.ThisAccount) do
 		for CharacterName, c in pairs(r.char) do
 			-- Profession Cooldowns
+			local isCDWarningDone
 			for k, v in pairs(c.ProfessionCooldowns) do
 				local reset, lastcheck = strsplit("|", v)
 				reset = tonumber(reset)
@@ -454,7 +460,11 @@ function Altoholic.Calendar.Events:BuildList()
 					self:Add(COOLDOWN_LINE, date("%Y-%m-%d",expires), date("%H:%M",expires), CharacterName, RealmName, k)
 				else	-- has expired
 					local _, item = strsplit("|", k)
-					Altoholic:Print(format(L["%s is now ready (%s on %s)"], item, CharacterName, RealmName ))
+					if not isCDWarningDone then
+						-- prevents a wall of text for the professions that share like 20 CD's (alchemy,...)
+						Altoholic:Print(format(L["%s is now ready (%s on %s)"], item, CharacterName, RealmName ))
+						isCDWarningDone = true
+					end
 					c.ProfessionCooldowns[k] = nil
 				end
 			end

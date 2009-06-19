@@ -30,6 +30,7 @@ function Altoholic.Tabs.Achievements:BuildView()
 end
 
 function Altoholic.Tabs.Achievements:Update()
+	local self = Altoholic.Tabs.Achievements
 	local VisibleLines = 15
 
 	local categoryIndex				-- index of the category in the menu table

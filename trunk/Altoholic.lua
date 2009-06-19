@@ -6,8 +6,8 @@ local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 
 local V = Altoholic.vars
-Altoholic.Version = "v3.1.003c"
-Altoholic.VersionNum = 301003
+Altoholic.Version = "v3.1.004"
+Altoholic.VersionNum = 301004
 
 local WHITE		= "|cFFFFFFFF"
 local RED		= "|cFFFF0000"
@@ -197,7 +197,6 @@ function Altoholic:OnEnable()
 	
 	-- do not move this one into the frame's OnLoad
 	UIDropDownMenu_Initialize(AltoholicFrameEquipmentRightClickMenu, Equipment_RightClickMenu_OnLoad, "MENU");
-	
 	
 	RequestTimePlayed()	-- trigger a TIME_PLAYED_MSG event if playtime is unavailable for this character
 	
@@ -1257,6 +1256,26 @@ end
 
 
 -- *** Utility functions ***
+function Altoholic:ScrollFrameUpdate(desc)
+	assert(type(desc) == "table")		-- desc is the table that contains a standardized description of the scrollframe
+	
+	local frame = desc.Frame
+	local entry = frame.."Entry"
+
+	-- hide all lines and set their id to 0, the update function is responsible for showing and setting id's of valid lines	
+	for i = 1, desc.NumLines do
+		_G[ entry..i ]:SetID(0)
+		_G[ entry..i ]:Hide()
+	end
+	
+	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] )
+	-- call the update handler
+	desc:Update(offset, entry, desc)
+	
+	local last = (desc:GetSize() < desc.NumLines) and desc.NumLines or desc:GetSize()
+	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], last, desc.NumLines, desc.LineHeight);
+end
+
 function Altoholic:ClearScrollFrame(name, entry, lines, height)
 	for i=1, lines do					-- Hides all entries of the scrollframe, and updates it accordingly
 		_G[ entry..i ]:Hide()
@@ -2234,6 +2253,9 @@ end
 function Altoholic:CHAT_MSG_SKILL(self, msg)
 	if msg then
 		Altoholic:UpdatePlayerSkills()
+		if Altoholic.TradeSkills.isOpen then	-- point gained while ts window is open ? rescan
+			Altoholic.TradeSkills:Scan(GetTradeSkillLine(), true)
+		end
 	end
 end
 
@@ -2248,6 +2270,7 @@ function Altoholic:UpdatePlayerLocation()
 end
 
 function Altoholic:PLAYER_LOGOUT()
+	Altoholic:UnregisterEvent("TRADE_SKILL_SHOW") 
 	local c = Altoholic.ThisCharacter
 	c.lastlogout = time()
 end
@@ -2258,7 +2281,8 @@ function Altoholic:TIME_PLAYED_MSG(event, TotalTime, CurrentLevelTime)
 
 	-- I'm not entirely happy to have to put this here, but in all events triggered prior to this one, the icon button is not yet valid,
 	-- and can't be hidden programmatically. Hopefully, this event is only triggered at login and when /played is typed, so minimal impact.
-	if self:IsFuBarMinimapAttached() then
+	if type(self.IsFuBarMinimapAttached) == "function" and self:IsFuBarMinimapAttached() then
+		-- bad bad bad hack, reaaallly bad
 		--	still required to test if it's not nil, when a new character  is created for instance.
 		if type(_G["LibFuBarPlugin-3.0_Altoholic_FrameMinimapButton"]) ~= "nil" then
 			_G["LibFuBarPlugin-3.0_Altoholic_FrameMinimapButton"]:Hide()
