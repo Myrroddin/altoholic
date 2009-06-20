@@ -650,7 +650,7 @@ function Altoholic.Search:BrowseRealm(realm, account, bothFactions)
 		self.SearchLocation = nil
 	end
 	
-	if Altoholic.Options:Get("IncludeGuildSkills") == 1 then	-- Check guild professions ?
+	if Altoholic.Options:Get("IncludeGuildSkills") == 1 and string.len(self.SearchValue) > 1 then	-- Check guild professions ?
 		local guild = Altoholic:GetThisGuild()
 		self.GuildMembers = {}
 		
