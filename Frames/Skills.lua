@@ -503,7 +503,7 @@ function Altoholic.TradeSkills:Scan(tradeskillName, mandatoryScan)
 		local skillName, skillType = GetTradeSkillInfo(i)
 		
 		if skillType == "header" then
-			r[i] = "0^" .. skillName
+			r[i] = "0^" .. (skillName or "")
 		else
 			numTotal = numTotal + 1
 			local spellID = Altoholic:GetSpellIDFromLink(GetTradeSkillRecipeLink(i))
