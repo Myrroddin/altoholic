@@ -675,7 +675,9 @@ function Altoholic.Search:BrowseGuildProfessions()
 	local skillID
 	
 	for _, v in pairs(guild.members[member]) do		-- browse all links ..
-		if v:match("trade:") then							-- .. assuming they're valid of course
+		-- TODO: make sure v is a string value, it should never be anything else
+	
+		if type(v) == "string" and v:match("trade:") then							-- .. assuming they're valid of course
 			t, skillID = LTL:Decode(v)
 			if t then
 				for spellID, _ in pairs(t) do

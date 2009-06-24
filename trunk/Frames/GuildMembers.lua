@@ -331,11 +331,13 @@ function Altoholic.Guild.Members:OnRosterUpdate()
 					v.class = class or ""
 					v.englishClass = englishClass or ""
 
-					for altName, alt in pairs(v.skills) do
-						level, class, englishClass = self:GetInfo(altName)
-						alt.level = level or 0
-						alt.class = class or ""
-						alt.englishClass = englishClass or ""
+					if v.skills then
+						for altName, alt in pairs(v.skills) do
+							level, class, englishClass = self:GetInfo(altName)
+							alt.level = level or 0
+							alt.class = class or ""
+							alt.englishClass = englishClass or ""
+						end
 					end
 				end
 			end
