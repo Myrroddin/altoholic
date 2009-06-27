@@ -2273,6 +2273,9 @@ function Altoholic:PLAYER_LOGOUT()
 	Altoholic:UnregisterEvent("TRADE_SKILL_SHOW") 
 	local c = Altoholic.ThisCharacter
 	c.lastlogout = time()
+	
+	-- last account logout
+	Altoholic.Options:Set("LastAccountLogout", date("%m/%d/%Y %H:%M:%S"))
 end
 
 function Altoholic:TIME_PLAYED_MSG(event, TotalTime, CurrentLevelTime)
