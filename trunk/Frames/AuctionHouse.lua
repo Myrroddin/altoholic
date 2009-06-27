@@ -1,4 +1,5 @@
 local BZ = LibStub("LibBabble-Zone-3.0"):GetLookupTable()
+local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 
 local WHITE		= "|cFFFFFFFF"
@@ -400,6 +401,32 @@ function Altoholic.AuctionHouse:OnShow()
 	Altoholic:RegisterEvent("AUCTION_HOUSE_CLOSED", self.OnClose)
 	Altoholic:RegisterEvent("AUCTION_BIDDER_LIST_UPDATE", self.ScanBids)
 	Altoholic:RegisterEvent("AUCTION_OWNED_LIST_UPDATE", self.ScanAuctions)
+	
+	-- do not activate now, requires a few changes, and certainly the implementation of DataStore_Crafts
+	-- if not self.Orig_AuctionFrameBrowse_Update then
+		-- self.Orig_AuctionFrameBrowse_Update = AuctionFrameBrowse_Update
+		-- AuctionFrameBrowse_Update = Altoholic.AuctionHouse.BrowseUpdateHook
+	-- end
+end
+
+function Altoholic.AuctionHouse.BrowseUpdateHook()
+	local self = Altoholic.AuctionHouse
+	self.Orig_AuctionFrameBrowse_Update()		-- Let default stuff happen first ..
+	
+	local offset = FauxScrollFrame_GetOffset(BrowseScrollFrame)
+	local link
+	for i = 1, NUM_BROWSE_TO_DISPLAY do			-- NUM_BROWSE_TO_DISPLAY = 8;
+		link = GetAuctionItemLink("list", i+offset)
+		if link then		-- if there's a valid item link in this slot ..
+			local itemID = Altoholic:GetIDFromLink(link)
+			local _, _, _, _, _, itemType = GetItemInfo(itemID)
+			if itemType == BI["Recipe"] then		-- is it a recipe ?
+				local tex = _G["BrowseButton" .. i .. "ItemIconTexture"]
+--				tex:SetVertexColor(1, 0, 0)
+--				DEFAULT_CHAT_FRAME:AddMessage("found !")
+			end
+		end
+	end
 end
 
 function Altoholic.AuctionHouse:OnClose()
