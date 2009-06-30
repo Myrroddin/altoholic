@@ -299,9 +299,11 @@ function Altoholic:OnShow()
 	self.Characters:BuildList()
 	self.Characters:BuildView()
 	
-	if not Altoholic.Tabs.current then
-		Altoholic.Tabs.current = 1
+	if not self.Tabs.current then
+		self.Tabs.current = 1
 		self.Tabs.Summary:MenuItem_OnClick(1)
+	elseif self.Tabs.current == 1 then
+		self.Tabs.Summary:Refresh()
 	end
 end
 
@@ -2207,6 +2209,7 @@ function Altoholic:PLAYER_ALIVE()
 	c.level = UnitLevel("player")
 	c.race = UnitRace("player")
 	c.class, c.englishClass = UnitClass("player")
+	c.gender = UnitSex("player")
 	
 	self:ScanAll()
 	self.Talents:Scan()

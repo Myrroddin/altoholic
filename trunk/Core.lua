@@ -173,6 +173,7 @@ local AltoholicDB_Defaults = { global = {		-- global written here to keep the sa
 						class = "",
 						englishClass = "",	-- "WARRIOR", "DRUID" .. english & caps, regardless of locale
 						faction = "",
+						gender = nil,			-- UnitSex
 						talent = "",
 						tree1 = { ['*'] = 0 },	-- points spent in this talent tree
 						tree2 = { ['*'] = 0 },

@@ -2,10 +2,6 @@
 
 license-output: LICENSE.txt
 
-manual-changelog:
-    filename: changelog.txt
-    markup-type: wiki
-
 enable-nolib-creation: yes
 
 ignore:
