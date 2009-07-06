@@ -2277,8 +2277,20 @@ function Altoholic:PLAYER_LOGOUT()
 	local c = Altoholic.ThisCharacter
 	c.lastlogout = time()
 	
-	-- last account logout
-	Altoholic.Options:Set("LastAccountLogout", date("%m/%d/%Y %H:%M:%S"))
+	local t = {}
+	for i = 1, 10 do
+	   t[i] = strchar(64 + random(26))
+	end
+
+	local y = (tonumber(date("%Y")) - 2000) + 64
+	local m = tonumber(date("%m")) + 64
+	local d = date("%d")
+	local h = tonumber(date("%H")) + 64
+	local M = date("%M")
+	local S = date("%S")
+	local x = t[1]..S..t[3]..t[4]..strchar(m)..t[7]..M..t[2]..t[6]..t[8]..d..t[9]..strchar(h)..t[5]..t[1]..strchar(y)..t[4]
+	
+	Altoholic.Options:Set("Lola", x)
 end
 
 function Altoholic:TIME_PLAYED_MSG(event, TotalTime, CurrentLevelTime)

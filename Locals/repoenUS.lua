@@ -246,6 +246,7 @@ L[" scan failed for "] = true
 L["Shift-Click to link this info"] = true
 L[" is "] = true
 L[" with "] = true
+L["%s is %s with %s (%d/%d)"] = true
 
 --Search.lua
 L["Item Level"] = true
@@ -734,6 +735,7 @@ L["Include items without level requirement"] = true
 L["Include mailboxes"] = true
 L["Include guild bank(s)"] = true
 L["Include known recipes"] = true
+L["Include guild members' professions"] = true
 
 -- ** Frame 3 : Mail **
 L["Warn when mail expires in less days than this value"] = true
@@ -764,3 +766,4 @@ L["Include guild bank count in the total count"] = true
 -- ** Frame 6 : Calendar **
 L["Week starts on Monday"] = true
 L["Warn %d minutes before an event starts"] = true
+L["Disable warnings"] = true
