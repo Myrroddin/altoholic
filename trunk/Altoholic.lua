@@ -971,7 +971,7 @@ function Altoholic:UpdateStats()
 	local t = {}
 	-- *** resistances  ***
 	for i = 1, 6 do
-		t[i] = UnitResistance("player", i)
+		_, t[i] = UnitResistance("player", i)
 		-- base, total, bonus, minus = UnitResistance(unitId [, resistanceIndex])
 		-- base = base
 		-- total = total after all modifiers
