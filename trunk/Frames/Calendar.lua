@@ -736,7 +736,10 @@ function Altoholic.Calendar.Events:GetIndex(year, month, day)
 end
 
 function Altoholic.Calendar.Events:SetOffset(offset)
-	if offset < 0 then
+	-- if the view has less entries than can be displayed, don't change the offset
+	if #self.view <= NUM_EVENTLINES then return end
+
+	if offset <= 0 then
 		offset = 0
 	elseif offset > (#self.view - NUM_EVENTLINES) then
 		offset = (#self.view - NUM_EVENTLINES)
