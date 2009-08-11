@@ -1,5 +1,4 @@
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
-local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 
 local THIS_ACCOUNT = "Default"
 local WHITE		= "|cFFFFFFFF"
@@ -48,9 +47,10 @@ local CharInfoButtons = {
 
 function Altoholic.Tabs.Characters:UpdateViewIcons()
 	
-	local c = Altoholic:GetCharacterTable()
+	local DS = DataStore
+	local character = Altoholic.Tabs.Characters:GetCurrent()
 	
-	if not c then
+	if not character then
 		for k, v in pairs(CharInfoButtons) do
 			_G[v]:Hide()
 		end
@@ -82,58 +82,63 @@ function Altoholic.Tabs.Characters:UpdateViewIcons()
 	
 	-- ** Auctions / Bids / Mails **
 	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Auctions", ICON_VIEW_AUCTIONS, size, size)
-	if #c.auctions > 0 then
-		AltoholicTabCharacters_AuctionsCount:SetText(#c.auctions)
+	local num = DS:GetNumAuctions(character)
+	if num > 0 then
+		AltoholicTabCharacters_AuctionsCount:SetText(num)
 		AltoholicTabCharacters_AuctionsCount:Show()
 	else
 		AltoholicTabCharacters_AuctionsCount:Hide()
 	end
-	AltoholicTabCharacters_Auctions.text = format(L["Auctions %s(%d)"], GREEN, #c.auctions)
+	AltoholicTabCharacters_Auctions.text = format(L["Auctions %s(%d)"], GREEN, num)
 	AltoholicTabCharacters_Auctions:Show()
 	
 	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Bids", ICON_VIEW_BIDS, size, size)
-	if #c.bids > 0 then
-		AltoholicTabCharacters_BidsCount:SetText(#c.bids)
+	num = DS:GetNumBids(character)
+	if num > 0 then
+		AltoholicTabCharacters_BidsCount:SetText(num)
 		AltoholicTabCharacters_BidsCount:Show()
 	else
 		AltoholicTabCharacters_BidsCount:Hide()
 	end
-	AltoholicTabCharacters_Bids.text = format(L["Bids %s(%d)"], GREEN, #c.bids)
+	AltoholicTabCharacters_Bids.text = format(L["Bids %s(%d)"], GREEN, num)
 	AltoholicTabCharacters_Bids:Show()
 	
 	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Mails", ICON_VIEW_MAILS, size, size)
-	local numMails = #c.mail + #c.mailCache
-	if numMails > 0 then
-		AltoholicTabCharacters_MailsCount:SetText(numMails)
+	num = DS:GetNumMails(character)
+	if num > 0 then
+		AltoholicTabCharacters_MailsCount:SetText(num)
 		AltoholicTabCharacters_MailsCount:Show()
 	else
 		AltoholicTabCharacters_MailsCount:Hide()
 	end
-	AltoholicTabCharacters_Mails.text = format(L["Mails %s(%d)"], GREEN, numMails)
+	AltoholicTabCharacters_Mails.text = format(L["Mails %s(%d)"], GREEN, num)
 	AltoholicTabCharacters_Mails:Show()
 	
 	-- ** Pets / Mounts / Reputations **
-	
+	local pets = DS:GetPets(character, "CRITTER")
+	num = DS:GetNumPets(pets)
+
 	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Pets", ICON_VIEW_COMPANIONS, size, size)
-	if c.pets["CRITTER"] then
-		AltoholicTabCharacters_PetsCount:SetText(#c.pets["CRITTER"])
+	if num > 0 then
+		AltoholicTabCharacters_PetsCount:SetText(num)
 		AltoholicTabCharacters_PetsCount:Show()
-		AltoholicTabCharacters_Pets.text = format(COMPANIONS .. " %s(%d)", GREEN, #c.pets["CRITTER"])
 	else
 		AltoholicTabCharacters_PetsCount:Hide()
-		AltoholicTabCharacters_Pets.text = format(COMPANIONS .. " %s(%d)", GREEN, 0)
 	end
+	AltoholicTabCharacters_Pets.text = format(COMPANIONS .. " %s(%d)", GREEN, num)
 	AltoholicTabCharacters_Pets:Show()
-	
+
+	pets = DS:GetPets(character, "MOUNT")
+	num = DS:GetNumPets(pets)
+
 	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Mounts", ICON_VIEW_MOUNTS, size, size)
-	if c.pets["MOUNT"] then
-		AltoholicTabCharacters_MountsCount:SetText(#c.pets["MOUNT"])
+	if num > 0 then
+		AltoholicTabCharacters_MountsCount:SetText(num)
 		AltoholicTabCharacters_MountsCount:Show()
-		AltoholicTabCharacters_Mounts.text = format(MOUNTS .. " %s(%d)", GREEN, #c.pets["MOUNT"])
 	else
 		AltoholicTabCharacters_MountsCount:Hide()
-		AltoholicTabCharacters_Mounts.text = format(MOUNTS .. " %s(%d)", GREEN, 0)
 	end
+	AltoholicTabCharacters_Mounts.text = format(MOUNTS .. " %s(%d)", GREEN, num)
 	AltoholicTabCharacters_Mounts:Show()
 	
 	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Factions", ICON_VIEW_REP, size, size)
@@ -141,34 +146,31 @@ function Altoholic.Tabs.Characters:UpdateViewIcons()
 	AltoholicTabCharacters_Factions:Show()
 	
 	-- ** Professions **
-	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Cooking", Altoholic:GetSpellIcon(Altoholic.ProfessionSpellID[BI["Cooking"]]), size, size)
-	AltoholicTabCharacters_Cooking.text = BI["Cooking"]
+	local professionName = GetSpellInfo(2550)		-- cooking
+	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Cooking", Altoholic:GetSpellIcon(Altoholic.ProfessionSpellID[professionName]), size, size)
+	AltoholicTabCharacters_Cooking.text = professionName
 	AltoholicTabCharacters_Cooking:Show()
 	
-	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_FirstAid", Altoholic:GetSpellIcon(Altoholic.ProfessionSpellID[BI["First Aid"]]), size, size)
-	AltoholicTabCharacters_FirstAid.text = BI["First Aid"]
+	professionName = GetSpellInfo(3273)		-- First Aid
+	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_FirstAid", Altoholic:GetSpellIcon(Altoholic.ProfessionSpellID[professionName]), size, size)
+	AltoholicTabCharacters_FirstAid.text = professionName
 	AltoholicTabCharacters_FirstAid:Show()
 	
-	local prof1, prof2 = Altoholic:GetProfessions()
-
-	if prof1 and Altoholic.ProfessionSpellID[prof1] then
-		Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Prof1", Altoholic:GetSpellIcon(Altoholic.ProfessionSpellID[prof1]), size, size)
-		AltoholicTabCharacters_Prof1.text = prof1
-		AltoholicTabCharacters_Prof1:Show()
-	else
-		AltoholicTabCharacters_Prof1.text = nil
-		AltoholicTabCharacters_Prof1:Hide()
-	end
+	local i = 1
+	for skillName, skill in pairs(DS:GetPrimaryProfessions(character)) do
+		local itemName = "AltoholicTabCharacters_Prof" .. i
+		local item = _G[itemName]
 	
-	if prof2 and Altoholic.ProfessionSpellID[prof2] then
-		Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Prof2", Altoholic:GetSpellIcon(Altoholic.ProfessionSpellID[prof2]), size, size)
-		AltoholicTabCharacters_Prof2.text = prof2
-		AltoholicTabCharacters_Prof2:Show()
-	else
-		AltoholicTabCharacters_Prof2.text = nil
-		AltoholicTabCharacters_Prof2:Hide()
+		if Altoholic.ProfessionSpellID[skillName] then
+			Altoholic:SetItemButtonTexture(itemName, Altoholic:GetSpellIcon(Altoholic.ProfessionSpellID[skillName]), size, size)
+			item.text = skillName
+			item:Show()
+		else
+			item.text = nil
+			item:Hide()		
+		end
+		i = i + 1
 	end
-	
 end
 
 function Altoholic.Tabs.Characters:MenuItem_OnClick(frame, button)
@@ -204,17 +206,18 @@ function Altoholic.Tabs.Characters:DropDownRealm_Initialize()
 	if not Altoholic:GetCurrentAccount() or 
 		not Altoholic:GetCurrentRealm() then return end
 
+	local DS = DataStore
 	local self = Altoholic.Tabs.Characters
 	-- this account first ..
-	for RealmName, _ in pairs(Altoholic.db.global.data[THIS_ACCOUNT]) do
-		self:AddRealm(RealmName, THIS_ACCOUNT)
+	for realm in pairs(DS:GetRealms()) do
+		self:AddRealm(realm, THIS_ACCOUNT)
 	end
 
 	-- .. then all other accounts
-	for AccountName, a in pairs(Altoholic.db.global.data) do
-		if AccountName ~= THIS_ACCOUNT then
-			for RealmName, _ in pairs(a) do
-				self:AddRealm(RealmName, AccountName)
+	for account in pairs(DS:GetAccounts()) do
+		if account ~= THIS_ACCOUNT then
+			for realm in pairs(DS:GetRealms(account)) do
+				self:AddRealm(realm, account)
 			end
 		end
 	end
@@ -265,11 +268,12 @@ function Altoholic.Tabs.Characters:DropDownChar_Initialize()
 		not Altoholic:GetCurrentRealm() then return end
 	
 	local info = UIDropDownMenu_CreateInfo(); 
-	local r = Altoholic:GetRealmTable()
+	local realm, account = Altoholic:GetCurrentRealm()
 	
-	for CharacterName, c in pairs(r.char) do
-		info.text = CharacterName
-		info.value = CharacterName
+	local DS = DataStore
+	for characterName, character in pairs(DS:GetCharacters(realm, account)) do
+		info.text = characterName
+		info.value = character
 		info.func = Altoholic.Tabs.Characters.ChangeAlt
 		info.checked = nil; 
 		UIDropDownMenu_AddButton(info, 1); 
@@ -278,9 +282,9 @@ end
 
 function Altoholic.Tabs.Characters:ChangeAlt()
 	local OldAlt = Altoholic:GetCurrentCharacter()
-	local NewAlt = self.value
+	local _, _, NewAlt = strsplit(".", self.value)
 	
-	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, NewAlt);
+	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, self.value);
 	Altoholic:SetCurrentCharacter(NewAlt)
 	
 	local self = Altoholic.Tabs.Characters
@@ -296,6 +300,25 @@ function Altoholic.Tabs.Characters:ChangeAlt()
 		self:ShowCharInfo(self.InfoType)		-- self will show the same info from another alt (ex: containers/mail/ ..)
 	end
 end
+
+function Altoholic.Tabs.Characters:SetCurrent(name, realm, account)
+	-- this function sets both drop down menu to the right values
+	self:DropDownRealm_Initialize()
+	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, account .."|".. realm)
+
+	self:DropDownChar_Initialize()
+	
+	local character = DataStore:GetCharacter(name, realm, account)
+	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, character)
+end
+
+function Altoholic.Tabs.Characters:GetCurrent()
+	-- the right character key is in this widget, use it to avoid querying DataStore all the time
+	return UIDropDownMenu_GetSelectedValue(AltoholicTabCharacters_SelectChar)
+end
+
+
+
 
 function Altoholic.Tabs.Characters:ViewCharInfo(index, autoCastDone)
 	index = index or self.value
@@ -328,8 +351,6 @@ function Altoholic.Tabs.Characters:ViewRecipes(profession)
 end
 
 function Altoholic.Tabs.Characters:ShowCharInfo(infoType)
-	local c = Altoholic:GetCharacterTable()
-
 	if infoType == VIEW_BAGS then
 		Altoholic:ClearScrollFrame(_G[ "AltoholicFrameContainersScrollFrame" ], "AltoholicFrameContainersEntry", 7, 41)
 		
@@ -347,18 +368,23 @@ function Altoholic.Tabs.Characters:ShowCharInfo(infoType)
 		Altoholic.Mail:Update()
 	elseif infoType == VIEW_QUESTS then
 		AltoholicFrameQuests:Show()
+		Altoholic.Quests:InvalidateView()
 		Altoholic.Quests:Update();
 	elseif infoType == VIEW_AUCTIONS then
 		local ah = Altoholic.AuctionHouse
-		ah.AuctionType = "auctions"
+		local ahType = "Auctions"
+		ah.AuctionType = ahType
 		ah.Update = ah.UpdateAuctions
 		AltoholicFrameAuctions:Show()
+		ah:BuildView(ahType)
 		ah:Update();
 	elseif infoType == VIEW_BIDS then
 		local ah = Altoholic.AuctionHouse
-		ah.AuctionType = "bids"
+		local ahType = "Bids"
+		ah.AuctionType = ahType
 		ah.Update = ah.UpdateBids
 		AltoholicFrameAuctions:Show()
+		ah:BuildView(ahType)
 		ah:Update();
 	elseif infoType == VIEW_COMPANIONS then
 		UIDropDownMenu_SetSelectedValue(AltoholicFramePets_SelectPetView, 1);
@@ -412,13 +438,13 @@ function Altoholic.Tabs.Characters:SetMode(mode)
 		Columns:Add(L["Expiry:"], 130, function(self) Altoholic.Mail:Sort(self, "expiry") end)
 
 	elseif mode == VIEW_AUCTIONS then
-		Columns:Add(HELPFRAME_ITEM_TITLE, 220, function(self) Altoholic.AuctionHouse:SortAuctions(self, "name") end)
-		Columns:Add(HIGH_BIDDER, 160, function(self) Altoholic.AuctionHouse:SortAuctions(self, "highBidder") end)
-		Columns:Add(CURRENT_BID, 170, function(self) Altoholic.AuctionHouse:SortAuctions(self, "buyoutPrice")	end)
+		Columns:Add(HELPFRAME_ITEM_TITLE, 220, function(self) Altoholic.AuctionHouse:Sort(self, "name", "Auctions") end)
+		Columns:Add(HIGH_BIDDER, 160, function(self) Altoholic.AuctionHouse:Sort(self, "highBidder", "Auctions") end)
+		Columns:Add(CURRENT_BID, 170, function(self) Altoholic.AuctionHouse:Sort(self, "buyoutPrice", "Auctions") end)
 	
 	elseif mode == VIEW_BIDS then
-		Columns:Add(HELPFRAME_ITEM_TITLE, 220, function(self) Altoholic.AuctionHouse:SortBids(self, "name") end)
-		Columns:Add(NAME, 160, function(self) Altoholic.AuctionHouse:SortBids(self, "owner") end)
-		Columns:Add(CURRENT_BID, 170, function(self) Altoholic.AuctionHouse:SortBids(self, "buyoutPrice") end)
+		Columns:Add(HELPFRAME_ITEM_TITLE, 220, function(self) Altoholic.AuctionHouse:Sort(self, "name", "Bids") end)
+		Columns:Add(NAME, 160, function(self) Altoholic.AuctionHouse:Sort(self, "owner", "Bids") end)
+		Columns:Add(CURRENT_BID, 170, function(self) Altoholic.AuctionHouse:Sort(self, "buyoutPrice", "Bids") end)
 	end
 end

@@ -1,4 +1,4 @@
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+﻿local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
@@ -440,13 +440,14 @@ end
 
 function Altoholic.Guild.Members:Save(player)
 	-- saves a player and his alts into the list of "known" guild members who have at least one full profession link.
-	local guild = Altoholic:GetThisGuild()
+	local guild = Altoholic:GetGuild()
+	local members = Altoholic:GetGuildMembers(guild)
 	
 	for k, v in pairs(player.skills) do
 		-- if this alt has at least one profession link..
 		if v.prof1link or v.prof2link or v.cookinglink then
-			wipe(guild.members[v.name])
-			local m = guild.members[v.name]		-- copy fields manually, we don't want everything that's under v
+			wipe(members[v.name])
+			local m = members[v.name]		-- copy fields manually, we don't want everything that's under v
 			m.prof1link = v.prof1link
 			m.prof2link = v.prof2link
 			m.cookinglink = v.cookinglink
@@ -454,10 +455,10 @@ function Altoholic.Guild.Members:Save(player)
 	end
 end
 
-local function SortByMemberInfo(a, b, fieldID, ascending)
+local function SortByLevel(a, b, ascending)
 	local m = Altoholic.Guild.Members
-	local levelA = select(fieldID, m:GetInfo(a.name))
-	local levelB = select(fieldID, m:GetInfo(b.name))
+	local levelA = m:GetInfo(a.name)
+	local levelB = m:GetInfo(b.name)
 	
 	levelA = tonumber(levelA) or 0
 	levelB = tonumber(levelB) or 0
@@ -469,13 +470,27 @@ local function SortByMemberInfo(a, b, fieldID, ascending)
 	end
 end
 
-local function SortBySkillLevel(a, b, field, ascending)
-	local ts = Altoholic.TradeSkills
-	local _, levelA = ts:GetInfo(a[field])
-	local _, levelB = ts:GetInfo(b[field])
+local function SortByClass(a, b, ascending)
+	local m = Altoholic.Guild.Members
+	local _, _, classA = m:GetInfo(a.name)
+	local _, _, classB = m:GetInfo(b.name)
 	
-	levelA = tonumber(levelA) or 0
-	levelB = tonumber(levelB) or 0
+	classA = classA or ""
+	classB = classB or ""
+	
+	if ascending then
+		return classA < classB
+	else
+		return classA > classB
+	end
+end
+
+local function SortBySkillLevel(a, b, field, ascending)
+	local levelA = DataStore:GetProfessionInfo(a[field])
+	local levelB = DataStore:GetProfessionInfo(b[field])
+
+	levelA = levelA or 0
+	levelB = levelB or 0
 	
 	if ascending then
 		return levelA < levelB
@@ -497,9 +512,9 @@ function Altoholic.Guild.Members:Sort(orderBy, ascending)
 
 	-- sort main characters (main level of the table actually)
 	if orderBy == "level" then
-		table.sort(self.List, function(a, b) return SortByMemberInfo(a, b, 1, ascending) end)
+		table.sort(self.List, function(a, b) return SortByLevel(a, b, ascending) end)
 	elseif orderBy == "englishClass" then
-		table.sort(self.List, function(a, b) return SortByMemberInfo(a, b, 3, ascending) end)
+		table.sort(self.List, function(a, b) return SortByClass(a, b, ascending) end)
 	elseif orderBy == "name" or orderBy == "averageItemLvl" or orderBy == "version"  then
 		table.sort(self.List, function(a, b) return SortByField(a, b, orderBy, ascending) end)
 	end
@@ -508,9 +523,9 @@ function Altoholic.Guild.Members:Sort(orderBy, ascending)
 	for k, v in pairs(self.List) do
 		if v.version ~= L["N/A"] then		-- altoholic users only
 			if orderBy == "level" then
-				table.sort(v.skills, function(a, b) return SortByMemberInfo(a, b, 1, ascending) end)
+				table.sort(v.skills, function(a, b) return SortByLevel(a, b, ascending) end)
 			elseif orderBy == "englishClass" then
-				table.sort(v.skills, function(a, b) return SortByMemberInfo(a, b, 3, ascending) end)
+				table.sort(v.skills, function(a, b) return SortByClass(a, b, ascending) end)
 			elseif orderBy == "prof1link" or orderBy == "prof2link" or orderBy == "cookinglink"  then
 				table.sort(v.skills, function(a, b) return SortBySkillLevel(a, b, orderBy, ascending) end)
 			elseif orderBy == "name" or orderBy == "averageItemLvl" then

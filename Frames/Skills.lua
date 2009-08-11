@@ -16,6 +16,9 @@ local RECIPE_GREY		= "|cFF808080"
 local RECIPE_GREEN	= "|cFF40C040"
 local RECIPE_ORANGE	= "|cFFFF8040"
 
+local ICON_FACTION_HORDE = "Interface\\Icons\\INV_BannerPVP_01"
+local ICON_FACTION_ALLIANCE = "Interface\\Icons\\INV_BannerPVP_02"
+
 function Altoholic.TradeSkills:Update()
 	local VisibleLines = 14
 	local frame = "AltoholicFrameSkills"
@@ -23,6 +26,7 @@ function Altoholic.TradeSkills:Update()
 	
 	local self = Altoholic.TradeSkills
 	local Characters = Altoholic.Characters
+	local DS = DataStore
 	
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
 	local DisplayedCount = 0
@@ -68,12 +72,8 @@ function Altoholic.TradeSkills:Update()
 				if s.account == "Default" then	-- saved as default, display as localized.
 					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", s.realm, WHITE, GREEN, L["Default"]))
 				else
-					local r = Altoholic:GetRealmTable(CurrentRealm, CurrentAccount)
-					if r and r.lastAccountSharing then
-						_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", s.realm, WHITE, GREEN, s.account, YELLOW, r.lastAccountSharing))
-					else
-						_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", s.realm, WHITE, GREEN, s.account))
-					end
+					local last = Altoholic:GetLastAccountSharingInfo(CurrentRealm, CurrentAccount)
+					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", s.realm, WHITE, GREEN, s.account, YELLOW, last or ""))
 				end
 				_G[entry..i.."Level"]:SetText("")
 				_G[entry..i.."Skill1NormalText"]:SetText("")
@@ -90,21 +90,21 @@ function Altoholic.TradeSkills:Update()
 				DisplayedCount = DisplayedCount + 1
 			elseif DrawRealm then
 				if (lineType == INFO_CHARACTER_LINE) then
-					local c = Altoholic.db.global.data[CurrentAccount][CurrentRealm].char[s.name]
-				
+					local character = DS:GetCharacter(s.name, CurrentRealm, CurrentAccount)
+					
 					local icon
-					if c.faction == "Alliance" then
-						icon = Altoholic:TextureToFontstring("Interface\\Icons\\INV_BannerPVP_02", 18, 18) .. " "
+					if DS:GetCharacterFaction(character) == "Alliance" then
+						icon = Altoholic:TextureToFontstring(ICON_FACTION_ALLIANCE, 18, 18) .. " "
 					else
-						icon = Altoholic:TextureToFontstring("Interface\\Icons\\INV_BannerPVP_01", 18, 18) .. " "
+						icon = Altoholic:TextureToFontstring(ICON_FACTION_HORDE, 18, 18) .. " "
 					end
 					
 					_G[entry..i.."Collapse"]:Hide()
 					_G[entry..i.."Name"]:SetWidth(170)
 					_G[entry..i.."Name"]:SetPoint("TOPLEFT", 10, 0)
 					_G[entry..i.."NameNormalText"]:SetWidth(170)
-					_G[entry..i.."NameNormalText"]:SetText(icon .. format("%s%s (%s)", Altoholic:GetClassColor(c.englishClass), s.name, c.class))
-					_G[entry..i.."Level"]:SetText(GREEN .. c.level)
+					_G[entry..i.."NameNormalText"]:SetText(icon .. format("%s (%s)", DS:GetColoredCharacterName(character), DS:GetCharacterClass(character)))
+					_G[entry..i.."Level"]:SetText(GREEN .. DS:GetCharacterLevel(character))
 					
 					if s.spellID1 then
 						icon = Altoholic:TextureToFontstring(Altoholic:GetSpellIcon(s.spellID1), 18, 18) .. " "
@@ -120,14 +120,16 @@ function Altoholic.TradeSkills:Update()
 					end
 					_G[entry..i.."Skill2NormalText"]:SetText(icon .. self:GetColor(s.skillRank2) .. s.skillRank2)
 						
-					icon = Altoholic:TextureToFontstring(Altoholic:GetSpellIcon(Altoholic:GetProfessionSpellID(BI["Cooking"])), 18, 18) .. " "
+					icon = Altoholic:TextureToFontstring(Altoholic:GetSpellIcon(2550), 18, 18) .. " "
 					_G[entry..i.."CookingNormalText"]:SetText(icon .. self:GetColor(s.cooking) .. s.cooking)
-					icon = Altoholic:TextureToFontstring(Altoholic:GetSpellIcon(Altoholic:GetProfessionSpellID(BI["First Aid"])), 18, 18) .. " "
+					icon = Altoholic:TextureToFontstring(Altoholic:GetSpellIcon(3273), 18, 18) .. " "
 					_G[entry..i.."FirstAidNormalText"]:SetText(icon .. self:GetColor(s.firstaid) .. s.firstaid)
-					icon = Altoholic:TextureToFontstring(Altoholic:GetSpellIcon(Altoholic:GetProfessionSpellID(BI["Fishing"])), 18, 18) .. " "
+					icon = Altoholic:TextureToFontstring(Altoholic:GetSpellIcon(7733), 18, 18) .. " "
 					_G[entry..i.."FishingNormalText"]:SetText(icon .. self:GetColor(s.fishing) .. s.fishing)
 					
-					if c.coldWeatherFlying or Altoholic.Spells:IsKnownByChar(c, 54197) then
+					local character = DS:GetCharacter(s.name, CurrentRealm, CurrentAccount)
+					
+					if DS:IsSpellKnown(character, 54197) then
 						icon = Altoholic:TextureToFontstring(Altoholic:GetSpellIcon(54197), 18, 18) .. " "
 					elseif s.riding >= 225 then
 						icon = Altoholic:TextureToFontstring("Interface\\Icons\\Ability_Mount_Gryphon_01", 18, 18) .. " "
@@ -176,27 +178,26 @@ function Altoholic.TradeSkills:OnEnter(self)
 	end
 	local id = self:GetID()
 	local skillName, rank, suggestion
-	local categoryName = L["Secondary Skills"]
 	
 	if id == 1 then
 		skillName = s.skillName1
-		categoryName = L["Professions"]
 	elseif id == 2 then
 		skillName = s.skillName2
-		categoryName = L["Professions"]
 	elseif id == 3 then
-		skillName = BI["Cooking"]
+		skillName = GetSpellInfo(2550)		-- cooking
 	elseif id == 4 then
-		skillName = BI["First Aid"]
+		skillName = GetSpellInfo(3273)		-- First Aid
 	elseif id == 5 then
-		skillName = BI["Fishing"]
+		skillName = GetSpellInfo(24303)	-- Fishing
 	elseif id == 6 then
 		skillName = L["Riding"]
 	end
 
 	local ts = Altoholic.TradeSkills
-	local c = Altoholic:GetCharacterTableByLine(line)
-	local curRank, maxRank = ts:GetRank( c.skill[categoryName][skillName] )
+	local DS = DataStore
+	local character = DS:GetCharacter(Altoholic.Characters:GetInfo(line))
+	local curRank, maxRank = DS:GetSkillInfo(character, skillName)
+	local profession = DS:GetProfession(character, skillName)
 	
 	if (id >= 1) and (id <= 6) then
 		if id == 6 then	-- riding
@@ -206,12 +207,13 @@ function Altoholic.TradeSkills:OnEnter(self)
 		end
 		suggestion = Altoholic:GetSuggestion(skillName, curRank)
 	elseif id == 7 then	-- class
-		if c.englishClass ~= "ROGUE" then
+		local _, class = DS:GetCharacterClass(character)
+		if class ~= "ROGUE" then
 			return
 		end
 		skillName = L["Rogue Proficiencies"]
 		
-		local curLock, maxLock = ts:GetRank( c.skill[L["Class Skills"]][L["Lockpicking"]] )
+		local curLock, maxLock = DS:GetSkillInfo(character, L["Lockpicking"])
 		rank = TEAL .. L["Lockpicking"] .. " " .. curLock .. "/" .. maxLock
 		suggestion = Altoholic:GetSuggestion(L["Lockpicking"], curLock)
 	end
@@ -223,15 +225,16 @@ function Altoholic.TradeSkills:OnEnter(self)
 	
 	if id <= 4 then	-- all skills except fishing & riding
 		AltoTooltip:AddLine(" ");
-		local p = c.recipes[skillName]
-		if not p or p.TotalCount == 0 then
+		if DS:GetNumCraftLines(profession) == 0 then
 			AltoTooltip:AddLine(L["No data"].. ": 0 " .. TRADESKILL_SERVICE_LEARN,1,1,1);
 		else
-			AltoTooltip:AddLine(p.TotalCount .. " " .. TRADESKILL_SERVICE_LEARN,1,1,1);
+			local orange, yellow, green, grey = DS:GetNumRecipesByColor(profession)
+			
+			AltoTooltip:AddLine(orange+yellow+green+grey .. " " .. TRADESKILL_SERVICE_LEARN,1,1,1);
 			AltoTooltip:AddLine(format(WHITE .. "%d " .. RECIPE_GREEN .. "Green|r /" 
 				..	WHITE .. " %d " .. YELLOW .. "Yellow|r /" 
 				..	WHITE .. " %d " .. RECIPE_ORANGE .. "Orange", 
-				p.GreenCount, p.YellowCount, p.OrangeCount))
+				green, yellow, orange))
 		end
 	end
 	
@@ -254,30 +257,20 @@ function Altoholic.TradeSkills:OnEnter(self)
 	end
 	
 	-- parse profession cooldowns
-	local bCooldownFound
-	for k, v in pairs(c.ProfessionCooldowns) do
-		if not bCooldownFound then
-			AltoTooltip:AddLine(" ",1,1,1);		-- add a line break only once
-			bCooldownFound = true
-		end
+	if id ~= 7 then
+		DS:ClearExpiredCooldowns(profession)
+		local numCooldows = DS:GetNumActiveCooldowns(profession)
 		
-		local ProfessionName, craftName = strsplit("|", k)		-- keys are like : ["Tailoring|craftName"] = "315459.769|1211033170"
-		if skillName == ProfessionName	then		-- if we're on the right tradeskill ..
-			local reset, lastcheck = strsplit("|", v)
-			reset = tonumber(reset)
-			lastcheck = tonumber(lastcheck)
-			local expiresIn = reset - (time() - lastcheck)
-			
-			if expiresIn > 0 then
-				--AltoTooltip:AddDoubleLine(select(2, GetItemInfo(itemID) ), Altoholic:GetTimeString(expiresIn));
+		if numCooldows == 0 then
+			AltoTooltip:AddLine(" ",1,1,1);
+			AltoTooltip:AddLine(L["All cooldowns are up"],1,1,1);
+		else
+			AltoTooltip:AddLine(" ",1,1,1);
+			for i = 1, numCooldows do
+				local craftName, expiresIn = DS:GetCraftCooldownInfo(profession, i)
 				AltoTooltip:AddDoubleLine(craftName, Altoholic:GetTimeString(expiresIn));
 			end
 		end
-	end
-	
-	if not bCooldownFound then
-		AltoTooltip:AddLine(" ",1,1,1);
-		AltoTooltip:AddLine(L["All cooldowns are up"],1,1,1);
 	end
 	
 	AltoTooltip:Show();
@@ -297,21 +290,24 @@ function Altoholic.TradeSkills:OnClick(self, button)
 	if id == 5 then return end		-- fishing ? do nothing
 	
 	Altoholic:SetCurrentCharacter( Altoholic.Characters:GetInfo(line) )
-
-	local c = Altoholic:GetCharacterTable()
+	
 	local skillName
 	if id == 1 then
 		skillName = s.skillName1
 	elseif id == 2 then
 		skillName = s.skillName2
 	elseif id == 3 then
-		skillName = BI["Cooking"]
+		skillName = GetSpellInfo(2550)		-- cooking
 	elseif id == 4 then
-		skillName = BI["First Aid"]
+		skillName = GetSpellInfo(3273)		-- First Aid
 	end
+
+	local DS = DataStore
+	local character = DS:GetCharacter(Altoholic.Characters:GetInfo(line))
+	local profession = DS:GetProfession(character, skillName)
 	
 	if skillName then
-		if c.recipes[skillName].TotalCount == 0 then		-- if profession hasn't been scanned (or scan failed), exit
+		if DS:GetNumCraftLines(profession) == 0 then		-- if profession hasn't been scanned (or scan failed), exit
 			return
 		end
 	end
@@ -320,36 +316,21 @@ function Altoholic.TradeSkills:OnClick(self, button)
 	
 	if ChatFrameEditBox:IsShown() and IsShiftKeyDown() and realm == GetRealmName() and id ~= 6 then
 		-- if shift-click, then display the profession link and exit
-		local link = c.recipes[skillName].FullLink	
+		local link = profession.FullLink	
 		if link and link:match("trade:") then
 			ChatFrameEditBox:Insert(link);
 		end
 		return
 	end
-	
-	local tc = Altoholic.Tabs.Characters
-	tc:DropDownRealm_Initialize()
-	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, account .."|".. realm)
-	
-	tc:DropDownChar_Initialize()
-	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, charName)
+
+	Altoholic.Tabs.Characters:SetCurrent(charName, realm, account)
 	Altoholic.Tabs:OnClick(2)
 
 	if id == 6 then
-		tc:ViewCharInfo(VIEW_MOUNTS)
+		Altoholic.Tabs.Characters:ViewCharInfo(VIEW_MOUNTS)
 	else
-		tc:ViewRecipes(skillName)
+		Altoholic.Tabs.Characters:ViewRecipes(skillName)
 	end
-end
-
-function Altoholic.TradeSkills:GetRank(skillString)
-	-- from "200/225", returns the numeric values
-	if type(skillString) ~= "string" then
-		return 0, 0
-	end
-	
-	local rank, maxRank = strsplit("|", skillString)
-	return tonumber(rank), tonumber(maxRank)
 end
 
 local skillColors = { RECIPE_GREY, RED, ORANGE, YELLOW, GREEN }
@@ -357,268 +338,4 @@ local skillColors = { RECIPE_GREY, RED, ORANGE, YELLOW, GREEN }
 function Altoholic.TradeSkills:GetColor(rank, skillCap)
 	skillCap = skillCap or 450
 	return skillColors[ floor(rank / (skillCap/4)) + 1 ]
-end
-
-function Altoholic.TradeSkills:GetInfo(link)
-	-- returns info about a tradeskill based on the full profession link 
-		
-	if link then
-		-- "|cffffd000|Htrade:51296:450:450:78000000042AFB1:2/73//7///9////7//////////g+/B|h[Cooking]|h|r",
-		-- return profession_spell_id, current_rank, max_rank
-		return link:match("trade:(%d+):(%d+):(%d+)")
-	end
-end
-
-function Altoholic.TradeSkills:SaveActiveFilters()
-	self.SelectedID = GetTradeSkillSelectionIndex()
-	
-	self.subClasses = { GetTradeSkillSubClasses() }
-	self.invSlots = { GetTradeSkillInvSlots() }
-	self.subClassID = UIDropDownMenu_GetSelectedID(TradeSkillSubClassDropDown)
-	self.invSlotID = UIDropDownMenu_GetSelectedID(TradeSkillInvSlotDropDown)
-	
-	-- Subclasses
-	SetTradeSkillSubClassFilter(0, 1, 1)	-- this checks "All subclasses"
-	UIDropDownMenu_SetSelectedID(TradeSkillSubClassDropDown, 1)
-	
-	-- Inventory slots
-	SetTradeSkillInvSlotFilter(0, 1, 1)		-- this checks "All slots"
-	UIDropDownMenu_SetSelectedID(TradeSkillInvSlotDropDown, 1)
-	
-	-- Have Materials
-	self.HaveMats = TradeSkillFrameAvailableFilterCheckButton:GetChecked()	-- nil or true
-	TradeSkillFrameAvailableFilterCheckButton:SetChecked(false)
-	TradeSkillOnlyShowMakeable(false)
-end
-
-function Altoholic.TradeSkills:RestoreActiveFilters()
-	-- Subclasses
-	SetTradeSkillSubClassFilter(self.subClassID-1, 1, 1)	-- this checks the previously checked value
-	UIDropDownMenu_SetSelectedID(TradeSkillSubClassDropDown, self.subClassID)
-	if self.subClassID == 1 then
-		UIDropDownMenu_SetText(TradeSkillSubClassDropDown, ALL_SUBCLASSES);
-	else
-		UIDropDownMenu_SetText(TradeSkillSubClassDropDown, self.subClasses[self.subClassID-1]);
-	end	
-	
-	self.subClassID = nil
-	wipe(self.subClasses)
-	self.subClasses = nil
-	
-	-- Inventory slots
-	self.invSlotID = self.invSlotID or 1
-	SetTradeSkillInvSlotFilter(self.invSlotID-1, 1, 1)	-- this checks the previously checked value
-	UIDropDownMenu_SetSelectedID(TradeSkillInvSlotDropDown, self.invSlotID)
-	if self.invSlotID == 1 then
-		UIDropDownMenu_SetText(TradeSkillInvSlotDropDown, ALL_INVENTORY_SLOTS);
-	else
-		UIDropDownMenu_SetText(TradeSkillInvSlotDropDown, self.invSlots[self.invSlotID-1]);
-	end
-	
-	self.invSlotID = nil
-	wipe(self.invSlots)
-	self.invSlots = nil
-	
-	-- Have Materials
-	TradeSkillFrameAvailableFilterCheckButton:SetChecked(self.HaveMats or false)
-	TradeSkillOnlyShowMakeable(self.HaveMats or false)
-	self.HaveMats = nil
-	
-	SelectTradeSkill(self.SelectedID)
-	self.SelectedID = nil
-end
-
-function Altoholic.TradeSkills:SaveHeaders()
-	self.headersState = {} 	-- save the state of headers, restore it after scan
-	self.headerCount = 0		-- use a counter to avoid being bound to header names, which might not be unique.
-	
-	for i = GetNumTradeSkills(), 1, -1 do		-- 1st pass, expand all categories
-		local _, skillType, _, isExpanded  = GetTradeSkillInfo(i)
-		 if (skillType == "header") then
-			self.headerCount = self.headerCount + 1
-			if not isExpanded then
-				ExpandTradeSkillSubClass(i)
-				self.headersState[self.headerCount] = true
-			end
-		end
-	end
-end
-
-function Altoholic.TradeSkills:RestoreHeaders()
-	self.headerCount = 0
-	for i = GetNumTradeSkills(), 1, -1 do
-		local _, skillType  = GetTradeSkillInfo(i)
-		if (skillType == "header") then
-			self.headerCount = self.headerCount + 1
-			if self.headersState[self.headerCount] then
-				CollapseTradeSkillSubClass(i)
-			end
-		end
-	end
-end
-
-function Altoholic.TradeSkills:Scan(tradeskillName, mandatoryScan)
-	local c = Altoholic.ThisCharacter
-	local r = c.recipes[tradeskillName].list
-	
-	c.recipes[tradeskillName].FullLink = select(2, GetSpellLink(tradeskillName))
-
-	self:SaveActiveFilters()
-	self:SaveHeaders()
-
-	if not mandatoryScan then
-		-- Only allow the function to exit if the scan is not mandatory. It will be mandatory after a craft (to check if a cooldown was activated)
-		local numSkills = GetNumTradeSkills()
-		if numSkills < #r then 						-- leave if there are more skills in the db than what the game returns
-			self:RestoreHeaders()
-			self:RestoreActiveFilters()
-			return
-		elseif numSkills == #r then 		-- if the number is identical, chances are high that the DB already has the right data
-			if c.recipes[tradeskillName].ScanFailed == false then
-				self:RestoreHeaders()
-				self:RestoreActiveFilters()
-				return	-- , leave, but make sure scanfailed is false
-			end
-		end
-	end
-	
-	wipe(r)
-	
-	for k, v in pairs(c.ProfessionCooldowns) do
-		local skill = strsplit("|", k)		-- keys are like : ["Tailoring|craftName"] = "315459.769|1211033170"
-		if skill == tradeskillName	then		-- if we're on the right tradeskill .. clear this entry, as it will be refreshed a bit further in this method
-			v = nil
-		end
-	end
-	
-	local numGreen = 0
-	local numYellow = 0
-	local numOrange = 0
-	local numTotal = 0
-	local bScanFailed = false
-	
-	local color
-
-	for i = 1, GetNumTradeSkills() do
-		local skillName, skillType = GetTradeSkillInfo(i)
-		
-		if skillType == "header" then
-			r[i] = "0^" .. (skillName or "")
-		else
-			numTotal = numTotal + 1
-			local spellID = Altoholic:GetSpellIDFromLink(GetTradeSkillRecipeLink(i))
-			
-			local itemID = Altoholic.CraftDB[spellID]		-- use the craft db, this will decrease the risk of failure
-			if not itemID then
-				local itemLink = GetTradeSkillItemLink(i)		-- in certain cases, scanning the item link will fail
-				if not itemLink then				-- this usually happens  after a patch, when the local skills  cache has been reset
-					bScanFailed = true
-					break
-				end
-				itemID = Altoholic:GetIDFromLink(itemLink)
-			end
-			
-			if skillType == "easy" then
-				color = 1								-- 1 = green
-				numGreen = numGreen + 1
-			elseif skillType == "medium" then
-				color = 2								-- 2 = yellow
-				numYellow = numYellow + 1
-			elseif skillType == "optimal" then
-				color = 3								-- 3 = orange
-				numOrange = numOrange + 1
-			else
-				color = 4
-			end
-			
-			local cooldown = GetTradeSkillCooldown(i)
-			if cooldown then
-				c.ProfessionCooldowns[ tradeskillName .. "|" .. skillName ] = cooldown .. "|" .. time()
-				Altoholic.Calendar.Events:BuildList()
-			end
-			
-			local reagents = {}
-			for j=1, GetTradeSkillNumReagents(i) do
-				local _, _, reagentCount = GetTradeSkillReagentInfo(i, j);
-				local link = GetTradeSkillReagentItemLink(i, j)
-				if link then
-					table.insert(reagents, Altoholic:GetIDFromLink( link ) .. ":" .. reagentCount)
-				else	-- when the trading skill window is opened, this should never happen, if it does, let the user known
-					bScanFailed = true
-				end
-			end
-			
-			r[i] = color .. "^" .. (itemID or "") .. "^" .. spellID .. "^" .. table.concat(reagents, "|")
-		end
-	end
-	
-	self:RestoreHeaders()
-	self:RestoreActiveFilters()
-	
-	c.recipes[tradeskillName].ScanFailed = bScanFailed
-		
-	if bScanFailed then
-		Altoholic:Print(L["At least one recipe could not be read"])
-		Altoholic:Print(L["Please open this window again"], YELLOW)
-	end
-	
-	c.recipes[tradeskillName].GreenCount = numGreen
-	c.recipes[tradeskillName].YellowCount = numYellow
-	c.recipes[tradeskillName].OrangeCount = numOrange
-	c.recipes[tradeskillName].TotalCount = numTotal
-end
-
--- *** Hooks ***
-
-local Orig_DoTradeSkill = DoTradeSkill
-
-function DoTradeSkill(index, repeatCount, ...)
-	Orig_DoTradeSkill(index, repeatCount, ...)
-	Altoholic:RegisterEvent("TRADE_SKILL_UPDATE", Altoholic.TradeSkills.OnUpdate)
-end
-
-local Orig_AbandonSkill = AbandonSkill
-
-function AbandonSkill(index, ...)
-	local skillName = GetSkillLineInfo(index)				-- get the name of the profession that is being abandonned
-
-	Orig_AbandonSkill(index, ...)
-	
-	local c = Altoholic.ThisCharacter
-	
-	c.skill[L["Professions"]][skillName] = nil			-- clear the skill entry
-	
-	wipe(c.recipes[skillName])			-- and the list of recipes
-	c.recipes[skillName] = nil
-end
-
-
--- *** EVENT HANDLERS ***
-
-function Altoholic.TradeSkills:OnShow()
-	--	local linked, name = IsTradeSkillLinked()
-	if IsTradeSkillLinked() then return end
-	
-	local self = Altoholic.TradeSkills
-	self.isOpen = true
-
-	Altoholic:RegisterEvent("TRADE_SKILL_CLOSE", self.OnClose)
-	
-	self:Scan(GetTradeSkillLine(), nil)
-	-- self:Scan(GetTradeSkillLine(), true)
-end
-
-function Altoholic.TradeSkills:OnUpdate()
-	-- The hook in DoTradeSkill will register this event so that we only update skills once.
-	-- unregister it before calling the update, or the event will be called recursively (due to expand/collapse)
-	Altoholic:UnregisterEvent("TRADE_SKILL_UPDATE")
-	Altoholic.TradeSkills:Scan(GetTradeSkillLine(), true)
-end
-
-function Altoholic.TradeSkills:OnClose()
-	Altoholic:UnregisterEvent("TRADE_SKILL_CLOSE")
-	Altoholic:UnregisterEvent("TRADE_SKILL_UPDATE")
-	
-	local self = Altoholic.TradeSkills
-	self.isOpen = nil
 end

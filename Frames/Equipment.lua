@@ -413,58 +413,57 @@ function Altoholic.Equipment:Update()
 	AltoholicTabCharactersStatus:SetText("")
 	
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
-	local r = Altoholic:GetRealmTable()
-		
+	local realm, account = Altoholic:GetCurrentRealm()
+	local character
+	local DS = DataStore
+	
 	for i=1, VisibleLines do
 		local line = i + offset
 		local e = Altoholic.Equipment.SlotInfo[line]
 
 		_G[ entry..i.."Name" ]:SetText(e.color .. e.name)
 
-		local j = 1
-		for CharacterName, c in pairs(r.char) do
+		for j = 1, 10 do
 			local itemName = entry.. i .. "Item" .. j;
-			local itemButton = _G[itemName];
+			local itemButton = _G[itemName]
 			itemButton:SetScript("OnEnter", Altoholic.Equipment.OnEnter)
-			itemButton:SetScript("OnClick", Altoholic.Equipment.OnClick)
-
+			itemButton:SetScript("OnClick", Altoholic.Equipment.OnClick)			
+			
 			local itemCount = _G[itemName .. "Count"]
 			itemCount:Hide();
-
+			
 			Altoholic:CreateButtonBorder(itemButton)
 			itemButton.border:Hide()
 			
-			local itemID = c.inventory[line]
-			if itemID then
-				itemButton.CharName = CharacterName
-				Altoholic:SetItemButtonTexture(itemName, GetItemIcon(itemID));
+			local classButton = _G["AltoholicFrameClassesItem" .. j]
+			if classButton.CharName then
+				character = DS:GetCharacter(classButton.CharName, realm, account)
 				
-				-- display the coloured border
-				local _, _, itemRarity, itemLevel = GetItemInfo(itemID)
-				if itemRarity and itemRarity >= 2 then
-					local r, g, b = GetItemQualityColor(itemRarity)
-					itemButton.border:SetVertexColor(r, g, b, 0.5)
-					itemButton.border:Show()
+				local item = DS:GetInventoryItem(character, line)
+				if item then
+					itemButton.CharName = classButton.CharName
+					Altoholic:SetItemButtonTexture(itemName, GetItemIcon(item));
+					
+					-- display the coloured border
+					local _, _, itemRarity, itemLevel = GetItemInfo(item)
+					if itemRarity and itemRarity >= 2 then
+						local r, g, b = GetItemQualityColor(itemRarity)
+						itemButton.border:SetVertexColor(r, g, b, 0.5)
+						itemButton.border:Show()
+					end
+					
+					itemCount:SetText(itemLevel);
+					itemCount:Show();
+				else
+					itemButton.CharName = nil
+					Altoholic:SetItemButtonTexture(itemName, e.icon);
 				end
 				
-				itemCount:SetText(itemLevel);
-				itemCount:Show();
-				
+				itemButton:Show()
 			else
+				itemButton:Hide()
 				itemButton.CharName = nil
-				Altoholic:SetItemButtonTexture(itemName, e.icon);
 			end
-			
-			_G[ itemName ]:Show()
-			j = j + 1
-			if j > 10 then 	-- users of Symbolic Links might have more than 10 columns, prevent it
-				break
-			end
-		end
-		
-		while j <= 10 do
-			_G[ entry.. i .. "Item" .. j ]:Hide()
-			j = j + 1
 		end
 		
 		_G[ entry..i ]:Show()
@@ -474,47 +473,16 @@ function Altoholic.Equipment:Update()
 	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], 19, VisibleLines, 41);
 end
 
-function Altoholic.Equipment:Scan()
-	local c = Altoholic.ThisCharacter
-	local totalItemLevel = 0
-	local itemCount = 0	
-	
-	for i = 1, 19 do
-		local link = GetInventoryItemLink("player", i)
-		if link then 
-			
-			-- if any of these differs from 0, there's an enchant or a jewel, so save the full link
-			if Altoholic:GetEnchantInfo(link) then		-- 1st return value = isEnchanted
-				c.inventory[i] = link
-			else -- only save the id otherwise
-				c.inventory[i] = Altoholic:GetIDFromLink(link)
-			end		
-			
-			if (i ~= 4) and (i ~= 19) then		-- InventorySlotId 4 = shirt, 19 = tabard, skip them
-				itemCount = itemCount + 1
-				totalItemLevel = totalItemLevel + tonumber(((select(4, GetItemInfo(link))) or 0))
-			end
-			
-		else
-			c.inventory[i] = nil
-		end
-	end
-	
-	c.averageItemLvl = totalItemLevel / itemCount
-	
-	Altoholic:UpdateStats()		-- changing equipment requires to rescan stats
-end
-
 function Altoholic.Equipment:OnEnter()
 	if not self.CharName then return end
 	
-	local r = Altoholic:GetRealmTable()
-	local itemID = self:GetParent():GetID()
-
-	local item = r.char[self.CharName].inventory[itemID]	--  equipment slot
+	local DS = DataStore
+	local realm, account = Altoholic:GetCurrentRealm()
+	local character = DS:GetCharacter(self.CharName, realm, account)
+	local item = DS:GetInventoryItem(character, self:GetParent():GetID())
 	if not item then return end
 
-	GameTooltip:SetOwner(this, "ANCHOR_LEFT");
+	GameTooltip:SetOwner(self, "ANCHOR_LEFT");
 	local link
 	if type(item) == "number" then
 		link = select(2, GetItemInfo(item))
@@ -537,12 +505,13 @@ end
 function Altoholic.Equipment:OnClick(button)
 	if not self.CharName then return end
 	
-	local r = Altoholic:GetRealmTable()
-	local itemID = self:GetParent():GetID()
+	local slotID = self:GetParent():GetID()
+	if slotID == 0 then return end		-- class icon
 
-	if itemID == 0 then return end		-- class icon
-	
-	local item = r.char[self.CharName].inventory[itemID]	--  equipment slot
+	local DS = DataStore
+	local realm, account = Altoholic:GetCurrentRealm()
+	local character = DS:GetCharacter(self.CharName, realm, account)
+	local item = DS:GetInventoryItem(character, slotID)
 	if not item then return end
 	
 	local link
@@ -556,7 +525,8 @@ function Altoholic.Equipment:OnClick(button)
 	
 	if button == "RightButton" then
 		Altoholic.Search.UpgradeItemID = Altoholic:GetIDFromLink(link)		-- item ID of the item to find an upgrade for
-		Altoholic.Search:SetClass(r.char[self.CharName].englishClass)
+		local _, class = DS:GetCharacterClass(character)
+		Altoholic.Search:SetClass(class)
 		
 		ToggleDropDownMenu(1, nil, AltoholicFrameEquipmentRightClickMenu, self:GetName(), 0, -5);
 		return
@@ -572,24 +542,6 @@ function Altoholic.Equipment:OnClick(button)
 		end
 	end
 end
-
-function Altoholic.Equipment:GetItemCount(searchedID)
-	local c = Altoholic.CountCharacter
-	
-	local count = 0
-	for _, v in pairs(c.inventory) do
-		if type(v) == "number" then
-			if (v == searchedID) then
-				count = count + 1
-			end
-		elseif Altoholic:GetIDFromLink(v) == searchedID then
-			count = count + 1
-		end
-	end
-	
-	return count
-end
-
 
 function Equipment_RightClickMenu_OnLoad()
 	local info = UIDropDownMenu_CreateInfo(); 
@@ -644,4 +596,12 @@ function Equipment_RightClickMenu_OnLoad()
 		info.func		= Altoholic.Search.FindEquipmentUpgrade
 		UIDropDownMenu_AddButton(info, 1); 
 	end
+	
+	-- Close menu item
+	info.text = CLOSE
+	info.func = function() CloseDropDownMenus() end
+	info.checked = nil
+	info.icon = nil
+	info.notCheckable = 1
+	UIDropDownMenu_AddButton(info, 1)
 end

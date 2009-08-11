@@ -8,8 +8,6 @@ local INITIAL_OFFSET_Y = 15
 local TALENT_OFFSET_X = 62
 local TALENT_OFFSET_Y = 55
 
-local TALENT_ICON_PATH = "Interface\\Icons\\"
-
 Altoholic.Talents = {}
 Altoholic.Talents.Buttons = {}
 Altoholic.Talents.Arrows = {}
@@ -28,9 +26,10 @@ function Altoholic.Talents:Update(treeIndex)
 	end
 	AltoholicFrameTalents:Hide()
 	
-	local c = Altoholic:GetCharacterTable()
-	
-	if c.activeTalents == 1 then
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+	if not character then return end
+
+	if character.ActiveTalents == 1 then
 		AltoholicFrameTalents_PrimaryText:SetText(format("%s (%s)",WHITE..TALENT_SPEC_PRIMARY..GREEN, TALENT_ACTIVE_SPEC_STATUS ))
 		AltoholicFrameTalents_SecondaryText:SetText(WHITE..TALENT_SPEC_SECONDARY)
 	else
@@ -38,36 +37,31 @@ function Altoholic.Talents:Update(treeIndex)
 		AltoholicFrameTalents_SecondaryText:SetText(format("%s (%s)",WHITE..TALENT_SPEC_SECONDARY..GREEN, TALENT_ACTIVE_SPEC_STATUS ))
 	end
 	
-	local ref = Altoholic:GetReferenceTable()
-	local tree = ref[c.englishClass].talentInfo[treeIndex]
-	
-	if not tree.background then
-		return
-	end
+	local DS = DataStore
+	local _, class = DS:GetCharacterClass(character)
+	if not DS:IsClassKnown(class) then return end
+	local treeName = DS:GetTreeNameByID(class, treeIndex)
 	
 	self.Parent = _G["AltoholicFrameTalents_ScrollFrameTalent1"]:GetParent()
 
-	-- draw spec icons
-	for k, v in ipairs(ref[c.englishClass].talentInfo) do
-		Altoholic:SetItemButtonTexture("AltoholicFrameTalents_SpecIcon"..k, TALENT_ICON_PATH .. v.icon, 30, 30)
+	local index = 1
+	for tree in DS:GetClassTrees(class) do						-- draw spec icons
+		local itemName = "AltoholicFrameTalents_SpecIcon"..index
+		local itemButton = _G[itemName]
+		local itemCount = _G[itemName .."Count"]
+		local icon = DS:GetTreeInfo(class, tree)
 		
-		if strfind(c.talent, ":") then			-- new format =	name:points | name:points | name:points
-			local talent = select(((self.group-1)*3) + k, strsplit("|", c.talent))
-			local name, points = strsplit(":", talent)
-
-			_G["AltoholicFrameTalents_SpecIcon"..k .."Count"]:SetText(WHITE ..points)
-			_G["AltoholicFrameTalents_SpecIcon"..k .."Count"]:Show()
-		else
-			_G["AltoholicFrameTalents_SpecIcon"..k .."Count"]:Hide()
-		end
-		
-		_G["AltoholicFrameTalents_SpecIcon"..k]:Show()
+		Altoholic:SetItemButtonTexture(itemName, icon, 30, 30)
+		itemCount:SetText(WHITE .. DS:GetNumPointsSpent(character, tree, self.group))
+		itemCount:Show()
+		itemButton:Show()
+		index = index + 1
 	end
 	
-	local isActiveTalentGroup = self.group == c.activeTalents
-	
+	local isActiveTalentGroup = self.group == character.ActiveTalents
+
 	-- textures are 90.625% of the original size
-	local bg = "Interface\\TalentFrame\\"..tree.background
+	local _, bg = DS:GetTreeInfo(class, treeName)
 	AltoholicFrameTalents_bgTopLeft:SetTexture(bg.."-TopLeft")
 	AltoholicFrameTalents_bgTopRight:SetTexture(bg.."-TopRight")
 	AltoholicFrameTalents_bgBottomLeft:SetTexture(bg.."-BottomLeft")
@@ -87,21 +81,16 @@ function Altoholic.Talents:Update(treeIndex)
 	self.Branches:InitializeArray()
 	
 	-- draw all icons in their respective slot
-	for k, v in ipairs(tree.list) do
-		local id, name, texture, tier, column, maxRank = strsplit("|", v)
-		tier = tonumber(tier)
-		column = tonumber(column)
+	for i = 1, DS:GetNumTalents(class, treeName) do
+		local _, _, texture, tier, column = DS:GetTalentInfo(class, treeName, i)
+		local rank = DS:GetTalentRank(character, treeName, self.group, i)
 		
-		self.Buttons:Draw(texture, tier, column, c["tree"..((self.group-1)*3) + treeIndex][k], k)
+		self.Buttons:Draw(texture, tier, column, rank, i)
 		self.Branches.Array[tier][column].node = true;
 				
 		-- Draw arrows & branches where applicable
-		if tree.prereqs[k] then
-			local prereqTier, prereqColumn = strsplit("|", tree.prereqs[k])
-			
-			prereqTier = tonumber(prereqTier)
-			prereqColumn = tonumber(prereqColumn)
-			
+		local prereqTier, prereqColumn = DS:GetTalentPrereqs(class, treeName, i)
+		if prereqTier and prereqColumn then
 			local left = min(column, prereqColumn);
 			local right = max(column, prereqColumn);
 
@@ -112,11 +101,8 @@ function Altoholic.Talents:Update(treeIndex)
 			end
 			
 			local blocked								-- Check for blocking talents
-			for _, talent in ipairs(tree.list) do		-- browse the same list
-				local _, _, _, searchedTier, searchedColumn = strsplit("|", talent)
-			
-				searchedTier = tonumber(searchedTier)
-				searchedColumn = tonumber(searchedColumn)
+			for j = 1, DS:GetNumTalents(class, treeName) do
+				local _, _, _, searchedTier, searchedColumn = DS:GetTalentInfo(class, treeName, j)
 			
 				if searchedTier == prereqTier then				-- do nothing if lower tier, process if same tier, exit if higher tier
 					if (searchedColumn >= left) and (searchedColumn <= right) then
@@ -155,7 +141,7 @@ function Altoholic.Talents.Buttons:Draw(texture, tier, column, count, id)
 	itemButton:SetID(id)
 
 	if texture then
-		Altoholic:SetItemButtonTexture(itemName, TALENT_ICON_PATH..texture, 37, 37)
+		Altoholic:SetItemButtonTexture(itemName, texture, 37, 37)
 	end
 	
 	local itemCount = _G[itemName .. "Count"]
@@ -395,95 +381,43 @@ function Altoholic.Talents.Branches:HideUnused()
 	self.count = nil
 end
 
-function Altoholic.Talents:Scan()
-
-	local c = Altoholic.ThisCharacter
-	if not c.level or c.level < 10 then return end
+function Altoholic.Talents:Icon_OnEnter(self)
+	local DS = DataStore
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local _, class = DS:GetCharacterClass(character)
+	local treeName = DS:GetTreeNameByID(class, self:GetID())
 	
-	local ref = Altoholic:GetReferenceTable()
-	
-	c.activeTalents = GetActiveTalentGroup()		-- returns 1 or 2
-	c.talent = ""
-	
-	-- first talent tree, gather reference + user specific
-	for i = 1, GetNumTalentTabs() do
-		local name, _, pointsSpent, fileName = GetTalentTabInfo( i, nil, nil, 1 );
-		
-		c.talent = c.talent .. name .. ":".. pointsSpent .. "|"
-		
-		local ti = ref[c.englishClass].talentInfo[i]		-- ti for talent info
-
-		ti.name = name
-		ti.background = fileName
-		ti.icon = select(2, GetSpellTabInfo(i+1))
-		
-		-- the icon may be nil on a low level char. 
-		-- Example : rogue lv 2
-			-- GetSpellTabInfo(1) returns the General tab
-			-- GetSpellTabInfo(2) returns the Assassination tab
-			-- GetSpellTabInfo(3) returns the Combat tab
-			-- GetSpellTabInfo(4) returns nil, instead of Subtelty
-		if ti.icon then
-			ti.icon = string.gsub(ti.icon, TALENT_ICON_PATH, "")
-			
-			for j = 1, GetNumTalents(i) do
-				local nameTalent, iconPath, tier, column, currentRank, maximumRank = GetTalentInfo(i, j, nil, nil, 1 )
-
-				-- all paths start with this prefix, let's hope blue does not change this :)
-				-- saves a lot of memory not to keep the full path for each talent (about 16k in total for all classes)
-				iconPath = string.gsub(iconPath, TALENT_ICON_PATH, "")
-				
-				local link = GetTalentLink(i, j)
-				local id = tonumber(link:match("talent:(%d+)"))
-				
-				c["tree"..i][j] = currentRank
-				ti.list[j] = id .. "|" .. nameTalent .. "|" .. iconPath .. "|" .. tier .. "|" ..  column .. "|" .. maximumRank
-				
-				prereqTier, prereqColumn = GetTalentPrereqs(i, j)		-- talent prerequisites
-				if prereqTier and prereqColumn then
-					ti.prereqs[j] = prereqTier .. "|" .. prereqColumn
-				end
-			end
-		end
-	end
-	
-	-- second talent tree, user specific only
-	for i = 1, GetNumTalentTabs() do
-		local name, _, pointsSpent = GetTalentTabInfo( i, nil, nil, 2 );
-		
-		c.talent = c.talent .. name .. ":".. pointsSpent
-		if i ~= 3 then
-			c.talent = c.talent .. "|"
-		end
-		
-		for j = 1, GetNumTalents(i) do
-			local _, _, _, _, currentRank = GetTalentInfo(i, j, nil, nil, 2 )
-			
-			c["tree"..i+3][j] = currentRank
-		end
+	if treeName then
+		AltoTooltip:ClearLines();
+		AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
+		AltoTooltip:AddLine(treeName,1,1,1);
+		AltoTooltip:Show();
 	end
 end
 
 function Altoholic.Talents:GetLink(self)
-	local c = Altoholic:GetCharacterTable()
-	local ref = Altoholic:GetReferenceTable()
+	local DS = DataStore
 	local treeIndex = self:GetParent():GetParent():GetID()
-	
-	local tree = ref[c.englishClass].talentInfo[treeIndex]
-	if not tree then return	end
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local _, class = DS:GetCharacterClass(character)
+	local treeName = DS:GetTreeNameByID(class, treeIndex)
 	
 	local spellNumber = self:GetID()
-
-	local id, name = strsplit("|", tree.list[spellNumber])
+	local id, name = DS:GetTalentInfo(class, treeName, spellNumber)
+	local rank = DS:GetTalentRank(character, treeName, Altoholic.Talents.group, spellNumber)
 	
-	local rank = c["tree"..((Altoholic.Talents.group-1)*3) + treeIndex][spellNumber] or 0
-
-	return format("|cff4e96f7|Htalent:%s:%s|h[%s]|h|r", id, (rank-1), name)
+	return DS:GetTalentLink(id, rank, name)
 end
 
 function Altoholic.Talents:SetCurrentGroup(group)
 	self.group = group
 end
+
+function Altoholic.Talents:OnUpdate()
+	if AltoholicFrameTalents:IsVisible() then
+		Altoholic.Talents:Update()
+	end
+end	
 
 -- copied from Blizzard_GlyphUI.lua, no idea why they're not visible from here .. :/
 Altoholic.Glyphs.Buttons.SlotsTC = {
@@ -512,72 +446,13 @@ function Altoholic.Glyphs:Update()
 	end
 end
 
-function Altoholic.Glyphs:Scan()
-	local c = Altoholic.ThisCharacter
-	local glyphList = ""
-	
-	local numGlyphs = 6
-	
-	for group = 1, 2 do
-		for i = 1, numGlyphs do
-	      -- type 1 = major, 2 = minor
-		   local enabled, glyphType, spell, icon = GetGlyphSocketInfo(i, group)
-			local link = GetGlyphLink(i, group)
-			local glyphID
-			if link then
-				_, glyphID = link:match("glyph:(%d+):(%d+)")
-			end
-			
-			glyphID = glyphID or 0
-			glyphType = glyphType or 0
-			enabled = enabled or 0
-			spell = spell or ""
-			icon = icon or ""
-			
-			glyphList = glyphList .. enabled ..":" .. glyphType .. ":" .. spell .. ":" .. icon .. ":" .. glyphID
-			
-			if i < (numGlyphs*2) then
-				glyphList = glyphList .. "|"
-			end
-		end
-	end
-	
-	c.glyphs = nil					--	kill the previous data
-	c.glyphInfo = glyphList		-- "enabled : glyphType : spellID : icon | ... "
-end
-
-function Altoholic.Glyphs:GetData(glyphInfo, id)
-	id = ((Altoholic.Talents.group-1)*6) + id
-
-	local glyphData = select(id, strsplit("|", glyphInfo))
-	local enabled, glyphType, spell, icon, glyphID = strsplit(":", glyphData)
-	
-	return tonumber(enabled), tonumber(glyphType), tonumber(spell), icon, tonumber(glyphID)
-end
-
-function Altoholic.Glyphs:GetLink(id, spell, glyphID)
-
-	local name = GetSpellInfo(spell)
-
-	return format("|cff66bbff|Hglyph:2%s:%s|h[%s]|h|r", id, glyphID, name)
-end
-
 function Altoholic.Glyphs.Buttons:Draw(id)
 	local name = "AltoholicFrameTalentsGlyph" .. id
 	local glyph = _G[name]
 	
-	local c = Altoholic:GetCharacterTable()
-	if not c.glyphInfo then 
-		glyph.shine:Hide();
-		glyph.background:Hide();
-		glyph.glyph:Hide();
-		glyph.ring:Hide();
-		glyph.setting:SetTexture("Interface\\Spellbook\\UI-GlyphFrame-Locked");
-		glyph.setting:SetTexCoord(.1, .9, .1, .9);
-		return 
-	end
-	
-	local enabled, glyphType, spell, icon = Altoholic.Glyphs:GetData(c.glyphInfo, id)
+	local DS = DataStore
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local enabled, glyphType, spell, icon = DS:GetGlyphInfo(character, Altoholic.Talents.group, id)
 	
 	if glyphType == 1 then
 		glyph.glyph:SetVertexColor(1, 0.25, 0);
@@ -657,10 +532,9 @@ end
 
 function Altoholic.Glyphs.Buttons:OnEnter(self)
 	local id = self:GetID()
-	local c = Altoholic:GetCharacterTable()
-	if not c.glyphInfo then return end
-	
-	local enabled, glyphType, spell, _, glyphID = Altoholic.Glyphs:GetData(c.glyphInfo, id)
+	local DS = DataStore
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local enabled, glyphType, spell, _, glyphID = DS:GetGlyphInfo(character, Altoholic.Talents.group, id)
 	
 	local glyphTypeText
 	if tonumber(glyphType) == 1 then
@@ -687,22 +561,22 @@ function Altoholic.Glyphs.Buttons:OnEnter(self)
 		return 
 	end
 
-	local link = Altoholic.Glyphs:GetLink(id, spell, glyphID)
+	local link = DS:GetGlyphLink(id, spell, glyphID)
 	AltoTooltip:SetHyperlink(link);
 	AltoTooltip:Show();
 end
 
 function Altoholic.Glyphs.Buttons:OnClick(self, button)
 	local id = self:GetID()
-	local c = Altoholic:GetCharacterTable()
-	if not c.glyphInfo then return end
-	
-	local enabled, glyphType, spell, _, glyphID = Altoholic.Glyphs:GetData(c.glyphInfo, id)
+	local DS = DataStore
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local enabled, glyphType, spell, _, glyphID = DS:GetGlyphInfo(character, Altoholic.Talents.group, id)
+
 	if not spell then return end
 	
 	if ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
 		if ( ChatFrameEditBox:IsShown() ) then
-			local link = Altoholic.Glyphs:GetLink(id, spell, glyphID)
+			local link = DS:GetGlyphLink(id, spell, glyphID)
 			
 			ChatFrameEditBox:Insert(link);
 		end

@@ -1,4 +1,3 @@
-local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local BZ = LibStub("LibBabble-Zone-3.0"):GetLookupTable()
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 
@@ -25,17 +24,18 @@ local ICON_FACTION_HORDE = "Interface\\Icons\\INV_BannerPVP_01"
 local ICON_FACTION_ALLIANCE = "Interface\\Icons\\INV_BannerPVP_02"
 
 local function GetFactionTotals(f, line)
-	local r = Altoholic:GetRealmTableByLine(line)
+	local _, realm, account = Altoholic.Characters:GetInfo(line)
 	
 	local level = 0
 	local money = 0
 	local played = 0
 	
-	for CharacterName, c in pairs(r.char) do
-		if c.faction == f then
-			level = level + c.level
-			money = money + c.money
-			played = played + c.played
+	local DS = DataStore
+	for _, character in pairs(DS:GetCharacters(realm, account)) do
+		if DS:GetCharacterFaction(character) == f then
+			level = level + DS:GetCharacterLevel(character)
+			money = money + DS:GetMoney(character)
+			played = played + DS:GetPlayTime(character)
 		end
 	end
 	
@@ -57,6 +57,8 @@ function Altoholic.Summary:Update()
 	local DrawRealm
 	local CurrentAccount, CurrentRealm
 	local i=1
+	
+	local DS = DataStore
 	
 	for _, line in pairs(Characters:GetView()) do
 		local s = Characters:Get(line)
@@ -95,12 +97,8 @@ function Altoholic.Summary:Update()
 				if s.account == "Default" then	-- saved as default, display as localized.
 					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", s.realm, WHITE, GREEN, L["Default"]))
 				else
-					local r = Altoholic:GetRealmTable(CurrentRealm, CurrentAccount)
-					if r and r.lastAccountSharing then
-						_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", s.realm, WHITE, GREEN, s.account, YELLOW, r.lastAccountSharing))
-					else
-						_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", s.realm, WHITE, GREEN, s.account))
-					end
+					local last = Altoholic:GetLastAccountSharingInfo(CurrentRealm, CurrentAccount)
+					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", s.realm, WHITE, GREEN, s.account, YELLOW, last or ""))
 				end
 				_G[entry..i.."Level"]:SetText("")
 
@@ -116,10 +114,10 @@ function Altoholic.Summary:Update()
 				DisplayedCount = DisplayedCount + 1
 			elseif DrawRealm then
 				if (lineType == INFO_CHARACTER_LINE) then
-					local c = Altoholic.db.global.data[CurrentAccount][CurrentRealm].char[s.name]
+					local character = DS:GetCharacter(s.name, CurrentRealm, CurrentAccount)
 					
 					local icon
-					if c.faction == "Alliance" then
+					if DS:GetCharacterFaction(character) == "Alliance" then
 						icon = Altoholic:TextureToFontstring(ICON_FACTION_ALLIANCE, 18, 18) .. " "
 					else
 						icon = Altoholic:TextureToFontstring(ICON_FACTION_HORDE, 18, 18) .. " "
@@ -129,20 +127,20 @@ function Altoholic.Summary:Update()
 					_G[entry..i.."Name"]:SetWidth(170)
 					_G[entry..i.."Name"]:SetPoint("TOPLEFT", 10, 0)
 					_G[entry..i.."NameNormalText"]:SetWidth(170)
-					_G[entry..i.."NameNormalText"]:SetText(icon .. format("%s%s (%s)", Altoholic:GetClassColor(c.englishClass), s.name, c.class))
-					_G[entry..i.."Level"]:SetText(GREEN .. c.level)
+					_G[entry..i.."NameNormalText"]:SetText(icon .. format("%s (%s)", DS:GetColoredCharacterName(character), DS:GetCharacterClass(character)))
+					_G[entry..i.."Level"]:SetText(GREEN .. DS:GetCharacterLevel(character))
 
-					_G[entry..i.."Money"]:SetText(Altoholic:GetMoneyString(c.money))
-					_G[entry..i.."Played"]:SetText(Altoholic:GetTimeString(c.played))
-					_G[entry..i.."XP"]:SetText(GREEN .. floor((c.xp / c.xpmax) * 100) .. "%")
-										
-					if c.level == MAX_PLAYER_LEVEL then
+					_G[entry..i.."Money"]:SetText(Altoholic:GetMoneyString(DS:GetMoney(character)))
+					_G[entry..i.."Played"]:SetText(Altoholic:GetTimeString(DS:GetPlayTime(character)))
+					_G[entry..i.."XP"]:SetText(GREEN .. DS:GetXPRate(character) .. "%")
+
+					if DS:GetCharacterLevel(character) == MAX_PLAYER_LEVEL then
 						_G[entry..i.."Rested"]:SetText(WHITE .. "0%")
 					else
-						_G[entry..i.."Rested"]:SetText( Altoholic:GetRestedXP(c.xpmax, c.restxp, c.lastlogout, c.isResting) )
+						_G[entry..i.."Rested"]:SetText( Altoholic:GetRestedXP(character) )
 					end
 					
-					_G[entry..i.."AvgILevelNormalText"]:SetText(YELLOW..format("%.1f", c.averageItemLvl))
+					_G[entry..i.."AvgILevelNormalText"]:SetText(YELLOW..format("%.1f", DS:GetAverageItemLevel(character)))
 					
 				elseif (lineType == INFO_TOTAL_LINE) then
 					_G[entry..i.."Collapse"]:Hide()
@@ -214,27 +212,37 @@ function Altoholic.Summary:Level_OnEnter(self)
 		AltoTooltip:Show();
 		return
 	end
-
-	local c = Altoholic:GetCharacterTableByLine(line)
-	local suggestion = Altoholic:GetSuggestion("Leveling", c.level)
+	
+	local DS = DataStore
+	local character = DS:GetCharacter(Altoholic.Characters:GetInfo(line))
 	
 	AltoTooltip:ClearLines();
 	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
 	
-	AltoTooltip:AddDoubleLine(Altoholic:GetClassColor(c.englishClass) .. s.name, Altoholic:ColourFaction(c.faction))
+	AltoTooltip:AddDoubleLine(DS:GetColoredCharacterName(character), DS:GetColoredCharacterFaction(character))
+	AltoTooltip:AddLine(format("%s %s |r%s %s", L["Level"], 
+		GREEN..DS:GetCharacterLevel(character), DS:GetCharacterRace(character),	DS:GetCharacterClass(character)),1,1,1)
+
+	local zone, subZone = DS:GetLocation(character)
+	AltoTooltip:AddLine(format("%s: %s |r(%s|r)", L["Zone"], GOLD..zone, GOLD..subZone),1,1,1)
 	
-	AltoTooltip:AddLine(L["Level"] .. " " .. GREEN .. c.level .. " |r".. c.race .. " " .. c.class,1,1,1);
-	AltoTooltip:AddLine(L["Zone"] .. ": " .. GOLD .. c.zone .. " |r(" .. GOLD .. c.subzone .."|r)",1,1,1);	
-	AltoTooltip:AddLine(EXPERIENCE_COLON .. " " 
-				.. GREEN .. c.xp .. WHITE .. "/" 
-				.. GREEN .. c.xpmax .. WHITE .. " (" 
-				.. GREEN .. floor((c.xp / c.xpmax) * 100) .. "%"
-				.. WHITE .. ")",1,1,1);	
-	
-	if c.restxp then
-		AltoTooltip:AddLine(L["Rest XP"] .. ": " .. GREEN .. c.restxp,1,1,1);
+	local guildName = DS:GetGuildInfo(character)
+	if guildName then
+		AltoTooltip:AddLine(format("%s: %s", GUILD, GREEN..guildName),1,1,1)
 	end
 	
+	AltoTooltip:AddLine(EXPERIENCE_COLON .. " " 
+				.. GREEN .. DS:GetXP(character) .. WHITE .. "/" 
+				.. GREEN .. DS:GetXPMax(character) .. WHITE .. " (" 
+				.. GREEN .. DS:GetXPRate(character) .. "%"
+				.. WHITE .. ")",1,1,1);	
+	
+	local restXP = DS:GetRestXP(character)
+	if restXP and restXP > 0 then
+		AltoTooltip:AddLine(format("%s: %s", L["Rest XP"], GREEN..restXP),1,1,1)
+	end
+	
+	local suggestion = Altoholic:GetSuggestion("Leveling", DS:GetCharacterLevel(character))
 	if suggestion then
 		AltoTooltip:AddLine(" ",1,1,1);
 		AltoTooltip:AddLine(L["Suggested leveling zone: "],1,1,1);
@@ -242,6 +250,8 @@ function Altoholic.Summary:Level_OnEnter(self)
 	end
 
 	-- parse saved instances
+	local c = Altoholic:GetCharacterTableByLine(line)
+	
 	local bLineBreak = true
 	for Instance, InstanceInfo in pairs (c.SavedInstance) do
 		local InstanceName, InstanceID = strsplit("|", Instance)
@@ -264,9 +274,12 @@ function Altoholic.Summary:Level_OnEnter(self)
 	end
 	
 	-- add PVP info if any
+
+	local hk, dk, arena, honor = DS:GetStats(character, "PVP")
+	
 	AltoTooltip:AddLine(" ",1,1,1);
-	AltoTooltip:AddDoubleLine(WHITE.. L["Arena points: "] .. GREEN .. c.pvp_ArenaPoints, "HK: " .. GREEN .. c.pvp_hk )
-	AltoTooltip:AddDoubleLine(WHITE.. L["Honor points: "] .. GREEN .. c.pvp_HonorPoints, "DK: " .. GREEN .. c.pvp_dk )
+	AltoTooltip:AddDoubleLine(WHITE.. L["Arena points: "] .. GREEN .. arena, "HK: " .. GREEN .. hk )
+	AltoTooltip:AddDoubleLine(WHITE.. L["Honor points: "] .. GREEN .. honor, "DK: " .. GREEN .. dk )
 	AltoTooltip:AddLine(" ",1,1,1);
 	AltoTooltip:AddLine(GREEN .. L["Right-Click for options"]);
 	AltoTooltip:Show();
@@ -294,12 +307,7 @@ function Altoholic.Summary:Level_OnClick(frame, button)
 		local tc = Altoholic.Tabs.Characters
 		local charName, realm, account = Altoholic.Characters:GetInfo(line)
 		Altoholic:SetCurrentCharacter(charName, realm, account)
-	
-		tc:DropDownRealm_Initialize()
-		UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, account .."|".. realm)
-		
-		tc:DropDownChar_Initialize()
-		UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, charName)
+		Altoholic.Tabs.Characters:SetCurrent(charName, realm, account)
 		
 		Altoholic.Reputations:BuildView()
 		Altoholic.Tabs:OnClick(2)
@@ -317,12 +325,13 @@ function Altoholic.Summary:AIL_OnEnter(self)
 		return
 	end
 		
-	local c = Altoholic:GetCharacterTableByLine(line)
+	local DS = DataStore
+	local character = DS:GetCharacter(Altoholic.Characters:GetInfo(line))
 	
 	AltoTooltip:ClearLines();
 	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
-	AltoTooltip:AddLine(Altoholic:GetClassColor(c.englishClass) .. s.name,1,1,1);
-	AltoTooltip:AddLine(WHITE .. L["Average Item Level"] ..": " .. GREEN.. format("%.1f", c.averageItemLvl),1,1,1);
+	AltoTooltip:AddLine(DS:GetColoredCharacterName(character),1,1,1);
+	AltoTooltip:AddLine(WHITE .. L["Average Item Level"] ..": " .. GREEN.. format("%.1f", DS:GetAverageItemLevel(character)),1,1,1);
 
 	Altoholic:AiLTooltip()
 	AltoTooltip:Show();
@@ -348,7 +357,11 @@ function Altoholic:AiLTooltip()
 	AltoTooltip:AddLine(TEAL .. L["Level"] .. " 80",1,1,1);
 	AltoTooltip:AddDoubleLine(YELLOW .. "200", WHITE .. BZ["Naxxramas"] .. " (10)")
 	AltoTooltip:AddDoubleLine(YELLOW .. "213", WHITE .. BZ["Naxxramas"] .. " (25)")
+	AltoTooltip:AddDoubleLine(YELLOW .. "200-219", WHITE .. BZ["Trial of the Champion"])
 	AltoTooltip:AddDoubleLine(YELLOW .. "219", WHITE .. BZ["Ulduar"] .. " (10)")
+	AltoTooltip:AddDoubleLine(YELLOW .. "226-239", WHITE .. BZ["Ulduar"] .. " (25)")
+	AltoTooltip:AddDoubleLine(YELLOW .. "232-258", WHITE .. BZ["Trial of the Crusader"] .. " (10)")
+	AltoTooltip:AddDoubleLine(YELLOW .. "245-272", WHITE .. BZ["Trial of the Crusader"] .. " (25)")
 end
 
 function Altoholic.Summary:RightClickMenu_OnLoad()
@@ -361,11 +374,10 @@ function Altoholic.Summary:RightClickMenu_OnLoad()
 	local info = UIDropDownMenu_CreateInfo(); 
 
 	if mod(s.linetype, 3) == INFO_REALM_LINE then
+		local _, updatedWith = Altoholic:GetLastAccountSharingInfo(s.realm, s.account)
 		
-		local r = Altoholic:GetRealmTable(s.realm, s.account)
-
-		if r and r.lastUpdatedWith then
-			info.text		= format("Update from %s", GREEN..r.lastUpdatedWith)
+		if updatedWith then
+			info.text		= format("Update from %s", GREEN..updatedWith)
 			info.func		= self.UpdateRealm
 			UIDropDownMenu_AddButton(info, 1);
 		end
@@ -414,6 +426,14 @@ function Altoholic.Summary:RightClickMenu_OnLoad()
 	info.text		= L["Delete this Alt"]
 	info.func		= self.DeleteAlt;
 	UIDropDownMenu_AddButton(info, 1); 
+	
+	-- Close menu item
+	info.text = CLOSE
+	info.func = function() CloseDropDownMenus() end
+	info.checked = nil
+	info.icon = nil
+	info.notCheckable = 1
+	UIDropDownMenu_AddButton(info, 1)
 end
 
 function Altoholic.Summary:ViewAltInfo()
@@ -423,12 +443,8 @@ function Altoholic.Summary:ViewAltInfo()
 
 	local charName, realm, account = Altoholic.Characters:GetInfo(line)
 	Altoholic:SetCurrentCharacter(charName, realm, account)
-
-	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, account .."|".. realm)
-	UIDropDownMenu_SetText(AltoholicTabCharacters_SelectRealm, realm)
-	Altoholic.Tabs.Characters:DropDownChar_Initialize()
-	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, charName)
-
+	Altoholic.Tabs.Characters:SetCurrent(charName, realm, account)
+	
 	Altoholic.Tabs:OnClick(2)
 	Altoholic.Tabs.Characters:ViewCharInfo(this.value)
 end
@@ -456,39 +472,9 @@ function Altoholic.Summary:DeleteAltButtonHandler(button)
 	self.CharInfoLine = nil
 	if not button then return end
 	
-	local s = Altoholic.Characters:Get(line) -- no validity check, this comes from the dropdownmenu, it's been secured earlier
-	local AltName = s.name
-	local _, realm, account = Altoholic.Characters:GetInfo(line)
-	local r = Altoholic:GetRealmTableByLine(line)
+	local name, realm, account = Altoholic.Characters:GetInfo(line)
 	
-	-- delete factions
-	for RepName, RepTable in pairs(r.reputation) do
-		RepTable[s.name] = nil
-	end
-	
-	-- delete the character
-	wipe(r.char[s.name])							-- clear all content for this char ..
-	r.char[s.name] = nil							-- .. then the char entry itself
-	
-	local charCount = 0
-	for _, _ in pairs(r.char) do
-		charCount = charCount + 1
-	end
-	
-	if charCount == 0 then		-- if no more chars on this realm, the realm can be deleted ..
-		wipe(Altoholic.db.global.data[account][realm])
-		Altoholic.db.global.data[account][realm] = nil
-	end
-	
-	local realmCount = 0			
-	for _, _ in pairs(Altoholic.db.global.data[account]) do
-		realmCount = realmCount + 1
-	end
-
-	if realmCount == 0 then		-- if no more realms in this account, the account can be deleted ..
-		wipe(Altoholic.db.global.data[account])
-		Altoholic.db.global.data[account] = nil
-	end	
+	DataStore:DeleteCharacter(name, realm, account)
 	
 	-- rebuild the main character table, and all the menus
 	Altoholic.Characters:BuildList()
@@ -497,18 +483,19 @@ function Altoholic.Summary:DeleteAltButtonHandler(button)
 	AltoholicFrameAchievements:Hide()
 	Altoholic.Summary:Update()
 		
-	Altoholic:Print(format( L["Character %s successfully deleted"], AltName))
+	Altoholic:Print(format( L["Character %s successfully deleted"], name))
 end
 
 function Altoholic.Summary:UpdateRealm()
 	local self = Altoholic.Summary
 	local s = Altoholic.Characters:Get(self.CharInfoLine) -- no validity check, this comes from the dropdownmenu, it's been secured earlier
-	local r = Altoholic:GetRealmTable(s.realm, s.account)
 	
 	AltoAccountSharing_AccNameEditBox:SetText(s.account)
 	AltoAccountSharing_UseTarget:SetChecked(nil)
 	AltoAccountSharing_UseName:SetChecked(1)
-	AltoAccountSharing_AccTargetEditBox:SetText(r.lastUpdatedWith)
+	
+	local _, updatedWith = Altoholic:GetLastAccountSharingInfo(s.realm, s.account)
+	AltoAccountSharing_AccTargetEditBox:SetText(updatedWith)
 	
 	Altoholic.Tabs.Summary:AccountSharingButton_OnClick()
 end
@@ -538,8 +525,8 @@ function Altoholic.Summary:DeleteRealmButtonHandler(button)
 	local s = Altoholic.Characters:Get(line) -- no validity check, this comes from the dropdownmenu, it's been secured earlier
 	local realmName = s.realm
 	
-	wipe(Altoholic.db.global.data[s.account][s.realm])
-	Altoholic.db.global.data[s.account][s.realm] = nil
+	-- wipe(Altoholic.db.global.data[s.account][s.realm])
+	-- Altoholic.db.global.data[s.account][s.realm] = nil
 
 	-- if the realm being deleted was the current ..
 	if Altoholic:GetCurrentRealm() == s.realm and Altoholic:GetCurrentAccount() == s.account then
@@ -549,13 +536,7 @@ function Altoholic.Summary:DeleteRealmButtonHandler(button)
 		local player = UnitName("player")
 		local realm = GetRealmName()
 		Altoholic:SetCurrentCharacter(player, realm, THIS_ACCOUNT)
-		
-		tc:DropDownRealm_Initialize()
-		UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, THIS_ACCOUNT .."|".. realm)
-		
-		tc:DropDownChar_Initialize()
-		UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, player)
-		
+		Altoholic.Tabs.Characters:SetCurrent(player, realm, THIS_ACCOUNT)
 		Altoholic.Containers:UpdateCache()
 		tc:ViewCharInfo(VIEW_BAGS)
 	end

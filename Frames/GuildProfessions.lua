@@ -1,4 +1,3 @@
-local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 
 local WHITE		= "|cFFFFFFFF"
@@ -12,10 +11,13 @@ local ALT_LINE = 1
 
 Altoholic.Guild.Professions = {}
 
-local function SortByMemberInfo(a, b, fieldID, ascending)
+local function SortByLevel(a, b, ascending)
 	local m = Altoholic.Guild.Members
-	local levelA = select(fieldID, m:GetInfo(a))
-	local levelB = select(fieldID, m:GetInfo(b))
+	local levelA = m:GetInfo(a.name)
+	local levelB = m:GetInfo(b.name)
+	
+	levelA = tonumber(levelA) or 0
+	levelB = tonumber(levelB) or 0
 	
 	if ascending then
 		return levelA < levelB
@@ -24,16 +26,29 @@ local function SortByMemberInfo(a, b, fieldID, ascending)
 	end
 end
 
-local function SortBySkillLevel(a, b, field, ascending)
-	local guild = Altoholic:GetThisGuild()
-	local m = guild.members
-
-	local ts = Altoholic.TradeSkills
-	local _, levelA = ts:GetInfo(m[a][field])
-	local _, levelB = ts:GetInfo(m[b][field])
+local function SortByClass(a, b, ascending)
+	local m = Altoholic.Guild.Members
+	local _, _, classA = m:GetInfo(a.name)
+	local _, _, classB = m:GetInfo(b.name)
 	
-	levelA = tonumber(levelA) or 0
-	levelB = tonumber(levelB) or 0
+	classA = classA or ""
+	classB = classB or ""
+	
+	if ascending then
+		return classA < classB
+	else
+		return classA > classB
+	end
+end
+
+local function SortBySkillLevel(a, b, field, ascending)
+	local guild = Altoholic:GetGuild()
+	local m = Altoholic:GetGuildMembers(guild)
+	
+	local levelA = DataStore:GetProfessionInfo(m[a][field])
+	local levelB = DataStore:GetProfessionInfo(m[b][field])
+	levelA = levelA or 0
+	levelB = levelB or 0
 	
 	if ascending then
 		return levelA < levelB
@@ -78,7 +93,7 @@ function Altoholic.Guild.Professions:BuildView()
 		end
 	end
 	
-	local guild = Altoholic:GetThisGuild()
+	local guild = Altoholic:GetGuild()
 	if not guild then return end
 	
 	-- add a line for the "offline members" category header
@@ -90,7 +105,7 @@ function Altoholic.Guild.Professions:BuildView()
 	
 	local offlineMembers = {}
 	
-	for k, v in pairs(guild.members) do
+	for k, v in pairs(Altoholic:GetGuildMembers(guild)) do
 		local level = Altoholic.Guild.Members:GetInfo(k)
 		if not level then	-- no level found = no longer in the guild, remove it
 			v = nil
@@ -108,9 +123,9 @@ function Altoholic.Guild.Professions:BuildView()
 		local ascending = Altoholic.Tabs.Summary.GuildProfessionsSortOrder
 	
 		if field == "level" then
-			table.sort(offlineMembers, function(a, b) return SortByMemberInfo(a, b, 1, ascending) end)
+			table.sort(offlineMembers, function(a, b) return SortByLevel(a, b, ascending) end)
 		elseif field == "englishClass" then
-			table.sort(offlineMembers, function(a, b) return SortByMemberInfo(a, b, 3, ascending) end)
+			table.sort(offlineMembers, function(a, b) return SortByClass(a, b, ascending) end)
 		elseif field == "prof1link" or field == "prof2link" or field == "cookinglink"  then
 			table.sort(offlineMembers, function(a, b) return SortBySkillLevel(a, b, field, ascending) end)
 		else
@@ -148,10 +163,10 @@ function Altoholic.Guild.Professions:Update()
 		end
 		frame:Show()
 		
-		local ts = Altoholic.TradeSkills
-		local spellID, curRank, maxRank = ts:GetInfo(link)
+		local curRank, maxRank, spellID = DataStore:GetProfessionInfo(link)
 		
 		if spellID then		-- recent version, spell ID available, draw icon + level
+			local ts = Altoholic.TradeSkills
 			local icon = Altoholic:TextureToFontstring(Altoholic:GetSpellIcon(tonumber(spellID)), 18, 18) .. " "
 			frame:SetText(icon .. ts:GetColor(curRank) .. curRank .. "/" .. maxRank)
 		else	-- older version, spell id missing, draw the link, not the level
@@ -165,7 +180,8 @@ function Altoholic.Guild.Professions:Update()
 	local DrawAlts
 	local i=1
 	
-	local guild = Altoholic:GetThisGuild()
+	local guild = Altoholic:GetGuild()
+	local members = Altoholic:GetGuildMembers(guild)
 	
 	for line, v in pairs(self.view) do
 		local c = Altoholic.Guild.Members.List[v.parentID]
@@ -234,7 +250,7 @@ function Altoholic.Guild.Professions:Update()
 					_G[entry..i.."Level"]:SetText(GREEN .. char.level)
 					_G[entry..i.."Class"]:SetText(format("%s%s", Altoholic:GetClassColor(char.englishClass), char.class))
 				else
-					char = guild.members[v.parentID]		-- replace "char" reference to use data of an offline player
+					char = members[v.parentID]		-- replace "char" reference to use data of an offline player
 					_G[entry..i.."NameNormalText"]:SetText(GRAY..v.parentID)
 					
 					local level, class, englishClass = Altoholic.Guild.Members:GetInfo(v.parentID)
@@ -282,8 +298,9 @@ function Altoholic.Guild.Professions:OnEnter(self)
 		char = c.skills[player.skillIndex]
 		name = char.name
 	else
-		local guild = Altoholic:GetThisGuild()
-		char = guild.members[player.parentID]
+		local guild = Altoholic:GetGuild()
+		local members = Altoholic:GetGuildMembers(guild)
+		char = members[player.parentID]
 		name = player.parentID
 	end
 	
@@ -299,9 +316,9 @@ function Altoholic.Guild.Professions:OnEnter(self)
 	end
 	
 	if not link then return end
+
+	local curRank, maxRank, spellID = DataStore:GetProfessionInfo(link)
 	
-	local ts = Altoholic.TradeSkills
-	local spellID, curRank, maxRank = ts:GetInfo(link)
 	if not spellID then return end
 	
 	AltoTooltip:ClearLines();
@@ -313,6 +330,7 @@ function Altoholic.Guild.Professions:OnEnter(self)
 	local skillName = GetSpellInfo(spellID)
 	AltoTooltip:AddLine(skillName,1,1,1);
 	
+	local ts = Altoholic.TradeSkills
 	AltoTooltip:AddLine(ts:GetColor(curRank) .. curRank .. "/" .. maxRank,1,1,1);
 	AltoTooltip:AddLine(" ",1,1,1);
 	AltoTooltip:AddLine(GREEN..L["Left click to view"],1,1,1);
@@ -334,8 +352,9 @@ function Altoholic.Guild.Professions:OnClick(self, button)
 		local c = Altoholic.Guild.Members.List[player.parentID]
 		char = c.skills[player.skillIndex]
 	else
-		local guild = Altoholic:GetThisGuild()
-		char = guild.members[player.parentID]
+		local guild = Altoholic:GetGuild()
+		local members = Altoholic:GetGuildMembers(guild)
+		char = members[player.parentID]
 	end
 	
 	local link

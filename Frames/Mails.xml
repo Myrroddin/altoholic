@@ -56,56 +56,13 @@
 				</Anchors>
 				<Scripts>
 					<OnEnter>
-						local c = Altoholic:GetCharacterTable()
-						local m = Altoholic.Mail.view[self:GetID()]
-						
-						local s
-						if m.linetype == 1 then
-							s = c.mail[m.parentID]
-						else
-							s = c.mailCache[m.parentID]
-						end
-						
-						if s.link ~= nil then
-							GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
-							GameTooltip:SetHyperlink(s.link);
-							GameTooltip:Show();
-						else
-							GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
-							GameTooltip:ClearLines();
-							if s.subject then 
-								GameTooltip:AddLine("|cFFFFFFFF" .. s.subject,1,1,1);
-							end
-							if s.text then 
-								GameTooltip:AddLine("|cFFFFD700" .. s.text, 1, 1, 1, 1, 1);
-							end
-							if s.money > 0 then
-								GameTooltip:AddLine("|rAttached Money: " .. Altoholic:GetMoneyString(s.money),1,1,1);
-							end
-							GameTooltip:Show();
-						end
+						Altoholic.Mail:OnEnter(self)
 					</OnEnter>
 					<OnLeave>
 						GameTooltip:Hide();
 					</OnLeave>
 					<OnClick>
-						local c = Altoholic:GetCharacterTable()
-						local m = Altoholic.Mail.view[self:GetID()]
-						
-						local s
-						if m.linetype == 1 then
-							s = c.mail[m.parentID]
-						else
-							s = c.mailCache[m.parentID]
-						end
-
-						if s.link ~= nil then
-							if ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
-								if ( ChatFrameEditBox:IsShown() ) then
-									ChatFrameEditBox:Insert(s.link);
-								end
-							end
-						end
+						Altoholic.Mail:OnClick(self, button)
 					</OnClick>
 				</Scripts>
 			</Button>

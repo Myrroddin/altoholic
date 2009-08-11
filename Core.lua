@@ -36,307 +36,111 @@ local options = {
 		},
 	},
 }
-
---[[	*** Note on reputation ***
-the "reputation" table is kept out of the "char" table for practical reasons, as the table will be populated with so many different entries for each alt,
-it was much easier to organize things this way to ensure a more efficient parsing when data will be displayed, this also prevents from creating
-a large temporary table that would have to be garbage collected later on. Character names will be duplicated in each sub-table, 
-but this is a little trade-off I accept.
---]]
  
-local AltoholicDB_Defaults = { global = {		-- global written here to keep the same identation as in the Ace2 version
-	options = {
-		-- ** Misc options **
-		TabSummaryMode = 2,
-		lastContainerView = 1,			-- default container view = bags+bank
-		
-		-- ** General options **
-		RestXPMode = 0, 					-- display max rest xp in normal 100% mode or in level equivalent 150% mode (1) ?
-		FuBarIconShown = 1,
-		FuBarTextShown = 1,
-		AccSharingHandlerEnabled = 0,	-- account sharing communication handler is disabled by default
-		GuildBankAutoUpdate = 0,		-- can the guild bank tabs update requests be answered automatically or not.
-		GuildHandlerEnabled = 1,		-- guild communication handler is enabled by default
-		UIScale = 1.0,
-		UITransparency = 1.0,
-		
-		-- ** Search options **
-		TotalLoots = 0,					-- make at least one search in the loot tables to initialize these values
-		UnknownLoots = 0,
-		SearchAutoQuery = 0,
-		SortDescending = 0, 				-- display search results in the loot table in ascending (0) or descending (1) order ?
-		IncludeNoMinLevel = 1,
-		IncludeMailbox = 1,
-		IncludeGuildBank = 1,
-		IncludeRecipes = 1,
-		IncludeGuildSkills = 1,			-- search other guild members' professions ? (via their profession links)
-
-		-- ** Mail options **
-		MailWarningThreshold = 5,
-		CheckMailExpiry = 1,				-- check mail expiry or not
-		ScanMailBody = 1,					-- by default, scan the body of a mail (this action marks it as read)
-		GuildMailWarning = 1,			-- be informed when a guildie sends a mail to one of my alts
-		
-		-- ** Minimap options **
-		MinimapIconAngle = 180,
-		MinimapIconRadius = 78,
-		ShowMinimap = 1,
-		
-		-- ** Tooltip options **
-		TooltipSource = 1,
-		TooltipCount = 1,
-		TooltipTotal = 1,
-		TooltipRecipeInfo = 1,
-		TooltipItemID = 0,				-- display item id & item level in the tooltip (default: off)
-		TooltipGatheringNode = 1,		-- display counters when mousing over a gathering node (default:  on)
-		TooltipCrossFaction = 1,		-- display counters for both factions on a pve server
-		TooltipMultiAccount = 1,		-- display counters for all accounts on the same realm
-		
-		TooltipGuildBank = 1,
-		TooltipGuildBankCount = 1,		-- total count = alts + guildbank (1) or alts only (0)
-		
-		-- ** Calendar options **
-		WeekStartsMonday = 0,
-		Warning15Min = 1,
-		Warning10Min = 1,
-		Warning5Min = 1,
-		Warning4Min = 1,
-		Warning3Min = 1,
-		Warning2Min = 1,
-		Warning1Min = 1,
-		WarningDialogBox = 0,			-- use a dialog box for warnings (1), or default chat frame (0)
-		DisableWarnings = 0,
-	},
-	reference = {
-		['*'] = {							-- "englishClass" like "MAGE", "DRUID" etc..
-			talentInfo = {
-				['*'] = {					-- numeric index: [1] = first talent tree, [2] = second ...
-					name = nil,
-					icon = nil,
-					background = nil,
-					list = { ['*'] = nil },		-- name, icon, max rank etc..for talent x in this tree
-					prereqs = { ['*'] = nil }	-- prerequisites
+local AltoholicDB_Defaults = {
+	global = {
+		Guilds = {
+			['*'] = {			-- ["Account.Realm.Name"] 
+				hideInTooltip = nil,		-- true if this guild should not be shown in the tooltip counters
+				bankmoney = 0,
+				faction = nil,
+				members = {
+					['*'] = {		-- player name
+						prof1link = nil,
+						prof2link = nil,
+						cookinglink = nil,
+					}
 				},
 			},
 		},
-	},
-	data = {
-		['*'] = {							-- Account: "Default" or user defined for other accounts
-			['*'] = {						-- Realm
-				reputation = {
-					['*'] = {				-- "Ironforge"
-						['*'] = nil
-					}
+		Characters = {
+			['*'] = {					-- ["Account.Realm.Name"] 
+				Friends = {},
+				SavedInstance = {},	-- raid timers
+				Calendar = {},
+				Timers = {},			-- goes in pair with Calendar, different table to prevent messing with Calendar, SavedInstance and ProfessionCooldowns, used for eggs among others
+				ConnectMMO = {},		-- Imported events come here
+			},
+		},
+		Sharing = {
+			Clients = {},
+			SharedContent = {			-- lists the shared content
+				--	["Account.Realm.Name"]  = true means the char is shared,
+				--	["Account.Realm.Name.Module"]  = true means the module is shared for that char
+			},
+			Domains = {
+				['*'] = {			-- ["Account.Realm"] 
+					lastSharingTimestamp = nil,	-- a date, the last time information from this realm/account was queried and successfully saved.
+					lastUpdatedWith = nil,		-- last player with whom the account sharing took place
 				},
-				tokens = {
-					['*'] = {				-- "Honor Currency"
-						['*'] = nil
-					}
-				},
-				guild = {
-					['*'] = {				-- guild["MyUberGuild"]
-						hideInTooltip = nil,		-- true if this guild should not be shown in the tooltip counters
-						bankmoney = 0,
-						faction = nil,
-						bank = {
-							['*'] = {		-- tabID = table index [1] to [6]
---								tabID = nil,
-								name = nil,
-								visitedBy = "",
-								ClientTime = 0,				-- since epoch
-								ClientDate = nil,
-								ClientHour = nil,
-								ClientMinute = nil,
-								ServerHour = nil,
-								ServerMinute = nil,
-								ids = { ['*'] = nil },
-								links = { ['*'] = nil },
-								counts = { ['*'] = nil }
-							}
-						},
-						members = {
-							['*'] = {		-- player name
-								prof1link = nil,
-								prof2link = nil,
-								cookinglink = nil,
-							}
-						},
-					}
-				},
-				unsafeItems = {},
-				lastAccountSharing = nil,	-- a date, the last time information from this realm/account was queried and successfully saved.
-				lastUpdatedWith = nil,		-- last player with whom the account sharing took place
-				char = {
-					['*'] = {					-- Character Name
-						level = 0,
-						race = "",
-						class = "",
-						englishClass = "",	-- "WARRIOR", "DRUID" .. english & caps, regardless of locale
-						faction = "",
-						gender = nil,			-- UnitSex
-						talent = "",
-						tree1 = { ['*'] = 0 },	-- points spent in this talent tree
-						tree2 = { ['*'] = 0 },
-						tree3 = { ['*'] = 0 },
-						tree4 = { ['*'] = 0 },
-						tree5 = { ['*'] = 0 },
-						tree6 = { ['*'] = 0 },
-						activeTalents = nil,
-						guildName = nil,		-- nil = not in a guild, as returned by GetGuildInfo("player")
-						guildRankName = nil,
-						guildRankIndex = nil,
- 						numBagSlots = 0,
-						numFreeBagSlots = 0,
-						numBankSlots = 0,
-						numFreeBankSlots = 0,
-						zone = "",				-- in which zone the player went offline
-						subzone = "",			-- in which subzone .. 
-						xp = 0,					-- current level xp
-						xpmax = 0,				-- max xp at current level 
-						restxp = 0,
-						isResting = nil,		-- nil = out of an inn
-						money = 0,
-						played = 0,				-- 57396 seconds = 0 days 15 hours 56 minutes 36 seconds
-						lastlogout = 0,
-						pvp_hk = 0,				-- pvp honorable kills
-						pvp_dk = 0,				-- pvp dishonorable kills
-						pvp_ArenaPoints = 0,
-						pvp_HonorPoints = 0,
-						coldWeatherFlying = nil,	-- can fly in northrend or not
-						glyphInfo = nil,		-- "enabled : glyphType : spellID : icon | ... "
-						skill = {
-							['*'] = {			-- "Professions"
-								['*'] = nil
-							}
-						},
-						averageItemLvl = 0,
-						inventory = {},		-- 19 inventory slots, a simple table containing item id's
-						SavedInstance = {},	-- raid timers
-						ProfessionCooldowns = {},
-						Spells = {},
-						Friends = {},
-						Stats = {},
-						Calendar = {},
-						Timers = {},			-- goes in pair with Calendar, different table to prevent messing with Calendar, SavedInstance and ProfessionCooldowns, used for eggs among others
-						ConnectMMO = {},		-- Imported events come here
-						questlog = {
-							['*'] = {
-								name = nil,		-- name: name of the header (usually the location)
-								link = nil,		-- the quest link
-								isHeader = nil,
-								isCollapsed = false,
-								tag = nil,			-- quest tag=  "Elite", "Dungeon", "PVP", "Raid", "Group", "Heroic" or nil
-								groupsize = nil,
-								money = nil,
-								rewards = nil,
-								isComplete = nil
-							}
-						},
-						recipes = {
-							['*'] = {
-								FullLink = nil,		-- Tradeskill link
-								ScanFailed = true,	-- by default, consider that scanning this profession was not valid
-								GreenCount = 0,		-- number of recipes which are still green..
-								YellowCount = 0,		-- ..yellow..
-								OrangeCount = 0,		-- .. or orange
-								TotalCount = 0,		-- total number of recipes for this tradeskill.
-								list = {
-									['*'] = nil
-								}
-							}
-						},
-						lastAHcheck = 0,		-- last time the AH was checked for this char
-						AHCheckClientDate = nil,
-						AHCheckClientHour = nil,
-						AHCheckClientMinute = nil,
-						auctions = {
-							['*'] = {
-								id = nil,
-								count = nil,
-								AHLocation = nil,		-- nil = faction AH, 1 = goblin AH
-								highBidder = nil,
-								startPrice = nil,
-								buyoutPrice = nil,
-								timeLeft = nil
-							}
-						},
-						bids = {
-							['*'] = {
-								id = nil,
-								count = nil,
-								AHLocation = nil,		-- nil = faction AH, 1 = goblin AH
-								owner = nil,
-								bidPrice = nil,
-								buyoutPrice = nil,
-								timeLeft = nil
-							}
-						},
-						pets = {
-							['*'] = {			-- "critter" or "mount"
-								['*'] = nil
-							}
-						},
-						TotalAchievements = 0,
-						CompletedAchievements = 0,
-						TotalAchievementPoints = 0,
-						achievements = {},
-						
-						lastmailcheck = 0,	-- last time the mail was checked for this char
-						MailCheckClientDate = nil,
-						MailCheckClientHour = nil,
-						MailCheckClientMinute = nil,
-						mail = {
-							['*'] = {
-								icon = nil,
-								link = nil,
-								count = nil,
-								money = 0,
-								lastcheck = 0,		-- last time "THIS" mail was checked (can be different than that of the mailbox)
-								text = "",
-								subject = "",
-								sender = "",
-								daysleft = 0,
-								realm = ""
-							}
-						},
-						mailCache = {				-- same structure as "mail", but serves as a cache for mails sent by a guildmate, until the mail actually arrives in the real mailbox (1h delay)
-							['*'] = {
-								icon = nil,
-								link = nil,
-								count = nil,
-								money = 0,
-								lastcheck = 0,		-- last time "THIS" mail was checked (can be different than that of the mailbox)
-								text = "",
-								subject = "",
-								sender = "",
-								daysleft = 0,
-								realm = ""
-							}
-						},
-						bag = {
-							['*'] = {					-- bag["Bag0"]
-								icon = nil,				-- bag's texture
-								link = nil,				-- bag's itemlink
-								size = 0,
-								freeslots = 0,
-								bagtype = 0,
-								ids = { ['*'] = nil },
-								links = { ['*'] = nil },
-								counts = { ['*'] = nil },
-								cooldowns = { ['*'] = nil }
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+			},
+		},
+		unsafeItems = {},
+		options = {
+			-- ** Misc options **
+			TabSummaryMode = 2,
+			lastContainerView = 1,			-- default container view = bags+bank
+			
+			-- ** General options **
+			RestXPMode = 0, 					-- display max rest xp in normal 100% mode or in level equivalent 150% mode (1) ?
+			AccSharingHandlerEnabled = 0,	-- account sharing communication handler is disabled by default
+			GuildBankAutoUpdate = 0,		-- can the guild bank tabs update requests be answered automatically or not.
+			GuildHandlerEnabled = 1,		-- guild communication handler is enabled by default
+			UIScale = 1.0,
+			UITransparency = 1.0,
+			
+			-- ** Search options **
+			TotalLoots = 0,					-- make at least one search in the loot tables to initialize these values
+			UnknownLoots = 0,
+			SearchAutoQuery = 0,
+			SortDescending = 0, 				-- display search results in the loot table in ascending (0) or descending (1) order ?
+			IncludeNoMinLevel = 1,
+			IncludeMailbox = 1,
+			IncludeGuildBank = 1,
+			IncludeRecipes = 1,
+			IncludeGuildSkills = 1,			-- search other guild members' professions ? (via their profession links)
+
+			-- ** Mail options **
+			MailWarningThreshold = 5,
+			CheckMailExpiry = 1,				-- check mail expiry or not
+			GuildMailWarning = 1,			-- be informed when a guildie sends a mail to one of my alts
+			
+			-- ** Minimap options **
+			MinimapIconAngle = 180,
+			MinimapIconRadius = 78,
+			ShowMinimap = 1,
+			
+			-- ** Tooltip options **
+			TooltipSource = 1,
+			TooltipCount = 1,
+			TooltipTotal = 1,
+			TooltipRecipeInfo = 1,
+			TooltipItemID = 0,				-- display item id & item level in the tooltip (default: off)
+			TooltipGatheringNode = 1,		-- display counters when mousing over a gathering node (default:  on)
+			TooltipCrossFaction = 1,		-- display counters for both factions on a pve server
+			TooltipMultiAccount = 1,		-- display counters for all accounts on the same realm
+			
+			TooltipGuildBank = 1,
+			TooltipGuildBankCount = 1,		-- total count = alts + guildbank (1) or alts only (0)
+			
+			-- ** Calendar options **
+			WeekStartsMonday = 0,
+			Warning15Min = 1,
+			Warning10Min = 1,
+			Warning5Min = 1,
+			Warning4Min = 1,
+			Warning3Min = 1,
+			Warning2Min = 1,
+			Warning1Min = 1,
+			WarningDialogBox = 0,			-- use a dialog box for warnings (1), or default chat frame (0)
+			DisableWarnings = 0,
+		},
 }}
 
 -- ** LDB Launcher **
 LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("Altoholic", {
 	type = "launcher",
-	icon = "Interface\\Icons\\INV_Drink_05",
+	icon = "Interface\\Icons\\INV_Drink_13",
 	OnClick = function(clickedframe, button)
 		Altoholic:ToggleUI()
 	end,
@@ -348,36 +152,9 @@ local GREEN		= "|cFF00FF00"
 function Altoholic:OnInitialize()
 	Altoholic.db = LibStub("AceDB-3.0"):New("AltoholicDB", AltoholicDB_Defaults)
 	LibStub("AceConfig-3.0"):RegisterOptionsTable("Altoholic", options)
---	self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Altoholic", "Altoholic")
+
 	self:RegisterChatCommand("Altoholic", "ChatCommand")
 	self:RegisterChatCommand("Alto", "ChatCommand")
-	
-	Altoholic.title = "Altoholic"	-- this is for fubar
-	-- borrowed from Omen
-	if LibStub:GetLibrary("LibFuBarPlugin-3.0", true) and not IsAddOnLoaded("FuBar2Broker") then
-		local LFBP = LibStub:GetLibrary("LibFuBarPlugin-3.0")
-		LibStub("AceAddon-3.0"):EmbedLibrary(self, "LibFuBarPlugin-3.0")
-	
-		-- Create the FuBarPlugin bits.
-		self:SetFuBarOption("tooltipType", "GameTooltip")
-		self:SetFuBarOption("hasNoColor", true)
-		self:SetFuBarOption("cannotDetachTooltip", true)
-		self:SetFuBarOption("hideWithoutStandby", true)
-		self:SetFuBarOption("iconPath", [[Interface\Icons\INV_Drink_05]])
-		self:SetFuBarOption("hasIcon", true)
-		self:SetFuBarOption("defaultPosition", "RIGHT")
-		self:SetFuBarOption("tooltipHiddenWhenEmpty", true)
-		self:SetFuBarOption("configType", "None")		
-		
-		LFBP:OnEmbedInitialize(self)
-		function Altoholic:OnUpdateFuBarTooltip()
-			GameTooltip:AddLine(WHITE .. L["Left-click to"] .. " " .. GREEN ..L["open/close"] )
-		end
-		
-		function Altoholic:OnFuBarClick(button)
-			Altoholic:ToggleUI();
-		end
-	end
 	
 	Altoholic:RegisterComm("AltoShare", "AccSharingHandler")
 	Altoholic:RegisterComm("AltoGuild", "GuildCommHandler")
@@ -475,7 +252,9 @@ function Altoholic.Tabs.Columns:Add(title, width, func)
 				arrow:SetTexCoord(0, 0.5625, 0, 1.0);		-- arrow pointing down
 			end
 	
-			func(self)
+			if func then
+				func(self)
+			end
 		end)
 	button:Show()
 end

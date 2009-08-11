@@ -1,4 +1,5 @@
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+local DS
 
 local GREEN		= "|cFF00FF00"
 
@@ -21,6 +22,8 @@ local ContainerViewLabels = {
 }
 
 function Altoholic.Containers:Init()
+	DS = DataStore
+	
 	local mode = Altoholic.Options:Get("lastContainerView")
 	mode = mode or 1
 	
@@ -34,7 +37,7 @@ function Altoholic.Containers:Init()
 	UIDropDownMenu_SetText(f, L["Any"])
 	UIDropDownMenu_Initialize(f, self.DropDownRarity_Initialize)
 	
-	self:SetView(mode)
+--	self:SetView(mode)
 end
 
 function Altoholic.Containers:DropDownContainerView_Initialize() 
@@ -100,13 +103,11 @@ end
 
 function Altoholic.Containers:UpdateCache()
 	local mode = UIDropDownMenu_GetSelectedValue(AltoholicFrameContainers_SelectContainerView)
-	local c = Altoholic:GetCharacterTable()
+	local character = Altoholic.Tabs.Characters:GetCurrent()
 	
 	self.BagIndices = self.BagIndices or {}
 
-	if #self.BagIndices > 0 then
-		wipe(self.BagIndices)
-	end
+	wipe(self.BagIndices)
 	
 	local bagMin = 0
 	local bagMax = 11
@@ -120,8 +121,9 @@ function Altoholic.Containers:UpdateCache()
 	end
 	
 	for bagID = bagMin, bagMax do
-		if c.bag["Bag"..bagID] ~= nil then 
-			self:UpdateBagIndices(bagID, c.bag["Bag"..bagID].size)
+		if DS:GetContainer(character, bagID) then
+			local _, _, size = DS:GetContainerInfo(character, bagID)
+			self:UpdateBagIndices(bagID, size)
 		end
 	end
 	
@@ -130,7 +132,7 @@ function Altoholic.Containers:UpdateCache()
 	end
 	
 	if mode ~= BAGSONLY then
-		if c.bag["Bag100"] ~= nil then 	-- if bank hasn't been visited yet, exit
+		if DS:GetContainer(character, 100) then 	-- if bank hasn't been visited yet, exit
 			self:UpdateBagIndices(100, 28)
 		end
 	end
@@ -171,7 +173,8 @@ function Altoholic.Containers:UpdateSpread()
 
 	AltoholicTabCharactersStatus:SetText("")
 	
-	local c = Altoholic:GetCharacterTable()
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+	
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
 	
 	for i=1, VisibleLines do
@@ -179,18 +182,21 @@ function Altoholic.Containers:UpdateSpread()
 		
 		if line <= #self.BagIndices then
 		
-			local b = c.bag["Bag" .. self.BagIndices[line].bagID]
+			local containerID = self.BagIndices[line].bagID
+			local container = DS:GetContainer(character, containerID)
+			local containerIcon, _, containerSize = DS:GetContainerInfo(character, containerID)
 			
 			local itemName = entry..i .. "Item1";
+			
 			if self.BagIndices[line].from == 1 then		-- if this is the first line for this bag .. draw bag icon
 				local itemButton = _G[itemName];	
-				if b.icon ~= nil then
-					Altoholic:SetItemButtonTexture(itemName, b.icon);
+				if containerIcon then
+					Altoholic:SetItemButtonTexture(itemName, containerIcon);
 				else		-- will be nill for bag 100
 					Altoholic:SetItemButtonTexture(itemName, "Interface\\Icons\\INV_Box_03");
 				end
-							
-				itemButton:SetID(self.BagIndices[line].bagID)
+
+				itemButton:SetID(containerID)
 
 				itemButton:SetScript("OnEnter", function(self)
 					local id = self:GetID()
@@ -206,9 +212,9 @@ function Altoholic.Containers:UpdateSpread()
 						GameTooltip:AddLine(L["Bank"],0.5,0.5,1);
 						GameTooltip:AddLine(L["28 Slot"],1,1,1);
 					else
-						local r = Altoholic:GetRealmTable()
-						local player = Altoholic:GetCurrentCharacter()
-						GameTooltip:SetHyperlink( r.char[player].bag["Bag" .. id].link );
+						local character = Altoholic.Tabs.Characters:GetCurrent()
+						local _, link = DS:GetContainerInfo(character, id)
+						GameTooltip:SetHyperlink(link);
 						if (id >= 5) and (id <= 11) then
 							GameTooltip:AddLine(L["Bank bag"],0,1,0);
 						end
@@ -235,14 +241,15 @@ function Altoholic.Containers:UpdateSpread()
 				itemButton.border:Hide()
 				itemTexture:SetDesaturated(0)
 				
-				local itemIndex = self.BagIndices[line].from - 3 + j
+				local slotID = self.BagIndices[line].from - 3 + j
+				local itemID, itemLink, itemCount = DS:GetSlotInfo(container, slotID)
 				
-				if (itemIndex <= b.size) then 
-					if b.ids[itemIndex] ~= nil then
-						Altoholic:SetItemButtonTexture(itemName, GetItemIcon(b.ids[itemIndex]));
+				if (slotID <= containerSize) then 
+					if itemID then
+						Altoholic:SetItemButtonTexture(itemName, GetItemIcon(itemID));
 						
 						if rarity ~= 0 then
-							local _, _, itemRarity = GetItemInfo(b.ids[itemIndex])
+							local _, _, itemRarity = GetItemInfo(itemID)
 							if itemRarity and itemRarity == rarity then
 								local r, g, b = GetItemQualityColor(itemRarity)
 								itemButton.border:SetVertexColor(r, g, b, 0.5)
@@ -255,47 +262,26 @@ function Altoholic.Containers:UpdateSpread()
 						Altoholic:SetItemButtonTexture(itemName, "Interface\\PaperDoll\\UI-Backpack-EmptySlot");
 					end
 				
-					itemButton.id = b.ids[itemIndex]
-					itemButton.link = b.links[itemIndex]
+					itemButton.id = itemID
+					itemButton.link = itemLink
 					itemButton:SetScript("OnEnter", function(self) 
 							Altoholic:Item_OnEnter(self)
 						end)
 					
-					local itemCount = _G[itemName .. "Count"]
-					if (b.counts[itemIndex] == nil) or (b.counts[itemIndex] < 2)then
-						itemCount:Hide();
+					local countWidget = _G[itemName .. "Count"]
+					if not itemCount or (itemCount < 2) then
+						countWidget:Hide();
 					else
-						itemCount:SetText(b.counts[itemIndex]);
-						itemCount:Show();
+						countWidget:SetText(itemCount);
+						countWidget:Show();
 					end
 					
-					local itemCooldown = _G[itemName .. "Cooldown"]
-					local startTime = 0
-					local duration = 0
-					local	isEnabled = 0
+					local startTime, duration, isEnabled = DS:GetContainerCooldownInfo(container, slotID)
 					
-					if b.cooldowns[itemIndex] then
-						startTime, duration, isEnabled = strsplit("|", b.cooldowns[itemIndex])
-						startTime = tonumber(startTime)
-						duration = tonumber(duration)
-						isEnabled = tonumber(isEnabled)
-						
-						local remaining = duration - (GetTime() - startTime)
-						if remaining <= 0 then
-							b.cooldowns[itemIndex] = nil
-							startTime = 0
-							duration = 0
-							isEnabled = 0
-						else
-							itemButton.startTime = startTime
-							itemButton.duration = duration
-						end
-					else
-						itemButton.startTime = nil
-						itemButton.duration = nil
-					end
+					itemButton.startTime = startTime
+					itemButton.duration = duration
 					
-					CooldownFrame_SetTimer(itemCooldown, startTime, duration, isEnabled)
+					CooldownFrame_SetTimer(_G[itemName .. "Cooldown"], startTime or 0, duration or 0, isEnabled)
 				
 					itemButton:Show()
 				else
@@ -329,7 +315,8 @@ function Altoholic.Containers:UpdateAllInOne()
 	
 	AltoholicTabCharactersStatus:SetText("")
 	
-	local c = Altoholic:GetCharacterTable()
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
 	
 	local minSlotIndex = offset * 14
@@ -337,25 +324,29 @@ function Altoholic.Containers:UpdateAllInOne()
 	local i = 1
 	local j = 1
 	
-	for BagName, b in pairs (c.bag) do
-		local HideThisBag
-		
-		-- bags : -2 (keyring) and 0 to 4
-		-- bank: 5 to 11 and 100
-		if mode == BAGSONLY_ALLINONE then
-			local bagNum = tonumber(string.sub(BagName, 4))
-			if bagNum > 4 then
-				HideThisBag = true
-			end
-		elseif mode == BANKONLY_ALLINONE then
-			local bagNum = tonumber(string.sub(BagName, 4))
-			if bagNum < 5 then
-				HideThisBag = true
-			end
+	local containerList = {}
+	
+	if mode ~= BANKONLY_ALLINONE then		-- if it's not a bank only view, add the normal bags
+		table.insert(containerList, -2)
+		for i = 0, 4 do
+			table.insert(containerList, i)
 		end
-		
-		if not HideThisBag then
-			for k, itemID in pairs (b.ids) do
+	end
+	
+	if mode ~= BAGSONLY_ALLINONE then		-- if it's not a bag only view, add bank bags
+		for i = 5, 11 do
+			table.insert(containerList, i)
+		end
+		table.insert(containerList, 100)
+	end
+	
+	for _, containerID in pairs(containerList) do
+		local container = DS:GetContainer(character, containerID)
+		local _, _, containerSize = DS:GetContainerInfo(character, containerID)
+
+		for slotID = 1, containerSize do
+			local itemID, itemLink, itemCount = DS:GetSlotInfo(container, slotID)
+			if itemID then
 				currentSlotIndex = currentSlotIndex + 1
 				if (currentSlotIndex > minSlotIndex) and (i <= VisibleLines) then
 					local itemName = entry..i .. "Item" .. j;
@@ -380,47 +371,25 @@ function Altoholic.Containers:UpdateAllInOne()
 					end
 					
 					itemButton.id = itemID
-					itemButton.link = b.links[k]
+					itemButton.link = itemLink
 					itemButton:SetScript("OnEnter", function(self) 
 							Altoholic:Item_OnEnter(self)
 						end)
 				
-					local itemCount = _G[itemName .. "Count"]
-					if (b.counts[k] == nil) or (b.counts[k] < 2)then
-						itemCount:Hide();
+					local countWidget = _G[itemName .. "Count"]
+					if not itemCount or (itemCount < 2) then
+						countWidget:Hide();
 					else
-						itemCount:SetText(b.counts[k]);
-						itemCount:Show();
+						countWidget:SetText(itemCount);
+						countWidget:Show();
 					end
 					
-					local itemCooldown = _G[itemName .. "Cooldown"]
-					local startTime = 0
-					local duration = 0
-					local	isEnabled = 0
+					local startTime, duration, isEnabled = DS:GetContainerCooldownInfo(container, slotID)
 					
-					if b.cooldowns[k] then
-						startTime, duration, isEnabled = strsplit("|", b.cooldowns[k])
-						startTime = tonumber(startTime)
-						duration = tonumber(duration)
-						isEnabled = tonumber(isEnabled)
-						
-						local remaining = duration - (GetTime() - startTime)
-						if remaining <= 0 then
-							b.cooldowns[k] = nil
-							startTime = 0
-							duration = 0
-							isEnabled = 0
-						else
-							itemButton.startTime = startTime
-							itemButton.duration = duration
-						end
-					else
-						itemButton.startTime = nil
-						itemButton.duration = nil
-					end
+					itemButton.startTime = startTime
+					itemButton.duration = duration
 					
-					CooldownFrame_SetTimer(itemCooldown, startTime, duration, isEnabled)
-
+					CooldownFrame_SetTimer(_G[itemName .. "Cooldown"], startTime or 0, duration or 0, isEnabled)
 			
 					_G[ itemName ]:Show()
 					
@@ -429,11 +398,11 @@ function Altoholic.Containers:UpdateAllInOne()
 						j = 1
 						i = i + 1
 					end
-				end
+				end				
 			end
 		end
 	end
-	
+		
 	while i <= VisibleLines do
 		while j <= 14 do
 			_G[ entry..i .. "Item" .. j ]:Hide()
@@ -455,219 +424,11 @@ function Altoholic.Containers:UpdateAllInOne()
 	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], ceil(currentSlotIndex / 14), VisibleLines, 41);
 end
 
-
--- *** Scanning functions ***
-
-function Altoholic.Containers:Scan(bagID)
-	local c = Altoholic.ThisCharacter
-	local b = c.bag["Bag" .. bagID]
-
-	for slotID = 1, b.size do
-		b.ids[slotID] = nil
-		b.counts[slotID] = nil
-		b.links[slotID] = nil
-		b.cooldowns[slotID] = nil
-		
-		local link = GetContainerItemLink(bagID, slotID)
-		if link ~= nil then
-			b.ids[slotID] = Altoholic:GetIDFromLink(link)
-		
-			-- if any of these differs from 0, there's an enchant or a jewel, so save the full link
-			if Altoholic:GetEnchantInfo(link) then		-- 1st return value = isEnchanted
-				b.links[slotID] = link
-			end
-		
-			local _, count = GetContainerItemInfo(bagID, slotID)
-			if (count ~= nil) and (count > 1)  then
-				b.counts[slotID] = count	-- only save the count if it's > 1 (to save some space since a count of 1 is extremely redundant)
-			end
-		end
-		
-		local startTime, duration, isEnabled = GetContainerItemCooldown(bagID, slotID)
-		if startTime and startTime > 0 then
-			b.cooldowns[slotID] = startTime .."|".. duration .. "|" .. 1
-		end
-	end
-end
-
-function Altoholic.Containers:ScanBag(bagID)
-	if bagID < 0 then return end
-
-	local c = Altoholic.ThisCharacter
-	local b = c.bag["Bag" .. bagID]
-	
-	if bagID == 0 then	-- Bag 0	
-		b.icon = "Interface\\Buttons\\Button-Backpack-Up";
-		b.link = nil;
-	else						-- Bags 1 through 11
-		b.icon = GetInventoryItemTexture("player", ContainerIDToInventoryID(bagID))
-		b.link = GetInventoryItemLink("player", ContainerIDToInventoryID(bagID))
-	end
-	b.freeslots, b.bagtype = GetContainerNumFreeSlots(bagID)
-	b.size = GetContainerNumSlots(bagID)
-	self:Scan(bagID)
-end
-
-function Altoholic.Containers:ScanKeyRing()
-	local c = Altoholic.ThisCharacter
-	local b = c.bag["Bag-2"]
-	
-	b.size = GetContainerNumSlots(-2)
-	b.icon = "Interface\\Icons\\INV_Misc_Key_14";
-	b.link = nil
-	self:Scan(-2)
-end
-
-function Altoholic.Containers:ScanPlayerBags()
-	for bagID = 0, 4 do
-		self:ScanBag(bagID)
-	end
-	self:ScanKeyRing()
-	self:ScanBagSlotsInfo()
-end
-
-function Altoholic.Containers:ScanBank()
-	local c = Altoholic.ThisCharacter
-	local b = c.bag["Bag100"]
-	b.size = 28
-	b.freeslots, b.bagtype = GetContainerNumFreeSlots(-1)		-- -1 = player bank
-	
-	for slotID = 40, 67 do
-		local index = slotID-39		-- 28 bank slots = inventory slot id 40 to 67, so subtract 39
-		b.ids[index] = nil
-		b.counts[index] = nil
-		b.links[index] = nil		
-		b.cooldowns[index] = nil		
-		
-		local link = GetInventoryItemLink("player", slotID)	
-		if link ~= nil then
-			b.ids[index] = Altoholic:GetIDFromLink(link)
-			
-			-- if any of these differs from 0, there's an enchant or a jewel, so save the full link
-			if Altoholic:GetEnchantInfo(link) then		-- 1st return value = isEnchanted
-				b.links[index] = link
-			end
-			
-			local count = GetInventoryItemCount("player", slotID)
-			if (count ~= nil) and (count > 1)  then
-				b.counts[index] = count	-- only save the count if it's > 1 (to save some space since a count of 1 is extremely redundant)
-			end
-			
-			local startTime, duration, isEnabled = GetInventoryItemCooldown("player", slotID)
-			if startTime and startTime > 0 then
-				b.cooldowns[index] = startTime .."|".. duration .. "|" .. 1
-			end
-		end
-	end
-	
-	self:ScanBankSlotsInfo()
-end
-
-function Altoholic.Containers:ScanBagSlotsInfo()
-	local c = Altoholic.ThisCharacter
-	
-	c.numBagSlots = 0
-	c.numFreeBagSlots = 0
-
-	for bagID = 0, 4 do
-		local b = c.bag["Bag" .. bagID]
-		c.numBagSlots = c.numBagSlots + b.size
-		c.numFreeBagSlots = c.numFreeBagSlots + b.freeslots
-	end
-end
-
-function Altoholic.Containers:ScanBankSlotsInfo()
-	local c = Altoholic.ThisCharacter
-	
-	c.numBankSlots = 28
-	c.numFreeBankSlots = c.bag["Bag100"].freeslots
-
-	for bagID = 5, 11 do
-		local b = c.bag["Bag" .. bagID]
-		c.numBankSlots = c.numBankSlots + b.size
-		c.numFreeBankSlots = c.numFreeBankSlots + b.freeslots
-	end
-end
-
-function Altoholic.Containers:GetItemCount(searchedID)
-	local c = Altoholic.CountCharacter
-	local bagCount = 0
-	local bankCount = 0
-	
-	for BagName, b in pairs(c.bag) do
-		for slotID=1, b.size do
-			local id = b.ids[slotID]
-			
-			if (id) and (id == searchedID) then
-				local itemCount = b.counts[slotID] or 1
-				
-				if (BagName == "Bag100") then
-					bankCount = bankCount + itemCount
-				elseif (BagName == "Bag-2") then
-					bagCount = bagCount + itemCount
-				else
-					local bagNum = tonumber(string.sub(BagName, 4))
-					if (bagNum >= 0) and (bagNum <= 4) then
-						bagCount = bagCount + itemCount
-					else
-						bankCount = bankCount + itemCount
-					end			
-				end		
-			end
-		end
-	end
-	
-	return bagCount, bankCount
-end
-
-
 -- *** EVENT HANDLERS ***
-
 function Altoholic.Containers:OnBagUpdate(bag)
-	if bag < 0 then
-		return
-	end
-	
 	Altoholic.Tooltip:ForceRefresh()
-	
-	local self = Altoholic.Containers
-	if (bag >= 5) and (bag <= 11) and not self.isBankOpen then
-		return
-	end
 	
 	if Altoholic.Mail.isOpen then	-- if a bag is updated while the mailbox is opened, this means an attachment has been taken.
 		Altoholic.Mail:Scan()		-- I could not hook TakeInboxItem because mailbox content is not updated yet
-	end
-	
-	if bag == 0 then					-- bag is 0 for both the keyring and the original backpack
-		self:ScanKeyRing()
-	end
-	self:ScanBag(bag)
-end
-
-function Altoholic.Containers:OnBankOpened()
-	local self = Altoholic.Containers
-	for bagID = 5, 11 do
-		self:ScanBag(bagID)
-	end
-	self:ScanBank()
-	self.isBankOpen = true
-	Altoholic:RegisterEvent("BANKFRAME_CLOSED", self.OnBankClosed)
-	Altoholic:RegisterEvent("PLAYERBANKSLOTS_CHANGED", self.OnBankSlotsChanged)
-end
-
-function Altoholic.Containers:OnBankClosed()
-	Altoholic.Containers.isBankOpen = nil
-	Altoholic:UnregisterEvent("BANKFRAME_CLOSED")
-	Altoholic:UnregisterEvent("PLAYERBANKSLOTS_CHANGED")
-end
-
-function Altoholic.Containers:OnBankSlotsChanged(slotID)
-	local self = Altoholic.Containers
-	-- from top left to bottom right, slotID = 1 to 28for main slots, and 29 to 35 for the additional bags
-	if (slotID >= 29) and (slotID <= 35) then
-		self:ScanBag(slotID - 24)		-- bagID for bank bags goes from 5 to 11, so slotID - 24
-	else
-		self:ScanBank()
 	end
 end

@@ -178,8 +178,11 @@
 			</Button>
 		</Frames>
 		<Scripts>
+			<OnLoad>
+				Altoholic.Tabs.GuildBank.initRequired = true
+			</OnLoad>
 			<OnShow>
-				Altoholic.GuildBank:DrawTab()
+				Altoholic.Tabs.GuildBank:OnShow()
 			</OnShow>
 		</Scripts>
 	</Frame>

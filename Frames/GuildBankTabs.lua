@@ -15,13 +15,15 @@ function Altoholic.Guild.BankTabs:BuildView()
 	
 	self.view = self.view or {}
 	wipe(self.view)
-		
-	local guild = Altoholic:GetThisGuild()
-	if not guild then return end
 	
+	local DS = DataStore
+	local guildName = GetGuildInfo("player")
+	local guild = DS:GetGuild(guildName)
+	if not guild then return end
+
 	local line = 0
 	
-	for tabID, guildTab in pairs (guild.bank) do
+	for tabID, guildTab in pairs (guild) do
 		if guildTab.name then
 			table.insert(self.view, {			-- insert an entry for the tab name
 				linetype = line,
@@ -69,7 +71,9 @@ function Altoholic.Guild.BankTabs:Update()
 	local DrawAlts
 	local i=1
 	
-	local guild = Altoholic:GetThisGuild()
+	local DS = DataStore
+	local guildName = GetGuildInfo("player")
+	local guild = DS:GetGuild(guildName)
 	
 	for line, v in pairs(self.view) do
 		
@@ -100,7 +104,7 @@ function Altoholic.Guild.BankTabs:Update()
 					DrawAlts = false
 				end
 
-				local tab = guild.bank[v.parentID]
+				local tab = DS:GetGuildBankTab(guild, v.parentID)
 				local localTime
 				localTime = format("%s%02d%s:%s%02d", GREEN, tab.ClientHour, WHITE, GREEN, tab.ClientMinute )
 				

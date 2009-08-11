@@ -1,4 +1,3 @@
-local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 
 local SUMMARY_THISREALM = 1
@@ -111,43 +110,48 @@ function Altoholic.Tabs.Summary:SetMode(mode)
 	
 	local Columns = Altoholic.Tabs.Columns
 	Columns:Init()
+	
+	local title
 
 	if mode == 1 then
-		Columns:Add(NAME, 100, function(self) Altoholic.Characters:Sort(self, "name") end)
-		Columns:Add(LEVEL, 60, function(self) Altoholic.Characters:Sort(self, "level")	end)
-		Columns:Add(MONEY, 115, function(self)	Altoholic.Characters:Sort(self, "money") end)
-		Columns:Add(PLAYED, 105, function(self) Altoholic.Characters:Sort(self, "played") end)
-		Columns:Add(XP, 55, function(self) Altoholic.Characters:Sort(self, "xp") end)
-		Columns:Add(TUTORIAL_TITLE26, 70, function(self) Altoholic.Characters:Sort(self, "restxp") end)
-		Columns:Add("AiL", 55, function(self) Altoholic.Characters:Sort(self, "averageItemLvl")	end)
+		Columns:Add(NAME, 100, function(self) Altoholic.Characters:Sort(self, "GetCharacterName") end)
+		Columns:Add(LEVEL, 60, function(self) Altoholic.Characters:Sort(self, "GetCharacterLevel")	end)
+		Columns:Add(MONEY, 115, function(self)	Altoholic.Characters:Sort(self, "GetMoney") end)
+		Columns:Add(PLAYED, 105, function(self) Altoholic.Characters:Sort(self, "GetPlayTime") end)
+		Columns:Add(XP, 55, function(self) Altoholic.Characters:Sort(self, "GetXPRate") end)
+		Columns:Add(TUTORIAL_TITLE26, 70, function(self) Altoholic.Characters:Sort(self, "GetRestXP") end)
+		Columns:Add("AiL", 55, function(self) Altoholic.Characters:Sort(self, "GetAverageItemLevel")	end)
 	
 	elseif mode == 2 then
-		Columns:Add(NAME, 100, function(self) Altoholic.Characters:Sort(self, "name") end)
-		Columns:Add(LEVEL, 60, function(self) Altoholic.Characters:Sort(self, "level") end)
-		Columns:Add(L["Bags"], 120, function(self) Altoholic.Characters:Sort(self, "numBagSlots") end)
-		Columns:Add(L["free"], 50, function(self) Altoholic.Characters:Sort(self, "numFreeBagSlots") end)
-		Columns:Add(L["Bank"], 190, function(self) Altoholic.Characters:Sort(self, "numBankSlots") end)
-		Columns:Add(L["free"], 50, function(self)	Altoholic.Characters:Sort(self, "numFreeBankSlots")	end)
+		Columns:Add(NAME, 100, function(self) Altoholic.Characters:Sort(self, "GetCharacterName") end)
+		Columns:Add(LEVEL, 60, function(self) Altoholic.Characters:Sort(self, "GetCharacterLevel") end)
+		Columns:Add(L["Bags"], 120, function(self) Altoholic.Characters:Sort(self, "GetNumBagSlots") end)
+		Columns:Add(L["free"], 50, function(self) Altoholic.Characters:Sort(self, "GetNumFreeBagSlots") end)
+		Columns:Add(L["Bank"], 190, function(self) Altoholic.Characters:Sort(self, "GetNumBankSlots") end)
+		Columns:Add(L["free"], 50, function(self)	Altoholic.Characters:Sort(self, "GetNumFreeBankSlots")	end)
 		
 	elseif mode == 3 then
-		Columns:Add(NAME, 100, function(self) Altoholic.Characters:Sort(self, "name") end)
-		Columns:Add(LEVEL, 60, function(self) Altoholic.Characters:Sort(self, "level") end)
+		Columns:Add(NAME, 100, function(self) Altoholic.Characters:Sort(self, "GetCharacterName") end)
+		Columns:Add(LEVEL, 60, function(self) Altoholic.Characters:Sort(self, "GetCharacterLevel") end)
 		Columns:Add(L["Prof. 1"], 65, function(self) Altoholic.Characters:Sort(self, "skillName1") end)
 		Columns:Add(L["Prof. 2"], 65, function(self) Altoholic.Characters:Sort(self, "skillName2") end)
-		Columns:Add(BI["Cooking"], 65, function(self) Altoholic.Characters:Sort(self, BI["Cooking"]) end)
-		Columns:Add(BI["First Aid"], 65, function(self) Altoholic.Characters:Sort(self, BI["First Aid"]) end)
-		Columns:Add(BI["Fishing"], 65, function(self) Altoholic.Characters:Sort(self, BI["Fishing"]) end)
-		Columns:Add(L["Riding"], 65, function(self) Altoholic.Characters:Sort(self, L["Riding"]) end)
+		title = GetSpellInfo(2550)		-- cooking
+		Columns:Add(title, 65, function(self) Altoholic.Characters:Sort(self, "GetCookingRank") end)
+		title = GetSpellInfo(3273)		-- First Aid
+		Columns:Add(title, 65, function(self) Altoholic.Characters:Sort(self, "GetFirstAidRank") end)
+		title = GetSpellInfo(24303)	-- Fishing
+		Columns:Add(title, 65, function(self) Altoholic.Characters:Sort(self, "GetFishingRank") end)
+		Columns:Add(L["Riding"], 65, function(self) Altoholic.Characters:Sort(self, "GetRidingRank") end)
 		
 	elseif mode == 4 then
-		Columns:Add(NAME, 100, function(self) Altoholic.Characters:Sort(self, "name") end)
-		Columns:Add(LEVEL, 60, function(self) Altoholic.Characters:Sort(self, "level") end)
-		Columns:Add(L["Mails"], 60, function(self) Altoholic.Characters:Sort(self, "mail") end)
-		Columns:Add(L["Visited"], 60, function(self) Altoholic.Characters:Sort(self, "lastmailcheck") end)
-		Columns:Add(AUCTIONS, 70, function(self) Altoholic.Characters:Sort(self, "auctions") end)
-		Columns:Add(BIDS, 60, function(self) Altoholic.Characters:Sort(self, "bids") end)
-		Columns:Add(L["Visited"], 60, function(self) Altoholic.Characters:Sort(self, "lastAHcheck") end)
-		Columns:Add(LASTONLINE, 90, function(self) Altoholic.Characters:Sort(self, "lastlogout") end)
+		Columns:Add(NAME, 100, function(self) Altoholic.Characters:Sort(self, "GetCharacterName") end)
+		Columns:Add(LEVEL, 60, function(self) Altoholic.Characters:Sort(self, "GetCharacterLevel") end)
+		Columns:Add(L["Mails"], 60, function(self) Altoholic.Characters:Sort(self, "GetNumMails") end)
+		Columns:Add(L["Visited"], 60, function(self) Altoholic.Characters:Sort(self, "GetMailboxLastVisit") end)
+		Columns:Add(AUCTIONS, 70, function(self) Altoholic.Characters:Sort(self, "GetNumAuctions") end)
+		Columns:Add(BIDS, 60, function(self) Altoholic.Characters:Sort(self, "GetNumBids") end)
+		Columns:Add(L["Visited"], 60, function(self) Altoholic.Characters:Sort(self, "GetAuctionHouseLastVisit") end)
+		Columns:Add(LASTONLINE, 90, function(self) Altoholic.Characters:Sort(self, "GetLastLogout") end)
 
 	elseif mode == 5 then
 		Columns:Add(NAME, 100, function(self) Altoholic.Tabs.Summary:SortGuild(self, "name") end)
@@ -162,7 +166,8 @@ function Altoholic.Tabs.Summary:SetMode(mode)
 		Columns:Add(CLASS, 120, function(self) Altoholic.Tabs.Summary:SortGuild(self, "englishClass") end)
 		Columns:Add(L["Prof. 1"], 110, function(self) Altoholic.Tabs.Summary:SortGuild(self, "prof1link") end)
 		Columns:Add(L["Prof. 2"], 110, function(self) Altoholic.Tabs.Summary:SortGuild(self, "prof2link") end)
-		Columns:Add(BI["Cooking"], 110, function(self) Altoholic.Tabs.Summary:SortGuild(self, "cookinglink") end)
+		title = GetSpellInfo(2550)		-- cooking
+		Columns:Add(title, 110, function(self) Altoholic.Tabs.Summary:SortGuild(self, "cookinglink") end)
 		
 	elseif mode == 7 then
 		Columns:Add(NAME, 100, nil)
@@ -173,7 +178,6 @@ function Altoholic.Tabs.Summary:SetMode(mode)
 		AltoholicTabSummary_SelectLocation:Hide()
 		AltoholicTabSummary_RequestSharing:Hide()
 	end
-	
 end
 
 function Altoholic.Tabs.Summary:SortGuild(self, field)
@@ -269,6 +273,12 @@ function Altoholic.Tabs.Summary:AccountSharingButton_OnClick()
 		return
 	end
 	Altoholic:ToggleUI()
+	
+	if AltoAccountSharing_SendButton.requestMode then
+		Altoholic.Comm.Sharing:SetMode(2)
+	else
+		Altoholic.Comm.Sharing:SetMode(1)
+	end
 	AltoAccountSharing:Show()
 end
 

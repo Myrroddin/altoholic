@@ -8,14 +8,17 @@ local TEAL		= "|cFF00FF9A"
 Altoholic.Quests = {}
 
 function Altoholic.Quests:Update()
-	local c = Altoholic:GetCharacterTable()
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+
+	
 	local VisibleLines = 14
 	local frame = "AltoholicFrameQuests"
 	local entry = frame.."Entry"
 	
 	local self = Altoholic.Quests
+	local DS = DataStore
 	
-	if #c.questlog == 0 then
+	if DS:GetQuestLogSize(character) == 0 then
 		AltoholicTabCharactersStatus:SetText(L["No quest found for "] .. Altoholic:GetCurrentCharacter())
 		Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
 		return
@@ -26,12 +29,22 @@ function Altoholic.Quests:Update()
 	local DisplayedCount = 0
 	local VisibleCount = 0
 	local DrawGroup
+
+	self.CollapsedHeaders = self.CollapsedHeaders or {}
+	if self.isInvalid then
+		wipe(self.CollapsedHeaders)
+		self.isInvalid = nil
+	end
+
 	local i=1
 	
-	for line, s in pairs(c.questlog) do
+	for line = 1, DS:GetQuestLogSize(character) do
+		local isHeader, quest, questTag, groupSize, money, isComplete = DS:GetQuestLogInfo(character, line)
+		
 		if (offset > 0) or (DisplayedCount >= VisibleLines) then		-- if the line will not be visible
-			if s.isHeader then													-- then keep track of counters
-				if s.isCollapsed == false then
+			if isHeader then													-- then keep track of counters
+				
+				if not self.CollapsedHeaders[line] then
 					DrawGroup = true
 				else
 					DrawGroup = false
@@ -43,8 +56,8 @@ function Altoholic.Quests:Update()
 				offset = offset - 1		-- no further control, nevermind if it goes negative
 			end
 		else		-- line will be displayed
-			if s.isHeader then
-				if s.isCollapsed == false then
+			if isHeader then
+				if not self.CollapsedHeaders[line] then
 					_G[ entry..i.."Collapse" ]:SetNormalTexture("Interface\\Buttons\\UI-MinusButton-Up"); 
 					DrawGroup = true
 				else
@@ -52,7 +65,7 @@ function Altoholic.Quests:Update()
 					DrawGroup = false
 				end
 				_G[entry..i.."Collapse"]:Show()
-				_G[entry..i.."QuestLinkNormalText"]:SetText(TEAL .. s.name)
+				_G[entry..i.."QuestLinkNormalText"]:SetText(TEAL .. quest)
 				_G[entry..i.."QuestLink"]:SetID(0)
 				_G[entry..i.."QuestLink"]:SetPoint("TOPLEFT", 25, 0)
 				
@@ -69,30 +82,31 @@ function Altoholic.Quests:Update()
 			elseif DrawGroup then
 				_G[entry..i.."Collapse"]:Hide()
 				
-				local _, id, level = self:GetInfo(s.link)
-				_G[entry..i.."QuestLinkNormalText"]:SetText(WHITE .. "[" .. level .. "] " .. s.link)
+				local _, _, level = DS:GetQuestInfo(quest)
+				-- quick fix, level may be nil, I suspect that due to certain locales, the quest link may require different parsing.
+				level = level or 0
+				
+				_G[entry..i.."QuestLinkNormalText"]:SetText(WHITE .. "[" .. level .. "] " .. quest)
 				_G[entry..i.."QuestLink"]:SetID(line)
 				_G[entry..i.."QuestLink"]:SetPoint("TOPLEFT", 15, 0)
-				if s.tag then 
-					_G[entry..i.."Tag"]:SetText(self:GetTypeString(s.tag, s.groupsize))
+				if questTag then 
+					_G[entry..i.."Tag"]:SetText(self:GetTypeString(questTag, groupSize))
 					_G[entry..i.."Tag"]:Show()
 				else
 					_G[entry..i.."Tag"]:Hide()
 				end
 				
-				if s.isComplete then
-					if s.isComplete == 1 then
-						_G[entry..i.."Status"]:SetText(GREEN .. COMPLETE)
-					elseif s.isComplete == -1 then
-						_G[entry..i.."Status"]:SetText(RED .. FAILED)
-					end
+				_G[entry..i.."Status"]:Hide()
+				if isComplete == 1 then
+					_G[entry..i.."Status"]:SetText(GREEN .. COMPLETE)
 					_G[entry..i.."Status"]:Show()
-				else
-					_G[entry..i.."Status"]:Hide()
+				elseif isComplete == -1 then
+					_G[entry..i.."Status"]:SetText(RED .. FAILED)
+					_G[entry..i.."Status"]:Show()
 				end
 				
-				if s.money then
-					_G[entry..i.."Money"]:SetText(Altoholic:GetMoneyString(s.money))
+				if money then
+					_G[entry..i.."Money"]:SetText(Altoholic:GetMoneyString(money))
 					_G[entry..i.."Money"]:Show()
 				else
 					_G[entry..i.."Money"]:Hide()
@@ -114,36 +128,35 @@ function Altoholic.Quests:Update()
 	end
 	
 	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleCount, VisibleLines, 18);
-end	
-
-function Altoholic.Quests:GetInfo(questString)
-	if not questString then return nil end
-	
-	local _, _, questInfo, questName = strsplit("|", questString)
-	local _, questId, questLevel = strsplit(":", questInfo)
-	questName = string.sub(questName, 3, -2)
-
-	return questName, questId, questLevel
 end
 
-function Altoholic.Quests:IsKnown(quest)
-	if not quest then return nil end
+function Altoholic.Quests:InvalidateView()
+	self.isInvalid = true
+end
+
+function Altoholic.Quests:ListCharsOnQuest(questName, player, tooltip)
+	if not questName then return nil end
 	
-	local bOtherCharsOnQuest		-- is there at least one other char on the quest ?
-	for CharacterName, c in pairs(Altoholic.ThisRealm.char) do
-		if CharacterName ~= UnitName("player") then
-			for _, q in pairs(c.questlog) do	-- parse all quests
-				local altQuestName = self:GetInfo(q.link)
-				if altQuestName == quest then
-					if not bOtherCharsOnQuest then
-						ItemRefTooltip:AddLine(" ",1,1,1);
-						ItemRefTooltip:AddLine(GREEN .. L["Are also on this quest:"],1,1,1);
-						bOtherCharsOnQuest = true	-- pass here only once
+	local DS = DataStore
+	local CharsOnQuest = {}
+	for characterName, character in pairs(DS:GetCharacters(realm)) do
+		if characterName ~= player then
+			for i = 1, DS:GetQuestLogSize(character) do
+				local isHeader, link = DS:GetQuestLogInfo(character, i)
+				if not isHeader then
+					local altQuestName = DS:GetQuestInfo(link)
+					if altQuestName == questName then		-- same quest found ?
+						table.insert(CharsOnQuest, DS:GetColoredCharacterName(character))	
 					end
-					ItemRefTooltip:AddLine(Altoholic:GetClassColor(c.englishClass) .. CharacterName,1,1,1);
 				end
 			end
 		end
+	end
+	
+	if #CharsOnQuest > 0 then
+		tooltip:AddLine(" ",1,1,1);
+		tooltip:AddLine(GREEN .. L["Are also on this quest:"],1,1,1);
+		tooltip:AddLine(table.concat(CharsOnQuest, "\n"),1,1,1);
 	end
 end
 
@@ -171,9 +184,9 @@ function Altoholic.Quests:Link_OnEnter(self)
 	local id = self:GetID()
 	if id == 0 then return end
 
-	local player = Altoholic:GetCurrentCharacter()
-	local r = Altoholic:GetRealmTable()
-	local link = r.char[player].questlog[id].link
+	local DS = DataStore
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local _, link = DS:GetQuestLogInfo(character, id)
 	if not link then return end
 
 	GameTooltip:ClearLines();
@@ -181,120 +194,25 @@ function Altoholic.Quests:Link_OnEnter(self)
 	GameTooltip:SetHyperlink(link);
 	GameTooltip:AddLine(" ",1,1,1);
 	
-	local _, questID, level = Altoholic.Quests:GetInfo(link)
+	local questName, questID, level = DS:GetQuestInfo(link)
 	GameTooltip:AddDoubleLine(LEVEL .. ": |cFF00FF9A" .. level, L["QuestID"] .. ": |cFF00FF9A" .. questID);
 	
-	local bOtherCharsOnQuest		-- is there at least one other char on the quest ?
-	
-	for CharacterName, c in pairs(r.char) do		-- browse all chars on this realm ..
-		if CharacterName ~= player then				-- .. skip current char of course
-			for index, q in pairs(c.questlog) do	-- parse all quests
-				local _, altQuestID = Altoholic.Quests:GetInfo(q.link)
-				if altQuestID == questID then
-					if not bOtherCharsOnQuest then
-						GameTooltip:AddLine(" ",1,1,1);
-						GameTooltip:AddLine(GREEN .. L["Are also on this quest:"],1,1,1);
-						bOtherCharsOnQuest = true	-- pass here only once
-					end
-					GameTooltip:AddLine(Altoholic:GetClassColor(c.englishClass) .. CharacterName,1,1,1);
-				end
-			end
-		end
-	end
-	
+	local player = Altoholic:GetCurrentCharacter()
+	Altoholic.Quests:ListCharsOnQuest(questName, player, GameTooltip)
 	GameTooltip:Show();
 end
 
-function Altoholic.Quests:Scan()
-	local c = Altoholic.ThisCharacter
-	local q = c.questlog
-
-	wipe(q)
-
-	local currentSelection = GetQuestLogSelection()		-- save the currently selected quest
-	local headersState = {} 	-- save the state of headers, restore it after scan
+function Altoholic.Quests:Link_OnClick(self, button)
+	if ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
+		if ( ChatFrameEditBox:IsShown() ) then
+			local id = self:GetID()
+			if id == 0 then return end
+			
+			local character = Altoholic.Tabs.Characters:GetCurrent()
+			local _, link = DataStore:GetQuestLogInfo(character, id)
 	
-	for i = GetNumQuestLogEntries(), 1, -1 do
-		local title, _, _, _, isHeader, isCollapsed = GetQuestLogTitle(i);
-		if isHeader and isCollapsed then
-			headersState[title] = isCollapsed
-			ExpandQuestHeader(i)
+			if not link then return end
+			ChatFrameEditBox:Insert(link);
 		end
 	end
-
-	for i = 1, GetNumQuestLogEntries() do
-		local title, _, questTag, groupSize, isHeader, _, isComplete = GetQuestLogTitle(i);
-		if not isHeader then
-			q[i].link = GetQuestLink(i)
-			q[i].tag = questTag
-			q[i].groupsize = groupSize
-			q[i].isComplete = isComplete
-			
-			SelectQuestLogEntry(i);
-			q[i].money = GetQuestLogRewardMoney();
-			
-			local Rewards = {}
-			local num = GetNumQuestLogChoices()		-- these are the actual item choices proposed to the player
-			if num > 0 then
-				for i = 1, num do
-					local _, _, numItems, _, isUsable = GetQuestLogChoiceInfo(i)
-					local link = GetQuestLogItemLink("choice", i)
-					local id = Altoholic:GetIDFromLink(link)
-					if id then
-						table.insert(Rewards, "c|"..id.."|"..numItems.."|"..(isUsable or ""))
-					end
-				end
-			end
-			
-			num = GetNumQuestLogRewards()				-- these are the rewards given anyway
-			if num > 0 then
-				for i = 1, num do
-					local _, _, numItems, _, isUsable = GetQuestLogRewardInfo(i)
-					local link = GetQuestLogItemLink("reward", i)
-					local id = Altoholic:GetIDFromLink(link)
-					if id then
-						table.insert(Rewards, "r|"..id.."|"..numItems.."|"..(isUsable or ""))
-					end
-				end
-			end
-
-			if GetQuestLogRewardSpell() then		-- apparently, there is only one spell as reward
-				local _, _, isTradeskillSpell, isSpellLearned = GetQuestLogRewardSpell()
-				if isTradeskillSpell or isSpellLearned then
-					local link = GetQuestLogSpellLink()
-					local id = tonumber(link:match("spell:(%d+)")) 
-					if id then
-						table.insert(Rewards, "s|"..id)
-					end
-				end
-			end
-
-			q[i].rewards = table.concat(Rewards, "^")
-			
-		else
-			q[i].name = title
-			q[i].isHeader = true
-		end
-	end
-	
-	-- restore headers
-	for i = GetNumQuestLogEntries(), 1, -1 do
-		local title, _, _, _, isHeader = GetQuestLogTitle(i);
-		if isHeader and headersState[title] then
-			CollapseQuestHeader(i)
-		end
-	end
-	
-	SelectQuestLogEntry(currentSelection)		-- restore the selection to match the cursor, must be properly set if a user abandons a quest
-end
-
--- *** EVENT HANDLERS ***
-
-function Altoholic.Quests:OnLogChanged()		-- triggered when accepting/validating a quest .. but too soon to refresh data
-	Altoholic:RegisterEvent("QUEST_LOG_UPDATE", Altoholic.Quests.OnLogUpdate)			-- so register for this one ..
-end
-
-function Altoholic.Quests:OnLogUpdate()
-	Altoholic:UnregisterEvent("QUEST_LOG_UPDATE")		-- .. and unregister it right away, since we only want it to be processed once (and it's triggered way too often otherwise)
-	Altoholic.Quests:Scan()
 end

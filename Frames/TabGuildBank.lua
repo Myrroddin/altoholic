@@ -5,29 +5,64 @@ local TEAL		= "|cFF00FF9A"
 local GREEN		= "|cFF00FF00"
 local YELLOW	= "|cFFFFFF00"
 
+local THIS_ACCOUNT = "Default"
+
 Altoholic.Tabs.GuildBank = {}
 
+-- note: most references to the guild bank in this file are related to the data saved in Altoholic, and not in DataStore_Containers
 function Altoholic.Tabs.GuildBank:DropDownGuild_Initialize()
 	if not Altoholic.db then return end
 	
 	local self = Altoholic.Tabs.GuildBank
 	local info = UIDropDownMenu_CreateInfo(); 
 
-	for AccountName, a in pairs(Altoholic.db.global.data) do
-		for RealmName, r in pairs(a) do
-			for GuildName, _ in pairs(r.guild) do
-				info.text = GREEN .. GuildName .. WHITE .. " (" .. RealmName 
-								.." / ".. YELLOW .. AccountName ..  WHITE.. ")"
-				info.value = AccountName .."|" .. RealmName .."|".. GuildName
-				info.checked = nil; 
-				info.func = self.ChangeGuild
-				info.arg1 = AccountName
-				info.arg2 = RealmName
-				UIDropDownMenu_AddButton(info, 1); 
-			end
-		end
+	for k, _ in pairs(Altoholic.db.global.Guilds) do
+		-- to do: work on improving the order, might be a bit messy if there are many guilds
+		local guildAccount, guildRealm, guildName = strsplit(".", k)
+
+		info.text = GREEN .. guildName .. WHITE .. " (" .. guildRealm 
+						.." / ".. YELLOW .. guildAccount ..  WHITE.. ")"
+		info.value = guildAccount .."|" .. guildRealm .."|".. guildName
+		info.checked = nil; 
+		info.func = self.ChangeGuild
+		info.arg1 = guildAccount
+		info.arg2 = guildRealm
+		UIDropDownMenu_AddButton(info, 1); 
 	end
 end
+
+function Altoholic.Tabs.GuildBank:OnShow()
+	if self.initRequired then
+		local realm = GetRealmName()
+		local currentGuild = GetGuildInfo("player")
+		
+		-- if the player is not in a guild, set the drop down to the first available guild on this realm, if any.
+		if not currentGuild then
+			for k, _ in pairs(Altoholic.db.global.Guilds) do
+				local guildAccount, guildRealm, guildName = strsplit(".", k)
+				if guildAccount == THIS_ACCOUNT and guildRealm == realm then
+					currentGuild = guildName
+					break	-- if there's at least one guild, let's set the right value and break immediately
+				end
+			end
+		end
+		
+		-- if the current guild or at least a guild on this realm was found..set the right values
+		if currentGuild then
+			UIDropDownMenu_SetSelectedValue(AltoholicTabGuildBank_SelectGuild, 
+					THIS_ACCOUNT .. "|" .. realm .."|".. currentGuild )
+			UIDropDownMenu_SetText(AltoholicTabGuildBank_SelectGuild, 
+					GREEN .. currentGuild .. WHITE .. " (" .. realm .. ")"	)
+
+			self:LoadGuild(THIS_ACCOUNT, realm, currentGuild)
+		end	
+		
+		self.initRequired = nil
+	end
+
+	Altoholic.GuildBank:DrawTab()
+end
+
 
 function Altoholic.Tabs.GuildBank:ChangeGuild(account, realm, checked)
 	local _, _, guildname = strsplit("|", self.value)
@@ -40,16 +75,17 @@ function Altoholic.Tabs.GuildBank:ChangeGuild(account, realm, checked)
 end
 
 function Altoholic.Tabs.GuildBank:LoadGuild(account, realm, name)
-	local guild = Altoholic.db.global.data[account][realm].guild[name]
+	local guild = Altoholic:GetGuild(name, realm, account)
+	
+	local DS = DataStore
+	local DSGuild	= DS:GetGuild(name, realm, account)
+	
 	AltoGuildBank:Hide()
 	for i = 1, 6 do
 		_G[ "AltoholicTabGuildBankMenuItem"..i ]:UnlockHighlight();
-		local t = guild.bank[i]
-		if t.name then
-			_G[ "AltoholicTabGuildBankMenuItem" .. i ]:SetText(WHITE .. t.name)
-		else
-			_G[ "AltoholicTabGuildBankMenuItem" .. i ]:SetText(YELLOW .. L["N/A"])
-		end
+		
+		local name = DS:GetGuildBankTabName(DSGuild, i)
+		_G[ "AltoholicTabGuildBankMenuItem" .. i ]:SetText(name and (WHITE..name) or (YELLOW..L["N/A"]))
 		_G[ "AltoholicTabGuildBankMenuItem" .. i ]:Show()
 	end
 	
@@ -62,8 +98,8 @@ function Altoholic.Tabs.GuildBank:HideGuild(self)
 	local value = UIDropDownMenu_GetSelectedValue(AltoholicTabGuildBank_SelectGuild)
 	if not value then return end
 	
-	local account, realm, guildname = strsplit("|", value)
-	local guild = Altoholic.db.global.data[account][realm].guild[guildname]
+	local account, realm, name = strsplit("|", value)
+	local guild = Altoholic:GetGuild(name, realm, account)
 	
 	if self:GetChecked() then 
 		guild.hideInTooltip = true
@@ -89,7 +125,7 @@ function Altoholic.Tabs.GuildBank:ButtonHandler(button)
 	
 	local value = UIDropDownMenu_GetSelectedValue(AltoholicTabGuildBank_SelectGuild)
 	local account, realm, guildname = strsplit("|", value)
-	local guild = Altoholic.db.global.data[account][realm].guild
+	local guild = Altoholic:GetGuild(guildname, realm, account)
 
 	for i=1, 6 do
 		_G[ "AltoholicTabGuildBankMenuItem"..i ]:Hide()
@@ -102,6 +138,10 @@ function Altoholic.Tabs.GuildBank:ButtonHandler(button)
 	AltoGuildBank:Hide()
 	wipe(guild[guildname])	-- clear all content for this guild ..
 	guild[guildname] = nil						-- .. then the guild entry itself
+	
+	local DS = DataStore
+	DS:DeleteGuild(guildname, realm, account)
+	
 	UIDropDownMenu_ClearAll(AltoholicTabGuildBank_SelectGuild);
 	
 	Altoholic:Print(format( L["Guild %s successfully deleted"], guildname))
