@@ -133,8 +133,9 @@
 						UIDropDownMenu_SetWidth(self, 120) 
 						UIDropDownMenu_SetButtonWidth(self, 20)
 
+						local realm = GetRealmName()
 						local player = UnitName("player")
-						UIDropDownMenu_SetSelectedValue(self, player);
+						UIDropDownMenu_SetSelectedValue(self, format("%s.%s.%s", "Default", realm, player))
 						UIDropDownMenu_SetText(self, player)
 						UIDropDownMenu_Initialize(self, Altoholic.Tabs.Characters.DropDownChar_Initialize)
 					</OnLoad>

@@ -1,5 +1,5 @@
 local BF = LibStub("LibBabble-Faction-3.0"):GetLookupTable()
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+local DS
 
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
@@ -46,7 +46,7 @@ Altoholic.Achievements.RefTable = {
 	},
 	[PVPARENA_CATEGORY_ID] = {										-- updated Feb 6, 2009
 		397, 398, 399, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 699, 875, 876, 
-		1159, 1160, 1161, 1162, 1163, 1174, 2090, 2091, 2092, 2093
+		1159, 1160, 1161, 1162, 1174, 2090, 2091, 2092, 2093
 	},
 	[PVPWINTERGRASP_CATEGORY_ID] = {									-- updated Apr 22, 2009
 		1717, 1718, 1721, 1722, 1723, 1727, 1731, 1737, 1739, 1751, 1752, 1755, 
@@ -86,6 +86,10 @@ Altoholic.Achievements.RefTable = {
 	}
 }
 
+function Altoholic.Achievements:Init()
+	DS = DataStore
+end
+
 function Altoholic.Achievements:BuildView(categoryID)
 	
 	self.view = self.view or {}
@@ -118,7 +122,9 @@ function Altoholic.Achievements:Update()
 	
 	local self = Altoholic.Achievements
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
-	local r = Altoholic:GetRealmTable()
+	
+	local realm, account = Altoholic:GetCurrentRealm()
+	local character
 	
 	for i=1, VisibleLines do
 		local line = i + offset
@@ -130,44 +136,41 @@ function Altoholic.Achievements:Update()
 			_G[entry..i.."Name"]:SetJustifyH("LEFT")
 			_G[entry..i.."Name"]:SetPoint("TOPLEFT", 15, 0)
 			
-			local j = 1
-			for CharacterName, c in pairs(r.char) do
+			for j = 1, 10 do
 				local itemName = entry.. i .. "Item" .. j;
 				local itemButton = _G[itemName]
-				local itemTexture = _G[itemName .. "_Background"]
 				
-				itemTexture:SetTexture(achImage)
-				
-				if type( c.achievements[achievementID] ) == "string" then
-					itemTexture:SetVertexColor(0.9, 0.6, 0.2);
-					_G[itemName .. "Name"]:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Waiting:14\124t")
-
-				elseif c.achievements[achievementID] == true then
-					itemTexture:SetVertexColor(1.0, 1.0, 1.0);
-					_G[itemName .. "Name"]:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Ready:14\124t")
+				local classButton = _G["AltoholicFrameClassesItem" .. j]
+				if classButton.CharName then
+					character = DS:GetCharacter(classButton.CharName, realm, account)
 					
+					local itemTexture = _G[itemName .. "_Background"]
+					
+					itemTexture:SetTexture(achImage)
+					
+					local isStarted, isComplete = DS:GetAchievementInfo(character, achievementID)
+					
+					if isComplete then
+						itemTexture:SetVertexColor(1.0, 1.0, 1.0);
+						_G[itemName .. "Name"]:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Ready:14\124t")
+					elseif isStarted then
+						itemTexture:SetVertexColor(0.9, 0.6, 0.2);
+						_G[itemName .. "Name"]:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Waiting:14\124t")
+					else
+						itemTexture:SetVertexColor(0.4, 0.4, 0.4);
+						_G[itemName .. "Name"]:SetText("\124TInterface\\RaidFrame\\ReadyCheck-NotReady:14\124t")
+					end
+					
+					itemButton.CharName = classButton.CharName
+					itemButton.id = line
+					itemButton:Show()
 				else
-					itemTexture:SetVertexColor(0.4, 0.4, 0.4);
-					_G[itemName .. "Name"]:SetText("\124TInterface\\RaidFrame\\ReadyCheck-NotReady:14\124t")
-				end
-				
-				itemButton.CharName = CharacterName
-				itemButton.id = line
-				itemButton:Show()
-				
-				j = j + 1
-				if j > 10 then 	-- users of Symbolic Links might have more than 10 columns, prevent it
-					break
+					itemButton:Hide()
+					itemButton.CharName = nil
+					itemButton.id = nil
 				end
 			end
-			
-			while j <= 10 do
-				_G[ entry.. i .. "Item" .. j ]:Hide()
-				_G[ entry.. i .. "Item" .. j ].CharName = nil
-				_G[ entry.. i .. "Item" .. j ].id = nil
-				j = j + 1
-			end
-			
+
 			_G[ entry..i ]:Show()
 		else
 			_G[ entry..i ]:Hide()
@@ -177,64 +180,51 @@ function Altoholic.Achievements:Update()
 	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], #self.view, VisibleLines, 41);
 end
 
+local CRITERIA_COMPLETE_ICON = "\124TInterface\\AchievementFrame\\UI-Achievement-Criteria-Check:14\124t"
+
 function Altoholic.Achievements:OnEnter(self)
 	if not self.CharName then return end
 	
-	local c = Altoholic:GetCharacterTable(self.CharName)
-	local ach = c.achievements
+	local realm, account = Altoholic:GetCurrentRealm()
+	local character = DS:GetCharacter(self.CharName, realm, account)
+	
 	local achievementID = Altoholic.Achievements.view[self.id]
 	local _, achName, points, _, _, _, _, description, _, _, rewardText = GetAchievementInfo(achievementID);
 	
 	AltoTooltip:SetOwner(self, "ANCHOR_LEFT");
 	AltoTooltip:ClearLines();
-	AltoTooltip:AddDoubleLine(Altoholic:GetClassColor(c.englishClass) .. self.CharName, achName)
+	AltoTooltip:AddDoubleLine(DS:GetColoredCharacterName(character), achName)
 	AltoTooltip:AddLine(WHITE .. description, 1, 1, 1, 1, 1);
 	AltoTooltip:AddLine(WHITE .. ACHIEVEMENT_TITLE .. ": " .. YELLOW .. points);
 	AltoTooltip:AddLine(" ");
+
+	local isStarted, isComplete = DS:GetAchievementInfo(character, achievementID)
 	
-	if type(ach[achievementID]) == "string" then
-		local numCriteria = GetAchievementNumCriteria(achievementID);
-	
-		for i = 1, numCriteria do	-- browse all criterias
-			local criteriaString, criteriaType, _, _, reqQuantity = GetAchievementCriteriaInfo(achievementID, i);
-			local isComplete
+	if isComplete then
+		AltoTooltip:AddLine(format("%s: %s", WHITE .. STATUS, GREEN .. COMPLETE ));
+	elseif isStarted then
+		
+		for criteriaIndex = 1, GetAchievementNumCriteria(achievementID) do	-- browse all criterias
+			local criteriaString, criteriaType, _, _, reqQuantity = GetAchievementCriteriaInfo(achievementID, criteriaIndex);
+			local isCriteriaStarted, isCriteriaComplete, quantity = DS:GetCriteriaInfo(character, achievementID, criteriaIndex)
 			
-			local j = 1	-- index in the saved criterias string
-			local criteria = select(j, strsplit(",", ach[achievementID]))
-			while criteria ~= nil do
-				local numCrit = tonumber(criteria)
-				if type(numCrit) == "number" then
-					if numCrit == i then					-- a completed criteria will contain the index number as-is.
-						isComplete = true					-- "2,3,5 ..." mean that criterias 2 3 & 5 are complete
-						break
-					end
-				else	-- if it's not a number, it will have this format : index .. ":" .. quantity .. ":" .. reqQuantity, but only if reqQuantity > 1 (0/1 is implicit)
-					if reqQuantity > 1 then
-						local idxCrit, qtyCrit = strsplit(":", criteria)
-						idxCrit = tonumber(idxCrit)
-						if idxCrit == i then
-							if tonumber(qtyCrit) > 0 then
-								criteriaString = criteriaString .. WHITE
-							end
-							criteriaString = criteriaString .. " (" .. qtyCrit .. "/" .. reqQuantity .. ")"
-							break
-						end
-					end
+			local icon = ""
+			local color = GRAY
+
+			if isCriteriaComplete then
+				icon = CRITERIA_COMPLETE_ICON
+				color = GREEN
+			elseif isCriteriaStarted then
+				if tonumber(quantity) > 0 then
+					criteriaString = criteriaString .. WHITE
 				end
-				
-				j = j + 1
-				criteria = select(j, strsplit(",", ach[achievementID]))
+				criteriaString = " - " .. criteriaString .. " (" .. quantity .. "/" .. reqQuantity .. ")"
+			else
+				criteriaString = " - " .. criteriaString
 			end
 			
-			if isComplete then
-				AltoTooltip:AddLine("\124TInterface\\AchievementFrame\\UI-Achievement-Criteria-Check:14\124t".. GREEN .. criteriaString);
-			else
-				AltoTooltip:AddLine(GRAY .. " - " .. criteriaString);
-			end
+			AltoTooltip:AddLine(format("%s%s%s", icon, color, criteriaString))
 		end
-	
-	elseif ach[achievementID] == true then
-		AltoTooltip:AddLine(WHITE .. STATUS .. ": " .. GREEN .. COMPLETE);
 	else
 		for i = 1, GetAchievementNumCriteria(achievementID) do	-- write all criterias in gray
 			AltoTooltip:AddLine(GRAY .. " - " .. GetAchievementCriteriaInfo(achievementID, i));
@@ -245,91 +235,5 @@ function Altoholic.Achievements:OnEnter(self)
 		AltoTooltip:AddLine(" ");
 		AltoTooltip:AddLine(GREEN .. rewardText);
 	end
-	-- AltoTooltip:AddLine(" ");
-	-- AltoTooltip:AddDoubleLine(GREEN .. L["Shift-Click to link this info"], TEAL .. "ID: " ..achievementID);
 	AltoTooltip:Show();
-end
-
-function Altoholic.Achievements:Scan()
-	local c = Altoholic.ThisCharacter
-	local ach = c.achievements
-	
-	local total, completed = GetNumCompletedAchievements()
-	c.TotalAchievements = total
-	c.CompletedAchievements = completed
-	c.TotalAchievementPoints = GetTotalAchievementPoints()
-	
-	wipe(ach)
-	
-	local cats = GetCategoryList()
-	
-	for Index, categoryID in ipairs(cats) do
---		local categoryName, parentID = GetCategoryInfo(categoryID)
-		local numAchievements = GetCategoryNumAchievements(categoryID)	-- number of achievements in this category
-		
-		for i=1, numAchievements do
-			local achievementID, _, _, achCompleted = GetAchievementInfo(categoryID, i);
-			self:ScanSingle(achievementID, achCompleted)
-			
-			-- track previous steps of a progressive achievements
-			local prevID = GetPreviousAchievement(achievementID)
-			
-			while type(prevID) ~= "nil" do
-				achievementID, _, _, achCompleted = GetAchievementInfo(prevID);
-				self:ScanSingle(achievementID, achCompleted)
-				prevID = GetPreviousAchievement(achievementID)
-			end
-		end
-	end	
-end
-
-function Altoholic.Achievements:ScanSingle(id, completed)
-	local c = Altoholic.ThisCharacter
-	local ach = c.achievements
-	
-	if completed then
-		ach[id] = true		-- true when completed, all criterias are completed thus
-	else
-		local numCriteria = GetAchievementNumCriteria(id);
-		
-		local criterias
-		for j = 1, numCriteria do
-			-- ** calling GetAchievementCriteriaInfo in this loop is what costs the most in terms of cpu time **
-			local _, criteriaType, critCompleted, quantity, reqQuantity = GetAchievementCriteriaInfo(id, j);
-			local currentCrit
-			
-			if critCompleted then				-- if this criteria is complete, simply save its index
-				currentCrit = tostring(j)
-			else										-- otherwise check if we should save the progress values (ie: if reqQuantity <> 1)
-				if reqQuantity > 1 then
-					currentCrit = j .. ":" .. quantity
-				end
-			end
-			
-			if currentCrit then					-- if there was a usable criteria in this pass ..
-				if not criterias then			-- .. was the result string already  initialized ?
-					criterias = currentCrit
-				else
-					criterias = criterias .. "," .. currentCrit
-				end
-			end
-		end
-	
-		if criterias then		-- if at least one criteria completed, save the entry, do nothing otherwise (check later for progress 100/230)
-			ach[id] = criterias
-		end
-	end
-
-end
-
-function Altoholic:ACHIEVEMENT_EARNED(self, id)
-	-- when an achievement is earned, this event is triggered twice, but only once with an id (find out which ..), so let's filter to update only once
-	if id then
-		Altoholic.Achievements:ScanSingle(id, true)
-		
-		local c = Altoholic.ThisCharacter
-		local total, completed = GetNumCompletedAchievements()
-		c.TotalAchievements = total
-		c.CompletedAchievements = completed
-	end
 end

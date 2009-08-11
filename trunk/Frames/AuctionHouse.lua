@@ -1,4 +1,3 @@
-local BZ = LibStub("LibBabble-Zone-3.0"):GetLookupTable()
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 
@@ -10,9 +9,15 @@ local TEAL		= "|cFF00FF9A"
 
 Altoholic.AuctionHouse = {}
 
-local function SortByName(a, b, ascending)
-	local textA = GetItemInfo(a.id) or ""
-	local textB = GetItemInfo(b.id) or ""
+local function SortByName(a, b, AHType, ascending)
+	local DS = DataStore
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+
+	local _, idA = DS:GetAuctionHouseItemInfo(character, AHType, a)
+	local _, idB = DS:GetAuctionHouseItemInfo(character, AHType, b)
+	
+	local textA = GetItemInfo(idA) or ""
+	local textB = GetItemInfo(idB) or ""
 	
 	if ascending then
 		return textA < textB
@@ -21,334 +26,269 @@ local function SortByName(a, b, ascending)
 	end
 end
 
-local function SortByHighBidder(a, b, ascending)
-	local textA = a.highBidder or ""
-	local textB = b.highBidder or ""
+local function SortByPlayer(a, b, AHType, ascending)
+	-- sort by owner (for bids), or highBidder (for auctions), both the 4th return value
+	local DS = DataStore
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+	
+	local _, _, _, nameA = DS:GetAuctionHouseItemInfo(character, AHType, a)
+	local _, _, _, nameB = DS:GetAuctionHouseItemInfo(character, AHType, b)
+
+	nameA = nameA or ""
+	nameB = nameB or ""
+	
+	if ascending then
+		return nameA < nameB
+	else
+		return nameA > nameB
+	end
+end
+
+local function SortByPrice(a, b, AHType, ascending)
+	-- sort by owner (for bids), or highBidder (for auctions), both the 4th return value
+	local DS = DataStore
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+	
+	local _, _, _, _, _, priceA = DS:GetAuctionHouseItemInfo(character, AHType, a)
+	local _, _, _, _, _, priceB = DS:GetAuctionHouseItemInfo(character, AHType, b)
 
 	if ascending then
-		return textA < textB
+		return priceA < priceB
 	else
-		return textA > textB
+		return priceA > priceB
 	end
 end
 
-local function SortByField(a, b, field, ascending)
-	if ascending then
-		return a[field] < b[field]
+function Altoholic.AuctionHouse:BuildView(AHType, field, ascending)
+	
+	field = field or "name"
+
+	self.view = self.view or {}
+	wipe(self.view)
+	
+	local DS = DataStore
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+	if not character then return end
+	
+	local num
+	if AHType == "Auctions" then
+		num = DS:GetNumAuctions(character)
 	else
-		return a[field] > b[field]
+		num = DS:GetNumBids(character)
+	end
+	
+	for i = 1, num do
+		table.insert(self.view, i)
+	end
+
+	if field == "name" then
+		table.sort(self.view, function(a, b) return SortByName(a, b, AHType, ascending) end)
+	elseif (field == "owner") or (field == "highBidder") then
+		table.sort(self.view, function(a, b) return SortByPlayer(a, b, AHType, ascending) end)
+	elseif field == "buyoutPrice" then
+		table.sort(self.view, function(a, b) return SortByPrice(a, b, AHType, ascending) end)
 	end
 end
 
-function Altoholic.AuctionHouse:SortAuctions(self, field)
-	local c = Altoholic:GetCharacterTable()
-	
-	if field == "name" then
-		table.sort(c.auctions, function(a, b) return SortByName(a, b, self.ascendingSort) end)
-	elseif field == "highBidder" then
-		table.sort(c.auctions, function(a, b) return SortByHighBidder(a, b, self.ascendingSort) end)
-	elseif field == "buyoutPrice" then
-		table.sort(c.auctions, function(a, b) return SortByField(a, b, field, self.ascendingSort) end)
-	end
-
-	Altoholic.AuctionHouse:UpdateAuctions()
-end
-
-function Altoholic.AuctionHouse:SortBids(self, field)
-	local c = Altoholic:GetCharacterTable()
-	
-	if field == "name" then
-		table.sort(c.bids, function(a, b) return SortByName(a, b, self.ascendingSort) end)
-	elseif field == "owner" then
-		table.sort(c.bids, function(a, b) return SortByField(a, b, field, self.ascendingSort) end)
-	elseif field == "buyoutPrice" then
-		table.sort(c.bids, function(a, b) return SortByField(a, b, field, self.ascendingSort) end)
-	end
-
-	Altoholic.AuctionHouse:UpdateBids()
+function Altoholic.AuctionHouse:Sort(self, field, AHType)
+	Altoholic.AuctionHouse:BuildView(AHType, field, self.ascendingSort)
+	Altoholic.AuctionHouse["Update"..AHType]()
 end
 
 function Altoholic.AuctionHouse:UpdateAuctions()
-	local c = Altoholic:GetCharacterTable()
 	local VisibleLines = 7
 	local frame = "AltoholicFrameAuctions"
 	local entry = frame.."Entry"
 
 	local player = Altoholic:GetCurrentCharacter()
 	
-	if c.AHCheckClientDate then
-		-- new timestamps
-		local localDate = format(L["Last visit: %s by %s"], GREEN..c.AHCheckClientDate..WHITE, GREEN..player)
-		local localTime = format("%s%02d%s:%s%02d", GREEN, c.AHCheckClientHour, WHITE, GREEN, c.AHCheckClientMinute )
-		AltoholicFrameAuctionsInfo1:SetText(localDate .. WHITE .. " @ " .. localTime)
+	local self = Altoholic.AuctionHouse
+	local DS = DataStore
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local lastVisit = DS:GetAuctionHouseLastVisit(character)
+	
+	if lastVisit ~= 0 then
+		local localDate = format(L["Last visit: %s by %s"], GREEN..date("%m/%d/%Y", lastVisit)..WHITE, GREEN..player)
+		AltoholicFrameAuctionsInfo1:SetText(localDate .. WHITE .. " @ " .. date("%H:%M", lastVisit))
 		AltoholicFrameAuctionsInfo1:Show()
-		
-		if #c.auctions == 0 then
-			AltoholicTabCharactersStatus:SetText(format(L["%s has no auctions"], player))
-			Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
-			return
-		end
-		AltoholicTabCharactersStatus:SetText("")
-
 	else
+		-- never visited the AH
 		AltoholicFrameAuctionsInfo1:Hide()
-
-		if #c.auctions == 0 then
-			AltoholicTabCharactersStatus:SetText(format(L["%s has no auctions"], player))
-			Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
-			return
-		else
-			AltoholicTabCharactersStatus:SetText(AUCTIONS .. ": " .. player
-					.. ", " .. L["last check "] .. Altoholic:GetDelayInDays(c.lastAHcheck).. L[" days ago"])
-		end
+	end
+	
+	local numAuctions = DS:GetNumAuctions(character)
+	if numAuctions == 0 then
+		AltoholicTabCharactersStatus:SetText(format(L["%s has no auctions"], player))
+		-- make sure the scroll frame is cleared !
+		Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
+		return
+	else
+		AltoholicTabCharactersStatus:SetText("")
 	end
 
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
 	
 	for i=1, VisibleLines do
 		local line = i + offset
-		if line <= #c.auctions then
-			local s = c.auctions[line]
-			
-			local itemName, _, itemRarity = GetItemInfo(s.id)
+		if line <= numAuctions then
+			local index = self.view[line]
+		
+			local isGoblin, itemID, count, highBidder, startPrice, buyoutPrice, timeLeft = DS:GetAuctionHouseItemInfo(character, "Auctions", index)
+
+			local itemName, _, itemRarity = GetItemInfo(itemID)
 			_G[ entry..i.."Name" ]:SetText(select(4, GetItemQualityColor(itemRarity)) .. itemName)
 			
-			if not s.timeLeft then	-- secure this in case it is nil (may happen when other auction monitoring addons are present)
-				s.timeLeft = 1
-			elseif (s.timeLeft < 1) or (s.timeLeft > 4) then
-				s.timeLeft = 1
+			if not timeLeft then	-- secure this in case it is nil (may happen when other auction monitoring addons are present)
+				timeLeft = 1
+			elseif (timeLeft < 1) or (timeLeft > 4) then
+				timeLeft = 1
 			end
 			
-			_G[ entry..i.."TimeLeft" ]:SetText( TEAL .. _G["AUCTION_TIME_LEFT"..s.timeLeft] 
-								.. " (" .. _G["AUCTION_TIME_LEFT"..s.timeLeft .. "_DETAIL"] .. ")")
+			_G[ entry..i.."TimeLeft" ]:SetText( TEAL .. _G["AUCTION_TIME_LEFT"..timeLeft] 
+								.. " (" .. _G["AUCTION_TIME_LEFT"..timeLeft .. "_DETAIL"] .. ")")
 
-			local bidder
-			if s.AHLocation then
-				bidder = L["Goblin AH"] .. "\n"
-			else
-				bidder = ""
-			end
-			
-			if s.highBidder then
-				bidder = bidder .. WHITE .. s.highBidder
-			else
-				bidder = bidder .. RED .. NO_BIDS
-			end
+			local bidder = (isGoblin) and L["Goblin AH"] .. "\n" or ""
+			bidder = (highBidder) and WHITE .. highBidder or RED .. NO_BIDS
 			_G[ entry..i.."HighBidder" ]:SetText(bidder)
 			
-			_G[ entry..i.."Price" ]:SetText(Altoholic:GetMoneyString(s.startPrice) .. "\n"  
-					.. GREEN .. BUYOUT .. ": " ..  Altoholic:GetMoneyString(s.buyoutPrice))
-			_G[ entry..i.."ItemIconTexture" ]:SetTexture(GetItemIcon(s.id));
-			if (s.count ~= nil) and (s.count > 1) then
-				_G[ entry..i.."ItemCount" ]:SetText(s.count)
+			_G[ entry..i.."Price" ]:SetText(Altoholic:GetMoneyString(startPrice) .. "\n"  
+					.. GREEN .. BUYOUT .. ": " ..  Altoholic:GetMoneyString(buyoutPrice))
+			_G[ entry..i.."ItemIconTexture" ]:SetTexture(GetItemIcon(itemID));
+			if count and count > 1 then
+				_G[ entry..i.."ItemCount" ]:SetText(count)
 				_G[ entry..i.."ItemCount" ]:Show()
 			else
 				_G[ entry..i.."ItemCount" ]:Hide()
 			end
 
-			_G[ entry..i.."Item" ]:SetID(line)
+			_G[ entry..i.."Item" ]:SetID(index)
 			_G[ entry..i ]:Show()
 		else
 			_G[ entry..i ]:Hide()
 		end
 	end
 	
-	if #c.auctions < VisibleLines then
+	if numAuctions < VisibleLines then
 		FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleLines, VisibleLines, 41);
 	else
-		FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], #c.auctions, VisibleLines, 41);
+		FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], numAuctions, VisibleLines, 41);
 	end
 end
 
 function Altoholic.AuctionHouse:UpdateBids()
-	local c = Altoholic:GetCharacterTable()
 	local VisibleLines = 7
 	local frame = "AltoholicFrameAuctions"
 	local entry = frame.."Entry"
 	
 	local player = Altoholic:GetCurrentCharacter()
+	local self = Altoholic.AuctionHouse
+	local DS = DataStore
+	local character = Altoholic.Tabs.Characters:GetCurrent()
 	
-	if c.AHCheckClientDate then
-		-- new timestamps
-		local localDate = format(L["Last visit: %s by %s"], GREEN..c.AHCheckClientDate..WHITE, GREEN..player)
-		local localTime = format("%s%02d%s:%s%02d", GREEN, c.AHCheckClientHour, WHITE, GREEN, c.AHCheckClientMinute )
-		AltoholicFrameAuctionsInfo1:SetText(localDate .. WHITE .. " @ " .. localTime)
+	local lastVisit = DS:GetAuctionHouseLastVisit(character)
+	
+	if lastVisit ~= 0 then
+		local localDate = format(L["Last visit: %s by %s"], GREEN..date("%m/%d/%Y", lastVisit)..WHITE, GREEN..player)
+		AltoholicFrameAuctionsInfo1:SetText(localDate .. WHITE .. " @ " .. date("%H:%M", lastVisit))
 		AltoholicFrameAuctionsInfo1:Show()
-		AltoholicTabCharactersStatus:SetText("")
-		
-		if #c.bids == 0 then
-			AltoholicTabCharactersStatus:SetText(format(L["%s has no bids"], player))
-			Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
-			return
-		end
-
 	else
+		-- never visited the AH
 		AltoholicFrameAuctionsInfo1:Hide()
-	
-		if #c.bids == 0 then
-			AltoholicTabCharactersStatus:SetText(format(L["%s has no bids"], player))
-			Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
-			return
-		else
-			AltoholicTabCharactersStatus:SetText(BIDS .. ": " .. player
-				.. ", " .. L["last check "] .. Altoholic:GetDelayInDays(c.lastAHcheck).. L[" days ago"])
-		end
 	end
-
+	
+	local numBids = DS:GetNumBids(character)
+	if numBids == 0 then
+		AltoholicTabCharactersStatus:SetText(format(L["%s has no bids"], player))
+		-- make sure the scroll frame is cleared !
+		Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
+		return
+	else
+		AltoholicTabCharactersStatus:SetText("")
+	end
+	
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
 	
 	for i=1, VisibleLines do
 		local line = i + offset
-		if line <= #c.bids then
-			local s = c.bids[line]
+		if line <= numBids then
+			local index = self.view[line]
+			local isGoblin, itemID, count, ownerName, bidPrice, buyoutPrice, timeLeft = DS:GetAuctionHouseItemInfo(character, "Bids", index)
 			
-			local itemName, _, itemRarity = GetItemInfo(s.id)
+			local itemName, _, itemRarity = GetItemInfo(itemID)
 			_G[ entry..i.."Name" ]:SetText(select(4, GetItemQualityColor(itemRarity)) .. itemName)
 			
-			_G[ entry..i.."TimeLeft" ]:SetText( TEAL .. _G["AUCTION_TIME_LEFT"..s.timeLeft] 
-								.. " (" .. _G["AUCTION_TIME_LEFT"..s.timeLeft .. "_DETAIL"] .. ")")
+			_G[ entry..i.."TimeLeft" ]:SetText( TEAL .. _G["AUCTION_TIME_LEFT"..timeLeft] 
+								.. " (" .. _G["AUCTION_TIME_LEFT"..timeLeft .. "_DETAIL"] .. ")")
 			
-			if s.AHLocation then
-				_G[ entry..i.."HighBidder" ]:SetText(L["Goblin AH"] .. "\n" .. WHITE .. s.owner)
+			if isGoblin then
+				_G[ entry..i.."HighBidder" ]:SetText(L["Goblin AH"] .. "\n" .. WHITE .. ownerName)
 			else
-				_G[ entry..i.."HighBidder" ]:SetText(WHITE .. s.owner)
+				_G[ entry..i.."HighBidder" ]:SetText(WHITE .. ownerName)
 			end
 			
-			_G[ entry..i.."Price" ]:SetText(ORANGE .. CURRENT_BID .. ": " .. Altoholic:GetMoneyString(s.bidPrice) .. "\n"  
-					.. GREEN .. BUYOUT .. ": " ..  Altoholic:GetMoneyString(s.buyoutPrice))
-			_G[ entry..i.."ItemIconTexture" ]:SetTexture(GetItemIcon(s.id));
-			if (s.count ~= nil) and (s.count > 1) then
-				_G[ entry..i.."ItemCount" ]:SetText(s.count)
+			_G[ entry..i.."Price" ]:SetText(ORANGE .. CURRENT_BID .. ": " .. Altoholic:GetMoneyString(bidPrice) .. "\n"  
+					.. GREEN .. BUYOUT .. ": " ..  Altoholic:GetMoneyString(buyoutPrice))
+			_G[ entry..i.."ItemIconTexture" ]:SetTexture(GetItemIcon(itemID));
+			if count and count > 1 then
+				_G[ entry..i.."ItemCount" ]:SetText(count)
 				_G[ entry..i.."ItemCount" ]:Show()
 			else
 				_G[ entry..i.."ItemCount" ]:Hide()
 			end
 
-			_G[ entry..i.."Item" ]:SetID(line)
+			_G[ entry..i.."Item" ]:SetID(index)
 			_G[ entry..i ]:Show()
 		else
 			_G[ entry..i ]:Hide()
 		end
 	end
 	
-	if #c.bids < VisibleLines then
+	if numBids < VisibleLines then
 		FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleLines, VisibleLines, 41);
 	else
-		FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], #c.bids, VisibleLines, 41);
+		FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], numBids, VisibleLines, 41);
 	end
 end
 
-function Altoholic.AuctionHouse:ScanBids()
-	local self = Altoholic.AuctionHouse
-	local c = Altoholic.ThisCharacter
-	local numItems = GetNumAuctionItems("bidder")
-
-	local AHZone
-	local zone = GetRealZoneText()
-	if (zone == BZ["Stranglethorn Vale"]) or		-- if it's a goblin AH .. save the value 1
-		(zone == BZ["Tanaris"]) or
-		(zone == BZ["Winterspring"]) then
-		AHZone = 1
+function Altoholic.AuctionHouse:OnEnter(self)
+	local DS = DataStore
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local ahType = Altoholic.AuctionHouse.AuctionType
+	local index = self:GetID()
+	
+	local _, id = DS:GetAuctionHouseItemInfo(character, ahType, index)
+	
+	if id then
+		local _, link = GetItemInfo(id)
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+		GameTooltip:SetHyperlink(link);
+		GameTooltip:Show();
 	end
-
-	self:ClearEntries("bids", AHZone, UnitName("player"))
-	
-	c.lastAHcheck = time()
-	
-	if GetLocale() == "enUS" then				-- adjust this test if there's demand
-		c.AHCheckClientDate = date("%m/%d/%Y")
-	else
-		c.AHCheckClientDate = date("%d/%m/%Y")
-	end
-	c.AHCheckClientHour = tonumber(date("%H"))
-	c.AHCheckClientMinute = tonumber(date("%M"))
-	
-	if numItems == 0 then return end
-	
-	for i = 1, numItems do
-		local itemName, _, itemCount, _, _, _,	_, 
-			_, buyout, bidAmount, _, ownerName = GetAuctionItemInfo("bidder", i);
-			
-		if itemName then
-			table.insert(c.bids, {
-				id = Altoholic:GetIDFromLink(GetAuctionItemLink("bidder", i)),
-				count = itemCount,
-				AHLocation = AHZone,
-				bidPrice = bidAmount,
-				buyoutPrice = buyout,
-				owner = ownerName,
-				timeLeft = GetAuctionItemTimeLeft("bidder", i)
-			} )
-		end
-	end
-	
 end
 
-function Altoholic.AuctionHouse:ScanAuctions()
-	local self = Altoholic.AuctionHouse
-	local c = Altoholic.ThisCharacter
-	local numItems = GetNumAuctionItems("owner")
+function Altoholic.AuctionHouse:OnClick(self, button)
+	local DS = DataStore
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local ahType = Altoholic.AuctionHouse.AuctionType
+	local index = self:GetID()
+	
+	local _, id = DS:GetAuctionHouseItemInfo(character, ahType, index)
 
-	local AHZone
-	local zone = GetRealZoneText()
-	if (zone == BZ["Stranglethorn Vale"]) or		-- if it's a goblin AH .. save the value 1
-		(zone == BZ["Tanaris"]) or
-		(zone == BZ["Winterspring"]) then
-		AHZone = 1
-	end	
-
-	self:ClearEntries("auctions", AHZone, UnitName("player"))
-	
-	c.lastAHcheck = time()
-	if numItems == 0 then return end
-	
-	for i = 1, numItems do
-		local itemName, _, itemCount, _, _, _,	minBid, 
-			_, buyout, _,	highBidderName = GetAuctionItemInfo("owner", i);
-
-		if itemName then
-			table.insert(c.auctions, {
-				id = Altoholic:GetIDFromLink(GetAuctionItemLink("owner", i)),
-				count = itemCount,
-				AHLocation = AHZone,
-				highBidder = highBidderName,
-				startPrice = minBid,
-				buyoutPrice = buyout,
-				timeLeft = GetAuctionItemTimeLeft("owner", i)
-			} )
-		end
-	end
-	
-end
-
-function Altoholic.AuctionHouse:GetItemCount(searchedID)
-	local c = Altoholic.CountCharacter
-	
-	if #c.auctions == 0 then return 0 end	-- fast exit if no auctions
-	
-	local count = 0
-	for k, v in pairs (c.auctions) do
-		if (v.id == searchedID) then 
-			count = count + (v.count or 1)
-		end 
-	end
-
-	return count
-end
-
-function Altoholic.AuctionHouse:ClearEntries(AHType, AHZone, character)
-	-- AHType = "auctions" or "bids" (the name of the table in the DB)
-	-- AHZone = nil for player faction, or 1 for goblin
-	
-	local r = Altoholic.ThisRealm
-	local c = r.char[character]
-	
-	for i = #c[AHType], 1, -1 do			-- parse backwards to avoid messing up the index
-		if c[AHType][i].AHLocation == AHZone then
-			table.remove(c[AHType], i)
+	if id then
+		local _, link = GetItemInfo(id)
+		if ( button == "LeftButton" ) and ( IsControlKeyDown() ) then
+			DressUpItemLink(link);
+		elseif ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
+			if ( ChatFrameEditBox:IsShown() ) then
+				ChatFrameEditBox:Insert(link);
+			else
+				AltoholicFrame_SearchEditBox:SetText(GetItemInfo(link))
+			end
 		end
 	end
 end
+
+
 
 function Altoholic.AuctionHouse:RightClickMenu_OnLoad()
 	local info = UIDropDownMenu_CreateInfo(); 
@@ -367,27 +307,27 @@ function Altoholic.AuctionHouse:RightClickMenu_OnLoad()
 	info.value		= 3
 	info.func		= Altoholic_ClearPlayerAHEntries;
 	UIDropDownMenu_AddButton(info, 1); 
+
+	-- Close menu item
+	info.text = CLOSE
+	info.func = function() CloseDropDownMenus() end
+	info.checked = nil
+	info.icon = nil
+	info.notCheckable = 1
+	UIDropDownMenu_AddButton(info, 1)
 end
 
 function Altoholic_ClearPlayerAHEntries(self)
-	local c = Altoholic:GetCharacterTable()
-	
+	local DS = DataStore
+	local character = Altoholic.Tabs.Characters:GetCurrent()
 	local ahType = Altoholic.AuctionHouse.AuctionType
 	
 	if (self.value == 1) or (self.value == 3) then	-- clean this faction's data
-		for i = #c[ahType], 1, -1 do
-			if c[ahType][i].AHLocation == nil then
-				table.remove(c[ahType], i)
-			end
-		end
+		DS:ClearAuctionEntries(character, ahType, 0)
 	end
 	
 	if (self.value == 2) or (self.value == 3) then	-- clean goblin AH
-		for i = #c[ahType], 1, -1 do
-			if c[ahType][i].AHLocation == 1 then
-				table.remove(c[ahType], i)
-			end
-		end
+		DS:ClearAuctionEntries(character, ahType, 1)
 	end
 	
 	Altoholic.AuctionHouse:Update();
@@ -397,10 +337,7 @@ end
 
 function Altoholic.AuctionHouse:OnShow()
 	local self = Altoholic.AuctionHouse
-	self.isOpen = true
 	Altoholic:RegisterEvent("AUCTION_HOUSE_CLOSED", self.OnClose)
-	Altoholic:RegisterEvent("AUCTION_BIDDER_LIST_UPDATE", self.ScanBids)
-	Altoholic:RegisterEvent("AUCTION_OWNED_LIST_UPDATE", self.ScanAuctions)
 	
 	-- do not activate now, requires a few changes, and certainly the implementation of DataStore_Crafts
 	-- if not self.Orig_AuctionFrameBrowse_Update then
@@ -430,9 +367,5 @@ function Altoholic.AuctionHouse.BrowseUpdateHook()
 end
 
 function Altoholic.AuctionHouse:OnClose()
-	local self = Altoholic.AuctionHouse
-	self.isOpen = nil
 	Altoholic:UnregisterEvent("AUCTION_HOUSE_CLOSED")
-	Altoholic:UnregisterEvent("AUCTION_OWNED_LIST_UPDATE")
-	Altoholic:UnregisterEvent("AUCTION_BIDDER_LIST_UPDATE")
 end

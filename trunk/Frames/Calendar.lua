@@ -445,42 +445,51 @@ function Altoholic.Calendar.Events:BuildList()
 	wipe(self.List)
 
 	local ClockDiff = Altoholic.Calendar.ClockDiff or 0
+	local DS = DataStore
 	
-	for RealmName, r in pairs(Altoholic.ThisAccount) do
-		for CharacterName, c in pairs(r.char) do
+	for realm in pairs(DS:GetRealms()) do
+		for characterName, character in pairs(DS:GetCharacters(realm)) do
+
 			-- Profession Cooldowns
-			local isCDWarningDone
-			for k, v in pairs(c.ProfessionCooldowns) do
-				local reset, lastcheck = strsplit("|", v)
-				reset = tonumber(reset)
-				lastcheck = tonumber(lastcheck)
+			for professionName, profession in pairs(DS:GetProfessions(character)) do
+				local isCDWarningDone
 				
-				if reset - (time() - lastcheck) > 0 then	-- expires later
-					local expires = reset + lastcheck + ClockDiff
-					self:Add(COOLDOWN_LINE, date("%Y-%m-%d",expires), date("%H:%M",expires), CharacterName, RealmName, k)
-				else	-- has expired
-					local _, item = strsplit("|", k)
-					if not isCDWarningDone then
-						-- prevents a wall of text for the professions that share like 20 CD's (alchemy,...)
-						Altoholic:Print(format(L["%s is now ready (%s on %s)"], item, CharacterName, RealmName ))
-						isCDWarningDone = true
+				-- inform user about expired cooldowns
+				for i = 1, DS:GetNumActiveCooldowns(profession) do
+					local name, expiresIn = DS:GetCraftCooldownInfo(profession, i)
+					
+					if expiresIn <= 0 then	-- expired events
+						if not isCDWarningDone then			-- prevents a wall of text for the professions that share like 20 CD's (alchemy,...)
+							Altoholic:Print(format(L["%s is now ready (%s on %s)"], name, characterName, realm ))
+							isCDWarningDone = true
+						end
 					end
-					c.ProfessionCooldowns[k] = nil
+				end
+				
+				DS:ClearExpiredCooldowns(profession)
+
+				-- only non-expired cooldowns remain, add them all
+				for i = 1, DS:GetNumActiveCooldowns(profession) do
+					local _, _, reset, lastCheck = DS:GetCraftCooldownInfo(profession, i)
+					local expires = reset + lastCheck + ClockDiff
+					self:Add(COOLDOWN_LINE, date("%Y-%m-%d",expires), date("%H:%M",expires), characterName, realm, i, profession)
 				end
 			end
 			
+			local c = Altoholic:GetCharacterTable(characterName, realm)
+			
 			-- Saved Instances
 			for k, v in pairs(c.SavedInstance) do
-				local reset, lastcheck = strsplit("|", v)
+				local reset, lastCheck = strsplit("|", v)
 				reset = tonumber(reset)
-				lastcheck = tonumber(lastcheck)
+				lastCheck = tonumber(lastCheck)
 				
-				if reset - (time() - lastcheck) > 0 then	-- expires later
-					local expires = reset + lastcheck + ClockDiff
-					self:Add(INSTANCE_LINE, date("%Y-%m-%d",expires), date("%H:%M",expires), CharacterName, RealmName, k)
+				if reset - (time() - lastCheck) > 0 then	-- expires later
+					local expires = reset + lastCheck + ClockDiff
+					self:Add(INSTANCE_LINE, date("%Y-%m-%d",expires), date("%H:%M",expires), characterName, realm, k)
 				else	-- has expired
 					local instance = strsplit("|", k)
-					Altoholic:Print(format(L["%s is now unlocked (%s on %s)"], instance, CharacterName, RealmName ))
+					Altoholic:Print(format(L["%s is now unlocked (%s on %s)"], instance, characterName, realm ))
 					c.SavedInstance[k] = nil
 				end
 				
@@ -489,25 +498,25 @@ function Altoholic.Calendar.Events:BuildList()
 			-- Calendar Events
 			for k, v in pairs(c.Calendar) do
 				local eventDate, eventTime = strsplit("|", v)
-				self:Add(CALENDAR_LINE, eventDate, eventTime, CharacterName, RealmName, k)
+				self:Add(CALENDAR_LINE, eventDate, eventTime, characterName, realm, k)
 			end
 			
 			-- ConnectMMO events
 			for k, v in pairs(c.ConnectMMO) do
 				local eventDate, eventTime = strsplit("|", v)
-				self:Add(CONNECTMMO_LINE, eventDate, eventTime, CharacterName, RealmName, k)
+				self:Add(CONNECTMMO_LINE, eventDate, eventTime, characterName, realm, k)
 			end
 			
 			-- Other timers (like mysterious egg, etc..)
 			for k, v in pairs(c.Timers) do
-				local item, lastcheck, duration = strsplit("|", v)
-				lastcheck = tonumber(lastcheck)
+				local item, lastCheck, duration = strsplit("|", v)
+				lastCheck = tonumber(lastCheck)
 				duration = tonumber(duration)
-				local expires = duration + lastcheck + ClockDiff
+				local expires = duration + lastCheck + ClockDiff
 				if (expires - time()) > 0 then
-					self:Add(TIMER_LINE, date("%Y-%m-%d",expires), date("%H:%M",expires), CharacterName, RealmName, k)
+					self:Add(TIMER_LINE, date("%Y-%m-%d",expires), date("%H:%M",expires), characterName, realm, k)
 				else
-					Altoholic:Print(format(L["%s is now ready (%s on %s)"], item, CharacterName, RealmName ))
+					Altoholic:Print(format(L["%s is now ready (%s on %s)"], item, characterName, realm ))
 					c.Timers[k] = nil
 				end
 			end
@@ -534,7 +543,7 @@ function Altoholic.Calendar.Events:Update()
 		local line = i + offset
 		if line <= #self.view then
 			local s = self.view[line]
-			
+
 			if s.linetype == EVENT_DATE then
 				local year, month, day, weekday = GetDay(s.eventDate)
 				_G[ entry..i.."Date" ]:SetText(format(FULLDATE, GetFullDate(weekday, month, day, year)))
@@ -576,20 +585,19 @@ function Altoholic.Calendar.Events:GetInfo(index)
 	if not e then return end
 				
 	local c = Altoholic:GetCharacterTable(e.char, e.realm)
-	local char = Altoholic:GetClassColor(c.englishClass) .. e.char
+	
+	local DS = DataStore
+	local character = DS:GetCharacter(e.char, e.realm)
+	local char = DS:GetColoredCharacterName(character)
+	
 	if e.realm ~= GetRealmName() then	-- different realm ?
 		char = format("%s %s(%s)", char, GREEN, e.realm)
 	end
 				
 	local title, desc
 	if e.eventType == COOLDOWN_LINE then
-		_, title = strsplit("|", e.parentID)
-
-		local reset, lastcheck = strsplit("|", c.ProfessionCooldowns[e.parentID])
-		reset = tonumber(reset)
-		lastcheck = tonumber(lastcheck)
-		local expiresIn = reset - (time() - lastcheck)
-		
+		local expiresIn
+		title, expiresIn = DS:GetCraftCooldownInfo(e.source, e.parentID)
 		desc = format("%s %s", COOLDOWN_REMAINING, Altoholic:GetTimeString(expiresIn))
 		
 	elseif e.eventType == INSTANCE_LINE then
@@ -659,14 +667,15 @@ function Altoholic.Calendar.Events:Sort()
 	end)
 end
 
-function Altoholic.Calendar.Events:Add(eventType, eventDate, eventTime, char, realm, index)
+function Altoholic.Calendar.Events:Add(eventType, eventDate, eventTime, char, realm, index, externalTable)
 	table.insert(self.List, {
 		eventType = eventType, 
 		eventDate = eventDate, 
 		eventTime = eventTime, 
 		char = char,
 		realm = realm,
-		parentID = index })
+		parentID = index,
+		source = externalTable})
 end
 
 function Altoholic.Calendar.Events:GetNum(year, month, day)

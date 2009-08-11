@@ -1,4 +1,3 @@
-local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 
 local INFO_REALM_LINE = 0
@@ -12,6 +11,9 @@ local GREY		= "|cFF808080"
 local GOLD		= "|cFFFFD700"
 local RED		= "|cFFFF0000"
 
+local ICON_FACTION_HORDE = "Interface\\Icons\\INV_BannerPVP_01"
+local ICON_FACTION_ALLIANCE = "Interface\\Icons\\INV_BannerPVP_02"
+
 Altoholic.Activity = {}
 
 function Altoholic.Activity:Update()
@@ -20,6 +22,8 @@ function Altoholic.Activity:Update()
 	local entry = frame.."Entry"
 	
 	local Characters = Altoholic.Characters
+	
+	local DS = DataStore
 	
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
 	local DisplayedCount = 0
@@ -65,12 +69,8 @@ function Altoholic.Activity:Update()
 				if s.account == "Default" then	-- saved as default, display as localized.
 					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", s.realm, WHITE, GREEN, L["Default"]))
 				else
-					local r = Altoholic:GetRealmTable(CurrentRealm, CurrentAccount)
-					if r and r.lastAccountSharing then
-						_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", s.realm, WHITE, GREEN, s.account, YELLOW, r.lastAccountSharing))
-					else
-						_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", s.realm, WHITE, GREEN, s.account))
-					end
+					local last = Altoholic:GetLastAccountSharingInfo(CurrentRealm, CurrentAccount)
+					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", s.realm, WHITE, GREEN, s.account, YELLOW, last or ""))
 				end				
 				_G[entry..i.."Level"]:SetText("")
 				_G[entry..i.."MailsNormalText"]:SetText("")
@@ -87,56 +87,52 @@ function Altoholic.Activity:Update()
 				DisplayedCount = DisplayedCount + 1
 			elseif DrawRealm then
 				if (lineType == INFO_CHARACTER_LINE) then
-					local c = Altoholic.db.global.data[CurrentAccount][CurrentRealm].char[s.name]
-				
+					local character = DS:GetCharacter(s.name, CurrentRealm, CurrentAccount)
+					
 					local icon
-					if c.faction == "Alliance" then
-						icon = Altoholic:TextureToFontstring("Interface\\Icons\\INV_BannerPVP_02", 18, 18) .. " "
+					if DS:GetCharacterFaction(character) == "Alliance" then
+						icon = Altoholic:TextureToFontstring(ICON_FACTION_ALLIANCE, 18, 18) .. " "
 					else
-						icon = Altoholic:TextureToFontstring("Interface\\Icons\\INV_BannerPVP_01", 18, 18) .. " "
+						icon = Altoholic:TextureToFontstring(ICON_FACTION_HORDE, 18, 18) .. " "
 					end
 					
 					_G[entry..i.."Collapse"]:Hide()
 					_G[entry..i.."Name"]:SetWidth(170)
 					_G[entry..i.."Name"]:SetPoint("TOPLEFT", 10, 0)
 					_G[entry..i.."NameNormalText"]:SetWidth(170)
-					_G[entry..i.."NameNormalText"]:SetText(icon .. format("%s%s (%s)", Altoholic:GetClassColor(c.englishClass), s.name, c.class))
-					_G[entry..i.."Level"]:SetText(GREEN .. c.level)
+					_G[entry..i.."NameNormalText"]:SetText(icon .. format("%s (%s)", DS:GetColoredCharacterName(character), DS:GetCharacterClass(character)))
+					_G[entry..i.."Level"]:SetText(GREEN .. DS:GetCharacterLevel(character))
 				
-					local numMails = #c.mail + #c.mailCache
-					if numMails == 0 then
+					local num = DS:GetNumMails(character)
+					if num == 0 then
 						_G[entry..i.."MailsNormalText"]:SetText(GREY .. "0")
 					else
 						local color = GREEN		-- green by default, red if at least one mail is about to expire
 						
-						if (Altoholic.Mail:GetNumExpiredMails(c.mail) > 0) or
-							(Altoholic.Mail:GetNumExpiredMails(c.mailCache) > 0) then
+						local threshold = Altoholic.Options:Get("MailWarningThreshold")
+						if DS:GetNumExpiredMails(character, threshold) > 0 then
 							color = RED
 						end
 					
-						_G[entry..i.."MailsNormalText"]:SetText(color .. numMails)
+						_G[entry..i.."MailsNormalText"]:SetText(color .. num)
 					end
 					
-					_G[entry..i.."LastMailCheckNormalText"]:SetText(WHITE .. Altoholic:FormatDelay(c.lastmailcheck))
+					local lastVisit = DS:GetMailboxLastVisit(character)
+					_G[entry..i.."LastMailCheckNormalText"]:SetText(WHITE .. Altoholic:FormatDelay(lastVisit))
 					
-					if #c.auctions == 0 then
-						_G[entry..i.."AuctionsNormalText"]:SetText(GREY .. "0")
-					else
-						_G[entry..i.."AuctionsNormalText"]:SetText(GREEN .. #c.auctions)
-					end
+					num = DS:GetNumAuctions(character)
+					_G[entry..i.."AuctionsNormalText"]:SetText(((num == 0) and GREY or GREEN) .. num)
+
+					num = DS:GetNumBids(character)
+					_G[entry..i.."BidsNormalText"]:SetText(((num == 0) and GREY or GREEN) .. num)
 					
-					if #c.bids == 0 then
-						_G[entry..i.."BidsNormalText"]:SetText(GREY .. "0")
-					else
-						_G[entry..i.."BidsNormalText"]:SetText(GREEN .. #c.bids)
-					end
-					
-					_G[entry..i.."LastAHCheckNormalText"]:SetText(WHITE .. Altoholic:FormatDelay(c.lastAHcheck))
+					lastVisit = DS:GetAuctionHouseLastVisit(character)
+					_G[entry..i.."LastAHCheckNormalText"]:SetText(WHITE .. Altoholic:FormatDelay(lastVisit))
 
 					if (s.name == UnitName("player")) and (CurrentRealm == GetRealmName()) and (CurrentAccount == "Default") then
 						_G[entry..i.."LastLogoutNormalText"]:SetText(GREEN .. GUILD_ONLINE_LABEL)
 					else
-						_G[entry..i.."LastLogoutNormalText"]:SetText(WHITE .. Altoholic:FormatDelay(c.lastlogout))
+						_G[entry..i.."LastLogoutNormalText"]:SetText(WHITE .. Altoholic:FormatDelay(DS:GetLastLogout(character)))
 					end
 				elseif (lineType == INFO_TOTAL_LINE) then
 					_G[entry..i.."Collapse"]:Hide()
@@ -178,38 +174,43 @@ function Altoholic.Activity:OnEnter(self)
 		return
 	end
 	
-	local r = Altoholic:GetRealmTableByLine(line)
-	local c = r.char[s.name]
-	local suggestion = Altoholic:GetSuggestion("Leveling", c.level)
+	local DS = DataStore
+	local character = DS:GetCharacter(Altoholic.Characters:GetInfo(line))
 	
 	AltoTooltip:ClearLines();
 	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
 	
-	AltoTooltip:AddLine(Altoholic:GetClassColor(c.englishClass) .. s.name,1,1,1);
-	AltoTooltip:AddLine(L["Level"] .. " " .. GREEN .. c.level .. " |r".. c.race .. " " .. c.class,1,1,1);
-	AltoTooltip:AddLine(L["Zone"] .. ": " .. GOLD .. c.zone .. " |r(" .. GOLD .. c.subzone .."|r)",1,1,1);	
+	AltoTooltip:AddDoubleLine(DS:GetColoredCharacterName(character), DS:GetColoredCharacterFaction(character))
+	AltoTooltip:AddLine(format("%s %s |r%s %s", L["Level"], 
+		GREEN..DS:GetCharacterLevel(character), DS:GetCharacterRace(character),	DS:GetCharacterClass(character)),1,1,1)
+
+	local zone, subZone = DS:GetLocation(character)
+	AltoTooltip:AddLine(format("%s: %s |r(%s|r)", L["Zone"], GOLD..zone, GOLD..subZone),1,1,1)
+	
 	AltoTooltip:AddLine(EXPERIENCE_COLON .. " " 
-				.. GREEN .. c.xp .. WHITE .. "/" 
-				.. GREEN .. c.xpmax .. WHITE .. " (" 
-				.. GREEN .. floor((c.xp / c.xpmax) * 100) .. "%"
+				.. GREEN .. DS:GetXP(character) .. WHITE .. "/" 
+				.. GREEN .. DS:GetXPMax(character) .. WHITE .. " (" 
+				.. GREEN .. DS:GetXPRate(character) .. "%"
 				.. WHITE .. ")",1,1,1);	
 	
-	if c.restxp then
-		AltoTooltip:AddLine(L["Rest XP"] .. ": " .. GREEN .. c.restxp,1,1,1);
+	local restXP = DS:GetRestXP(character)
+	if restXP and restXP > 0 then
+		AltoTooltip:AddLine(format("%s: %s", L["Rest XP"], GREEN..restXP),1,1,1)
 	end
 
 	AltoTooltip:AddLine(" ",1,1,1);
 	AltoTooltip:AddLine(GOLD..CURRENCY..":",1,1,1);
 	
-	local bCurrencyFound = false
-	for currency, ownerList in pairs(r.tokens) do
-		if ownerList[s.name] then
-			bCurrencyFound = true
-			AltoTooltip:AddLine(currency..": "..GREEN..ownerList[s.name],1,1,1);
+	for i = 1, DS:GetNumCurrencies(character) do
+		local isHeader, name, count = DS:GetCurrencyInfo(character, i)
+		if isHeader then
+			AltoTooltip:AddLine(YELLOW..name)
+		else
+			AltoTooltip:AddLine(format("  %s: %s", name, GREEN..count),1,1,1);
 		end
 	end
 	
-	if bCurrencyFound == false then
+	if DS:GetNumCurrencies(character) == 0 then
 		AltoTooltip:AddLine(WHITE..NONE,1,1,1);
 	end
 	
@@ -235,33 +236,28 @@ function Altoholic.Activity:OnClick(self)
 	
 	Altoholic:SetCurrentCharacter( Altoholic.Characters:GetInfo(line) )
 	
+	local DS = DataStore
+	local character = DS:GetCharacter(Altoholic.Characters:GetInfo(line))
+	
 	local action
-	local c = Altoholic:GetCharacterTable()
 	
 	if id == 1 then			-- mails
-		if (#c.mail+#c.mailCache) > 0 then				-- only set the action if there are data to show
+		if DS:GetNumMails(character) > 0 then				-- only set the action if there are data to show
 			action = VIEW_MAILS
 		end
 	elseif id == 3 then		-- auctions
-		if #c.auctions > 0 then
+		if DS:GetNumAuctions(character) > 0 then
 			action = VIEW_AUCTIONS
 		end
 	elseif id == 4 then		-- bids
-		if #c.bids > 0 then
+		if DS:GetNumBids(character) > 0 then
 			action = VIEW_BIDS
 		end
 	end
 	
 	if action then
-		local charName, realm, account = Altoholic:GetCurrentCharacter()
-		local tc = Altoholic.Tabs.Characters
-		tc:DropDownRealm_Initialize()
-		UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, account .."|".. realm)
-		
-		tc:DropDownChar_Initialize()
-		UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, charName)
-		
+		Altoholic.Tabs.Characters:SetCurrent( Altoholic:GetCurrentCharacter() )
 		Altoholic.Tabs:OnClick(2)
-		tc:ViewCharInfo(action)	
+		Altoholic.Tabs.Characters:ViewCharInfo(action)	
 	end
 end

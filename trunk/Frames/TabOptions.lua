@@ -1,5 +1,6 @@
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 
+local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
 
 Altoholic.Options = {}
@@ -9,20 +10,6 @@ function Altoholic.Options:Init()
 	
 	-- ** Frame 1 : General **
 	AltoholicTabOptionsFrame1_RestXPModeText:SetText(L["Max rest XP displayed as 150%"])
-	AltoholicTabOptionsFrame1_ShowFubarIconText:SetText(L["Show FuBar icon"])
-	AltoholicTabOptionsFrame1_ShowFubarTextText:SetText(L["Show FuBar text"])
-	AltoholicTabOptionsFrame1_AccSharingCommText:SetText(L["Account Sharing Enabled"])
-	AltoholicTabOptionsFrame1_AccSharingComm.tooltip = format("%s%s%s%s",
-		L["|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option will allow other Altoholic users\nto send you account sharing requests.\n"],
-		L["Your confirmation will still be required any time someone requests your information.\n\n"],
-		L["When |cFFFF0000disabled|cFFFFFFFF, all requests will be automatically rejected.\n\n"],
-		L["Security hint: Only enable this when you actually need to transfer data,\ndisable otherwise"])
-
-	L["|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option will allow other Altoholic users\nto send you account sharing requests.\n"] = nil
-	L["Your confirmation will still be required any time someone requests your information.\n\n"] = nil
-	L["When |cFFFF0000disabled|cFFFFFFFF, all requests will be automatically rejected.\n\n"] = nil
-	L["Security hint: Only enable this when you actually need to transfer data,\ndisable otherwise"] = nil
-
 	AltoholicTabOptionsFrame1_GuildBankAutoUpdateText:SetText(L["Automatically authorize guild bank updates"])
 	AltoholicTabOptionsFrame1_GuildBankAutoUpdate.tooltip = format("%s%s%s",
 		L["|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option will allow other Altoholic users\nto update their guild bank information with yours automatically.\n\n"],
@@ -36,11 +23,26 @@ function Altoholic.Options:Init()
 	AltoholicTabOptionsFrame1_GuildCommText:SetText(L["Guild Communication Enabled"])
 	
 	L["Max rest XP displayed as 150%"] = nil
-	L["Show FuBar icon"] = nil
-	L["Show FuBar text"] = nil
 	L["Account Sharing Enabled"] = nil
 	L["Guild Communication Enabled"] = nil
 	L["Automatically authorize guild bank updates"] = nil
+	
+	value = AltoholicTabOptionsFrame1_SliderAngle:GetValue()
+	AltoholicTabOptionsFrame1_SliderAngle.tooltipText = L["Move to change the angle of the minimap icon"]
+	AltoholicTabOptionsFrame1_SliderAngleLow:SetText("1");
+	AltoholicTabOptionsFrame1_SliderAngleHigh:SetText("360"); 
+	AltoholicTabOptionsFrame1_SliderAngleText:SetText(format("%s (%s)", L["Minimap Icon Angle"], value))
+	L["Move to change the angle of the minimap icon"] = nil
+	
+	value = AltoholicTabOptionsFrame1_SliderRadius:GetValue()
+	AltoholicTabOptionsFrame1_SliderRadius.tooltipText = L["Move to change the radius of the minimap icon"]; 
+	AltoholicTabOptionsFrame1_SliderRadiusLow:SetText("1");
+	AltoholicTabOptionsFrame1_SliderRadiusHigh:SetText("200"); 
+	AltoholicTabOptionsFrame1_SliderRadiusText:SetText(format("%s (%s)", L["Minimap Icon Radius"], value))
+	L["Move to change the radius of the minimap icon"] = nil
+	
+	AltoholicTabOptionsFrame1_ShowMinimapText:SetText(L["Show Minimap Icon"])
+	L["Show Minimap Icon"] = nil
 	
 	value = AltoholicTabOptionsFrame1_SliderAlpha:GetValue()
 	AltoholicTabOptionsFrame1_SliderAlphaLow:SetText("0.1");
@@ -87,23 +89,36 @@ function Altoholic.Options:Init()
 	AltoholicTabOptionsFrame3_GuildMailWarning.tooltip = format("%s",
 		L["Be informed when a guildmate sends a mail to one of my alts.\n\nMail content is directly visible without having to reconnect the character"])
 
-	-- ** Frame 4 : Minimap **
-	value = AltoholicTabOptionsFrame4_SliderAngle:GetValue()
-	AltoholicTabOptionsFrame4_SliderAngle.tooltipText = L["Move to change the angle of the minimap icon"]
-	AltoholicTabOptionsFrame4_SliderAngleLow:SetText("1");
-	AltoholicTabOptionsFrame4_SliderAngleHigh:SetText("360"); 
-	AltoholicTabOptionsFrame4_SliderAngleText:SetText(format("%s (%s)", L["Minimap Icon Angle"], value))
-	L["Move to change the angle of the minimap icon"] = nil
+	-- ** Frame 4 : Account Sharing **
+	AltoholicTabOptionsFrame4_AccSharingCommText:SetText(L["Account Sharing Enabled"])
+	AltoholicTabOptionsFrame4_AccSharingComm.tooltip = format("%s%s%s%s",
+		L["|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option will allow other Altoholic users\nto send you account sharing requests.\n"],
+		L["Your confirmation will still be required any time someone requests your information.\n\n"],
+		L["When |cFFFF0000disabled|cFFFFFFFF, all requests will be automatically rejected.\n\n"],
+		L["Security hint: Only enable this when you actually need to transfer data,\ndisable otherwise"])
+
+	L["|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option will allow other Altoholic users\nto send you account sharing requests.\n"] = nil
+	L["Your confirmation will still be required any time someone requests your information.\n\n"] = nil
+	L["When |cFFFF0000disabled|cFFFFFFFF, all requests will be automatically rejected.\n\n"] = nil
+	L["Security hint: Only enable this when you actually need to transfer data,\ndisable otherwise"] = nil
+
+	AltoholicTabOptionsFrame4Text1:SetText(WHITE.."Authorizations")
+	AltoholicTabOptionsFrame4Text2:SetText(WHITE..L["Character"])
+	AltoholicTabOptionsFrame4Text3:SetText(WHITE.."Shared Content")
+	AltoholicTabOptionsFrame4_InfoButton.tooltip = format("%s\n%s\n\n%s", 
 	
-	value = AltoholicTabOptionsFrame4_SliderRadius:GetValue()
-	AltoholicTabOptionsFrame4_SliderRadius.tooltipText = L["Move to change the radius of the minimap icon"]; 
-	AltoholicTabOptionsFrame4_SliderRadiusLow:SetText("1");
-	AltoholicTabOptionsFrame4_SliderRadiusHigh:SetText("200"); 
-	AltoholicTabOptionsFrame4_SliderRadiusText:SetText(format("%s (%s)", L["Minimap Icon Radius"], value))
-	L["Move to change the radius of the minimap icon"] = nil
+	WHITE.."This list allows you to automate responses to account sharing requests.",
+	"You can choose to automatically accept or reject requests, or be asked when a request comes in.",
+	"If account sharing is totally disabled, this list will be ignored, and all requests will be rejected." )
 	
-	AltoholicTabOptionsFrame4_ShowMinimapText:SetText(L["Show Minimap Icon"])
-	L["Show Minimap Icon"] = nil
+	AltoholicTabOptionsFrame4IconNever:SetText("\124TInterface\\RaidFrame\\ReadyCheck-NotReady:14\124t")
+	AltoholicTabOptionsFrame4IconAsk:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Waiting:14\124t")
+	AltoholicTabOptionsFrame4IconAuto:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Ready:14\124t")
+	
+	AltoholicTabOptionsFrame4_SharedContentInfoButton.tooltip = format("%s\n%s", 
+		WHITE.."Select the content that will be visible to players who send you",
+		"account sharing requests.")
+	
 	
 	-- ** Frame 5 : Tooltip **
 	AltoholicTabOptionsFrame5SourceText:SetText(L["Show item source"])
@@ -147,11 +162,12 @@ function Altoholic.Options:RestoreToUI()
 	local O = Altoholic.db.global.options
 	
 	AltoholicTabOptionsFrame1_RestXPMode:SetChecked(O.RestXPMode)
-	AltoholicTabOptionsFrame1_ShowFubarIcon:SetChecked(O.FuBarIconShown)
-	AltoholicTabOptionsFrame1_ShowFubarText:SetChecked(O.FuBarTextShown)
 	AltoholicTabOptionsFrame1_GuildBankAutoUpdate:SetChecked(O.GuildBankAutoUpdate)
-	AltoholicTabOptionsFrame1_AccSharingComm:SetChecked(O.AccSharingHandlerEnabled)
+
 	AltoholicTabOptionsFrame1_GuildComm:SetChecked(O.GuildHandlerEnabled)
+	AltoholicTabOptionsFrame1_SliderAngle:SetValue(O.MinimapIconAngle)
+	AltoholicTabOptionsFrame1_SliderRadius:SetValue(O.MinimapIconRadius)
+	AltoholicTabOptionsFrame1_ShowMinimap:SetChecked(O.ShowMinimap)
 	AltoholicTabOptionsFrame1_SliderScale:SetValue(O.UIScale)
 	AltoholicFrame:SetScale(O.UIScale)
 	AltoholicTabOptionsFrame1_SliderAlpha:SetValue(O.UITransparency)
@@ -181,13 +197,12 @@ function Altoholic.Options:RestoreToUI()
 
 	AltoholicTabOptionsFrame3_SliderMailExpiry:SetValue(O.MailWarningThreshold)
 	AltoholicTabOptionsFrame3_CheckMailExpiry:SetChecked(O.CheckMailExpiry)
-	AltoholicTabOptionsFrame3_ScanMailBody:SetChecked(O.ScanMailBody)
-	AltoholicTabOptionsFrame3_GuildMailWarning:SetChecked(O.GuildMailWarning)
 	
-	AltoholicTabOptionsFrame4_SliderAngle:SetValue(O.MinimapIconAngle)
-	AltoholicTabOptionsFrame4_SliderRadius:SetValue(O.MinimapIconRadius)
-	AltoholicTabOptionsFrame4_ShowMinimap:SetChecked(O.ShowMinimap)
+	AltoholicTabOptionsFrame3_ScanMailBody:SetChecked(DataStore:GetOption("DataStore_Mails", "ScanMailBody"))
+	AltoholicTabOptionsFrame3_GuildMailWarning:SetChecked(O.GuildMailWarning)
 
+	AltoholicTabOptionsFrame4_AccSharingComm:SetChecked(O.AccSharingHandlerEnabled)
+	
 	AltoholicTabOptionsFrame5Source:SetChecked(O.TooltipSource)
 	AltoholicTabOptionsFrame5Count:SetChecked(O.TooltipCount)
 	AltoholicTabOptionsFrame5Total:SetChecked(O.TooltipTotal)
@@ -225,7 +240,7 @@ function Altoholic:UpdateMinimapIconCoords()
 	if(O.MinimapIconAngle < 0) then
 		O.MinimapIconAngle = O.MinimapIconAngle + 360
 	end
-	AltoholicTabOptionsFrame4_SliderAngle:SetValue(O.MinimapIconAngle)
+	AltoholicTabOptionsFrame1_SliderAngle:SetValue(O.MinimapIconAngle)
 end
 
 function Altoholic:MoveMinimapIcon()

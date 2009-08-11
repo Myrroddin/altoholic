@@ -1,15 +1,35 @@
 Altoholic Changelog (dates in dd/mm/yyyy)
 ===================
 
-3.1.004
+3.2.001b
+
+- Fixed a Lua error in the quest log (DataStore_Quests).
+- Fixed the option that scans the body of a mail or not (DataStore_Mails)
+- Removed debug code when mousing over a talent.
+- Gathered Ace & LPT libraries used by DataStore_* modules under DataStore (thanks AnrDaemon).
+- Removed Ace libraries already provided by DataStore
+
+3.2.001 (10/08/2009)
+
+YOU MUST DELETE your altoholic.lua in SavedVariables before using this version!
+
+As of this version, Altoholic will be using the DataStore series of addons.
+These small addons are responsible for scanning, storing and providing data to client addons.
+Although I wrote them, they must be seen as independent projects which will offer numerous benefits, such as:
+
+- Other client addons can use them, in order to save memory and processing time.
+- Data is scanned and stored only once.
+- Each module has its own saved variables file (DataStore_Containers, DataStore_Crafts, etc..), so a change in one DB will not impact the other.
+- Scanning has been fine tuned in many places, ex: you can say goodbye to messages like "Recipes could not be read, please rescan" :)
+- This will strongly ease the implementation of account sharing related features.
+
+Other changes:
 
 - Added the possibility to search guild members recipe (enabled by default). Ex: simply type "glacial bag" to see which guild members can craft it.
 - Fixed the calendar to use server time instead of local time. Note that in order to determine the difference between these, the addon waits until time rolls over to the next minute, so in the first minute, values shown in the calendar will not take this offset into account. Warnings are now also triggered after this happened, rather than right after login.
-- Fixed a lua error in the search categories.
-- Fixed a lua error in the achievements categories.
-- Fixed profession scanning when gaining a skill point.
 - Added a small test to prevent a wall of text being displayed when a profession cooldown is available again.
-- Recipe database updated (thanks Ackis !).
+- A lot of lua errors have been fixed.
+
 
 3.1.003b (14/06/2009)
 

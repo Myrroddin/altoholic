@@ -8,10 +8,14 @@ local RED		= "|cFFFF0000"
 local TEAL		= "|cFF00FF9A"
 local YELLOW	= "|cFFFFFF00"
 
-
+local DS
 
 Altoholic.Search = {}
 Altoholic.Search.Results = {}
+
+function Altoholic.Search:Init()
+	DS = DataStore
+end
 
 function Altoholic.Search:Update()
 	local self = Altoholic.Search
@@ -23,12 +27,13 @@ function Altoholic.Search:SetUpdateHandler(h)
 end
 
 local PLAYER_ITEM_LINE = 1
-local PLAYER_CRAFT_LINE = 2
-local GUILD_CRAFT_LINE = 3
+local GUILD_ITEM_LINE = 2
+local PLAYER_CRAFT_LINE = 3
+local GUILD_CRAFT_LINE = 4
 
-function Altoholic.Search:Realm_UpdateEx(offset, entry, desc)
+local function Realm_UpdateEx(self, offset, entry, desc)
 	local line, LineDesc
-	
+
 	for i=1, desc.NumLines do
 		line = i + offset
 		local result = Altoholic.Search.Results:Get(line)
@@ -79,10 +84,9 @@ function Altoholic.Search:Realm_UpdateEx(offset, entry, desc)
 				_G[ entry..i.."ItemCount" ]:Hide()
 			end
 			
-			_G[ entry..i.."Item" ]:SetID(line)
+			local id = LineDesc:GetItemID(result)
+			_G[ entry..i.."Item" ]:SetID(id or 0)
 			_G[ entry..i ]:Show()
-		else
-			_G[ entry..i ]:Hide()
 		end
 	end
 
@@ -102,12 +106,13 @@ end
 -- FauxScrollframes follow a roughly similar pattern, and are usually displaying different types of lines
 -- so the idea is to standardize data collection from the raw tables that are used to populate the scrollframe
 -- that way, a function called GetXXX can be used to display this info regardless of the line type, but can also be reused by sort functions
-Altoholic.Search.Realms_Desc = {
+
+local RealmScrollFrame_Desc = {
 	NumLines = 7,
 	LineHeight = 41,
 	Frame = "AltoholicFrameSearch",
 	GetSize = function() return Altoholic.Search.Results:GetNumber() end,
-	Update = Altoholic.Search.Realm_UpdateEx,
+	Update = Realm_UpdateEx,
 	Lines = {
 		[PLAYER_ITEM_LINE] = {
 			GetItemData = function(self, result)		-- GetItemData..just to avoid calling it GetItemInfo
@@ -118,67 +123,72 @@ Altoholic.Search.Realms_Desc = {
 					return (result.id) and GetItemIcon(result.id) or "Interface\\Icons\\Trade_Engraving"
 				end,
 			GetCharacter = function(self, result)
-					if type(result.char) == "number" then	-- it's a character
-						local name = Altoholic.Characters:GetInfo(result.char)
-						local c = Altoholic:GetCharacterTableByLine(result.char)
-						
-						-- name, color
-						return name, Altoholic:GetClassColor(c.englishClass)
-					else		-- it's a guild
-						local _, _, guildName = strsplit("|", result.char)
-						return guildName, GREEN
-					end
+					local character = result.source
+					return DS:GetCharacterName(character), DS:GetClassColor(character)
 				end,
 			GetRealm = function(self, result)
-					if type(result.char) == "number" then	-- it's a character
-						local _, realm, account = Altoholic.Characters:GetInfo(result.char)
-						local c = Altoholic:GetCharacterTableByLine(result.char)
-		
-						return realm, account, c.faction
-					else		-- it's a guild
-						local account, realm, guildName = strsplit("|", result.char)
-						local r = Altoholic:GetRealmTable(realm, account)
-						
-						return realm, account, r.guild[guildName].faction
-					end
+					local character = result.source
+					local account, realm = strsplit(".", character)
+					return realm, account, DS:GetCharacterFaction(character)
+				end,
+			GetItemID = function(self, result)
+					return result.id
 				end,
 		},
-		[PLAYER_CRAFT_LINE] = {
-			GetItemData = function(self, result, line)
+		[GUILD_ITEM_LINE] = {
+			GetItemData = function(self, result)		-- GetItemData..just to avoid calling it GetItemInfo
 					-- return name, source, sourceID
-					local c = Altoholic:GetCharacterTableByLine(result.char)
-					local _, _, spellID = strsplit("^", c.recipes[result.location].list[result.craftNum])
-					local source = Altoholic.TradeSkills.Recipes:GetLink(spellID, result.location)
-					
-					return GetSpellInfo(tonumber(spellID)), source, line
+					return GetItemInfo(result.id), TEAL .. result.location, 0 
 				end,
 			GetItemTexture = function(self, result)
 					return (result.id) and GetItemIcon(result.id) or "Interface\\Icons\\Trade_Engraving"
 				end,
 			GetCharacter = function(self, result)
-					if type(result.char) == "number" then	-- it's a character
-						local name = Altoholic.Characters:GetInfo(result.char)
-						local c = Altoholic:GetCharacterTableByLine(result.char)
-						
-						-- name, color
-						return name, Altoholic:GetClassColor(c.englishClass)
-					else		-- it's a guild
-						local _, _, guildName = strsplit("|", result.char)
-						return guildName, GREEN
-					end
+					local _, _, guildName = strsplit(".", result.source)
+					return guildName, GREEN
 				end,
 			GetRealm = function(self, result)
-					if type(result.char) == "number" then	-- it's a character
-						local _, realm, account = Altoholic.Characters:GetInfo(result.char)
-						local c = Altoholic:GetCharacterTableByLine(result.char)
+					local account, realm, name = strsplit(".", result.source)
+					local guild = Altoholic:GetGuild(name, realm, account)
+					
+					return realm, account, Altoholic:GetGuildFaction(guild)
+				end,
+			GetItemID = function(self, result)
+					return result.id
+				end,
+		},
+		[PLAYER_CRAFT_LINE] = {
+			GetItemData = function(self, result, line)
+					-- return name, source, sourceID
+					local _, _, spellID = DS:GetCraftLineInfo(result.profession, result.craftIndex)
+					local source = Altoholic.TradeSkills.Recipes:GetLink(spellID, result.professionName)
+					
+					return GetSpellInfo(spellID), source, line
+				end,
+			GetItemTexture = function(self, result)
+					local _, _, spellID = DS:GetCraftLineInfo(result.profession, result.craftIndex)
+					local itemID = DS:GetCraftInfo(spellID)
+			
+					return (itemID) and GetItemIcon(itemID) or "Interface\\Icons\\Trade_Engraving"
+				end,
+			GetCharacter = function(self, result)
+					local character = result.char
+					local _, _, name = strsplit(".", character)
+					
+					-- name, color
+					return name, DS:GetClassColor(character)
+				end,
+			GetRealm = function(self, result)
+					local character = result.char
+					local account, realm, name = strsplit(".", character)
 		
-						return realm, account, c.faction
-					else		-- it's a guild
-						local account, realm, guildName = strsplit("|", result.char)
-						local r = Altoholic:GetRealmTable(realm, account)
-						
-						return realm, account, r.guild[guildName].faction
-					end
+					return realm, account, DS:GetCharacterFaction(character)
+				end,
+			GetItemID = function(self, result)
+					local _, _, spellID = DS:GetCraftLineInfo(result.profession, result.craftIndex)
+					local itemID = DS:GetCraftInfo(spellID)
+			
+					return itemID
 				end,
 		},
 		[GUILD_CRAFT_LINE] = {
@@ -190,7 +200,7 @@ Altoholic.Search.Realms_Desc = {
 					return GetSpellInfo(result.spellID), source, line
 				end,
 			GetItemTexture = function(self, result)
-					local itemID = Altoholic.CraftDB[result.spellID]
+					local itemID = DS:GetCraftInfo(result.spellID)
 					if itemID then		-- if the craft is known, return its icon, else return the profession icon
 						return GetItemIcon(itemID)	
 					end
@@ -205,12 +215,15 @@ Altoholic.Search.Realms_Desc = {
 			GetRealm = function(self, result)
 					return GetRealmName(), THIS_ACCOUNT, UnitFactionGroup("player")
 				end,
+			GetItemID = function(self, result)
+					return DS:GetCraftInfo(result.spellID)
+				end,
 		},
 	}
 }
 
 function Altoholic.Search:Realm_Update()
-	Altoholic:ScrollFrameUpdate(Altoholic.Search.Realms_Desc)
+	Altoholic:ScrollFrameUpdate(RealmScrollFrame_Desc)
 end
 
 function Altoholic.Search:Loots_Update()
@@ -261,7 +274,7 @@ function Altoholic.Search:Loots_Update()
 				_G[ entry..i.."ItemCount" ]:Hide()
 			end
 
-			_G[ entry..i.."Item" ]:SetID(line)
+			_G[ entry..i.."Item" ]:SetID(itemID)
 			_G[ entry..i ]:Show()
 		else
 			_G[ entry..i ]:Hide()
@@ -354,7 +367,7 @@ function Altoholic.Search:Upgrade_Update()
 				_G[ entry..i.."ItemCount" ]:Hide()
 			end
 
-			_G[ entry..i.."Item" ]:SetID(line)
+			_G[ entry..i.."Item" ]:SetID(itemID)
 			_G[ entry..i ]:SetID(line)
 			_G[ entry..i ]:Show()
 		else
@@ -430,7 +443,7 @@ local function SortByItemName(a, b, ascending)
 end
 
 local function SortByName(a, b, ascending)
-	local desc = Altoholic.Search.Realms_Desc			-- get the line description for the 2 items
+	local desc = RealmScrollFrame_Desc			-- get the line description for the 2 items
 	local LineDescA = desc.Lines[a.linetype]
 	local LineDescB = desc.Lines[b.linetype]
 
@@ -445,7 +458,7 @@ local function SortByName(a, b, ascending)
 end
 
 local function SortByChar(a, b, ascending)
-	local desc = Altoholic.Search.Realms_Desc			-- get the line description for the 2 items
+	local desc = RealmScrollFrame_Desc			-- get the line description for the 2 items
 	local LineDescA = desc.Lines[a.linetype]
 	local LineDescB = desc.Lines[b.linetype]
 
@@ -462,7 +475,7 @@ local function SortByChar(a, b, ascending)
 end
 
 local function SortByRealm(a, b, ascending)
-	local desc = Altoholic.Search.Realms_Desc			-- get the line description for the 2 items
+	local desc = RealmScrollFrame_Desc			-- get the line description for the 2 items
 	local LineDescA = desc.Lines[a.linetype]
 	local LineDescB = desc.Lines[b.linetype]
 
@@ -558,24 +571,24 @@ function Altoholic.Search:FindItem(searchType, searchSubType)
 	
 	local SearchLoots
 	if searchLocation == SEARCH_THISCHAR then
-		self:BrowseCharacter(UnitName("player") , GetRealmName(), THIS_ACCOUNT)
+		self:BrowseCharacter(DS:GetCharacter())
 	elseif searchLocation == SEARCH_THISREALM_THISFACTION or	searchLocation == SEARCH_THISREALM_BOTHFACTIONS then
 		self:BrowseRealm(GetRealmName(), THIS_ACCOUNT, (searchLocation == SEARCH_THISREALM_BOTHFACTIONS))
 	elseif searchLocation == SEARCH_ALLREALMS then
-		for RealmName, _ in pairs(Altoholic.db.global.data[THIS_ACCOUNT]) do
-			self:BrowseRealm(RealmName, THIS_ACCOUNT, true)
+		for realm in pairs(DS:GetRealms()) do
+			self:BrowseRealm(realm, THIS_ACCOUNT, true)
 		end
 	elseif searchLocation == SEARCH_ALLACCOUNTS then
 		-- this account first ..
-		for RealmName, _ in pairs(Altoholic.db.global.data[THIS_ACCOUNT]) do
-			self:BrowseRealm(RealmName, THIS_ACCOUNT, true)
+		for realm in pairs(DS:GetRealms()) do
+			self:BrowseRealm(realm, THIS_ACCOUNT, true)
 		end
 		
 		-- .. then all other accounts
-		for AccountName, a in pairs(Altoholic.db.global.data) do
-			if AccountName ~= THIS_ACCOUNT then
-				for RealmName, _ in pairs(a) do
-					self:BrowseRealm(RealmName, AccountName, true)
+		for account in pairs(DS:GetAccounts()) do
+			if account ~= THIS_ACCOUNT then
+				for realm in pairs(DS:GetRealms(account)) do
+					self:BrowseRealm(realm, account, true)
 				end
 			end
 		end
@@ -616,45 +629,51 @@ function Altoholic.Search:FindItem(searchType, searchSubType)
 	end
 
 	self:Update()
+	collectgarbage()
 end
 
 function Altoholic.Search:BrowseRealm(realm, account, bothFactions)
-	
-	local r = Altoholic:GetRealmTable(realm, account)
-	
-	for charName, c in pairs(r.char) do
-		if bothFactions or c.faction == UnitFactionGroup("player") then
-			self:BrowseCharacter(charName, realm, account)
+	for characterName, character in pairs(DS:GetCharacters(realm, account)) do
+		if bothFactions or DS:GetCharacterFaction(character) == UnitFactionGroup("player") then
+			self:BrowseCharacter(character)
 		end
 	end
 	
 	if Altoholic.Options:Get("IncludeGuildBank") == 1 then	-- Check guild bank(s) ?
 		self.SearchLocation = GUILD_BANK
-		for guildName, g in pairs(r.guild) do
-			if bothFactions or g.faction == UnitFactionGroup("player") then
-				self.SearchCharacterIndex = account .. "|" .. realm .. "|" .. guildName		-- use this variable to store guild name
-				for TabName, t in pairs(g.bank) do
-					for slotID, id in pairs(t.ids) do
-						if id then
-							if t.links[slotID] then
-								self:VerifyItem(t.links[slotID], t.counts[slotID])
-							else
-								self:VerifyItem(id, t.counts[slotID])
+		self.SearchLineType = GUILD_ITEM_LINE
+
+		for guildName, guild in pairs(DS:GetGuilds(realm, account)) do
+			local altoGuild = Altoholic:GetGuild(guildName, realm, account)
+			
+			if bothFactions or Altoholic:GetGuildFaction(altoGuild) == UnitFactionGroup("player") then
+				self.SearchCharacterIndex = format("%s.%s.%s", account, realm, guildName)
+				
+				for tabID = 1, 6 do
+					local tab = DS:GetGuildBankTab(guild, tabID)
+					if tab.name then
+						for slotID = 1, tab.size do
+							local id, link, count = DS:GetSlotInfo(tab, slotID)
+							if id then
+								link = link or id
+								self:VerifyItem(link, count)
 							end
 						end
-					end	-- end slots
-				end	-- end tabs
+					end
+				end
+				
 				self.SearchCharacterIndex = nil
 			end
 		end	-- end guild
+		self.SearchLineType = nil
 		self.SearchLocation = nil
 	end
 	
 	if Altoholic.Options:Get("IncludeGuildSkills") == 1 and string.len(self.SearchValue) > 1 then	-- Check guild professions ?
-		local guild = Altoholic:GetThisGuild()
+		local guild = Altoholic:GetGuild()
 		self.GuildMembers = {}
 		
-		for member, _ in pairs(guild.members) do			-- add all known members into a table
+		for member, _ in pairs(Altoholic:GetGuildMembers(guild)) do			-- add all known members into a table
 			table.insert(self.GuildMembers, member)
 		end
 		Altoholic.Tasks:Add("BrowseGuildProfessions", 0, Altoholic.Search.BrowseGuildProfessions, Altoholic.Search)
@@ -669,14 +688,12 @@ function Altoholic.Search:BrowseGuildProfessions()
 	end
 	
 	-- The professions of 1 guild member will be scanned in each pass
-	local guild = Altoholic:GetThisGuild()
+	local guild = Altoholic:GetGuild()
 	local member = self.GuildMembers[#self.GuildMembers]	-- get the last item in the table
 	local t = {}
 	local skillID
 	
 	for _, v in pairs(guild.members[member]) do		-- browse all links ..
-		-- TODO: make sure v is a string value, it should never be anything else
-	
 		if type(v) == "string" and v:match("trade:") then							-- .. assuming they're valid of course
 			t, skillID = LTL:Decode(v)
 			if t then
@@ -685,7 +702,6 @@ function Altoholic.Search:BrowseGuildProfessions()
 					if string.find(strlower(name), self.SearchValue, 1, true) then
 						self.Results:Add(	{
 							linetype = GUILD_CRAFT_LINE,
-							id = Altoholic.CraftDB[spellID],
 							spellID = spellID,
 							char = member,
 							skillID = skillID,
@@ -702,19 +718,26 @@ function Altoholic.Search:BrowseGuildProfessions()
 	return true
 end
 
+local function CraftMatchFound(spellID, value)
+	local name = GetSpellInfo(spellID)
+	if name and string.find(strlower(name), value, 1, true) then
+		return true
+	end
+end
 
-function Altoholic.Search:BrowseCharacter(charName, realm, account)
-	local c = Altoholic:GetCharacterTable(charName, realm, account)
-	self.SearchCharacterIndex = Altoholic.Characters:GetInfoLineNum(charName, realm, account)
+function Altoholic.Search:BrowseCharacter(character)
+
+	self.SearchLineType = PLAYER_ITEM_LINE	
+	self.SearchCharacterIndex = character
 	
-	for BagName, b in pairs(c.bag) do
-		
-		if (BagName == "Bag100") then
+	local itemID, itemLink, itemCount
+	for containerName, container in pairs(DS:GetContainers(character)) do
+		if (containerName == "Bag100") then
 			self.SearchLocation = L["Bank"]
-		elseif (BagName == "Bag-2") then
+		elseif (containerName == "Bag-2") then
 			self.SearchLocation = KEYRING
 		else
-			local bagNum = tonumber(string.sub(BagName, 4))
+			local bagNum = tonumber(string.sub(containerName, 4))
 			if (bagNum >= 0) and (bagNum <= 4) then
 				self.SearchLocation = L["Bags"]
 			else
@@ -722,31 +745,28 @@ function Altoholic.Search:BrowseCharacter(charName, realm, account)
 			end			
 		end
 	
-		for slotID=1, b.size do
-			if b.links[slotID] then		-- use the link before the id if there's one
-				self:VerifyItem(b.links[slotID], b.counts[slotID])
-			elseif b.ids[slotID] then
-				self:VerifyItem(b.ids[slotID], b.counts[slotID])
+		for slotID = 1, container.size do
+			itemID, itemLink, itemCount = DS:GetSlotInfo(container, slotID)
+			
+			-- use the link before the id if there's one
+			if itemID then
+				self:VerifyItem(itemLink or itemID, itemCount)
 			end
-		end	-- slot loop
-	end	-- bag loop
+		end
+	end
 	
 	self.SearchLocation = L["Equipped"]
-	for k, v in pairs(c.inventory) do
+
+	for _, v in pairs(DS:GetInventory(character)) do
 		self:VerifyItem(v, 1)
 	end
 	
 	if Altoholic.Options:Get("IncludeMailbox") == 1 then			-- check mail ?
 		self.SearchLocation = L["Mail"]
-		for k, v in pairs(c.mail) do
-			if v.link then
-				self:VerifyItem(v.link, v.count)
-			end
-		end
-		
-		for k, v in pairs(c.mailCache) do
-			if v.link then
-				self:VerifyItem(v.link, v.count)
+		for i = 1, DS:GetNumMails(character) do
+			local _, count, link = DS:GetMailInfo(character, i)
+			if link then
+				self:VerifyItem(link, count)
 			end
 		end
 	end
@@ -755,45 +775,35 @@ function Altoholic.Search:BrowseCharacter(charName, realm, account)
 		and (self.SearchType == nil) 
 		and (self.SearchRarity == 0)
 		and (self.SearchSlot == 0) then
-	
-		for ProfessionName, p in pairs(c.recipes) do
-			if p.ScanFailed == false then
-				for CraftNumber, craft in pairs(p.list) do
-					local color, itemID, spellID = strsplit("^", craft)
-					if color ~= "0" then	-- skip headers
-						self:VerifyRecipe(tonumber(itemID), tonumber(spellID), ProfessionName, CraftNumber)
+		
+		local isHeader, spellID, itemID
+		for professionName, profession in pairs(DS:GetProfessions(character)) do
+			for index = 1, DS:GetNumCraftLines(profession) do
+				isHeader, _, spellID = DS:GetCraftLineInfo(profession, index)
+				
+				if not isHeader then
+					if CraftMatchFound(spellID, self.SearchValue) then
+						self.Results:Add(	{
+							linetype = PLAYER_CRAFT_LINE,
+							char = self.SearchCharacterIndex,
+							professionName = professionName,
+							profession = profession,
+							craftIndex = index,
+						} )
 					end
 				end
 			end
 		end
 	end
 	
+	self.SearchLineType = nil
 	self.SearchCharacterIndex = nil
 	self.SearchLocation = nil
 end
 
-function Altoholic.Search:VerifyRecipe(itemID, spellID, profession, CraftNumber)
+function Altoholic.Search:VerifyItem(item, itemCount)
 
-	local name = GetSpellInfo(spellID)
-	if not name then return end
-	
-	if string.find(strlower(name), self.SearchValue, 1, true) == nil then
-		return 
-	end
-		
-	-- All conditions ok ? save it
-	self.Results:Add(	{
-		linetype = PLAYER_CRAFT_LINE,
-		id = itemID,
-		char = self.SearchCharacterIndex,
-		location = profession,
-		craftNum = CraftNumber,
-	} )	
-end
-
-function Altoholic.Search:VerifyItem(itemID, itemCount)
-
-	local itemName, _, itemRarity, _, itemMinLevel, itemType, itemSubType, _, itemEquipLoc = GetItemInfo(itemID)
+	local itemName, _, itemRarity, _, itemMinLevel, itemType, itemSubType, _, itemEquipLoc = GetItemInfo(item)
 	
 	if (itemName == nil) and (itemRarity == nil) then
 		-- with these 2 being nil, the item isn't in the item cache, so its link would be invalid: don't list it
@@ -833,11 +843,15 @@ function Altoholic.Search:VerifyItem(itemID, itemCount)
 		return		-- item name does not match search value ? .. exit
 	end
 
+	if type(item) == "string" then		-- convert a link to its item id, only data saved
+		item = tonumber(item:match("item:(%d+)"))
+	end
+	
 	-- All conditions ok ? save it
 	self.Results:Add( {
-		linetype = PLAYER_ITEM_LINE,
-		id = itemID,
-		char = self.SearchCharacterIndex,		-- line number in CharacterInfo table
+		linetype = self.SearchLineType,			-- PLAYER_ITEM_LINE or GUILD_ITEM_LINE 
+		id = item,
+		source = self.SearchCharacterIndex,		-- character or guild key in DataStore
 		count = itemCount,
 		location = self.SearchLocation
 	} )
@@ -849,6 +863,10 @@ end
 
 function Altoholic.Search:GetClass()
 	return self.CharacterClass
+end
+
+function Altoholic.Search:GetRealmsLineDesc(line)
+	return RealmScrollFrame_Desc.Lines[line]
 end
 
 function Altoholic.Search:FindEquipmentUpgrade()
@@ -914,11 +932,11 @@ function Altoholic.UnsafeItems:Save(itemID)
 	end
 	
 	-- if not, save it
-	table.insert(self.db.global.data["Default"][GetRealmName()].unsafeItems, itemID)
+	table.insert(Altoholic.db.global.unsafeItems, itemID)
 end
 
 function Altoholic.UnsafeItems:IsItemKnown(itemID)
-	for k, v in pairs(self.db.global.data["Default"][GetRealmName()].unsafeItems) do 	-- browse current realm's unsafe item list
+	for k, v in pairs(Altoholic.db.global.unsafeItems) do 	-- browse current realm's unsafe item list
 		if v == itemID then		-- if the itemID passed as parameter is a known unsafe item .. return true to skip it
 			return true
 		end
@@ -931,20 +949,19 @@ function Altoholic.UnsafeItems:BuildList()
 	-- In the previous game session, the list has been populated with items id's that were originally unsafe and for which a query was sent to the server.
 	-- In this session, a getiteminfo on these id's will keep returning a nil if the item is really unsafe, so this method will get rid of the id's that are now valid.
 	local TmpUnsafe = {}		-- create a temporary table with confirmed unsafe id's
+	local unsafeItems = Altoholic.db.global.unsafeItems
 	
-	local r = Altoholic.ThisRealm
-	
-	for k, v in pairs(r.unsafeItems) do
+	for k, v in pairs(unsafeItems) do
 		local itemName = GetItemInfo(v)
 		if not itemName then							-- if the item is really unsafe .. save it
 			table.insert(TmpUnsafe, v)
 		end
 	end
 	
-	wipe(r.unsafeItems)	-- clear the DB table
+	wipe(unsafeItems)	-- clear the DB table
 	
 	for k, v in pairs(TmpUnsafe) do
-		table.insert(r.unsafeItems, v)	-- save the confirmed unsafe ids back in the db
+		table.insert(unsafeItems, v)	-- save the confirmed unsafe ids back in the db
 	end
 end
 

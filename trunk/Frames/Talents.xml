@@ -35,16 +35,7 @@
 		</Frames>
 		<Scripts>
 			<OnEnter>
-				local c = Altoholic:GetCharacterTable()
-				local ref = Altoholic:GetReferenceTable()
-				local tree = ref[c.englishClass].talentInfo[self:GetID()]
-				
-				if not tree then return	end
-
-				AltoTooltip:ClearLines();
-				AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
-				AltoTooltip:AddLine(tree.name,1,1,1);
-				AltoTooltip:Show();
+				Altoholic.Talents:Icon_OnEnter(self)
 			</OnEnter>
 			<OnLeave>
 				AltoTooltip:Hide();
@@ -327,7 +318,7 @@
 				<Scripts>
 					<OnLoad>
 						ScrollFrame_OnLoad(self);
-						local scrollbar = getglobal(self:GetName().."ScrollBar");
+						local scrollbar = _G[self:GetName().."ScrollBar"];
 						scrollbar:SetMinMaxValues(0, 330);
 					</OnLoad>
 				</Scripts>

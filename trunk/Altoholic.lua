@@ -4,10 +4,11 @@ Written by : Thaoky, EU-Marécages de Zangar
 
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
+local DS
 
 local V = Altoholic.vars
-Altoholic.Version = "v3.1.004"
-Altoholic.VersionNum = 301004
+Altoholic.Version = "v3.2.001"
+Altoholic.VersionNum = 302001
 
 local WHITE		= "|cFFFFFFFF"
 local RED		= "|cFFFF0000"
@@ -95,6 +96,7 @@ function Altoholic:InitLocalization()
 	AltoholicTabSearchLocation:SetText(L["Location"])
 	
 	AltoholicTabOptionsMenuItem1:SetText(L["General"])
+	AltoholicTabOptionsMenuItem4:SetText(L["Account Sharing"])
 	AltoholicTabOptionsMenuItem5:SetText(L["Tooltip"])
 	AltoholicTabOptionsMenuItem6:SetText(L["Calendar"])
 	
@@ -104,6 +106,9 @@ function Altoholic:InitLocalization()
 	
 	AltoAccountSharingName:SetText(L["Account Name"])
 	AltoAccountSharingText1:SetText(L["Send account sharing request to:"])
+	AltoAccountSharingText2:SetText(ORANGE.."Available Content")
+	AltoAccountSharingText3:SetText(ORANGE.."Size")
+	AltoAccountSharingText4:SetText(ORANGE.."Date")
 	AltoAccountSharing_UseNameText:SetText(L["Character"])
 	
 	AltoholicTabAchievements_NotStarted:SetText("\124TInterface\\RaidFrame\\ReadyCheck-NotReady:14\124t" .. L["Not started"])
@@ -113,7 +118,6 @@ function Altoholic:InitLocalization()
 	AltoholicFrameTotals:SetText(L["Totals"])
 	AltoholicFrameSearchLabel:SetText(L["Search Containers"])
 	AltoholicFrame_ResetButton:SetText(L["Reset"])
-	
 	
 	-- nil strings to save memory, since they are not used later on.
 	L["Summary"] = nil
@@ -149,6 +153,8 @@ function Altoholic:InitLocalization()
 end
 
 function Altoholic:OnEnable()
+	DS = DataStore
+
 	self:InitLocalization()
 	self.Options:Init()
 	self.Tasks:Init()
@@ -156,49 +162,35 @@ function Altoholic:OnEnable()
 	self.Tooltip:Init()
 	
 	self:RegisterEvent("PLAYER_ALIVE")
-	self:RegisterEvent("PLAYER_LEVEL_UP")
-	self:RegisterEvent("PLAYER_MONEY")
-	self:RegisterEvent("PLAYER_XP_UPDATE")
+	self:RegisterEvent("PLAYER_GUILD_UPDATE")
 	self:RegisterEvent("PLAYER_LOGOUT")
-	self:RegisterEvent("PLAYER_UPDATE_RESTING")
-	self:RegisterEvent("PLAYER_GUILD_UPDATE")		-- for gkick, gquit, etc..
 	self:RegisterEvent("UPDATE_INSTANCE_INFO", "UpdateRaidTimers")
 	self:RegisterEvent("RAID_INSTANCE_WELCOME", "RequestUpdateRaidInfo")
-	self:RegisterEvent("ZONE_CHANGED", "UpdatePlayerLocation")
-	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "UpdatePlayerLocation")
-	self:RegisterEvent("ZONE_CHANGED_INDOORS", "UpdatePlayerLocation")
-	self:RegisterEvent("TIME_PLAYED_MSG")
-	self:RegisterEvent("BANKFRAME_OPENED", Altoholic.Containers.OnBankOpened)
+
 	self:RegisterEvent("GUILDBANKFRAME_OPENED", Altoholic.GuildBank.OnOpen)
 	self:RegisterEvent("AUCTION_HOUSE_SHOW", Altoholic.AuctionHouse.OnShow)
 
-	self:RegisterEvent("PLAYER_TALENT_UPDATE");
-	self:RegisterEvent("MAIL_SHOW", Altoholic.Mail.OnShow)
+	self:RegisterEvent("PLAYER_TALENT_UPDATE", Altoholic.Talents.OnUpdate);
+	-- self:RegisterEvent("MAIL_SHOW", Altoholic.Mail.OnShow)
 	
 	AltoholicFrameName:SetText("Altoholic |cFFFFFFFF".. Altoholic.Version .. " by |cFF69CCF0Thaoky")
 
 	local realm = GetRealmName()
 	local player = UnitName("player")
+	local key = format("%s.%s.%s", THIS_ACCOUNT, realm, player)
+	self.ThisCharacter = Altoholic.db.global.Characters[key]
 	
-	self.ThisAccount = Altoholic.db.global.data[THIS_ACCOUNT]
-	self.ThisRealm = self.ThisAccount[realm]
-	self.ThisCharacter = self.ThisRealm.char[player]
-	
-	Altoholic:SetCurrentCharacter(player)
-	Altoholic:SetCurrentRealm(realm)
-	Altoholic:SetCurrentAccount(THIS_ACCOUNT)
-
-	local c = Altoholic.ThisCharacter
-	c.lastlogout = 0
-	c.faction = UnitFactionGroup("player")
+	Altoholic:SetCurrentCharacter(player, realm, THIS_ACCOUNT)
 
 	self.Tabs.Summary:Init()
 	self.Containers:Init()
+	self.Achievements:Init()
+	self.BagUsage:Init()
+	self.TradeSkills.Recipes:Init()
+	self.Search:Init()
 	
 	-- do not move this one into the frame's OnLoad
 	UIDropDownMenu_Initialize(AltoholicFrameEquipmentRightClickMenu, Equipment_RightClickMenu_OnLoad, "MENU");
-	
-	RequestTimePlayed()	-- trigger a TIME_PLAYED_MSG event if playtime is unavailable for this character
 	
 	_G["AltoholicFrameClassesItem10"]:SetPoint("BOTTOMRIGHT", "AltoholicFrameClasses", "BOTTOMRIGHT", -15, 0);
 	for j=9, 1, -1 do
@@ -214,20 +206,8 @@ function Altoholic:OnEnable()
 		AltoholicMinimapButton:Hide();
 	end
 	
-	self.Containers:ScanPlayerBags()		-- manually update bags 0 to 4, then register the event
 	self:RegisterEvent("BAG_UPDATE", self.Containers.OnBagUpdate)
-	self:RegisterEvent("UNIT_INVENTORY_CHANGED", self.Equipment.Scan)
-	self:RegisterEvent("UNIT_QUEST_LOG_CHANGED", self.Quests.OnLogChanged)
-	self:RegisterEvent("TRADE_SKILL_SHOW", self.TradeSkills.OnShow)
-	self:RegisterEvent("COMPANION_UPDATE", self.Pets.OnUpdate)
-	self:RegisterEvent("ACHIEVEMENT_EARNED");
-	self:RegisterEvent("GLYPH_ADDED", self.Glyphs.Scan);
-	self:RegisterEvent("GLYPH_REMOVED", self.Glyphs.Scan);
-	self:RegisterEvent("GLYPH_UPDATED", self.Glyphs.Scan);
-	self:RegisterEvent("LEARNED_SPELL_IN_TAB", self.Spells.Scan);
 	self:RegisterEvent("FRIENDLIST_UPDATE", self.UpdateFriends);
-	self:RegisterEvent("CHAT_MSG_SKILL")
-	self:RegisterEvent("CHAT_MSG_COMBAT_FACTION_CHANGE")
 	self:RegisterEvent("CHAT_MSG_SYSTEM");
 	self:RegisterEvent("CHAT_MSG_LOOT")
 	self:RegisterEvent("UNIT_PET", self.Pets.OnChange);
@@ -236,32 +216,15 @@ function Altoholic:OnEnable()
 		self:RegisterEvent("GUILD_ROSTER_UPDATE", self.Guild.Members.OnRosterUpdate);
 	end
 	
-	local currentGuild = GetGuildInfo("player")
-	if not currentGuild then	-- if the player is not in a guild, set the drop down to the first guild available on this realm, if any.
-		for GuildName, _ in pairs(Altoholic.db.global.data[THIS_ACCOUNT][GetRealmName()].guild) do
-			currentGuild = GuildName
-			break	-- if there's at least one guild, let's set the right value and break immediately
-		end
-	end
-	
-	if currentGuild then	-- if the current guild or at least a guild on this realm was found..set the right values
-		UIDropDownMenu_SetSelectedValue(AltoholicTabGuildBank_SelectGuild, 
-				THIS_ACCOUNT .. "|" .. GetRealmName() .."|".. currentGuild )
-		UIDropDownMenu_SetText(AltoholicTabGuildBank_SelectGuild, 
-				GREEN .. currentGuild .. WHITE .. " (" .. GetRealmName() .. ")"	)
-
-		Altoholic.Tabs.GuildBank:LoadGuild(THIS_ACCOUNT, GetRealmName(), currentGuild)
-	end
-	
 	self.UnsafeItems:BuildList()
 	
 	-- LinkWrangler supoprt
    if LinkWrangler then
       LinkWrangler.RegisterCallback ("Altoholic",  Hook_LinkWrangler, "refresh")
    end
-	self.DoInitialBroadcast = true
-	self.DoMailExpiryCheck = true	
 
+	self.DoInitialBroadcast = true
+	
 	-- create an empty frame to manager the timer via its Onupdate
 	self.TimerFrame = CreateFrame("Frame", "AltoholicTimerFrame", UIParent)
 	local f = self.TimerFrame
@@ -272,10 +235,9 @@ function Altoholic:OnEnable()
 	f:SetScript("OnUpdate", function(self, elapsed) Altoholic.Tasks:OnUpdate(elapsed) end)
 	f:Show()
 	
-	-- temporary fix to help Bean Counter's hooking the right mail function
-	self.UpdatePlayerMail = self.Mail.Scan
-	
-	self:ConvertCraftDB()
+	-- clean up old data, thank AnrDaemon for the suggestion.
+	AltoholicDB.global.data = nil
+	AltoholicDB.global.reference = nil
 end
 
 function Altoholic:OnDisable()
@@ -290,9 +252,6 @@ function Altoholic:ToggleUI()
 end
 
 function Altoholic:OnShow()
-	self:ScanAll()
-	self.Containers:ScanPlayerBags()
-	
 	SetPortraitTexture(AltoholicFramePortrait, "player");	
 
 	self.Reputations:BuildView()
@@ -306,63 +265,6 @@ function Altoholic:OnShow()
 		self.Tabs.Summary:Refresh()
 	end
 end
-
-function Altoholic:ConvertCraftDB()
-	local done = Altoholic.Options:Get("CraftDBConversionDone")
-	if done then return end
-	
-	-- this converts all recipes from the old format (table) to the new (string) - huge memory gain
-	local spellID
-	for AccountName, a in pairs(Altoholic.db.global.data) do
-		for RealmName, r in pairs(a) do
-			for CharacterName, c in pairs(r.char) do	-- loop through all alts, all realms, all accounts
-				-- convert professions
-				for ProfessionName, p in pairs(c.recipes) do			
-					if p.list then
-						local corruptedList
-						for index, craft in pairs(p.list) do
-							
-							if type(craft) == "table" then		-- old type = stored as table, new type = string
-								if craft.isHeader then
-									if craft.name then
-										p.list[index] = "0^" .. craft.name
-									else
-										corruptedList = true
-										break
-									end
-								else
-									spellID = Altoholic:GetSpellIDFromLink(craft.link)
-									if craft.reagents then
-										p.list[index] = (craft.color or 4) .. "^" .. (craft.id or "") .. "^" .. spellID .. "^" .. craft.reagents
-									else
-										corruptedList = true
-										break
-									end
-								end
-							end
-						end
-						
-						if corruptedList then
-							p.ScanFailed = true	-- DB corruption detected, invalidate data
-						end
-					end
-				end
-				
-				-- convert pets
-				for PetType, PetTable in pairs(c.pets) do
-					for index, p in pairs(PetTable) do
-						if type(p) == "table" then
-							PetTable[index] = p.name .. "|" .. p.spellID .. "|" .. string.gsub(p.icon, "Interface\\Icons\\", "") .. "|" .. p.modelID
-						end
-					end
-				end
-			end
-		end
-	end
-	
-	Altoholic.Options:Set("CraftDBConversionDone", true)
-end
-
 
 Altoholic.Characters = {}
 
@@ -381,20 +283,20 @@ function Altoholic.Characters:BuildList()
 	local mode = Altoholic.Options:Get("TabSummaryMode")
 
 	-- The info table is static and contains characters of all realms on all accounts
-	for AccountName, a in pairs(Altoholic.db.global.data) do
-		for RealmName, _ in pairs(a) do
-			local realmmoney, realmplayed, realmlevels = self:AddRealm(AccountName, RealmName, realmID)
+	for account in pairs(DS:GetAccounts()) do
+		for realm in pairs(DS:GetRealms(account)) do
+			local realmmoney, realmplayed, realmlevels = self:AddRealm(account, realm, realmID)
 
 			if mode == SUMMARY_THISREALM then
 				-- if we show only this realm, then counters for other accounts or other realms are at 0
-				if (AccountName ~= THIS_ACCOUNT) or (RealmName ~= GetRealmName()) then
+				if (account ~= THIS_ACCOUNT) or (realm ~= GetRealmName()) then
 					realmmoney = 0
 					realmplayed = 0
 					realmlevels = 0
 				end
 			elseif mode == SUMMARY_ALLREALMS then
 				-- All realms, but this account only
-				if (AccountName ~= THIS_ACCOUNT) then
+				if (account ~= THIS_ACCOUNT) then
 					realmmoney = 0
 					realmplayed = 0
 					realmlevels = 0
@@ -441,9 +343,8 @@ function Altoholic.Characters:AddRealm(AccountName, RealmName, realmID)
 	} )
 	
 	local parentRealm = #self.List
-	local r = Altoholic:GetRealmTable(RealmName, AccountName)
 	
-	for CharacterName, c in pairs(r.char) do
+	for characterName, character in pairs(DS:GetCharacters(RealmName, AccountName)) do
 		SkillsCache[1].name = ""
 		SkillsCache[1].rank = 0
 		SkillsCache[1].spellID = nil
@@ -452,9 +353,9 @@ function Altoholic.Characters:AddRealm(AccountName, RealmName, realmID)
 		SkillsCache[2].spellID = nil
 
 		local i = 1
-		for SkillName, s in pairs(c.skill[L["Professions"]]) do
+		for SkillName, s in pairs(DS:GetPrimaryProfessions(character)) do
 			SkillsCache[i].name = SkillName
-			SkillsCache[i].rank = Altoholic.TradeSkills:GetRank(s)
+			SkillsCache[i].rank = DS:GetSkillInfo(character, SkillName)
 			SkillsCache[i].spellID = Altoholic:GetProfessionSpellID(SkillName)
 			i = i + 1
 			
@@ -463,10 +364,8 @@ function Altoholic.Characters:AddRealm(AccountName, RealmName, realmID)
 			end
 		end
 		
-		local sk = c.skill[L["Secondary Skills"]]
-		
 		table.insert(self.List, { linetype = INFO_CHARACTER_LINE + (realmID*3),
-			name = CharacterName,
+			name = characterName,
 			parentID = parentRealm,
 			skillName1 = SkillsCache[1].name,
 			skillRank1 = SkillsCache[1].rank,
@@ -474,19 +373,20 @@ function Altoholic.Characters:AddRealm(AccountName, RealmName, realmID)
 			skillName2 = SkillsCache[2].name,
 			skillRank2 = SkillsCache[2].rank,
 			spellID2 = SkillsCache[2].spellID,
-			cooking = Altoholic.TradeSkills:GetRank( sk[BI["Cooking"]] ),
-			firstaid = Altoholic.TradeSkills:GetRank( sk[BI["First Aid"]] ),
-			fishing = Altoholic.TradeSkills:GetRank( sk[BI["Fishing"]] ),
-			riding = Altoholic.TradeSkills:GetRank( sk[L["Riding"]] ),
+			cooking = DS:GetCookingRank(character),
+			firstaid = DS:GetFirstAidRank(character),
+			fishing = DS:GetFishingRank(character),
+			riding = DS:GetRidingRank(character),
 		} )
 
-		realmlevels = realmlevels + c.level
-		realmmoney = realmmoney + c.money
-		realmplayed = realmplayed + c.played
-		realmBagSlots = realmBagSlots + c.numBagSlots
-		realmFreeBagSlots = realmFreeBagSlots + c.numFreeBagSlots
-		realmBankSlots = realmBankSlots + c.numBankSlots
-		realmFreeBankSlots = realmFreeBankSlots + c.numFreeBankSlots
+		realmlevels = realmlevels + DS:GetCharacterLevel(character)
+		realmmoney = realmmoney + DS:GetMoney(character)
+		realmplayed = realmplayed + DS:GetPlayTime(character)
+		
+		realmBagSlots = realmBagSlots + DS:GetNumBagSlots(character)
+		realmFreeBagSlots = realmFreeBagSlots + DS:GetNumFreeBagSlots(character)
+		realmBankSlots = realmBankSlots + DS:GetNumBankSlots(character)
+		realmFreeBankSlots = realmFreeBankSlots + DS:GetNumFreeBankSlots(character)
 	end		-- end char
 
 	table.insert(self.List, { linetype = INFO_TOTAL_LINE + (realmID*3),
@@ -514,14 +414,14 @@ function Altoholic.Characters:BuildView()
 	
 	if mode == SUMMARY_THISREALM then
 		self:AddRealmView(THIS_ACCOUNT, GetRealmName())
-	elseif mode == SUMMARY_ALLREALMS then
-		for RealmName, _ in pairs(Altoholic.db.global.data[THIS_ACCOUNT]) do
-			self:AddRealmView(THIS_ACCOUNT, RealmName)
+	elseif mode == SUMMARY_ALLREALMS then					-- all realms on this account only
+		for realm in pairs(DS:GetRealms()) do
+			self:AddRealmView(THIS_ACCOUNT, realm)
 		end
-	elseif mode == SUMMARY_ALLACCOUNTS then
-		for AccountName, a in pairs(Altoholic.db.global.data) do
-			for RealmName, _ in pairs(a) do
-				self:AddRealmView(AccountName, RealmName)
+	elseif mode == SUMMARY_ALLACCOUNTS then				-- all realms on all accounts
+		for account in pairs(DS:GetAccounts()) do
+			for realm in pairs(DS:GetRealms(account)) do
+				self:AddRealmView(account, realm)
 			end
 		end
 	end
@@ -551,124 +451,6 @@ function Altoholic.Characters:AddRealmView(AccountName, RealmName)
 	end
 end
 
-local function SortByName(a, b, ascending)
-	if (a.linetype ~= b.linetype) then			-- sort by linetype first ..
-		return a.linetype < b.linetype
-	else													-- and when they're identical, sort  by field xx
-		if mod(a.linetype, 3) ~= INFO_CHARACTER_LINE then
-			return false		-- don't swap lines if they're not INFO_CHARACTER_LINE
-		end
-		
-		if ascending then
-			return a.name < b.name
-		else
-			return a.name > b.name
-		end
-	end
-end
-
-local function SortByXP(a, b, ascending)
-	if (a.linetype ~= b.linetype) then			-- sort by linetype first ..
-		return a.linetype < b.linetype
-	else													-- and when they're identical, sort  by field xx
-		if mod(a.linetype, 3) ~= INFO_CHARACTER_LINE then
-			return false		-- don't swap lines if they're not INFO_CHARACTER_LINE
-		end
-		-- same linetype implies same account & same realm, so r could refer to either a or b
-		local r = Altoholic.db.global.data[a.account][a.realm]
-		local charA = r.char[a.name]
-		local charB = r.char[b.name]
-		
-		if ascending then
-			return (charA.xp / charA.xpmax) < (charB.xp / charB.xpmax)
-		else
-			return (charA.xp / charA.xpmax) > (charB.xp / charB.xpmax)
-		end
-	end
-end
-
-local function SortByRestXP(a, b, ascending)
-	if (a.linetype ~= b.linetype) then			-- sort by linetype first ..
-		return a.linetype < b.linetype
-	else													-- and when they're identical, sort  by field xx
-		if mod(a.linetype, 3) ~= INFO_CHARACTER_LINE then
-			return false		-- don't swap lines if they're not INFO_CHARACTER_LINE
-		end
-		-- same linetype implies same account & same realm, so r could refer to either a or b
-		local r = Altoholic.db.global.data[a.account][a.realm]
-		local charA = r.char[a.name]
-		local charB = r.char[b.name]
-		
-		local restXPA, restXPB
-		
-		if charA.level == MAX_PLAYER_LEVEL then
-			restXPA = 0
-		else
-			restXPA = select(2, Altoholic:GetRestedXP(charA.xpmax, charA.restxp, charA.lastlogout, charA.isResting))
-		end
-		
-		if charB.level == MAX_PLAYER_LEVEL then
-			restXPB = 0
-		else
-			restXPB = select(2, Altoholic:GetRestedXP(charB.xpmax, charB.restxp, charB.lastlogout, charB.isResting))
-		end
-		
-		if ascending then
-			return restXPA < restXPB
-		else
-			return restXPA > restXPB
-		end
-	end
-end
-
-local function SortByTableSize(a, b, field, ascending)
-	if (a.linetype ~= b.linetype) then			-- sort by linetype first ..
-		return a.linetype < b.linetype
-	else													-- and when they're identical, sort  by field xx
-		if mod(a.linetype, 3) ~= INFO_CHARACTER_LINE then
-			return false		-- don't swap lines if they're not INFO_CHARACTER_LINE
-		end
-		
-		-- same linetype implies same account & same realm, so r could refer to either a or b
-		local r = Altoholic.db.global.data[a.account][a.realm]
-		local tableA = r.char[a.name][field]
-		local tableB = r.char[b.name][field]
-		
-		if ascending then
-			return #tableA < #tableB
-		else
-			return #tableA > #tableB
-		end
-	end
-end
-
-local function SortByDelay(a, b, field, ascending)
-	if (a.linetype ~= b.linetype) then			-- sort by linetype first ..
-		return a.linetype < b.linetype
-	else													-- and when they're identical, sort  by field xx
-		if mod(a.linetype, 3) ~= INFO_CHARACTER_LINE then
-			return false		-- don't swap lines if they're not INFO_CHARACTER_LINE
-		end
-		
-		-- same linetype implies same account & same realm, so r could refer to either a or b
-		local r = Altoholic.db.global.data[a.account][a.realm]
-		local delayA = r.char[a.name][field]
-		if delayA ~= 0 then					-- do this because "online" means there's no delay, so leave it at zero
-			delayA = time() - delayA
-		end
-		local delayB = r.char[b.name][field]
-		if delayB ~= 0 then
-			delayB = time() - delayB
-		end		
-		
-		if ascending then
-			return delayA < delayB
-		else
-			return delayA > delayB
-		end
-	end
-end
-
 local function SortByPrimarySkill(a, b, skillName, ascending)
 	if (a.linetype ~= b.linetype) then			-- sort by linetype first ..
 		return a.linetype < b.linetype
@@ -676,13 +458,11 @@ local function SortByPrimarySkill(a, b, skillName, ascending)
 		if mod(a.linetype, 3) ~= INFO_CHARACTER_LINE then
 			return false		-- don't swap lines if they're not INFO_CHARACTER_LINE
 		end
-		-- same linetype implies same account & same realm, so r could refer to either a or b
-		local r = Altoholic.db.global.data[a.account][a.realm]
-		local charA = r.char[a.name]
-		local charB = r.char[b.name]
 		
-		local skillA = Altoholic.TradeSkills:GetRank( charA.skill[L["Professions"]][a[skillName]] )
-		local skillB = Altoholic.TradeSkills:GetRank( charB.skill[L["Professions"]][b[skillName]] )
+		local charA = DS:GetCharacter(a.name, a.realm, a.account)
+		local charB = DS:GetCharacter(b.name, b.realm, b.account)
+		local skillA = DS:GetSkillInfo(charA, a[skillName])
+		local skillB = DS:GetSkillInfo(charB, b[skillName])
 		
 		if ascending then
 			return skillA < skillB
@@ -692,46 +472,21 @@ local function SortByPrimarySkill(a, b, skillName, ascending)
 	end
 end
 
-local function SortBySecondarySkill(a, b, skillName, ascending)
+local function SortByFunction(a, b, func, ascending)
 	if (a.linetype ~= b.linetype) then			-- sort by linetype first ..
 		return a.linetype < b.linetype
-	else													-- and when they're identical, sort  by field xx
+	else													-- and when they're identical, sort  by func xx
 		if mod(a.linetype, 3) ~= INFO_CHARACTER_LINE then
 			return false		-- don't swap lines if they're not INFO_CHARACTER_LINE
 		end
-		-- same linetype implies same account & same realm, so r could refer to either a or b
-		local r = Altoholic.db.global.data[a.account][a.realm]
-		local charA = r.char[a.name]
-		local charB = r.char[b.name]
-		
-		local skillA = Altoholic.TradeSkills:GetRank( charA.skill[L["Secondary Skills"]][skillName] )
-		local skillB = Altoholic.TradeSkills:GetRank( charB.skill[L["Secondary Skills"]][skillName] )
-		
-		if ascending then
-			return skillA < skillB
-		else
-			return skillA > skillB
-		end
-	end
-end
 
-local function SortByField(a, b, field, ascending)
-	if (a.linetype ~= b.linetype) then			-- sort by linetype first ..
-		return a.linetype < b.linetype
-	else													-- and when they're identical, sort  by field xx
-		if mod(a.linetype, 3) ~= INFO_CHARACTER_LINE then
-			return false		-- don't swap lines if they're not INFO_CHARACTER_LINE
-		end
-		
-		-- same linetype implies same account & same realm, so r could refer to either a or b
-		local r = Altoholic.db.global.data[a.account][a.realm]
-		local charA = r.char[a.name]
-		local charB = r.char[b.name]
+		local charA = DS:GetCharacter(a.name, a.realm, a.account)
+		local charB = DS:GetCharacter(b.name, b.realm, b.account)
 		
 		if ascending then
-			return charA[field] < charB[field]
+			return DS[func](self, charA) < DS[func](self, charB)
 		else
-			return charA[field] > charB[field]
+			return DS[func](self, charA) > DS[func](self, charB)
 		end
 	end
 end
@@ -756,28 +511,13 @@ function Altoholic.Characters:Sort(self, field)
 			s.realm = realm
 		end
 	end
-		
-	if field == "name" then
-		table.sort(self.List, function(a, b) return SortByName(a, b, ascending)	end)
-	elseif field == "xp" then
-		table.sort(self.List, function(a, b) return SortByXP(a, b, ascending) end)
-	elseif field == "restxp" then
-		table.sort(self.List, function(a, b) return SortByRestXP(a, b, ascending) end)
-	elseif (field == "mail") or (field == "auctions") or (field == "bids") then
-		table.sort(self.List, function(a, b) return SortByTableSize(a, b, field, ascending)	end)
-	elseif (field == "lastmailcheck") or (field == "lastAHcheck") or (field == "lastlogout") then
-		table.sort(self.List, function(a, b) return SortByDelay(a, b, field, ascending) end)
-		
+
 	-- Primary Skill
-	elseif (field == "skillName1") or (field == "skillName2") then
+	if (field == "skillName1") or (field == "skillName2") then
 		table.sort(self.List, function(a, b) return SortByPrimarySkill(a, b, field, ascending)
 			end)
-	-- Secondary Skill
-	elseif (field == BI["Cooking"]) or (field == BI["First Aid"]) or 
-			(field == BI["Fishing"]) or (field == L["Riding"]) then
-		table.sort(self.List, function(a, b) return SortBySecondarySkill(a, b, field, ascending) end)
 	else
-		table.sort(self.List, function(a, b) return SortByField(a, b, field, ascending) end)
+		table.sort(self.List, function(a, b) return SortByFunction(a, b, field, ascending) end)
 	end
 	
 	for _, s in pairs(self.List) do
@@ -806,9 +546,9 @@ end
 
 function Altoholic.Characters:GetInfo(line)
 	-- with the line number in the self.List table, return the realm & account based on the parent id of this line
-	local c = self.List[line]
-	local p = self.List[ c.parentID ]
-	return c.name, p.realm, p.account
+	local character = self.List[line]
+	local parent = self.List[ character.parentID ]
+	return character.name, parent.realm, parent.account
 end
 
 function Altoholic.Characters:GetInfoLineNum(charName, realm, account)
@@ -825,79 +565,74 @@ function Altoholic.Characters:GetInfoLineNum(charName, realm, account)
 	end
 end
 
-
 function Altoholic:SendPublicInfo(msgType, player, guildName)
 
 	guildName = guildName or GetGuildInfo("player")
+	local character = DS:GetCharacter()
+	local characterClass, characterEnglishClass = DS:GetCharacterClass(character)
 	
-	local c = Altoholic.ThisCharacter
 	local t = {
-		name = UnitName("player"),					-- can be removed in a future release (like 4.0)
-		level = c.level,								-- can be removed
-		averageItemLvl = c.averageItemLvl,
-		class = c.class,								-- can be removed
-		englishClass = c.englishClass,			-- can be removed
+		name = UnitName("player"),							-- can be removed in a future release (like 4.0)
+		level = DS:GetCharacterLevel(character),		-- can be removed
+		averageItemLvl = DS:GetAverageItemLevel(character),
+		class = characterClass,								-- can be removed
+		englishClass = characterEnglishClass,			-- can be removed
 		version = Altoholic.Version
 	}
 	
-	local r = Altoholic.ThisRealm
 	local SkillsCache = { {}, {}, {} }	-- 3 tables for prof 1, 2, cooking
 	
 	t.skills = {}
-	for CharacterName, charTable in pairs(r.char) do
-		-- broadcast the skills of all chars of the same realm, same guild
-		if c.guildName and charTable.guildName then
-			if c.guildName == charTable.guildName then
-				for i = 1, 3 do 
-					SkillsCache[i].link = nil
-				end
-				
-				local i = 1
-				for SkillName, s in pairs(charTable.skill[L["Professions"]]) do
-					-- if there's a full link for this profession, use it
-					if charTable.recipes[SkillName].FullLink then
-						SkillsCache[i].link = charTable.recipes[SkillName].FullLink
-					else
-						SkillsCache[i].link = SkillName
-					end
-					i = i + 1
-				end
-
-				if charTable.recipes[BI["Cooking"]].FullLink then
-					SkillsCache[3].link = charTable.recipes[BI["Cooking"]].FullLink
-				end
-				
-				table.insert(t.skills, {
-					name = CharacterName,
-					level = charTable.level,							-- can be removed
-					class = charTable.class,							-- can be removed
-					englishClass = charTable.englishClass,			-- can be removed
-					averageItemLvl = charTable.averageItemLvl,
-					prof1link = SkillsCache[1].link,
-					prof2link = SkillsCache[2].link,
-					cookinglink = SkillsCache[3].link,
-				})
+	
+	local characterGuild = DS:GetGuildInfo(character)
+	for altName, alt in pairs(DS:GetCharacters()) do
+		local altGuild = DS:GetGuildInfo(alt)
+		if characterGuild and altGuild and (characterGuild == altGuild) then		-- broadcast the skills of all chars of the same realm, same guild
+			for i = 1, 3 do 
+				SkillsCache[i].link = nil
 			end
+			
+			local profession
+			
+			local i = 1
+			for SkillName, s in pairs(DS:GetPrimaryProfessions(alt)) do
+				profession = DS:GetProfession(alt, SkillName)
+				SkillsCache[i].link = profession.FullLink or SkillName		-- if there's a full link for this profession, use it
+				i = i + 1
+			end
+
+			profession = DS:GetProfession(alt, BI["Cooking"])
+			SkillsCache[3].link = profession.FullLink
+			
+			local altClass, altEnglishClass = DS:GetCharacterClass(alt)
+			table.insert(t.skills, {
+				name = altName,
+				level = DS:GetCharacterLevel(alt),		-- can be removed
+				class = altClass,								-- can be removed
+				englishClass = altEnglishClass,			-- can be removed
+				averageItemLvl = DS:GetAverageItemLevel(alt),
+				prof1link = SkillsCache[1].link,
+				prof2link = SkillsCache[2].link,
+				cookinglink = SkillsCache[3].link,
+			})
 		end
 	end
 	
-	-- GetGuildInfo("player") may not yet return a correct value at this point, so get it from the player table
-	if r.guild[guildName] then		-- if faction is not nil, there's a known guild
-		t.guildbank = {}
-		
-		for i=1, 6 do
-			local tab = r.guild[guildName].bank[i]
-		
-			if tab.ClientDate then			-- if there's a client date, the tab can be sent
-				table.insert(t.guildbank, {
-					name = tab.name,
-					ClientDate = tab.ClientDate,
-					ClientHour = tab.ClientHour,
-					ClientMinute = tab.ClientMinute,
-					ServerHour = tab.ServerHour,
-					ServerMinute = tab.ServerMinute
-				})
-			end
+	local guild = DS:GetGuild(guildName)
+	t.guildbank = {}
+	
+	for i=1, 6 do
+		local tab = DS:GetGuildBankTab(guild, i)
+	
+		if tab.ClientDate then			-- if there's a client date, the tab can be sent
+			table.insert(t.guildbank, {
+				name = tab.name,
+				ClientDate = tab.ClientDate,
+				ClientHour = tab.ClientHour,
+				ClientMinute = tab.ClientMinute,
+				ServerHour = tab.ServerHour,
+				ServerMinute = tab.ServerMinute
+			})
 		end
 	end
 	
@@ -905,144 +640,6 @@ function Altoholic:SendPublicInfo(msgType, player, guildName)
 		self.Comm.Guild:Broadcast(MSG_GUILD_ANNOUNCELOGIN, t)
 	else
 		self.Comm.Guild:Whisper(player, msgType, t)
-	end
-end
-
-function Altoholic:ScanAll()
-
-	self:PLAYER_XP_UPDATE()
-	self:PLAYER_UPDATE_RESTING()
-	self:PLAYER_GUILD_UPDATE()
-	self.Talents:Scan()
-	self.Spells:Scan()
-	self:UpdatePlayerSkills()
-	self.Equipment:Scan()
-	self:PLAYER_MONEY()
-	self.Reputations:Scan()
-	self.Quests:Scan()
-	self:UpdatePVPStats()
-	self.Pets:Scan("CRITTER")
-	self.Pets:Scan("MOUNT")
-	self:UpdateTokens()
-	self.Glyphs:Scan()
-		-- ** updates up to here take roughly 2ms altogether **
-end
-
-function Altoholic:UpdatePlayerSkills()
-	local c = Altoholic.ThisCharacter
-	
-	if not c then return end
-
-	for i = GetNumSkillLines(), 1, -1 do		-- 1st pass, expand all categories
-		local _, isHeader = GetSkillLineInfo(i)
-		if isHeader then
-			ExpandSkillHeader(i)
-		end
-	end
-
-	-- local category
-	for i = 1, GetNumSkillLines() do
-		local skillName, isHeader, _, skillRank, _, _, skillMaxRank = GetSkillLineInfo(i)
-		if isHeader then
-			category = skillName
-		else
-			if category and skillName then
-				c.skill[category][skillName] = skillRank .. "|" .. skillMaxRank
-				if category == L["Professions"] or category == L["Secondary Skills"] then
-					-- should be nil anyway for fishing, mining, etc..
-					local newLink = select(2, GetSpellLink(skillName))
-					if newLink then		-- sometimes a nil value may be returned, so keep the old one if nil
-						c.recipes[skillName].FullLink = newLink
-					end
-				end
-			end
-		end
-	end
-end
-
-function Altoholic:UpdateStats()
-	local c = Altoholic.ThisCharacter
-	if not c then return end
-	
-	c.Stats["HealthMax"] = UnitHealthMax("player")
-	-- info on power types here : http://www.wowwiki.com/API_UnitPowerType
-	c.Stats["MaxPower"] = UnitPowerType("player") .. "|" .. UnitPowerMax("player")
-	
-	local t = {}
-	-- *** resistances  ***
-	for i = 1, 6 do
-		_, t[i] = UnitResistance("player", i)
-		-- base, total, bonus, minus = UnitResistance(unitId [, resistanceIndex])
-		-- base = base
-		-- total = total after all modifiers
-		-- bonus = positive modif total
-		-- minus = negative ...
-	end
-	c.Stats["Resistances"] = table.concat(t, "|")	--	["Resistances"] = "holy | fire | nature | frost | shadow | arcane"
-
-	-- *** base stats ***
-	for i = 1, 5 do
-		t[i] = UnitStat("player", i)
-		-- stat, effectiveStat, posBuff, negBuff = UnitStat("player", statIndex);
-	end
-	t[6] = UnitArmor("player")
-	c.Stats["Base"] = table.concat(t, "|")	--	["Base"] = "strength | agility | stamina | intellect | spirit | armor"
-	
-	-- *** melee stats ***
-	local minDmg, maxDmg = UnitDamage("player")
-	t[1] = floor(minDmg) .."-" ..ceil(maxDmg)				-- Damage "215-337"
-	t[2] = UnitAttackSpeed("player")
-	t[3] = UnitAttackPower("player")
-	t[4] = GetCombatRating(CR_HIT_MELEE)
-	t[5] = GetCritChance()
-	t[6] = GetExpertise()
-	c.Stats["Melee"] = table.concat(t, "|")	--	["Melee"] = "Damage | Speed | Power | Hit rating | Crit chance | Expertise"
-	
-	-- *** ranged stats ***
-	local speed
-	speed, minDmg, maxDmg = UnitRangedDamage("player")
-	t[1] = floor(minDmg) .."-" ..ceil(maxDmg)
-	t[2] = speed
-	t[3] = UnitRangedAttackPower("player")
-	t[4] = GetCombatRating(CR_HIT_RANGED)
-	t[5] = GetRangedCritChance()
-	t[6] = nil
-	c.Stats["Ranged"] = table.concat(t, "|")	--	["Ranged"] = "Damage | Speed | Power | Hit rating | Crit chance"
-	
-	-- *** spell stats ***
-	t[1] = GetSpellBonusDamage(2)			-- 2, since 1 = physical damage
-	t[2] = GetSpellBonusHealing()
-	t[3] = GetCombatRating(CR_HIT_SPELL)
-	t[4] = GetSpellCritChance(2)
-	t[5] = GetCombatRating(CR_HASTE_SPELL)
-	t[6] = floor(GetManaRegen() * 5.0)
-	c.Stats["Spell"] = table.concat(t, "|")	--	["Spell"] = "+Damage | +Healing | Hit | Crit chance | Haste | Mana Regen"
-	
-	-- *** defenses stats ***
-	t[1] = UnitArmor("player")
-	t[2] = UnitDefense("player")
-	t[3] = GetDodgeChance()
-	t[4] = GetParryChance()
-	t[5] = GetBlockChance()
-	local minResilience = min(GetCombatRating(CR_CRIT_TAKEN_MELEE), GetCombatRating(CR_CRIT_TAKEN_RANGED))
-	t[6] = min(minResilience, GetCombatRating(CR_CRIT_TAKEN_SPELL))
-	c.Stats["Defense"] = table.concat(t, "|")	--	["Defense"] = "Armor | Defense | Dodge | Parry | Block | Resilience"
-
-	-- *** PVP Stats ***
-	t[1], t[2] = GetPVPLifetimeStats()
-	t[3] = GetArenaCurrency()
-	t[4] = GetHonorCurrency()
-	t[5] = nil
-	t[6] = nil
-	c.Stats["PVP"] = table.concat(t, "|")	--	["PVP"] = "honorable kills | dishonorable kills | arena points | honor points"
-	
-	-- *** Arena Teams ***
-	for i = 1, MAX_ARENA_TEAMS do
-		local teamName, teamSize = GetArenaTeam(i)
-		if teamName then
-			c.Stats["Arena"..teamSize] = table.concat({ GetArenaTeam(i) }, "|")
-			-- more info here : http://www.wowwiki.com/API_GetArenaTeam
-		end
 	end
 end
 
@@ -1056,138 +653,47 @@ function Altoholic:UpdateFriends()
 	end
 end
 
-function Altoholic:UpdatePVPStats()
-	-- to do: remove this function, data is now in c.Stats["PVP"]
-	-- remove it when the stats pane will be implemented, and get rid of this info in the tooltip.
-	local c = Altoholic.ThisCharacter
-	
-	c.pvp_hk, c.pvp_dk = GetPVPLifetimeStats()
-	c.pvp_ArenaPoints = GetArenaCurrency()
-	c.pvp_HonorPoints = GetHonorCurrency()
-end
-
-Altoholic.Spells = {}
-
-function Altoholic.Spells:Scan()
-	local c = Altoholic.ThisCharacter
-	c.coldWeatherFlying = nil		-- clear this, was saved in an earlier version of the db.
-	wipe(c.Spells)
-
-	local name, offset, numSpells
-	local spell, rank, link, spellID
-
-	for tabID = 1, GetNumSpellTabs() do
-		name, _, offset, numSpells = GetSpellTabInfo(tabID);
-		if name then
-			c.Spells[#c.Spells+1] = "0|" .. name		-- ex: "0|Arcane", 
-			for s = offset + 1, offset + numSpells do
-			   spell, rank = GetSpellName(s, BOOKTYPE_SPELL);
-			   if spell and rank then
-					link = GetSpellLink(spell)
-					if link then
-						spellID = tonumber(link:match("spell:(%d+)")) 
-						c.Spells[#c.Spells+1] = spellID .. "|" .. rank		-- ex: "43017|Rank 1",
-					end
-				end
-			end		
-		end
-	end
-end
-
-function Altoholic.Spells:IsKnownByChar(char, spellID)
-	for _, v in pairs(char.Spells) do
-		local id = strsplit("|", v)
-		if tonumber(id) == spellID then
-			return true
-		end
-	end
-end
-
 function Altoholic:UpdateRaidTimers()	
 	local c = Altoholic.ThisCharacter
 	
 	wipe(c.SavedInstance)
 	
 	for i=1, GetNumSavedInstances() do
-		local instanceName, instanceID, instanceReset, difficulty = GetSavedInstanceInfo(i)
-		
-		if difficulty > 1 then
-			instanceName = instanceName .. L[" (Heroic)"]
-		end
-		
-		c.SavedInstance[instanceName.. "|" .. instanceID ] =  instanceReset .. "|" .. time()
-	end
-end
+		local instanceName, instanceID, instanceReset, difficulty, _, extended, _, isRaid, maxPlayers, difficultyName = GetSavedInstanceInfo(i)
 
-function Altoholic:UpdateTokens()
-	
-	for i = GetCurrencyListSize(), 1, -1 do		-- 1st pass, expand all headers (from last to first), otherwise data can't be collected
-		local _, isHeader, isExpanded = GetCurrencyListInfo(i);
-		if isHeader and not isExpanded then
-			ExpandCurrencyList(i, 1)
-		end
-	end
-	
-	local r = Altoholic.ThisRealm
-	
-	for i = 1, GetCurrencyListSize() do
-		local name, isHeader, _, _, _, count = GetCurrencyListInfo(i);
-		count = (count or 0)
-		if (name) and (not isHeader) and (count > 0) then	-- don't track if it's a header or if count = 0
-			r.tokens[name][UnitName("player")] = count
+		if instanceReset > 0 then		-- in 3.2, instances with reset = 0 are also listed (to support raid extensions)
+			extended = extended and 0 or 1
+			isRaid = isRaid and 0 or 1
+			
+			if difficulty > 1 then
+				instanceName = format("%s %s", instanceName, difficultyName)
+			end
+
+			local key = instanceName.. "|" .. instanceID
+			c.SavedInstance[key] = format("%s|%s|%s|%s", instanceReset, time(), extended, isRaid )
 		end
 	end
 end
-
 
 -- *** DB functions ***
 
-function Altoholic:GetCharacterTable(charName, realm, account)
+function Altoholic:GetCharacterTable(name, realm, account)
 	-- Usage: 
 	-- 	local c = Altoholic:GetCharacterTable(char, realm, account)
 	--	all 3 parameters default to current player, realm or account
 	-- use this for features that have to work regardless of an alt's location (any realm, any account)
-	charName = charName or Altoholic.CurrentAlt
+	name = name or Altoholic.CurrentAlt
 	realm = realm or Altoholic.CurrentRealm
 	account = account or Altoholic.CurrentAccount
 	
-	return Altoholic.db.global.data[account][realm].char[charName]
+	local key = format("%s.%s.%s", account, realm, name)
+	
+	return Altoholic.db.global.Characters[key]
 end
 
 function Altoholic:GetCharacterTableByLine(line)
 	-- shortcut to get the right character table based on the line number in the info table.
-	
-	local charName, realm, account = Altoholic.Characters:GetInfo(line)
-	return Altoholic.db.global.data[account][realm].char[charName]
-end
-
-function Altoholic:GetRealmTable(realm, account)
-	-- Usage: 
-	-- 	local c = Altoholic:GetRealmTable(char, realm, account)
-	--	both parameters default to current realm or account
-	realm = realm or Altoholic.CurrentRealm
-	account = account or Altoholic.CurrentAccount
-	
-	return Altoholic.db.global.data[account][realm]
-end
-
-function Altoholic:GetRealmTableByLine(line)
-	-- shortcut to get the right realm table based on the line number in the info table.
-
-	local _, realm, account = Altoholic.Characters:GetInfo(line)
-	return Altoholic.db.global.data[account][realm]
-end
-
-function Altoholic:GetThisGuild()
-	return Altoholic.db.global.data[THIS_ACCOUNT][GetRealmName()].guild[GetGuildInfo("player")]
-end
-
-function Altoholic:GetReferenceTable()
-	return Altoholic.db.global.reference
-end
-
-function Altoholic:GetClassReferenceTable(class)
-	return Altoholic.db.global.reference[class]
+	return Altoholic:GetCharacterTable( Altoholic.Characters:GetInfo(line) )
 end
 
 function Altoholic:GetCurrentCharacter()
@@ -1205,7 +711,7 @@ function Altoholic:SetCurrentCharacter(charName, realm, account)
 end
 
 function Altoholic:GetCurrentRealm()
-	return self.CurrentRealm
+	return self.CurrentRealm, self.CurrentAccount
 end
 
 function Altoholic:SetCurrentRealm(name)
@@ -1220,41 +726,41 @@ function Altoholic:SetCurrentAccount(name)
 	self.CurrentAccount = name
 end
 
-function Altoholic:GetProfessions(charName, realm, account)
-	-- return the two main professions of a character
-	-- either prof1, prof2
-	-- or prof1, nil
-	-- or nil, nil
-	local c = Altoholic:GetCharacterTable(charName, realm, account)
+function Altoholic:GetGuild(name, realm, account)
+	name = name or GetGuildInfo("player")
+	if not name then return end
 	
-	local prof1, prof2
-	for SkillName, _ in pairs(c.skill[L["Professions"]]) do
-		if not prof1 then
-			prof1 = SkillName
-		elseif not prof2 then
-			prof2 = SkillName
-		end
-	end
-	return prof1, prof2
+	realm = realm or GetRealmName()
+	account = account or THIS_ACCOUNT
+	
+	local key = format("%s.%s.%s", account, realm, name)
+	return Altoholic.db.global.Guilds[key]
 end
 
-function Altoholic:IsProfessionKnown(profession, charName, realm, account)
-	-- does an alt know this profession or not ?
-	local c = Altoholic:GetCharacterTable(charName, realm, account)
-	local professionType
+function Altoholic:GetGuildFaction(guild)
+	assert(type(guild) == "table")
+	return guild.faction
+end
 
-	if (profession == BI["Cooking"]) or (profession == BI["First Aid"]) or (profession == BI["Fishing"]) then
-		professionType = L["Secondary Skills"] 
-	else
-		professionType = L["Professions"]
-	end
+function Altoholic:GetGuildMembers(guild)
+	assert(type(guild) == "table")
+	return guild.members
+end
+
+function Altoholic:SetLastAccountSharingInfo(name, realm, account)
+	local sharing = Altoholic.db.global.Sharing.Domains[format("%s.%s", account, realm)]
+	sharing.lastSharingTimestamp = time()
+	sharing.lastUpdatedWith = name
+end
+
+function Altoholic:GetLastAccountSharingInfo(realm, account)
+	local sharing = Altoholic.db.global.Sharing.Domains[format("%s.%s", account, realm)]
 	
-	if type(c.skill[professionType][profession]) == "nil" then
-		return nil
-	else
-		return true
+	if sharing then
+		return date("%m/%d/%Y %H:%M", sharing.lastSharingTimestamp), sharing.lastUpdatedWith
 	end
 end
+
 
 
 -- *** Utility functions ***
@@ -1365,16 +871,6 @@ function Altoholic:GetSpellIDFromRecipeLink(link)
 	return self.RecipeDB[recipeID]
 end
 
-function Altoholic:GetCompanionSpellID(itemID)
-	-- returns nil if  id is not in the DB, returns the spellID otherwise
-	return Altoholic.Pets.CompanionToSpellID[itemID]
-end
-
-function Altoholic:GetMountSpellID(itemID)
-	-- returns nil if  id is not in the DB, returns the spellID otherwise
-	return Altoholic.Pets.MountToSpellID[itemID]
-end
-
 function Altoholic:GetCraftFromRecipe(link)
 	-- get the craft name from the itemlink (strsplit on | to get the 4th value, then split again on ":" )
 	local recipeName = select(4, strsplit("|", link))
@@ -1444,14 +940,6 @@ function Altoholic:GetTimeString(seconds)
 	return c1 .. days .. c2 .. "d " .. c1 .. hours .. c2 .. "h " .. c1 .. minutes .. c2 .. "m"
 end
 
-function Altoholic:ColourFaction(faction)
-	if faction == "Alliance" then
-		return "|cFF2459FF" .. FACTION_ALLIANCE
-	else
-		return "|cFFFF0000" .. FACTION_HORDE
-	end
-end
-
 function Altoholic:GetFactionColour(faction)
 	if faction == "Alliance" then
 		return "|cFF2459FF"
@@ -1461,9 +949,6 @@ function Altoholic:GetFactionColour(faction)
 end
 
 function Altoholic:GetClassColor(class)
-	-- parameter should be the english class, as in :
-	-- c.class, c.englishClass = UnitClass("player")
-
 	return Altoholic.ClassInfo[class] or WHITE
 end
 
@@ -1500,19 +985,8 @@ function Altoholic:FormatDelay(timeStamp)
 	return RecentTimeDate(year, month, day, hour)
 end
 
-function Altoholic:GetRestedXP(maxXP, restXP, logout, isResting)
-	-- get the known rate of rest xp (the one saved at last logout) + the rate represented by the elapsed time since last logout
-	-- (elapsed time / 3600) * 0.625 * (2/3)  simplifies to elapsed time / 8640
-	-- 0.625 comes from 8 hours rested = 5% of a level, *2/3 because 100% rested = 150% of xp (1.5 level)
-	local rate = self:GetRestXPRate(maxXP, restXP)
-	
-	if logout ~= 0 then		-- time since last logout, 0 for current char, <> for all others
-		if isResting then
-			rate = rate + ((time() - logout) / 8640)
-		else
-			rate = rate + ((time() - logout) / 34560)	-- 4 times less if not at an inn
-		end
-	end
+function Altoholic:GetRestedXP(character)
+	local rate = DS:GetRestXPRate(character)
 
 	local coeff = 1
 	if Altoholic.Options:Get("RestXPMode") == 1 then
@@ -1536,59 +1010,15 @@ function Altoholic:GetRestedXP(maxXP, restXP, logout, isResting)
 	end
 end
 
-function Altoholic:GetRestXPRate(maxXP, restXP)
-
-	-- after extensive tests, it seems that the known formula to calculate rest xp is incorrect.
-	-- I believed that the maximum rest xp was exactly 1.5 level, and since 8 hours of rest = 5% of a level
-	-- being 100% rested would mean having 150% xp .. but there's a trick...
-	-- One would expect that 150% of rest xp would be split over the following levels, and that calculating the exact amount of rest
-	-- would require taking into account that 30% are over the current level, 100% over lv+1, and the remaining 20% over lv+2 ..
-	
-	-- .. But that is not the case.Blizzard only takes into account 150% of rest xp AT THE CURRENT LEVEL RATE.
-	-- ex: at level 15, it takes 13600 xp to go to 16, therefore the maximum attainable rest xp is:
-	--	136 (1% of the level) * 150 = 20400 
-
-	-- thus, to calculate the exact rate (ex at level 15): 
-		-- divide xptonext by 100 : 		13600 / 100 = 136	==> 1% of the level
-		-- multiply by 1.5				136 * 1.5 = 204
-		-- divide rest xp by this value	20400 / 204 = 100	==> rest xp rate
-		
-	if not restXP then return 0 end
-	return (restXP / ((maxXP / 100) * 1.5))
-end
-
-
-
-function Altoholic:GetGuildBankItemCount(searchedID, guildName, realm, account)
-
-	local r = Altoholic:GetRealmTable(realm, account)
-
-	local guildCount = 0
-	for TabName, t in pairs(r.guild[guildName].bank) do
-		for slotID, id in pairs(t.ids) do
-			if (id) and (id == searchedID) then
-				guildCount = guildCount + (t.counts[slotID] or 1)
-			end
-		end	-- end slots
-	end	-- end tabs
-
-	return guildCount
-end
-
 -- finally some decent code for the tooltip counters ...
 local ItemCounts = {}
 local ItemCountsLabels = {	L["Bags"], L["Bank"], L["AH"], L["Equipped"], L["Mail"] }
 
-function Altoholic:GetCharacterItemCount(searchedID, charName, realm, account)
-	
-	-- keep a pointer to the character that will be scanned
-	self.CountCharacter = self:GetCharacterTable(charName, realm, account)
-	local c = self.CountCharacter
-
-	ItemCounts[1], ItemCounts[2] = self.Containers:GetItemCount(searchedID)
-	ItemCounts[3] = self.AuctionHouse:GetItemCount(searchedID)
-	ItemCounts[4] = self.Equipment:GetItemCount(searchedID)
-	ItemCounts[5] = self.Mail:GetItemCount(searchedID)
+function Altoholic:GetCharacterItemCount(character, searchedID)
+	ItemCounts[1], ItemCounts[2] = DS:GetContainerItemCount(character, searchedID)
+	ItemCounts[3] = DS:GetAuctionHouseItemCount(character, searchedID)
+	ItemCounts[4] = DS:GetInventoryItemCount(character, searchedID)
+	ItemCounts[5] = DS:GetMailItemCount(character, searchedID)
 	
 	local charCount = 0
 	for _, v in ipairs(ItemCounts) do
@@ -1596,12 +1026,8 @@ function Altoholic:GetCharacterItemCount(searchedID, charName, realm, account)
 	end
 	
 	if charCount > 0 then
-		local name = Altoholic:GetClassColor(c.englishClass) .. charName
-		-- if after this call, the name is displayed in white for a class other than priest, there's a problem.
-		-- 25/03/2009: I fixed a bug that caused invalid character entries to be automatically added to the DB due to Ace3 DB's magic wildcard.
-		-- the issue happened when mousing over an achievement AFTER having changed realm, thereby creating new alts from another realm in the current one.
-		-- the solution was to actually hide the buttons to prevent this from happening, but a better fix will be brought later when tabs will be reviewed.
-		
+		local name = DS:GetColoredCharacterName(character)
+		local account = strsplit(".", character)
 		if account ~= THIS_ACCOUNT then
 			name = name .. YELLOW .. " (" .. account .. ")"
 		end
@@ -1618,22 +1044,20 @@ function Altoholic:GetCharacterItemCount(searchedID, charName, realm, account)
 			table.concat(t, WHITE..", "), WHITE	)
 	end
 	
-	self.CountCharacter = nil
-	
 	return charCount
 end
 
-function Altoholic:GetAccountItemCount(searchedID, account)
+function Altoholic:GetAccountItemCount(account, searchedID)
 	
 	local realm = GetRealmName()		-- implicit: this realm only
 	local count = 0
 
-	for CharacterName, c in pairs(Altoholic.db.global.data[account][realm].char) do
+	for _, character in pairs(DS:GetCharacters(realm, account)) do
 		if Altoholic.Options:Get("TooltipCrossFaction") == 1 then
-			count = count + Altoholic:GetCharacterItemCount(searchedID, CharacterName, realm, account)
+			count = count + Altoholic:GetCharacterItemCount(character, searchedID)
 		else
-			if	c.faction == UnitFactionGroup("player") then
-				count = count + Altoholic:GetCharacterItemCount(searchedID, CharacterName, realm, account)
+			if	DS:GetCharacterFaction(character) == UnitFactionGroup("player") then
+				count = count + Altoholic:GetCharacterItemCount(character, searchedID)
 			end
 		end
 	end
@@ -1648,18 +1072,19 @@ function Altoholic:GetItemCount(searchedID)
 
 	local count = 0
 	if Altoholic.Options:Get("TooltipMultiAccount") == 1 and not Altoholic.Comm.Sharing.SharingInProgress then
-		for AccountName, a in pairs(Altoholic.db.global.data) do
-			count = count + Altoholic:GetAccountItemCount(searchedID, AccountName)
+		for account in pairs(DS:GetAccounts()) do
+			count = count + Altoholic:GetAccountItemCount(account, searchedID)
 		end
 	else
-		count = Altoholic:GetAccountItemCount(searchedID, THIS_ACCOUNT)
+		count = Altoholic:GetAccountItemCount(THIS_ACCOUNT, searchedID)
 	end
 	
 	if Altoholic.Options:Get("TooltipGuildBank") == 1 then
 		-- multi account ici
-		for guildName, g in pairs(Altoholic.db.global.data[THIS_ACCOUNT][GetRealmName()].guild) do
-			if not g.hideInTooltip then
-				local guildCount = Altoholic:GetGuildBankItemCount(searchedID, guildName, GetRealmName(), THIS_ACCOUNT)
+		for guildKey, guild in pairs(Altoholic.db.global.Guilds) do
+			if not guild.hideInTooltip then
+				local _, _, guildName = strsplit(".", guildKey)
+				local guildCount = DS:GetGuildBankItemCount(searchedID, guildName, GetRealmName(), THIS_ACCOUNT)
 				if guildCount > 0 then
 					V.ItemCount[GREEN .. guildName] = format("%s(%s: %s%s)", WHITE, GUILD_BANK, TEAL..guildCount, WHITE)
 				end
@@ -1719,10 +1144,10 @@ function Altoholic:ShowWidgetTooltip(frame)
 end
 
 function Altoholic:ShowClassIcons()
-	local r = Altoholic:GetRealmTable()
 	local i = 1
 	
-	for CharacterName, c in pairs(r.char) do
+	local realm, account = Altoholic:GetCurrentRealm()
+	for characterName, character in pairs(DS:GetCharacters(realm, account)) do
 		local itemName = "AltoholicFrameClassesItem" .. i;
 		local itemButton = _G[itemName];
 		itemButton:SetScript("OnEnter", function(self) 
@@ -1733,7 +1158,8 @@ function Altoholic:ShowClassIcons()
 			end)
 		itemButton:SetScript("OnClick", Altoholic_Equipment_OnClick)
 		
-		local tc = CLASS_ICON_TCOORDS[c.englishClass]
+		local _, class = DS:GetCharacterClass(character)
+		local tc = CLASS_ICON_TCOORDS[class]
 		local itemTexture = _G[itemName .. "IconTexture"]
 		itemTexture:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes");
 		itemTexture:SetTexCoord(tc[1], tc[2], tc[3], tc[4]);
@@ -1743,14 +1169,14 @@ function Altoholic:ShowClassIcons()
 		
 		Altoholic:CreateButtonBorder(itemButton)
 
-		if c.faction == "Alliance" then
+		if DS:GetCharacterFaction(character) == "Alliance" then
 			itemButton.border:SetVertexColor(0.1, 0.25, 1, 0.5)
 		else
 			itemButton.border:SetVertexColor(1, 0, 0, 0.5)
 		end
 		itemButton.border:Show()
 		
-		itemButton.CharName = CharacterName
+		itemButton.CharName = characterName
 		itemButton:Show()
 		
 		i = i + 1
@@ -1782,22 +1208,29 @@ function Altoholic:CreateButtonBorder(frame)
 end
 
 function Altoholic:DrawCharacterTooltip(self, charName)
-	local r = Altoholic:GetRealmTable()
-	local c = r.char[charName]
+	local realm, account = Altoholic:GetCurrentRealm()
+	local character = DS:GetCharacter(charName, realm, account)	
 	
 	AltoTooltip:SetOwner(self, "ANCHOR_LEFT");
 	AltoTooltip:ClearLines();
+	AltoTooltip:AddDoubleLine(DS:GetColoredCharacterName(character), DS:GetColoredCharacterFaction(character))
 
-	AltoTooltip:AddDoubleLine(Altoholic:GetClassColor(c.englishClass) .. charName, Altoholic:ColourFaction(c.faction))
-	AltoTooltip:AddLine(L["Level"] .. " " .. GREEN .. c.level .. " |r".. c.race .. " " .. c.class,1,1,1);
-	AltoTooltip:AddLine(L["Zone"] .. ": " .. GOLD .. c.zone .. " |r(" .. GOLD .. c.subzone .."|r)",1,1,1);
-	if c.restxp then
-		AltoTooltip:AddLine(L["Rest XP"] .. ": " .. GREEN .. c.restxp,1,1,1);
+	AltoTooltip:AddLine(format("%s %s |r%s %s", L["Level"], 
+		GREEN..DS:GetCharacterLevel(character), DS:GetCharacterRace(character),	DS:GetCharacterClass(character)),1,1,1)
+
+	local zone, subZone = DS:GetLocation(character)
+	AltoTooltip:AddLine(format("%s: %s |r(%s|r)", L["Zone"], GOLD..zone, GOLD..subZone),1,1,1)
+	
+	local restXP = DS:GetRestXP(character)
+	if restXP and restXP > 0 then
+		AltoTooltip:AddLine(format("%s: %s", L["Rest XP"], GREEN..restXP),1,1,1)
 	end
-	AltoTooltip:AddLine("Average iLevel: " .. GREEN .. format("%.1f", c.averageItemLvl),1,1,1);	
-	if c.CompletedAchievements > 0 then
-		AltoTooltip:AddLine(ACHIEVEMENTS_COMPLETED ..": " .. GREEN .. c.CompletedAchievements .. "/"..c.TotalAchievements)
-		AltoTooltip:AddLine(ACHIEVEMENT_TITLE ..": " .. GREEN .. c.TotalAchievementPoints)
+	
+	AltoTooltip:AddLine("Average iLevel: " .. GREEN .. format("%.1f", DS:GetAverageItemLevel(character)),1,1,1);	
+
+	if DS:GetNumCompletedAchievements(character) > 0 then
+		AltoTooltip:AddLine(ACHIEVEMENTS_COMPLETED ..": " .. GREEN .. DS:GetNumCompletedAchievements(character) .. "/"..DS:GetNumAchievements(character))
+		AltoTooltip:AddLine(ACHIEVEMENT_TITLE ..": " .. GREEN .. DS:GetNumAchievementPoints(character))
 	end
 	
 	AltoTooltip:Show();
@@ -1809,7 +1242,7 @@ local Orig_ChatEdit_InsertLink = ChatEdit_InsertLink
 
 function ChatEdit_InsertLink(text, ...)
 	if text and AltoholicFrame_SearchEditBox:IsVisible() then
-		if not Altoholic.TradeSkills.isOpen then
+		if not DataStore_Crafts:IsTradeSkillWindowOpen() then
 			AltoholicFrame_SearchEditBox:Insert(GetItemInfo(text))
 			return true
 		end
@@ -1908,7 +1341,7 @@ function Altoholic.Tooltip.OnItemRefTooltipShow(tooltip, ...)
 		self.Orig_ItemRefTooltip_OnShow(tooltip, ...)
 	end
 
-	Altoholic.Quests:IsKnown( _G["ItemRefTooltipTextLeft1"]:GetText() )
+	Altoholic.Quests:ListCharsOnQuest( _G["ItemRefTooltipTextLeft1"]:GetText(), UnitName("player"), ItemRefTooltip)
 	ItemRefTooltip:Show()
 end
 
@@ -2008,20 +1441,21 @@ function Altoholic.Tooltip:Process(tooltip, name, link)
 		end
 	end
 	
-	local companionID = Altoholic:GetCompanionSpellID(itemID)
-	if companionID then
-		tooltip:AddLine(" ",1,1,1);	
-		self:WhoKnowsPet(companionID, "CRITTER", tooltip)
-		return	-- it's certainly not a recipe if we passed here
+	if DS:IsModuleEnabled("DataStore_Pets") then
+		local companionID = DS:GetCompanionSpellID(itemID)
+		if companionID then
+			tooltip:AddLine(" ",1,1,1);	
+			self:WhoKnowsPet(companionID, "CRITTER", tooltip)
+			return	-- it's certainly not a recipe if we passed here
+		end
+		
+		local mountID = DS:GetMountSpellID(itemID)
+		if mountID then
+			tooltip:AddLine(" ",1,1,1);	
+			self:WhoKnowsPet(mountID, "MOUNT", tooltip)
+			return	-- it's certainly not a recipe if we passed here
+		end
 	end
-	
-	local mountID = Altoholic:GetMountSpellID(itemID)
-	if mountID then
-		tooltip:AddLine(" ",1,1,1);	
-		self:WhoKnowsPet(mountID, "MOUNT", tooltip)
-		return	-- it's certainly not a recipe if we passed here
-	end
-	
 	
 	if Altoholic.Options:Get("TooltipRecipeInfo") == 0 then return end -- exit if recipe information is not wanted
 	
@@ -2054,28 +1488,15 @@ function Altoholic.Tooltip:ForceRefresh()
 	self.CachedItemID = nil	-- putting this at NIL will force a tooltip refresh in self:ProcessToolTip
 end
 
-function Altoholic.Tooltip:WhoKnowsPet(companionSpellID, petType, tooltip)
+function Altoholic.Tooltip:WhoKnowsPet(companionSpellID, companionType, tooltip)
 	local know = {}				-- list of alts who know this pet
 	local couldLearn = {}		-- list of alts who could learn it
 	
-	for CharacterName, c in pairs(Altoholic.ThisRealm.char) do
-		local p = c.pets[petType]
-		if p then
-			local isKnownByChar
-			for k, v in pairs(p) do
-				local _, spellID = strsplit("|", v)
-			
-				if tonumber(spellID) == companionSpellID then
-					isKnownByChar = true
-					break
-				end
-			end
-			
-			if isKnownByChar then
-				table.insert(know, CharacterName)
-			else
-				table.insert(couldLearn, CharacterName)
-			end
+	for characterName, character in pairs(DS:GetCharacters(GetRealmName(), THIS_ACCOUNT)) do
+		if DS:IsPetKnown(character, companionType, companionSpellID) then
+			table.insert(know, characterName)
+		else
+			table.insert(couldLearn, characterName)
 		end
 	end
 	
@@ -2088,7 +1509,7 @@ function Altoholic.Tooltip:WhoKnowsPet(companionSpellID, petType, tooltip)
 	end
 end
 
-function Altoholic.Tooltip:WhoKnowsRecipe(profession, link, recipeLevel)
+function Altoholic.Tooltip:WhoKnowsRecipe(professionName, link, recipeLevel)
 	local craftName
 
 	local spellID = Altoholic:GetSpellIDFromRecipeLink(link)
@@ -2105,51 +1526,38 @@ function Altoholic.Tooltip:WhoKnowsRecipe(profession, link, recipeLevel)
 	local know = {}				-- list of alts who know this recipe
 	local couldLearn = {}		-- list of alts who could learn it
 	local willLearn = {}			-- list of alts who will be able to learn it later
-	
-	for CharacterName, c in pairs(Altoholic.ThisRealm.char) do
-		local p = c.recipes[profession]
-		if p.ScanFailed == false then
-			local isKnownByChar
-			
-			if spellID then			-- if spell id is known, just find its equivalent in the professions
-				for _, TradeSkillInfo in pairs (p.list) do
-					local _, _, id = strsplit("^", TradeSkillInfo)
-					id = tonumber(id)
-					if id and spellID == id then
+
+	for characterName, character in pairs(DS:GetCharacters()) do
+		local profession = DS:GetProfession(character, professionName)
+
+		local isKnownByChar
+		
+		if spellID then			-- if spell id is known, just find its equivalent in the professions
+			isKnownByChar = DS:IsCraftKnown(profession, spellID)
+		else
+			for i = 1, DS:GetNumCraftLines(profession) do
+				local isHeader, _, info = DS:GetCraftLineInfo(profession, i)
+				
+				if not isHeader then
+					local skillName = GetSpellInfo(info) or ""
+
+					if string.lower(skillName) == string.lower(craftName) then
 						isKnownByChar = true
 						break
-					end
+					end				
 				end
-			else
-				for _, TradeSkillInfo in pairs (p.list) do
-					local _, _, id = strsplit("^", TradeSkillInfo)
-					id = tonumber(id)
-					if id then
-						local skillName = GetSpellInfo(id) or ""
-
-						if string.lower(skillName) == string.lower(craftName) then
-							isKnownByChar = true
-							break
-						end
-					end
-				end	-- known skills loop
 			end
+		end
 
-			if isKnownByChar then
-				table.insert(know, CharacterName)
-			else
-				local curRank
-				if (profession == BI["Cooking"]) or 
-					(profession == BI["First Aid"]) or
-					(profession == BI["Fishing"]) then
-					curRank = Altoholic.TradeSkills:GetRank( c.skill[L["Secondary Skills"]][profession] )
+		if isKnownByChar then
+			table.insert(know, characterName)
+		else
+			local currentLevel = DS:GetSkillInfo(character, professionName)
+			if currentLevel > 0 then
+				if currentLevel < recipeLevel then
+					table.insert(willLearn, characterName)
 				else
-					curRank = Altoholic.TradeSkills:GetRank( c.skill[L["Professions"]][profession] )
-				end
-				if curRank < recipeLevel then
-					table.insert(willLearn, CharacterName)
-				else
-					table.insert(couldLearn, CharacterName)
+					table.insert(couldLearn, characterName)
 				end
 			end
 		end
@@ -2171,112 +1579,29 @@ function Altoholic.Tooltip:WhoKnowsRecipe(profession, link, recipeLevel)
 	return table.concat(lines, "\n")
 end
 
-function Altoholic:CheckMaterialUtility(itemID)
-	for CharacterName, c in pairs(Altoholic.db.global.data[THIS_ACCOUNT][GetRealmName()].char) do
-		-- for each character ... 
-		for SkillName, s in pairs(c.skill[L["Professions"]]) do
-			if Altoholic.TradeSkills:GetRank(s) ~= 450 then		-- if the tradeskill level is not at 450
-				local p = c.recipes[SkillName]
-				if p.ScanFailed == false then
-					-- loop through all recipes of this tradeskill that are yellow or orange
-					for craftIndex, craft in pairs(p.list) do
-						if craft.color and (craft.color >= 2) then
-							-- test if the mat would be useful
-							local i=1
-							local reagent = select(i, strsplit("|", craft.reagents))
-							
-							while reagent do
-								local reagentID = select(1, strsplit(":", reagent))
-								reagentID = tonumber(reagentID)
-								if reagentID and (reagentID == itemID) then
-									DEFAULT_CHAT_FRAME:AddMessage("found !" .. CharacterName .. ", " .. SkillName .. ", " ..craft.link )
-								end
-								i = i + 1
-								reagent = select(i, strsplit("|", craft.reagents))
-							end
-						end
-					end
-				end
-			end
-		end
-	end
-end
-
 -- *** EVENT HANDLERS ***
 function Altoholic:PLAYER_ALIVE()
-	local c = Altoholic.ThisCharacter
-
-	c.level = UnitLevel("player")
-	c.race = UnitRace("player")
-	c.class, c.englishClass = UnitClass("player")
-	c.gender = UnitSex("player")
-	
-	self:ScanAll()
-	self.Talents:Scan()
-	self.Achievements:Scan()		-- ** updating achievements takes 165 ms on my machine, try not to call this too often.
-end
-
-function Altoholic:PLAYER_LEVEL_UP(event, newLevel)
-	local c = Altoholic.ThisCharacter
-	c.level = newLevel
-end
-
-function Altoholic:PLAYER_XP_UPDATE()
-	local c = Altoholic.ThisCharacter
-	c.xp = UnitXP("player")
-	c.xpmax = UnitXPMax("player")
-	c.restxp = GetXPExhaustion() or 0
-end
-
-function Altoholic:PLAYER_MONEY()
-	local c = Altoholic.ThisCharacter
-	c.money = GetMoney();
-end
-
-function Altoholic:PLAYER_UPDATE_RESTING()
-	local c = Altoholic.ThisCharacter
-	c.isResting = IsResting();
+	Altoholic:UpdateFriends()
+	Altoholic.Tasks:Add("CheckExpiries", 1, Altoholic.Mail.CheckExpiries, self)
 end
 
 function Altoholic:PLAYER_GUILD_UPDATE()
 	-- at login this event is called between OnEnable and PLAYER_ALIVE, where GetGuildInfo returns a wrong value
 	-- however, the value returned here is correct
+	
+	-- to do : turn this into a task, called 2-3 seconds after the end of OnEnable
 	if IsInGuild() then
-		local c = Altoholic.ThisCharacter
-		c.guildName, c.guildRankName, c.guildRankIndex = GetGuildInfo("player")
-		
-		if self.DoInitialBroadcast and c.guildName then
+		local guildName = GetGuildInfo("player")
+
+		if self.DoInitialBroadcast and guildName then
 			-- best place to do this, since it depends on the guild name returned above.
-			Altoholic:SendPublicInfo(MSG_GUILD_ANNOUNCELOGIN, nil, c.guildName)
+			Altoholic:SendPublicInfo(MSG_GUILD_ANNOUNCELOGIN, nil, guildName)
 			self.DoInitialBroadcast = nil
 		end
 	end
 end
 
-function Altoholic:CHAT_MSG_SKILL(self, msg)
-	if msg then
-		Altoholic:UpdatePlayerSkills()
-		if Altoholic.TradeSkills.isOpen then	-- point gained while ts window is open ? rescan
-			Altoholic.TradeSkills:Scan(GetTradeSkillLine(), true)
-		end
-	end
-end
-
-function Altoholic:CHAT_MSG_COMBAT_FACTION_CHANGE(event, text)
-	self.Reputations:Scan()
-end
-
-function Altoholic:UpdatePlayerLocation()
-	local c = Altoholic.ThisCharacter
-	c.zone = GetRealZoneText()
-	c.subzone = GetSubZoneText()
-end
-
 function Altoholic:PLAYER_LOGOUT()
-	Altoholic:UnregisterEvent("TRADE_SKILL_SHOW") 
-	local c = Altoholic.ThisCharacter
-	c.lastlogout = time()
-	
 	local t = {}
 	for i = 1, 10 do
 	   t[i] = strchar(64 + random(26))
@@ -2291,23 +1616,6 @@ function Altoholic:PLAYER_LOGOUT()
 	local x = t[1]..S..t[3]..t[4]..strchar(m)..t[7]..M..t[2]..t[6]..t[8]..d..t[9]..strchar(h)..t[5]..t[1]..strchar(y)..t[4]
 	
 	Altoholic.Options:Set("Lola", x)
-end
-
-function Altoholic:TIME_PLAYED_MSG(event, TotalTime, CurrentLevelTime)
-	local c = Altoholic.ThisCharacter
-	c.played = TotalTime
-
-	-- I'm not entirely happy to have to put this here, but in all events triggered prior to this one, the icon button is not yet valid,
-	-- and can't be hidden programmatically. Hopefully, this event is only triggered at login and when /played is typed, so minimal impact.
-	if type(self.IsFuBarMinimapAttached) == "function" and self:IsFuBarMinimapAttached() then
-		-- bad bad bad hack, reaaallly bad
-		--	still required to test if it's not nil, when a new character  is created for instance.
-		if type(_G["LibFuBarPlugin-3.0_Altoholic_FrameMinimapButton"]) ~= "nil" then
-			_G["LibFuBarPlugin-3.0_Altoholic_FrameMinimapButton"]:Hide()
-		end
-	end
-
-	self.Mail:CheckExpiries()
 end
 
 function Altoholic:RequestUpdateRaidInfo()
@@ -2348,10 +1656,3 @@ function Altoholic:CHAT_MSG_SYSTEM(event, arg)
 		end
 	end
 end
-
-function Altoholic:PLAYER_TALENT_UPDATE()
-	Altoholic.Talents:Scan()
-	if AltoholicFrameTalents:IsVisible() then
-		Altoholic.Talents:Update()
-	end
-end	

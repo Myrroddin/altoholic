@@ -68,35 +68,13 @@
 				</Anchors>
 				<Scripts>
 					<OnEnter>
-						local c = Altoholic:GetCharacterTable()
-						local s = c[Altoholic.AuctionHouse.AuctionType][self:GetID()]
-						
-						if s.id ~= nil then
-							local _, link = GetItemInfo(s.id)
-							GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
-							GameTooltip:SetHyperlink(link);
-							GameTooltip:Show();
-						end
+						Altoholic.AuctionHouse:OnEnter(self)
 					</OnEnter>
 					<OnLeave>
 						GameTooltip:Hide();
 					</OnLeave>
 					<OnClick>
-						local c = Altoholic:GetCharacterTable()
-						local s = c[Altoholic.AuctionHouse.AuctionType][self:GetID()]
-
-						if s.id ~= nil then
-							local _, link = GetItemInfo(s.id)
-							if ( button == "LeftButton" ) and ( IsControlKeyDown() ) then
-								DressUpItemLink(link);
-							elseif ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
-								if ( ChatFrameEditBox:IsShown() ) then
-									ChatFrameEditBox:Insert(link);
-								else
-									AltoholicFrame_SearchEditBox:SetText(GetItemInfo(link))
-								end
-							end
-						end
+						Altoholic.AuctionHouse:OnClick(self, button)
 					</OnClick>
 				</Scripts>
 			</Button>

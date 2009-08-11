@@ -108,32 +108,39 @@ Altoholic.Reputations.RefTable = {
 }
 
 function Altoholic.Reputations:BuildView()
-	local r = Altoholic:GetRealmTable()
-	local repDB = r.reputation
-	
 	self.view = self.view or {}
 	wipe(self.view)
 	
-	local factionGroup
-	for i, f in pairs(self.RefTable) do		-- browse the reference table
-		if type(f) == "string" then		-- is the entry a string or a table ?
-			for repName, _ in pairs(repDB) do
-				if repName == f then			-- if the current rep from the reference table exists in the DB ..
-					if factionGroup ~= nil then
-						table.insert(self.view, {			 	-- save the header table
-							name = self.RefTable[factionGroup][1],
-							isHeader = true,
-							isCollapsed = false
-						} )
-						factionGroup = nil
-					end
-				
-					table.insert(self.view, f)	-- then save the current line (a string)
-					break
-				end
+	local DS = DataStore
+	local usedFactions = {}
+		
+	-- browse all alts, determine which factions are known by at least one alt
+	for characterName, character in pairs(DS:GetCharacters(Altoholic:GetCurrentRealm())) do
+		for repName, _ in pairs(DS:GetReputations(character)) do
+			usedFactions[repName] = true		-- flag reputation as used by at least one alt
+		end
+	end
+
+	-- prepare the view
+	for index, faction in pairs(self.RefTable) do		-- browse the reference table
+		if type(faction) == "table" then		-- table ? it's a header, add it without condition
+			table.insert(self.view, {			 	-- save the header table
+				name = self.RefTable[index][1],
+				isHeader = true,
+				isCollapsed = false
+			} )
+		else	-- it's a faction,
+			if usedFactions[faction] then		-- is it used ?
+				table.insert(self.view, faction)		-- .. yes, so save the current line (a string)
 			end
-		else
-			factionGroup = i		-- save the index of the last faction group encountered in the refTable
+		end
+	end
+
+	-- at this point, the view might contain headers of empty categories, so browse the table backwards and remove them
+	for i = (#self.view - 1), 1, -1 do
+		if type(self.view[i]) == "table" and type(self.view[i+1]) == "table" then
+			-- if two consecutive entries are tables, then the lowest index is an empty category, delete it
+			table.remove(self.view, i)
 		end
 	end
 end
@@ -146,17 +153,21 @@ function Altoholic.Reputations:Update()
 		
 	AltoholicTabCharactersStatus:SetText("")
 	
-	local r = Altoholic:GetRealmTable()
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
 	local DisplayedCount = 0
 	local VisibleCount = 0
 	local DrawFactionGroup
 	
-	i=1
-	for line, s in pairs(self.view) do
+	local realm, account = Altoholic:GetCurrentRealm()
+	local character
+	
+	local DS = DataStore
+	
+	local i=1
+	for line, faction in pairs(self.view) do
 		if (offset > 0) or (DisplayedCount >= VisibleLines) then		-- if the line will not be visible
-			if type(s) == "table" then								-- then keep track of counters
-				if s.isCollapsed == false then
+			if type(faction) == "table" then								-- then keep track of counters
+				if faction.isCollapsed == false then
 					DrawFactionGroup = true
 				else
 					DrawFactionGroup = false
@@ -168,8 +179,8 @@ function Altoholic.Reputations:Update()
 				offset = offset - 1		-- no further control, nevermind if it goes negative
 			end
 		else		-- line will be displayed
-			if type(s) == "table" then
-				if s.isCollapsed == false then
+			if type(faction) == "table" then
+				if faction.isCollapsed == false then
 					_G[ entry..i.."Collapse" ]:SetNormalTexture("Interface\\Buttons\\UI-MinusButton-Up"); 
 					DrawFactionGroup = true
 				else
@@ -178,7 +189,7 @@ function Altoholic.Reputations:Update()
 				end
 				_G[entry..i.."Collapse"]:Show()
 
-				_G[entry..i.."Name"]:SetText(s.name)
+				_G[entry..i.."Name"]:SetText(faction.name)
 				_G[entry..i.."Name"]:SetJustifyH("LEFT")
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 25, 0)
 
@@ -194,57 +205,50 @@ function Altoholic.Reputations:Update()
 				VisibleCount = VisibleCount + 1
 				DisplayedCount = DisplayedCount + 1
 			elseif DrawFactionGroup then
-				local rep = r.reputation[s]
-				
 				_G[entry..i.."Collapse"]:Hide()
-				_G[entry..i.."Name"]:SetText(WHITE .. s)
+				_G[entry..i.."Name"]:SetText(WHITE .. faction)
 				_G[entry..i.."Name"]:SetJustifyH("RIGHT")
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 15, 0)
 				
-				local j = 1
-				for CharacterName, c in pairs(r.char) do
+				for j = 1, 10 do
 					local itemName = entry.. i .. "Item" .. j;
-					local itemButton = _G[itemName];
+					local itemButton = _G[itemName]
 					
-					if rep and rep[CharacterName] then		-- if the current char has info for this faction ..
-						local bottom, _, _, rate = self:GetInfo(rep[CharacterName])
-
+					local classButton = _G["AltoholicFrameClassesItem" .. j]
+					
+					local status, rate
+					if classButton.CharName then
+						character = DS:GetCharacter(classButton.CharName, realm, account)
+						status, _, _, rate = DS:GetReputationInfo(character, faction)
+					end
+						
+					if status and rate then 
 						_G[itemName .. "Name"]:SetText(format("%2d", floor(rate)) .. "%")
 
-						if bottom == -42000 then
+						if status == FACTION_STANDING_LABEL1 then
 							_G[itemName .. "Name"]:SetTextColor(0.8, 0.13, 0.13)
-						elseif bottom == -6000 then
+						elseif status == FACTION_STANDING_LABEL2 then
 							_G[itemName .. "Name"]:SetTextColor(1.0, 0.0, 0.0)
-						elseif bottom == -3000 then
+						elseif status == FACTION_STANDING_LABEL3 then
 							_G[itemName .. "Name"]:SetTextColor(0.93, 0.4, 0.13)
-						elseif bottom == 0 then
+						elseif status == FACTION_STANDING_LABEL4 then
 							_G[itemName .. "Name"]:SetTextColor(1.0, 1.0, 0.0)
-						elseif bottom == 3000 then
+						elseif status == FACTION_STANDING_LABEL5 then
 							_G[itemName .. "Name"]:SetTextColor(0.0, 1.0, 0.0)
-						elseif bottom == 9000 then
+						elseif status == FACTION_STANDING_LABEL6 then
 							_G[itemName .. "Name"]:SetTextColor(0.0, 1.0, 0.53)
-						elseif bottom == 21000 then
+						elseif status == FACTION_STANDING_LABEL7 then
 							_G[itemName .. "Name"]:SetTextColor(0.0, 1.0, 0.8)
-						elseif bottom == 42000 then
+						elseif status == FACTION_STANDING_LABEL8 then
 							_G[itemName .. "Name"]:SetTextColor(0.0, 1.0, 1.0)
 						end
-						itemButton.CharName = CharacterName
+						
+						itemButton.CharName = classButton.CharName
 						itemButton:Show()
 					else
 						itemButton.CharName = nil
 						itemButton:Hide()
 					end
-
-					j = j + 1
-					if j > 10 then 	-- users of Symbolic Links might have more than 10 columns, prevent it
-						break
-					end
-				end
-				
-				while j <= 10 do
-					_G[ entry.. i .. "Item" .. j ]:Hide()
-					_G[ entry.. i .. "Item" .. j ].CharName = nil
-					j = j + 1
 				end
 
 				_G[ entry..i ]:SetID(line)
@@ -266,24 +270,26 @@ function Altoholic.Reputations:Update()
 end
 
 function Altoholic.Reputations:OnEnter(self)
-	if not self.CharName then return end
-	
-	local r = Altoholic:GetRealmTable()
-	local repName = Altoholic.Reputations:GetName( self:GetParent():GetID() )
 	local charName = self.CharName
-	local c = r.char[charName]
-	local bottom, top, earned, rate = Altoholic.Reputations:GetInfo( r.reputation[repName][charName] )
+	if not charName then return end
+	
+	local DS = DataStore
+	local realm, account = Altoholic:GetCurrentRealm()
+	local character = DS:GetCharacter(charName, realm, account)
+	local faction = Altoholic.Reputations:GetName( self:GetParent():GetID() )
+	
+	local status, currentLevel, maxLevel, rate = DS:GetReputationInfo(character, faction)
+	if not status then return end
 	
 	AltoTooltip:SetOwner(self, "ANCHOR_LEFT");
 	AltoTooltip:ClearLines();
-	AltoTooltip:AddLine(Altoholic:GetClassColor(c.englishClass) .. charName 
-			.. WHITE .. " @ " ..	TEAL .. repName,1,1,1);
+	AltoTooltip:AddLine(DS:GetColoredCharacterName(character) .. WHITE .. " @ " ..	TEAL .. faction,1,1,1);
 
-	local repLevel = Altoholic.Reputations:GetLevelString(bottom)
-	AltoTooltip:AddLine(repLevel .. ": " ..(earned - bottom) .. "/" .. (top - bottom) 
-				.. YELLOW .. " (" .. format("%d", floor(rate)) .. "%)",1,1,1);
+	rate = format("%d", floor(rate)) .. "%"
+	AltoTooltip:AddLine(format("%s: %d/%d (%s)", status, currentLevel, maxLevel, rate),1,1,1 )
 				
-	local suggestion = Altoholic:GetSuggestion(repName, bottom)
+	local bottom = DS:GetRawReputationInfo(character, faction)
+	local suggestion = Altoholic:GetSuggestion(faction, bottom)
 	if suggestion then
 		AltoTooltip:AddLine(" ",1,1,1);
 		AltoTooltip:AddLine("Suggestion: ",1,1,1);
@@ -310,82 +316,19 @@ function Altoholic.Reputations:GetName(id)
 end
 
 function Altoholic.Reputations:OnClick(self, button)
-	local repID = self:GetParent():GetID()
 	local charName = self.CharName
 	if not charName then return end
 	
-	local self = Altoholic.Reputations
-	
-	local r = Altoholic:GetRealmTable()
-	local bottom, top, earned = self:GetInfo( r.reputation[self.view[repID]][charName] )
-	local repLevel = Altoholic.Reputations:GetLevelString(bottom)
+	local DS = DataStore
+	local realm, account = Altoholic:GetCurrentRealm()
+	local character = DS:GetCharacter(charName, realm, account)
+	local faction = Altoholic.Reputations:GetName( self:GetParent():GetID() )
+	local status, currentLevel, maxLevel, rate = DS:GetReputationInfo(character, faction)
+	if not status then return end
 	
 	if ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
 		if ( ChatFrameEditBox:IsShown() ) then
-			ChatFrameEditBox:Insert(charName .. L[" is "] .. repLevel
-			.. L[" with "] .. self.view[repID] .. " (" 
-			.. (earned - bottom) .. "/" .. (top - bottom) .. ")");
+			ChatFrameEditBox:Insert(format(L["%s is %s with %s (%d/%d)"], charName, status, faction, currentLevel, maxLevel))
 		end
 	end	
-end
-
-function Altoholic.Reputations:Scan()
-	local r = Altoholic.ThisRealm
-	
-	local headersState = {} 	-- save the state of headers, restore it after scan
-	
-	for i = GetNumFactions(), 1, -1 do		-- 1st pass, expand all headers (from last to first), otherwise data can't be collected
-		local name, _, _, _, _, _, _,	_, isHeader, isCollapsed = GetFactionInfo(i)
-		if isHeader and isCollapsed then
-			headersState[name] = isCollapsed
-			ExpandFactionHeader(i)
-		end
-	end
-
-	for i = 1, GetNumFactions() do		-- 2nd pass, data collection
-		local name, _, _, bottom, top, earned, _,	_, isHeader, _, hasRep = GetFactionInfo(i)
-		if (not isHeader) or (isHeader and hasRep) then
-			-- new in 3.0.2, headers may have rep, ex: alliance vanguard + horde expedition
-			r.reputation[name][UnitName("player")] = bottom .. "|" .. top .. "|" .. earned
-		end
-	end
-	
-	-- restore headers
-	for i = GetNumFactions(), 1, -1 do
-		local name, _, _, _, _, _, _,	_, isHeader = GetFactionInfo(i)
-		if isHeader and headersState[name] then
-			CollapseFactionHeader(i)
-		end
-	end
-end
-
-function Altoholic.Reputations:GetInfo(repString)
-	-- From "3000|9000|7680" .. returns the numeric values + rate to the caller
-	local bottom, top, earned = strsplit("|", repString)
-	bottom = tonumber(bottom)
-	top = tonumber(top)
-	earned = tonumber(earned)
-	local rate = (earned - bottom) / (top - bottom) * 100
-	
-	return bottom, top, earned, rate
-end
-
-function Altoholic.Reputations:GetLevelString(bottom)
-	if bottom == -42000 then
-		return FACTION_STANDING_LABEL1 -- "Hated"
-	elseif bottom == -6000 then
-		return FACTION_STANDING_LABEL2 -- "Hostile"
-	elseif bottom == -3000 then
-		return FACTION_STANDING_LABEL3 -- "Unfriendly"
-	elseif bottom == 0 then
-		return FACTION_STANDING_LABEL4 -- "Neutral"
-	elseif bottom == 3000 then
-		return FACTION_STANDING_LABEL5 -- "Friendly"
-	elseif bottom == 9000 then
-		return FACTION_STANDING_LABEL6 -- "Honored"
-	elseif bottom == 21000 then
-		return FACTION_STANDING_LABEL7 -- "Revered"
-	elseif bottom == 42000 then
-		return FACTION_STANDING_LABEL8 -- "Exalted"
-	end
 end

@@ -60,17 +60,15 @@
 				<Scripts>
 					<OnClick>
 						local id = self:GetParent():GetID()
-						if id ~= 0 then
-							local c = Altoholic:GetCharacterTable()
-							local s = c.questlog[id]
-							if s.isCollapsed ~= nil then
-								if s.isCollapsed == true then
-									s.isCollapsed = false
-								else
-									s.isCollapsed = true
-								end
-							end
+						if id == 0 then return end
+						
+						local h = Altoholic.Quests.CollapsedHeaders
+						if h[id] then
+							h[id] = nil
+						else
+							h[id] = true
 						end
+						
 						Altoholic.Quests:Update()
 					</OnClick>
 				</Scripts>
@@ -108,18 +106,7 @@
 						GameTooltip:Hide();
 					</OnLeave>
 					<OnClick>
-						if ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
-							if ( ChatFrameEditBox:IsShown() ) then
-								local id = self:GetID()
-								if id == 0 then return end
-								
-								local c = Altoholic:GetCharacterTable()
-								local link = c.questlog[id].link
-						
-								if not link then return end
-								ChatFrameEditBox:Insert(link);
-							end
-						end
+						Altoholic.Quests:Link_OnClick(self, button)
 					</OnClick>
 				</Scripts>		
 				<NormalFont style="GameFontNormalSmallLeft"/>

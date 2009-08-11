@@ -1,6 +1,8 @@
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 
+local DS
+
 local WHITE				= "|cFFFFFFFF"
 local TEAL				= "|cFF00FF9A"
 local YELLOW			= "|cFFFFFF00"
@@ -9,18 +11,20 @@ local RECIPE_GREY		= "|cFF808080"
 local RECIPE_GREEN	= "|cFF40C040"
 local RECIPE_ORANGE	= "|cFFFF8040"
 
-local RecipeColors = { RECIPE_GREEN, YELLOW, RECIPE_ORANGE, RECIPE_GREY }
-local RecipeColorNames = { BI["Green"], BI["Yellow"], BI["Orange"], L["Grey"] }
+local RecipeColors = { RECIPE_ORANGE, YELLOW, RECIPE_GREEN, RECIPE_GREY }
+local RecipeColorNames = { BI["Orange"], BI["Yellow"], BI["Green"], L["Grey"] }
+
+function Altoholic.TradeSkills.Recipes:Init()
+	DS = DataStore
+end
 
 function Altoholic.TradeSkills.Recipes:BuildView()
 	self.view = self.view or {}
 	wipe(self.view)
 	
 	local ts = Altoholic.TradeSkills
-	local c = Altoholic:GetCharacterTable()
-	local p = c.recipes[ts.CurrentProfession]	-- dereference current profession
-
-	if p.ScanFailed then return end
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local profession = DS:GetProfession(character, ts.CurrentProfession)
 	
 	local selectedColor = UIDropDownMenu_GetSelectedValue(AltoholicFrameRecipesInfo_SelectColor)
 	local selectedClass = UIDropDownMenu_GetSelectedValue(AltoholicFrameRecipesInfo_SelectSubclass)
@@ -29,13 +33,12 @@ function Altoholic.TradeSkills.Recipes:BuildView()
 	local hideCategory		-- hide or show the current header ?
 	local hideLine			-- hide or show the current line ?
 	
-	for index, s in pairs(p.list) do
-		local color, title = strsplit("^", s)
-		color = tonumber(color)
-		
-		if color == 0 then		-- header
+	for index = 1, DS:GetNumCraftLines(profession) do
+		local isHeader, color, info = DS:GetCraftLineInfo(profession, index)
+
+		if isHeader then
 			hideCategory = false
-			if selectedClass ~= ALL_SUBCLASSES and selectedClass ~= title then
+			if selectedClass ~= ALL_SUBCLASSES and selectedClass ~= info then
 				hideCategory = true	-- hide if a specific subclass is selected AND we're not on it
 			end
 
@@ -48,10 +51,8 @@ function Altoholic.TradeSkills.Recipes:BuildView()
 				if selectedColor ~= 0 and selectedColor ~= color then
 					hideLine = true
 				elseif selectedSlot ~= ALL_INVENTORY_SLOTS then
-					-- reuse of the second variable "title" as itemID, to avoid strsplit'ing again
-					local itemID = tonumber(title)
-					
-					if itemID then
+					if info then	-- on a data line, info contains the itemID and is numeric
+						local itemID = DS:GetCraftInfo(info)
 						local _, _, _, _, _, itemType, _, _, itemEquipLoc = GetItemInfo(itemID)
 
 						if itemType == BI["Armor"] or itemType == BI["Weapon"] then
@@ -96,33 +97,20 @@ function Altoholic.TradeSkills.Recipes:Update()
 	local ts = Altoholic.TradeSkills
 	local self = ts.Recipes
 	
-	local c = Altoholic:GetCharacterTable()
 	local VisibleLines = 14
 	local frame = "AltoholicFrameRecipes"
 	local entry = frame.."Entry"
-	local p = c.recipes[ts.CurrentProfession]	-- dereference current profession
 	
-	if not p or p.ScanFailed then
-		AltoholicFrameRecipesInfo:Hide()
-		AltoholicTabCharactersStatus:SetText(L["No data"] .. ": " .. ts.CurrentProfession .. L[" scan failed for "] .. Altoholic:GetCurrentCharacter())
-		Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
-		return
-	else
-		AltoholicFrameRecipesInfo:Show()
-		AltoholicTabCharactersStatus:SetText("")
-	end
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local profession = DS:GetProfession(character, ts.CurrentProfession)
 	
-	local curRank, maxRank
-	if (ts.CurrentProfession == BI["Cooking"]) or 
-		(ts.CurrentProfession == BI["First Aid"]) or
-		(ts.CurrentProfession == BI["Fishing"]) then
-		curRank, maxRank = ts:GetRank( c.skill[L["Secondary Skills"]][ts.CurrentProfession] )
-	else
-		curRank, maxRank = ts:GetRank( c.skill[L["Professions"]][ts.CurrentProfession] )
-	end
-	
+	AltoholicFrameRecipesInfo:Show()
+	AltoholicTabCharactersStatus:SetText("")
+
+	local curRank, maxRank = DS:GetSkillInfo(character, ts.CurrentProfession)
+
 	AltoholicFrameRecipesInfo_NumRecipes:SetText(
-		format("%s" ..TEAL .. " %d/%d", ts.CurrentProfession, curRank, maxRank )
+		format("%s" ..TEAL .. " %d/%d", ts.CurrentProfession, curRank or 0, maxRank or 0 )
 	)
 	
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
@@ -167,7 +155,7 @@ function Altoholic.TradeSkills.Recipes:Update()
 				_G[entry..i.."Collapse"]:Show()
 				_G[entry..i.."Craft"]:Hide()
 				
-				local _, name = strsplit("^", p.list[s.id])
+				local _, _, name = DS:GetCraftLineInfo(profession, s.id)
 				_G[entry..i.."RecipeLinkNormalText"]:SetText(TEAL .. name)
 				_G[entry..i.."RecipeLink"]:SetID(0)
 				_G[entry..i.."RecipeLink"]:SetPoint("TOPLEFT", 25, 0)
@@ -185,10 +173,8 @@ function Altoholic.TradeSkills.Recipes:Update()
 			elseif DrawGroup then
 				_G[entry..i.."Collapse"]:Hide()
 
-				local color, itemID, spellID, reagents = strsplit("^", p.list[s])
-				color = RecipeColors[tonumber(color)]
-				itemID = tonumber(itemID)
-				spellID = tonumber(spellID)
+				local _, color, spellID = DS:GetCraftLineInfo(profession, s)
+				local itemID, reagents = DS:GetCraftInfo(spellID)
 				
 				if itemID then
 					Altoholic:SetItemButtonTexture(entry..i.."Craft", GetItemIcon(itemID), 18, 18);
@@ -199,22 +185,23 @@ function Altoholic.TradeSkills.Recipes:Update()
 				end
 				
 				if spellID then
-					_G[entry..i.."RecipeLinkNormalText"]:SetText(self:GetLink(spellID, ts.CurrentProfession, color))
+					_G[entry..i.."RecipeLinkNormalText"]:SetText(self:GetLink(spellID, ts.CurrentProfession, RecipeColors[color]))
 				else
-					DEFAULT_CHAT_FRAME:AddMessage(p.list[s])
+					-- this should NEVER happen, like NEVER-EVER-ER !!
 					_G[entry..i.."RecipeLinkNormalText"]:SetText(L["N/A"])
 				end
-				--_G[entry..i.."RecipeLink"]:SetID(index)
 				_G[entry..i.."RecipeLink"]:SetID(s)
 				_G[entry..i.."RecipeLink"]:SetPoint("TOPLEFT", 32, 0)
 
-				for j=1, 8 do
-					local itemName = entry..i .. "Item" .. j;
-					local reagent = select(j, strsplit("|", reagents))
-					
-					if reagent then
-						local reagentID, reagentCount = strsplit(":", reagent)
+				local j = 1
+				
+				if reagents then
+					-- "2996x2;2318x1;2320x1"
+					for reagent in reagents:gmatch("([^;]+)") do
+						local itemName = entry..i .. "Item" .. j;
+						local reagentID, reagentCount = strsplit("x", reagent)
 						reagentID = tonumber(reagentID)
+						
 						if reagentID then
 							reagentCount = tonumber(reagentCount)
 							
@@ -226,12 +213,16 @@ function Altoholic.TradeSkills.Recipes:Update()
 							itemCount:Show();
 						
 							_G[ itemName ]:Show()
+							j = j + 1
 						else
 							_G[ itemName ]:Hide()
-						end
-					else
-						_G[ itemName ]:Hide()
+						end				
 					end
+				end
+				
+				while j <= 8 do
+					_G[ entry..i .. "Item" .. j ]:Hide()
+					j = j + 1
 				end
 					
 				_G[ entry..i ]:SetID(index)
@@ -249,45 +240,43 @@ function Altoholic.TradeSkills.Recipes:Update()
 		i = i + 1
 	end
 	
+	if VisibleCount == 0 then
+		AltoholicTabCharactersStatus:SetText(format("%s: %s", ts.CurrentProfession, L["No data"]))
+	end
+	
 	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleCount, VisibleLines, 18);
+end
+
+-- small wrapper
+local function DDM_AddButton(text, value, func)
+	local info = UIDropDownMenu_CreateInfo()
+	
+	info.text = text
+	info.value = value
+	info.func = func
+	info.checked = nil; 
+	info.icon = nil; 
+	UIDropDownMenu_AddButton(info, 1); 
 end
 
 function Altoholic.TradeSkills.Recipes:DropDownColor_Initialize()
 	local ts = Altoholic.TradeSkills
 	local self = ts.Recipes
-	local info = UIDropDownMenu_CreateInfo(); 
 	
-	if not ts.CurrentProfession then 
-		info.text = L["Any"]
-		info.value = 0
-		info.func = self.ChangeColor
-		info.checked = nil; 
-		info.icon = nil; 
-		UIDropDownMenu_AddButton(info, 1); 
+	if not ts.CurrentProfession then
+		DDM_AddButton(L["Any"], 0, self.ChangeColor)
 		return
 	end
 	
-	local c = Altoholic:GetCharacterTable()
-	local p = c.recipes[ts.CurrentProfession]	-- dereference current profession
-
-	info.text = L["Any"]
-	info.text = format("%s %s(%s)", L["Any"], GREEN, p.TotalCount )
-	info.value = 0
-	info.func = self.ChangeColor
-	info.checked = nil; 
-	info.icon = nil; 
-	UIDropDownMenu_AddButton(info, 1); 
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local profession = DS:GetProfession(character, ts.CurrentProfession)
+	local orange, yellow, green, grey = DS:GetNumRecipesByColor(profession)
 	
-	local count = {p.GreenCount, p.YellowCount, p.OrangeCount, p.TotalCount - p.GreenCount - p.YellowCount - p.OrangeCount}
-	
-	for i = 1, 4 do
-		info.text = format("%s %s(%s)", RecipeColors[i] .. RecipeColorNames[i], GREEN, count[i] )
-		info.value = i
-		info.func = self.ChangeColor
-		info.checked = nil; 
-		info.icon = nil; 
-		UIDropDownMenu_AddButton(info, 1); 
-	end
+	DDM_AddButton(format("%s %s(%s)", L["Any"], GREEN, orange+yellow+green+grey ), 0, self.ChangeColor)
+	DDM_AddButton(format("%s %s(%s)", RecipeColors[1] .. RecipeColorNames[1], GREEN, orange ), 1, self.ChangeColor)
+	DDM_AddButton(format("%s %s(%s)", RecipeColors[2] .. RecipeColorNames[2], GREEN, yellow ), 2, self.ChangeColor)
+	DDM_AddButton(format("%s %s(%s)", RecipeColors[3] .. RecipeColorNames[3], GREEN, green ), 3, self.ChangeColor)
+	DDM_AddButton(format("%s %s(%s)", RecipeColors[4] .. RecipeColorNames[4], GREEN, grey ), 4, self.ChangeColor)
 end
 
 function Altoholic.TradeSkills.Recipes:ChangeColor()
@@ -299,33 +288,20 @@ function Altoholic.TradeSkills.Recipes:ChangeColor()
 end
 
 function Altoholic.TradeSkills.Recipes:DropDownSubclass_Initialize()
-	local info = UIDropDownMenu_CreateInfo(); 
 	local ts = Altoholic.TradeSkills
 	local self = ts.Recipes
 	
-	info.text = ALL_SUBCLASSES
-	info.value = ALL_SUBCLASSES
-	info.func = self.ChangeSubClass
-	info.checked = nil; 
-	info.icon = nil; 
-	UIDropDownMenu_AddButton(info, 1); 
-
+	DDM_AddButton(ALL_SUBCLASSES, ALL_SUBCLASSES, self.ChangeSubClass)
 	if not ts.CurrentProfession then return end
 	
-	local c = Altoholic:GetCharacterTable()
-	local p = c.recipes[ts.CurrentProfession]	-- dereference current profession
-	
-	for index, s in pairs(p.list) do				-- browse the list to find headers only, and add them as subclasses
-		local color, name = strsplit("^", s)
-		color = tonumber(color)
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local profession = DS:GetProfession(character, ts.CurrentProfession)
 		
-		if color == 0 then		-- header
-			info.text = name
-			info.value = name
-			info.func = self.ChangeSubClass
-			info.checked = nil; 
-			info.icon = nil; 
-			UIDropDownMenu_AddButton(info, 1);
+	for index = 1, DS:GetNumCraftLines(profession) do
+		local isHeader, _, name = DS:GetCraftLineInfo(profession, index)
+		
+		if isHeader then
+			DDM_AddButton(name, name, self.ChangeSubClass)
 		end
 	end
 end
@@ -339,35 +315,24 @@ function Altoholic.TradeSkills.Recipes:ChangeSubClass()
 end
 
 function Altoholic.TradeSkills.Recipes:DropDownInvSlot_Initialize()
-	local info = UIDropDownMenu_CreateInfo(); 
 	local ts = Altoholic.TradeSkills
 	local self = ts.Recipes
 	
-	info.text = ALL_INVENTORY_SLOTS
-	info.value = ALL_INVENTORY_SLOTS
-	info.func = self.ChangeInvSlot
-	info.checked = nil; 
-	info.icon = nil; 
-	UIDropDownMenu_AddButton(info, 1); 
-
+	DDM_AddButton(ALL_INVENTORY_SLOTS, ALL_INVENTORY_SLOTS, self.ChangeInvSlot)
 	if not ts.CurrentProfession then return end
 	
-	local c = Altoholic:GetCharacterTable()
-	local p = c.recipes[ts.CurrentProfession]	-- dereference current profession
-	
 	local invSlots = {}
-	for index, s in pairs(p.list) do				-- browse the list to find headers only, and add them as subclasses
-		local color, itemID = strsplit("^", s)
-		color = tonumber(color)
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local profession = DS:GetProfession(character, ts.CurrentProfession)
 		
-		if color ~= 0 then		-- NON header !!
-			itemID = tonumber(itemID)
+	for index = 1, DS:GetNumCraftLines(profession) do
+		local isHeader, _, spellID = DS:GetCraftLineInfo(profession, index)
+		
+		if not isHeader then		-- NON header !!
+			local itemID = DS:GetCraftInfo(spellID)
+			
 			if itemID then
 				local _, _, _, _, _, itemType, _, _, itemEquipLoc = GetItemInfo(itemID)
-				
-				-- if itemType ~= BI["Armor"] and itemType ~= BI["Weapon"] then
-					-- DEFAULT_CHAT_FRAME:AddMessage(itemType)
-				-- end
 				
 				if itemEquipLoc and strlen(itemEquipLoc) > 0 then
 					local slot = Altoholic.Equipment:GetInventoryTypeName(itemEquipLoc)
@@ -380,20 +345,11 @@ function Altoholic.TradeSkills.Recipes:DropDownInvSlot_Initialize()
 	end
 	
 	for k, v in pairs(invSlots) do		-- add all the slots found
-		info.text = k
-		info.value = v
-		info.func = self.ChangeInvSlot
-		info.checked = nil; 
-		info.icon = nil; 
-		UIDropDownMenu_AddButton(info, 1);
+		DDM_AddButton(k, v, self.ChangeInvSlot)
 	end
 
-	info.text = NONEQUIPSLOT			--NONEQUIPSLOT = "Created Items"; -- Items created by enchanting
-	info.value = NONEQUIPSLOT
-	info.func = self.ChangeInvSlot
-	info.checked = nil; 
-	info.icon = nil; 
-	UIDropDownMenu_AddButton(info, 1);
+	--NONEQUIPSLOT = "Created Items"; -- Items created by enchanting
+	DDM_AddButton(NONEQUIPSLOT, NONEQUIPSLOT, self.ChangeInvSlot)
 end
 
 function Altoholic.TradeSkills.Recipes:ChangeInvSlot()
@@ -406,8 +362,9 @@ end
 
 function Altoholic.TradeSkills.Recipes:GetList()
 	local ts = Altoholic.TradeSkills
-	local c = Altoholic:GetCharacterTable()			-- current alt
-	return c.recipes[ts.CurrentProfession].list		-- current profession
+	
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+	return DS:GetProfession(character, ts.CurrentProfession)		-- current profession
 end
 
 function Altoholic.TradeSkills.Recipes:GetLink(spellID, profession, color)
@@ -417,8 +374,8 @@ function Altoholic.TradeSkills.Recipes:GetLink(spellID, profession, color)
 end
 
 function Altoholic.TradeSkills.Recipes:GetLinkByLine(index)
-	local craft = self:GetList()[index]
-	local _, _, spellID = strsplit("^", craft)
+	local profession = self:GetList()
+	local _, _, spellID = DS:GetCraftLineInfo(profession, index)
 	
 	return self:GetLink(spellID, Altoholic.TradeSkills.CurrentProfession)
 end
@@ -434,21 +391,15 @@ end
 
 function Altoholic.TradeSkills.Recipes:ToggleAll(self)
 	-- expand or collapse all sections of the currently displayed alt /tradeskill
-	local c = Altoholic:GetCharacterTable()
-	local ts = Altoholic.TradeSkills
-	
-	if c.recipes[ts.CurrentProfession].ScanFailed then
-		return
-	end
-
 	if not self.isCollapsed then
 		self.isCollapsed = true
-		AltoholicFrameRecipesInfo_ToggleAll:SetNormalTexture("Interface\\Buttons\\UI-PlusButton-Up");
+		self:SetNormalTexture("Interface\\Buttons\\UI-PlusButton-Up");
 	else
 		self.isCollapsed = nil
-		AltoholicFrameRecipesInfo_ToggleAll:SetNormalTexture("Interface\\Buttons\\UI-MinusButton-Up"); 
+		self:SetNormalTexture("Interface\\Buttons\\UI-MinusButton-Up"); 
 	end
 
+	local ts = Altoholic.TradeSkills
 	for _, s in pairs(ts.Recipes.view) do
 		if type(s) == "table" then		-- it's a header
 			s.isCollapsed = (self.isCollapsed) or false
@@ -468,8 +419,9 @@ function Altoholic.TradeSkills.Recipes:Link_OnClick(self, button)
 		return
 	end
 
-	local c = Altoholic:GetCharacterTable()
-	local link = c.recipes[Altoholic.TradeSkills.CurrentProfession].FullLink	
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local profession = DS:GetProfession(character, Altoholic.TradeSkills.CurrentProfession)
+	local link = profession.FullLink
 
 	if not link then
 		Altoholic:Print(L["Invalid tradeskill link"])
