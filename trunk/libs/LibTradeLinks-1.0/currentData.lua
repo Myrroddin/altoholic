@@ -3,7 +3,7 @@ do
 
 	local trade = LibStub("LibTradeLinks-1.0")
 
-	local build = 10192;
+	local build = 10314;
 
 
 local SpellList = {
@@ -3664,7 +3664,6 @@ local SpellList = {
 			2108, -- [540]
 		},
 	}
-
 
 
 	trade:RegisterBuild(build);

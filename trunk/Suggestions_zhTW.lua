@@ -12,9 +12,9 @@ local YELLOW	= "|cFFFFFF00"
 -- 以下為聲望值、等級、技能等的建議
 Altoholic.Suggestions = {
 	[L["Riding"]] = {
-		{ 75, "初級騎術(30級): |cFFFFFFFF35g\n|cFFFFD700主城附近的的普通坐騎:|cFFFFFFFF10g" },
-		{ 150, "中級騎術(60級): |cFFFFFFFF600g\n|cFFFFD700主城附近的史詩級坐騎:|cFFFFFFFF100g" },
-		{ 225, "高級騎術(70級): |cFFFFFFFF800g\n|cFFFFD700影月谷附近的普通飛行坐騎:|cFFFFFFFF100g" },
+		{ 75, "初級騎術(20級): |cFFFFFFFF4g\n|cFFFFD700主城附近的的普通坐騎:|cFFFFFFFF1g" },
+		{ 150, "中級騎術(40級): |cFFFFFFFF50g\n|cFFFFD700主城附近的史詩級坐騎:|cFFFFFFFF10g" },
+		{ 225, "高級騎術(60級): |cFFFFFFFF600g\n|cFFFFD700影月谷附近的普通飛行坐騎:|cFFFFFFFF50g" },
 		{ 300, "專家級騎乘(70級): |cFFFFFFFF5000g\n|cFFFFD700影月谷附近的史詩級飛行坐騎:|cFFFFFFFF200g" }
 	},
 	

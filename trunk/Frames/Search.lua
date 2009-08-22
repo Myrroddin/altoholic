@@ -15,6 +15,13 @@ Altoholic.Search.Results = {}
 
 function Altoholic.Search:Init()
 	DS = DataStore
+	
+	local _, build = GetBuildInfo()			-- ex: "10314"	string
+	local LTLBuild = LTL:GetBuildVersion()	-- ex: 10314		number
+	
+	if tonumber(build) ~= LTLBuild then		-- invalidate LTL if version is outdated, prevents scanning guild members' professions
+		LTL = nil
+	end
 end
 
 function Altoholic.Search:Update()
@@ -652,7 +659,7 @@ function Altoholic.Search:BrowseRealm(realm, account, bothFactions)
 				for tabID = 1, 6 do
 					local tab = DS:GetGuildBankTab(guild, tabID)
 					if tab.name then
-						for slotID = 1, tab.size do
+						for slotID = 1, 98 do
 							local id, link, count = DS:GetSlotInfo(tab, slotID)
 							if id then
 								link = link or id
@@ -671,12 +678,14 @@ function Altoholic.Search:BrowseRealm(realm, account, bothFactions)
 	
 	if Altoholic.Options:Get("IncludeGuildSkills") == 1 and string.len(self.SearchValue) > 1 then	-- Check guild professions ?
 		local guild = Altoholic:GetGuild()
-		self.GuildMembers = {}
-		
-		for member, _ in pairs(Altoholic:GetGuildMembers(guild)) do			-- add all known members into a table
-			table.insert(self.GuildMembers, member)
+		if guild and LTL then	-- LTL won't be valid if there's a version mismatch (see :Init() )
+			self.GuildMembers = {}
+			
+			for member, _ in pairs(Altoholic:GetGuildMembers(guild)) do			-- add all known members into a table
+				table.insert(self.GuildMembers, member)
+			end
+			Altoholic.Tasks:Add("BrowseGuildProfessions", 0, Altoholic.Search.BrowseGuildProfessions, Altoholic.Search)
 		end
-		Altoholic.Tasks:Add("BrowseGuildProfessions", 0, Altoholic.Search.BrowseGuildProfessions, Altoholic.Search)
 	end
 end
 

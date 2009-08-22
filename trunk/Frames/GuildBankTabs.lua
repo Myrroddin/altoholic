@@ -18,6 +18,8 @@ function Altoholic.Guild.BankTabs:BuildView()
 	
 	local DS = DataStore
 	local guildName = GetGuildInfo("player")
+	if not guildName then return end
+	
 	local guild = DS:GetGuild(guildName)
 	if not guild then return end
 
