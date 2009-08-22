@@ -119,7 +119,7 @@ function Altoholic.Tabs.Summary:SetMode(mode)
 		Columns:Add(MONEY, 115, function(self)	Altoholic.Characters:Sort(self, "GetMoney") end)
 		Columns:Add(PLAYED, 105, function(self) Altoholic.Characters:Sort(self, "GetPlayTime") end)
 		Columns:Add(XP, 55, function(self) Altoholic.Characters:Sort(self, "GetXPRate") end)
-		Columns:Add(TUTORIAL_TITLE26, 70, function(self) Altoholic.Characters:Sort(self, "GetRestXP") end)
+		Columns:Add(TUTORIAL_TITLE26, 70, function(self) Altoholic.Characters:Sort(self, "GetRestXPRate") end)
 		Columns:Add("AiL", 55, function(self) Altoholic.Characters:Sort(self, "GetAverageItemLevel")	end)
 	
 	elseif mode == 2 then

@@ -170,7 +170,111 @@ function Altoholic.Calendar:SetClockDiff(elapsed)
 	end
 end
 
+function Altoholic.Calendar:GetClockDiff()
+	return self.ClockDiff or 0
+end
+
+
 local TimerThresholds = { 15, 10, 5, 4, 3, 2, 1	}
+
+local CalendarEventTypes = {
+	[COOLDOWN_LINE] = {
+		GetReadyNowWarning = function(self, event)
+				local name = DataStore:GetCraftCooldownInfo(event.source, event.parentID)
+				return format(L["%s is now ready (%s on %s)"], name, event.char, event.realm)
+			end,
+		GetReadySoonWarning = function(self, event, minutes)
+				local name = DataStore:GetCraftCooldownInfo(event.source, event.parentID)
+				return format(L["%s will be ready in %d minutes (%s on %s)"], name, minutes, event.char, event.realm)
+			end,
+	},
+	[INSTANCE_LINE] = {
+		GetReadyNowWarning = function(self, event)
+				local instance = strsplit("|", event.parentID)
+				return format(L["%s is now unlocked (%s on %s)"], instance, event.char, event.realm)
+			end,
+		GetReadySoonWarning = function(self, event, minutes)
+				local instance = strsplit("|", event.parentID)
+				return format(L["%s will be unlocked in %d minutes (%s on %s)"], instance, minutes, event.char, event.realm)
+			end,
+	},
+	[CALENDAR_LINE] = {
+		GetReadyNowWarning = function(self, event)
+				local c = Altoholic:GetCharacterTable(event.char, event.realm)
+				local _, _, title = strsplit("|", c.Calendar[event.parentID])
+				return format(CALENDAR_EVENTNAME_FORMAT_START .. " (%s/%s)", title, event.char, event.realm)
+			end,
+		GetReadySoonWarning = function(self, event, minutes)
+				local c = Altoholic:GetCharacterTable(event.char, event.realm)
+				local _, _, title = strsplit("|", c.Calendar[event.parentID])
+				return format(L["%s starts in %d minutes (%s on %s)"], title, minutes, event.char, event.realm)
+			end,
+	},
+	[CONNECTMMO_LINE] = {
+		GetReadyNowWarning = function(self, event)
+				local c = Altoholic:GetCharacterTable(event.char, event.realm)
+				local _, _, title = strsplit("|", c.ConnectMMO[event.parentID])
+				return format(CALENDAR_EVENTNAME_FORMAT_START .. " (%s/%s)", title, event.char, event.realm)
+			end,
+		GetReadySoonWarning = function(self, event, minutes)
+				local c = Altoholic:GetCharacterTable(event.char, event.realm)
+				local _, _, title = strsplit("|", c.ConnectMMO[event.parentID])
+				return format(L["%s starts in %d minutes (%s on %s)"], title, minutes, event.char, event.realm)
+			end,
+	},
+	[TIMER_LINE] = {
+		GetReadyNowWarning = function(self, event)
+				local c = Altoholic:GetCharacterTable(event.char, event.realm)
+				local item = strsplit("|", c.Timers[event.parentID])
+				return format(L["%s is now ready (%s on %s)"], item, event.char, event.realm)
+			end,
+		GetReadySoonWarning = function(self, event, minutes)
+				local c = Altoholic:GetCharacterTable(event.char, event.realm)
+				local item = strsplit("|", c.Timers[event.parentID])
+				return format(L["%s will be ready in %d minutes (%s on %s)"], item, minutes, event.char, event.realm)
+			end,
+	},
+}
+
+local function ClearExpiredEvents()
+	local DS = DataStore
+	
+	for realm in pairs(DS:GetRealms()) do
+		for characterName, character in pairs(DS:GetCharacters(realm)) do
+
+			-- Profession Cooldowns
+			for professionName, profession in pairs(DS:GetProfessions(character)) do
+				DS:ClearExpiredCooldowns(profession)
+			end
+			
+			local c = Altoholic:GetCharacterTable(characterName, realm)
+			
+			-- Saved Instances
+			for k, v in pairs(c.SavedInstance) do
+				local reset, lastCheck = strsplit("|", v)
+				reset = tonumber(reset)
+				lastCheck = tonumber(lastCheck)
+				
+				if reset - (time() - lastCheck) <= 0 then	-- has expired
+					c.SavedInstance[k] = nil
+				end
+			end
+			
+			-- Other timers (like mysterious egg, etc..)
+			for k, v in pairs(c.Timers) do
+				local _, lastCheck, duration = strsplit("|", v)
+				lastCheck = tonumber(lastCheck)
+				duration = tonumber(duration)
+				local expires = duration + lastCheck + Altoholic.Calendar:GetClockDiff()
+				if (expires - time()) <= 0 then
+					c.Timers[k] = nil
+				end
+			end
+		end
+	end
+end
+
+local initialPass = true
 
 function Altoholic.Calendar:CheckEvents(elapsed)
 	if Altoholic.Options:Get("DisableWarnings") == 1 then	-- warnings disabled ? do nothing
@@ -179,11 +283,12 @@ function Altoholic.Calendar:CheckEvents(elapsed)
 	end
 
 	-- called every 60 seconds
-	local year, month, day, hour, minute
+	local isCDWarningDone	-- prevents multiple warnings of when a profession cooldown is shared across multiple crafts
+	local hasEventExpired
 	
 	for k, v in pairs(Altoholic.Calendar.Events.List) do
-		year, month, day = strsplit("-", v.eventDate)
-		hour, minute = strsplit(":", v.eventTime)
+		local year, month, day = strsplit("-", v.eventDate)
+		local hour, minute = strsplit(":", v.eventTime)
 
 		TimeTable.year = tonumber(year)
 		TimeTable.month = tonumber(month)
@@ -192,26 +297,54 @@ function Altoholic.Calendar:CheckEvents(elapsed)
 		TimeTable.min = tonumber(minute)
 		
 		local numMin = floor(difftime(time(TimeTable), time() + self.ClockDiff) / 60)
+		local doWarning = true					-- by default, display the warning, for any type of event
 		
-		if numMin == 0 then
-			local _, _, title = Altoholic.Calendar.Events:GetInfo(k)
-			Altoholic.Calendar:WarnUser(v.eventType, title, 0, v.char, v.realm)
-			Altoholic.Calendar.Events:BuildList()
-			Altoholic.Tabs.Summary:Refresh()
-		elseif numMin <= 15 then
-			for _, threshold in pairs(TimerThresholds) do
-				if threshold == numMin then
-					-- if snooze is allowed for this value
-					if Altoholic.Options:Get("Warning"..threshold.."Min") == 1 then
-						local _, _, title = Altoholic.Calendar.Events:GetInfo(k)
-						Altoholic.Calendar:WarnUser(v.eventType, title, numMin, v.char, v.realm)
+		if v.eventType == COOLDOWN_LINE and isCDWarningDone then		-- if it's a profession cooldown and warning has already been done once
+			doWarning = nil
+		end
+			
+		if doWarning then
+			if numMin < 0 then
+				if initialPass then
+					if v.eventType == COOLDOWN_LINE then
+						isCDWarningDone = true
 					end
-					break
-				elseif threshold < numMin then		-- save some cpu cycles, exit if threshold too low
-					break
+					Altoholic.Calendar:WarnUser(k, 0)
+				end
+				
+				hasEventExpired = true		-- at least one event has expired
+			elseif numMin == 0 then
+				if v.eventType == COOLDOWN_LINE then
+					isCDWarningDone = true
+				end
+				Altoholic.Calendar:WarnUser(k, 0)
+				
+				hasEventExpired = true		-- at least one event has expired
+			elseif numMin <= 15 then
+				if v.eventType == COOLDOWN_LINE then
+					isCDWarningDone = true
+				end
+			
+				for _, threshold in pairs(TimerThresholds) do
+					if threshold == numMin then			-- if snooze is allowed for this value
+						if Altoholic.Options:Get("Warning"..threshold.."Min") == 1 then
+							Altoholic.Calendar:WarnUser(k, numMin)
+						end
+						break
+					elseif threshold < numMin then		-- save some cpu cycles, exit if threshold too low
+						break
+					end
 				end
 			end
 		end
+	end
+	
+	initialPass = nil
+	
+	if hasEventExpired then		-- if at least one event has expired, rebuild the list & refresh
+		ClearExpiredEvents()
+		Altoholic.Calendar.Events:BuildList()
+		Altoholic.Tabs.Summary:Refresh()
 	end
 	
 	-- the task was executed right after the minute changed server side, so reschedule exactly 60 seconds later
@@ -219,24 +352,16 @@ function Altoholic.Calendar:CheckEvents(elapsed)
 	return true
 end
 
-function Altoholic.Calendar:WarnUser(eventType, title, minutes, char, realm)
+function Altoholic.Calendar:WarnUser(index, minutes)
+	local event = self.Events:Get(index)
+	local CalendarEvent = CalendarEventTypes[event.eventType]
+	
 	local warning
-	
 	if minutes == 0 then
-		if eventType == CALENDAR_LINE or eventType == CONNECTMMO_LINE then
-			warning = format(CALENDAR_EVENTNAME_FORMAT_START .. " (%s/%s)", title, char, realm)
-		end
+		warning = CalendarEvent:GetReadyNowWarning(event)
 	else
-		local text
-		if eventType == COOLDOWN_LINE or eventType == TIMER_LINE then
-			text = L["%s will be ready in %d minutes (%s on %s)"]
-		else
-			text = L["%s starts in %d minutes (%s on %s)"]
-		end
-		
-		warning = format(text, title, minutes, char, realm)
+		warning = CalendarEvent:GetReadySoonWarning(event, minutes)
 	end
-	
 	if not warning then return end
 	
 	if Altoholic.Options:Get("WarningDialogBox") == 1 then
@@ -444,31 +569,15 @@ function Altoholic.Calendar.Events:BuildList()
 	self.List = self.List or {}
 	wipe(self.List)
 
-	local ClockDiff = Altoholic.Calendar.ClockDiff or 0
+	local ClockDiff = Altoholic.Calendar:GetClockDiff()
 	local DS = DataStore
 	
 	for realm in pairs(DS:GetRealms()) do
 		for characterName, character in pairs(DS:GetCharacters(realm)) do
+			-- add all timers, even expired ones. Expiries will be handled elsewhere.
 
 			-- Profession Cooldowns
 			for professionName, profession in pairs(DS:GetProfessions(character)) do
-				local isCDWarningDone
-				
-				-- inform user about expired cooldowns
-				for i = 1, DS:GetNumActiveCooldowns(profession) do
-					local name, expiresIn = DS:GetCraftCooldownInfo(profession, i)
-					
-					if expiresIn <= 0 then	-- expired events
-						if not isCDWarningDone then			-- prevents a wall of text for the professions that share like 20 CD's (alchemy,...)
-							Altoholic:Print(format(L["%s is now ready (%s on %s)"], name, characterName, realm ))
-							isCDWarningDone = true
-						end
-					end
-				end
-				
-				DS:ClearExpiredCooldowns(profession)
-
-				-- only non-expired cooldowns remain, add them all
 				for i = 1, DS:GetNumActiveCooldowns(profession) do
 					local _, _, reset, lastCheck = DS:GetCraftCooldownInfo(profession, i)
 					local expires = reset + lastCheck + ClockDiff
@@ -484,20 +593,14 @@ function Altoholic.Calendar.Events:BuildList()
 				reset = tonumber(reset)
 				lastCheck = tonumber(lastCheck)
 				
-				if reset - (time() - lastCheck) > 0 then	-- expires later
-					local expires = reset + lastCheck + ClockDiff
-					self:Add(INSTANCE_LINE, date("%Y-%m-%d",expires), date("%H:%M",expires), characterName, realm, k)
-				else	-- has expired
-					local instance = strsplit("|", k)
-					Altoholic:Print(format(L["%s is now unlocked (%s on %s)"], instance, characterName, realm ))
-					c.SavedInstance[k] = nil
-				end
-				
+				local expires = reset + lastCheck + ClockDiff
+				self:Add(INSTANCE_LINE, date("%Y-%m-%d",expires), date("%H:%M",expires), characterName, realm, k)
 			end
 			
 			-- Calendar Events
 			for k, v in pairs(c.Calendar) do
 				local eventDate, eventTime = strsplit("|", v)
+				-- TODO: do not add declined invitations
 				self:Add(CALENDAR_LINE, eventDate, eventTime, characterName, realm, k)
 			end
 			
@@ -512,13 +615,9 @@ function Altoholic.Calendar.Events:BuildList()
 				local item, lastCheck, duration = strsplit("|", v)
 				lastCheck = tonumber(lastCheck)
 				duration = tonumber(duration)
+
 				local expires = duration + lastCheck + ClockDiff
-				if (expires - time()) > 0 then
-					self:Add(TIMER_LINE, date("%Y-%m-%d",expires), date("%H:%M",expires), characterName, realm, k)
-				else
-					Altoholic:Print(format(L["%s is now ready (%s on %s)"], item, characterName, realm ))
-					c.Timers[k] = nil
-				end
+				self:Add(TIMER_LINE, date("%Y-%m-%d",expires), date("%H:%M",expires), characterName, realm, k)
 			end
 		end
 	end
@@ -580,6 +679,10 @@ function Altoholic.Calendar.Events:Update()
 	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], last, VisibleLines, 18);
 end
 
+function Altoholic.Calendar.Events:Get(index)
+	return self.List[index]
+end
+
 function Altoholic.Calendar.Events:GetInfo(index)
 	local e = self.List[index]		-- dereference event
 	if not e then return end
@@ -618,9 +721,15 @@ function Altoholic.Calendar.Events:GetInfo(index)
 			CALENDAR_STATUS_CONFIRMED,		-- CALENDAR_INVITESTATUS_CONFIRMED = 4
 			CALENDAR_STATUS_OUT,				-- CALENDAR_INVITESTATUS_OUT       = 5
 			CALENDAR_STATUS_STANDBY,		-- CALENDAR_INVITESTATUS_STANDBY   = 6
+			CALENDAR_STATUS_SIGNEDUP,		-- CALENDAR_INVITESTATUS_SIGNEDUP     = 7
+			CALENDAR_STATUS_NOT_SIGNEDUP	-- CALENDAR_INVITESTATUS_NOT_SIGNEDUP = 8
 		}
 		
-		desc = format("%s: %s", STATUS, WHITE..StatusText[tonumber(inviteStatus)])
+		if inviteStatus then 	-- quick fix if this value is nil
+			desc = format("%s: %s", STATUS, WHITE..StatusText[tonumber(inviteStatus)]) 
+		else 
+			desc = format("%s", STATUS) 
+		end
 		
 	elseif e.eventType == CONNECTMMO_LINE then
 		local eventType, eventDesc, attendees

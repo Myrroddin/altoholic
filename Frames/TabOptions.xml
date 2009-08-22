@@ -142,7 +142,7 @@
 							<AbsDimension x="20" y="20"/>
 						</Size>
 						<Anchors> 
-							<Anchor point="TOPLEFT" relativeTo="$parent_AccSharingComm" relativePoint="BOTTOMLEFT">
+							<Anchor point="TOPLEFT">
 								<Offset>
 									<AbsDimension  x="0" y="-10"/>
 								</Offset>
@@ -777,9 +777,6 @@
 								<Offset x="10" y="-5" />
 							</Anchor>
 						</Anchors>
-						<FontString inherits="ChatFontNormal">
-							<Color r="255" g="255" b="255" />
-						</FontString>
 						<Scripts>
 							<OnLoad>
 								self:SetAutoFocus( true );

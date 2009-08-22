@@ -7,7 +7,7 @@ local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local DS
 
 local V = Altoholic.vars
-Altoholic.Version = "v3.2.001"
+Altoholic.Version = "v3.2.001d"
 Altoholic.VersionNum = 302001
 
 local WHITE		= "|cFFFFFFFF"
@@ -234,6 +234,8 @@ function Altoholic:OnEnable()
 	f:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 1, 1)
 	f:SetScript("OnUpdate", function(self, elapsed) Altoholic.Tasks:OnUpdate(elapsed) end)
 	f:Show()
+	
+	Altoholic.Tasks:Add("CheckExpiries", 1, Altoholic.Mail.CheckExpiries, self)
 	
 	-- clean up old data, thank AnrDaemon for the suggestion.
 	AltoholicDB.global.data = nil
@@ -1271,42 +1273,48 @@ function Altoholic.Tooltip:Init()
 	ItemRefTooltip:SetScript("OnTooltipCleared", self.OnItemRefTooltipCleared)
 end
 
+function Altoholic.Tooltip:ShowGatheringNodeCounters()
+	-- exit if player does not want counters for known gathering nodes
+	if Altoholic.Options:Get("TooltipGatheringNode") == 0 then return end
+
+	local itemID = Altoholic:IsGatheringNode( _G["GameTooltipTextLeft1"]:GetText() )
+	if not itemID then return end					-- is the item in the tooltip a known type of gathering node ?
+	if itemID == self.CachedItemID then return end
+	
+	if Informant then
+		self.isNodeDone = true
+	end
+
+	-- check player bags to see how many times he owns this item, and where
+	if Altoholic.Options:Get("TooltipCount") == 1 or Altoholic.Options:Get("TooltipTotal") == 1 then
+		self.CachedCount = Altoholic:GetItemCount(itemID) -- if one of the 2 options is active, do the count
+		if self.CachedCount > 0 then
+			self.CachedTotal = GOLD .. L["Total owned"] .. ": |cff00ff9a" .. self.CachedCount
+		else
+			self.CachedTotal = nil
+		end
+	end
+	
+	if (Altoholic.Options:Get("TooltipCount") == 1) then			-- add count per character
+		GameTooltip:AddLine(" ",1,1,1);
+		for CharacterName, c in pairs (V.ItemCount) do
+			GameTooltip:AddDoubleLine(CharacterName,  TEAL .. c);
+		end
+	end
+	
+	if (Altoholic.Options:Get("TooltipTotal") == 1) and (self.CachedTotal) then		-- add total count
+		GameTooltip:AddLine(self.CachedTotal,1,1,1);
+	end
+end
+
 function Altoholic.Tooltip.OnGameTooltipShow(tooltip, ...)
 	local self = Altoholic.Tooltip
 	
 	if self.Orig_GameTooltip_OnShow then
 		self.Orig_GameTooltip_OnShow(tooltip, ...)
 	end	
-
-	-- exit if player does not want counters for known gathering nodes
-	if Altoholic.Options:Get("TooltipGatheringNode") == 0 then return end
 	
-	local itemID = Altoholic:IsGatheringNode( _G["GameTooltipTextLeft1"]:GetText() )
-	if itemID and (itemID ~= self.CachedItemID) then			-- is the item in the tooltip a known type of gathering node ?
-
-		-- check player bags to see how many times he owns this item, and where
-		if Altoholic.Options:Get("TooltipCount") == 1 or Altoholic.Options:Get("TooltipTotal") == 1 then
-			self.CachedCount = Altoholic:GetItemCount(itemID) -- if one of the 2 options is active, do the count
-			if self.CachedCount > 0 then
-				self.CachedTotal = GOLD .. L["Total owned"] .. ": |cff00ff9a" .. self.CachedCount
-			else
-				self.CachedTotal = nil
-			end
-		end		
-		
-		if (Altoholic.Options:Get("TooltipCount") == 1) then			-- add count per character
-			GameTooltip:AddLine(" ",1,1,1);
-			for CharacterName, c in pairs (V.ItemCount) do
-				--GameTooltip:AddDoubleLine(CharacterName .. ":",  TEAL .. c);
-				GameTooltip:AddDoubleLine(CharacterName,  TEAL .. c);
-			end
-		end
-		
-		if (Altoholic.Options:Get("TooltipTotal") == 1) and (self.CachedTotal) then		-- add total count
-			GameTooltip:AddLine(self.CachedTotal,1,1,1);
-		end		
-	end
-
+	self:ShowGatheringNodeCounters()
 	GameTooltip:Show()
 end
 
@@ -1327,10 +1335,9 @@ function Altoholic.Tooltip.OnGameTooltipSetItem(tooltip, ...)
 end
 
 function Altoholic.Tooltip.OnGameTooltipCleared(tooltip, ...)
-
 	local self = Altoholic.Tooltip
-
 	self.isDone = nil
+	self.isNodeDone = nil		-- for informant
 	return self.Orig_GameTooltip_ClearItem(tooltip, ...)
 end
 
@@ -1371,10 +1378,14 @@ function Altoholic.Tooltip.OnItemRefTooltipCleared(tooltip, ...)
 end
 
 function Altoholic.Tooltip:Process(tooltip, name, link)
+	if Informant and self.isNodeDone then
+		return
+	end
+	
 	--	*** Note about tooltips ***
 	--	If an error occurs with a specific item, like a gathering node, make sure its item id is valid in core.lua
 	--	28/12/2008: I fixed an issue with black lotus, which did not display its counters at all, this was due to an invalid item id
-
+	
 	local itemID = Altoholic:GetIDFromLink(link)
 	
 	-- if there's no cached item id OR if it's different from the previous one ..
@@ -1414,8 +1425,13 @@ function Altoholic.Tooltip:Process(tooltip, name, link)
 	end
 	
 	if (Altoholic.Options:Get("TooltipCount") == 1) then			-- add count per character
-		tooltip:AddLine(" ",1,1,1);
+		local needsBlankLine = true
+		
 		for CharacterName, c in pairs (V.ItemCount) do
+			if needsBlankLine then
+				tooltip:AddLine(" ",1,1,1);
+				needsBlankLine = nil
+			end
 			tooltip:AddDoubleLine(CharacterName,  TEAL .. c);
 		end
 	end
@@ -1582,7 +1598,6 @@ end
 -- *** EVENT HANDLERS ***
 function Altoholic:PLAYER_ALIVE()
 	Altoholic:UpdateFriends()
-	Altoholic.Tasks:Add("CheckExpiries", 1, Altoholic.Mail.CheckExpiries, self)
 end
 
 function Altoholic:PLAYER_GUILD_UPDATE()

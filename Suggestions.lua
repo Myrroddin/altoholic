@@ -17,9 +17,9 @@ local YELLOW	= "|cFFFFFF00"
 -- This table contains a list of suggestions to get to the next level of reputation, craft or skill
 Altoholic.Suggestions = {
 	[L["Riding"]] = {
-		{ 75, "Apprentice riding skill (Lv 30): |cFFFFFFFF35g\n|cFFFFD700Standard mount in/near a capital city: |cFFFFFFFF10g" },
-		{ 150, "Journeyman riding skill (Lv 60): |cFFFFFFFF600g\n|cFFFFD700Epic mount in/near a capital city: |cFFFFFFFF100g" },
-		{ 225, "Expert riding skill (Lv 70): |cFFFFFFFF800g\n|cFFFFD700Flying mount in Shadowmoon Valley: |cFFFFFFFF100g" },
+		{ 75, "Apprentice riding skill (Lv 20): |cFFFFFFFF4g\n|cFFFFD700Standard mount in/near a capital city: |cFFFFFFFF1g" },
+		{ 150, "Journeyman riding skill (Lv 40): |cFFFFFFFF50g\n|cFFFFD700Epic mount in/near a capital city: |cFFFFFFFF10g" },
+		{ 225, "Expert riding skill (Lv 60): |cFFFFFFFF600g\n|cFFFFD700Flying mount in Shadowmoon Valley: |cFFFFFFFF50g" },
 		{ 300, "Artisan riding skill (Lv 70): |cFFFFFFFF5000g\n|cFFFFD700Epic flying mount in Shadowmoon Valley: |cFFFFFFFF200g" }
 	},
 	

@@ -1,5 +1,4 @@
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
-local DS
 
 local GREEN		= "|cFF00FF00"
 
@@ -22,8 +21,6 @@ local ContainerViewLabels = {
 }
 
 function Altoholic.Containers:Init()
-	DS = DataStore
-	
 	local mode = Altoholic.Options:Get("lastContainerView")
 	mode = mode or 1
 	
@@ -120,6 +117,7 @@ function Altoholic.Containers:UpdateCache()
 		bagMin = 5			-- 5 to 11
 	end
 	
+	local DS = DataStore
 	for bagID = bagMin, bagMax do
 		if DS:GetContainer(character, bagID) then
 			local _, _, size = DS:GetContainerInfo(character, bagID)
@@ -174,7 +172,7 @@ function Altoholic.Containers:UpdateSpread()
 	AltoholicTabCharactersStatus:SetText("")
 	
 	local character = Altoholic.Tabs.Characters:GetCurrent()
-	
+	local DS = DataStore
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
 	
 	for i=1, VisibleLines do
@@ -340,6 +338,7 @@ function Altoholic.Containers:UpdateAllInOne()
 		table.insert(containerList, 100)
 	end
 	
+	local DS = DataStore
 	for _, containerID in pairs(containerList) do
 		local container = DS:GetContainer(character, containerID)
 		local _, _, containerSize = DS:GetContainerInfo(character, containerID)
@@ -427,8 +426,10 @@ end
 -- *** EVENT HANDLERS ***
 function Altoholic.Containers:OnBagUpdate(bag)
 	Altoholic.Tooltip:ForceRefresh()
-	
-	if Altoholic.Mail.isOpen then	-- if a bag is updated while the mailbox is opened, this means an attachment has been taken.
-		Altoholic.Mail:Scan()		-- I could not hook TakeInboxItem because mailbox content is not updated yet
+
+	if DataStore:IsMailBoxOpen() and AltoholicFrameMail:IsVisible() then	
+		-- if a bag is updated while the mailbox is opened, this means an attachment has been taken.
+		Altoholic.Mail:BuildView()
+		Altoholic.Mail:Update()
 	end
 end

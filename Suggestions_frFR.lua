@@ -12,9 +12,9 @@ local YELLOW	= "|cFFFFFF00"
 -- This table contains a list of suggestions to get to the next level of reputation, craft or skill
 Altoholic.Suggestions = {
 	[L["Riding"]] = {
-		{ 75, "Apprenti cavalier (Lv 30): |cFFFFFFFF35g\n|cFFFFD700Monture standard dans/pr\195\168s d'une capitale: |cFFFFFFFF10g" },
-		{ 150, "Compagnon cavalier (Lv 60): |cFFFFFFFF600g\n|cFFFFD700Monture \195\169pique dans/pr\195\168s d'une capitale: |cFFFFFFFF100g" },
-		{ 225, "Expert cavalier (Lv 70): |cFFFFFFFF800g\n|cFFFFD700Monture volante dans la vall\195\169e d'Ombrelune: |cFFFFFFFF100g" },
+		{ 75, "Apprenti cavalier (Lv 20): |cFFFFFFFF4g\n|cFFFFD700Monture standard dans/pr\195\168s d'une capitale: |cFFFFFFFF1g" },
+		{ 150, "Compagnon cavalier (Lv 40): |cFFFFFFFF50g\n|cFFFFD700Monture \195\169pique dans/pr\195\168s d'une capitale: |cFFFFFFFF10g" },
+		{ 225, "Expert cavalier (Lv 60): |cFFFFFFFF600g\n|cFFFFD700Monture volante dans la vall\195\169e d'Ombrelune: |cFFFFFFFF50g" },
 		{ 225, "Vol par temps froid (Lv 77): |cFFFFFFFF5000g\n|cFFFFD700Monture volante par temps froid \195\160 Dalaran sur l'aire de Krasus : |cFFFFFFFF1000g" },
 		{ 300, "Artisan cavalier (Lv 70): |cFFFFFFFF5000g\n|cFFFFD700Monture volante \195\169pique dans la vall\195\169e d'Ombrelune: |cFFFFFFFF200g" }
 	},

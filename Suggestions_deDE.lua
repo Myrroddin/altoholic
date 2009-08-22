@@ -12,9 +12,9 @@ local YELLOW	= "|cFFFFFF00"
 -- This table contains a list of suggestions to get to the next level of reputation, craft or skill
 Altoholic.Suggestions = {
 	[L["Riding"]] = {
-		{ 75, "Unerfahrener Reiter (Lv 30): |cFFFFFFFF35g\n|cFFFFD700Standard mount in der Nähe einer Hauptstadt: |cFFFFFFFF10g" },
-		{ 150, "Geübter Reiter (Lv 60): |cFFFFFFFF600g\n|cFFFFD700Epic mount in der Nähe einer Hauptstadt: |cFFFFFFFF100g" },
-		{ 225, "Erfahrener Reiter (Lv 70): |cFFFFFFFF800g\n|cFFFFD700Flugmount im Schattenmondtal: |cFFFFFFFF100g" },
+		{ 75, "Unerfahrener Reiter (Lv 20): |cFFFFFFFF4g\n|cFFFFD700Standard mount in der Nähe einer Hauptstadt: |cFFFFFFFF1g" },
+		{ 150, "Geübter Reiter (Lv 40): |cFFFFFFFF50g\n|cFFFFD700Epic mount in der Nähe einer Hauptstadt: |cFFFFFFFF10g" },
+		{ 225, "Erfahrener Reiter (Lv 60): |cFFFFFFFF600g\n|cFFFFD700Flugmount im Schattenmondtal: |cFFFFFFFF50g" },
 		{ 300, "Gekonnter Reiter (Lv 70): |cFFFFFFFF5000g\n|cFFFFD700Epic Flugmount im Schattenmondtal: |cFFFFFFFF200g" }
 	},
 	

@@ -23,7 +23,6 @@ function Altoholic.Options:Init()
 	AltoholicTabOptionsFrame1_GuildCommText:SetText(L["Guild Communication Enabled"])
 	
 	L["Max rest XP displayed as 150%"] = nil
-	L["Account Sharing Enabled"] = nil
 	L["Guild Communication Enabled"] = nil
 	L["Automatically authorize guild bank updates"] = nil
 	
@@ -97,6 +96,7 @@ function Altoholic.Options:Init()
 		L["When |cFFFF0000disabled|cFFFFFFFF, all requests will be automatically rejected.\n\n"],
 		L["Security hint: Only enable this when you actually need to transfer data,\ndisable otherwise"])
 
+	L["Account Sharing Enabled"] = nil
 	L["|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option will allow other Altoholic users\nto send you account sharing requests.\n"] = nil
 	L["Your confirmation will still be required any time someone requests your information.\n\n"] = nil
 	L["When |cFFFF0000disabled|cFFFFFFFF, all requests will be automatically rejected.\n\n"] = nil

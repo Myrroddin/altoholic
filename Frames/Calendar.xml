@@ -51,7 +51,7 @@
 		</Size>
 		<Layers>
 			<Layer level="BACKGROUND">
-				<Texture name="$parent_Background" setAllPoints="true" file="Interface\Calendar\CalendarBackground">
+				<Texture name="$parent_Background" file="Interface\Calendar\CalendarBackground">
 					<Size>
 						<AbsDimension x="241" y="18"/>
 					</Size>
@@ -107,7 +107,7 @@
 						<AbsDimension x="105" y="18"/>
 					</Size>
 					<Anchors>
-						<Anchor point="BOTTOMRIGHT">
+						<Anchor point="TOPRIGHT">
 							<Offset>
 								<AbsDimension x="-2" y="0"/>
 							</Offset>

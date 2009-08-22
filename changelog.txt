@@ -1,13 +1,37 @@
 Altoholic Changelog (dates in dd/mm/yyyy)
 ===================
 
-3.2.001b
+3.2.001d
+
+- Removed an unnecessary blank line that sometimes appeared in the tooltip.
+- Fixed mining ore/herbs counters being displayed twice when Informant is present (finally :D).
+- Fixed the detection of goblin AH (DataStore_Auctions).
+- Fixed a Lua error when receiving a mail from a guildmate (DataStore_Mails).
+- Fixed a Lua error when searching guild members professions. This was caused by LibTradeLinks expiry after a patch.
+- Updated LibTradeLinks to the most recent version.
+- Slightly modified the way calendar events are managed, in order to prevent a wall of text when multiple alchemy transmutes expire simultaneously.
+
+
+3.2.001c (14/08/2009)
+
+- Moved mail expiry check back in OnEnable()
+- Fixed 2 Lua errors when doing a search.
+- Fixed a minor bug when viewing guild bank tabs on an unguilded alt.
+- Fixed invalid counters when taking an attachment (DataStore_Mails).
+- [frFR] Fixed an error when viewing certain talent trees (DataStore_Talents).
+- Fixed a lua error when visiting the AH (DataStore_Auctions).
+- [deDE] Fixed a lua error when scanning skills (DataStore_Skills).
+- Fixed sorting alts by rest XP rate.
+
+
+3.2.001b (11/08/2009)
 
 - Fixed a Lua error in the quest log (DataStore_Quests).
 - Fixed the option that scans the body of a mail or not (DataStore_Mails)
 - Removed debug code when mousing over a talent.
 - Gathered Ace & LPT libraries used by DataStore_* modules under DataStore (thanks AnrDaemon).
 - Removed Ace libraries already provided by DataStore
+- Fixed localization issues.
 
 3.2.001 (10/08/2009)
 
