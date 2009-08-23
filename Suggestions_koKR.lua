@@ -258,7 +258,7 @@ Altoholic.Suggestions = {
 		{ 375, "375 까지: 일급 Dreamless Sleep 물약\nSold in Allerian Stronghold (A)\nor Thunderlord Stronghold (H)" }
 	},
 	[L["Mining"]] = {
-		{ 65, "65 까지: Mine Copper\nAvailable in all starting zones" },
+		{ 65, "65 까지: 구리 채굴\n모든 시작 지역에서 가능" },
 		{ 125, "125 까지: Mine Tin, Silver, Incendicite and 하급 Bloodstone\n\nMine Incendicite at Thelgen Rock (Wetlands)\nEasy leveling up to 125" },
 		{ 175, "175 까지: Mine Iron and Gold\nDesolace, Ashenvale, Badlands, Arathi Highlands,\nAlterac Mountains, Stranglethorn Vale, Swamp of Sorrows" },
 		{ 250, "250 까지: Mine Mithril and Truesilver\nBlasted Lands, Searing Gorge, Badlands, The Hinterlands,\nWestern Plaguelands, Azshara, Winterspring, Felwood, Stonetalon Mountains, Tanaris" },
