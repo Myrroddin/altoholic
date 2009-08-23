@@ -11,6 +11,7 @@
 	<Script file="Suggestions_frFR.lua"></Script>
 	<Script file="Suggestions_zhCN.lua"></Script>
 	<Script file="Suggestions_zhTW.lua"></Script>
+	<Script file="Suggestions_koKR.lua"></Script>
 	<Script file="Altoholic.lua"></Script>
 	
 	<GameTooltip name="AltoTooltip" inherits="GameTooltipTemplate" parent="UIParent" hidden="true" />
