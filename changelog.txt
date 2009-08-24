@@ -10,7 +10,8 @@ Altoholic Changelog (dates in dd/mm/yyyy)
 - Fixed a Lua error when searching guild members professions. This was caused by LibTradeLinks expiry after a patch.
 - Updated LibTradeLinks to the most recent version.
 - Slightly modified the way calendar events are managed, in order to prevent a wall of text when multiple alchemy transmutes expire simultaneously.
-
+- Several bugfixes in the calendar too.
+- koKR partial localization (thanks Seashop !)
 
 3.2.001c (14/08/2009)
 
