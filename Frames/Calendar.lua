@@ -927,7 +927,8 @@ function Altoholic.Calendar:Scan()
 			for i = 1, CalendarGetNumDayEvents(monthOffset, day) do		-- number of events that day ..
 				-- http://www.wowwiki.com/API_CalendarGetDayEvent
 				local title, hour, minute, calendarType, _, eventType, _, _, inviteStatus = CalendarGetDayEvent(monthOffset, day, i)
-				if calendarType ~= "HOLIDAY" and calendarType ~= "RAID_LOCKOUT" and calendarType ~= "RAID_RESET" then
+				if calendarType ~= "HOLIDAY" and calendarType ~= "RAID_LOCKOUT" and 
+					calendarType ~= "RAID_RESET" and inviteStatus ~= CALENDAR_INVITESTATUS_DECLINED then
 					-- don't save holiday events, they're the same for all chars, and would be redundant..who wants to see 10 fishing contests every sundays ? =)
 
 					table.insert(c.Calendar, format("%s|%s|%s|%d|%d",
