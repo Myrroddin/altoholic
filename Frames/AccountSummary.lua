@@ -524,9 +524,8 @@ function Altoholic.Summary:DeleteRealmButtonHandler(button)
 
 	local s = Altoholic.Characters:Get(line) -- no validity check, this comes from the dropdownmenu, it's been secured earlier
 	local realmName = s.realm
-	
-	-- wipe(Altoholic.db.global.data[s.account][s.realm])
-	-- Altoholic.db.global.data[s.account][s.realm] = nil
+
+	DataStore:DeleteRealm(s.realm, s.account)
 
 	-- if the realm being deleted was the current ..
 	if Altoholic:GetCurrentRealm() == s.realm and Altoholic:GetCurrentAccount() == s.account then
