@@ -104,6 +104,7 @@ local AltoholicDB_Defaults = {
 			MailWarningThreshold = 5,
 			CheckMailExpiry = 1,				-- check mail expiry or not
 			GuildMailWarning = 1,			-- be informed when a guildie sends a mail to one of my alts
+			NameAutoComplete = 1,
 			
 			-- ** Minimap options **
 			MinimapIconAngle = 180,
@@ -125,15 +126,12 @@ local AltoholicDB_Defaults = {
 			
 			-- ** Calendar options **
 			WeekStartsMonday = 0,
-			Warning15Min = 1,
-			Warning10Min = 1,
-			Warning5Min = 1,
-			Warning4Min = 1,
-			Warning3Min = 1,
-			Warning2Min = 1,
-			Warning1Min = 1,
 			WarningDialogBox = 0,			-- use a dialog box for warnings (1), or default chat frame (0)
 			DisableWarnings = 0,
+			WarningType1 = "30|15|10|5|4|3|2|1",		-- for profession cooldowns
+			WarningType2 = "30|15|10|5|4|3|2|1",		-- for dungeon resets
+			WarningType3 = "30|15|10|5|4|3|2|1",		-- for calendar events
+			WarningType4 = "30|15|10|5|4|3|2|1",		-- for item timers (like mysterious egg)
 		},
 }}
 

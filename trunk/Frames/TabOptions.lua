@@ -6,7 +6,7 @@ local GREEN		= "|cFF00FF00"
 Altoholic.Options = {}
 
 function Altoholic.Options:Init()
-	local value			
+	local value
 	
 	-- ** Frame 1 : General **
 	AltoholicTabOptionsFrame1_RestXPModeText:SetText(L["Max rest XP displayed as 150%"])
@@ -88,6 +88,8 @@ function Altoholic.Options:Init()
 	AltoholicTabOptionsFrame3_GuildMailWarning.tooltip = format("%s",
 		L["Be informed when a guildmate sends a mail to one of my alts.\n\nMail content is directly visible without having to reconnect the character"])
 
+	AltoholicTabOptionsFrame3_NameAutoCompleteText:SetText("Auto-complete recipient name" )
+		
 	-- ** Frame 4 : Account Sharing **
 	AltoholicTabOptionsFrame4_AccSharingCommText:SetText(L["Account Sharing Enabled"])
 	AltoholicTabOptionsFrame4_AccSharingComm.tooltip = format("%s%s%s%s",
@@ -144,18 +146,19 @@ function Altoholic.Options:Init()
 	
 	-- ** Frame 6 : Calendar **
 	AltoholicTabOptionsFrame6FirstDayText:SetText(L["Week starts on Monday"])
-	AltoholicTabOptionsFrame6Warning15Text:SetText(format(L["Warn %d minutes before an event starts"], 15))
-	AltoholicTabOptionsFrame6Warning10Text:SetText(format(L["Warn %d minutes before an event starts"], 10))
-	AltoholicTabOptionsFrame6Warning5Text:SetText(format(L["Warn %d minutes before an event starts"], 5))
-	AltoholicTabOptionsFrame6Warning4Text:SetText(format(L["Warn %d minutes before an event starts"], 4))
-	AltoholicTabOptionsFrame6Warning3Text:SetText(format(L["Warn %d minutes before an event starts"], 3))
-	AltoholicTabOptionsFrame6Warning2Text:SetText(format(L["Warn %d minutes before an event starts"], 2))
-	AltoholicTabOptionsFrame6Warning1Text:SetText(format(L["Warn %d minutes before an event starts"], 1))
 	AltoholicTabOptionsFrame6DialogBoxText:SetText(L["Display warnings in a dialog box"])
 	AltoholicTabOptionsFrame6DisableWarningsText:SetText(L["Disable warnings"])
 	L["Week starts on Monday"] = nil
 	L["Warn %d minutes before an event starts"] = nil
 	L["Display warnings in a dialog box"] = nil
+	
+	for i = 1, 4 do 
+		UIDropDownMenu_Initialize(_G["AltoholicTabOptionsFrame6_WarningType"..i], Altoholic.Calendar.WarningType_Initialize)
+	end
+	UIDropDownMenu_SetText(AltoholicTabOptionsFrame6_WarningType1, "Profession Cooldowns")
+	UIDropDownMenu_SetText(AltoholicTabOptionsFrame6_WarningType2, "Dungeon Resets")
+	UIDropDownMenu_SetText(AltoholicTabOptionsFrame6_WarningType3, "Calendar Events")
+	UIDropDownMenu_SetText(AltoholicTabOptionsFrame6_WarningType4, "Item Timers")
 end
 
 function Altoholic.Options:RestoreToUI()
@@ -200,6 +203,7 @@ function Altoholic.Options:RestoreToUI()
 	
 	AltoholicTabOptionsFrame3_ScanMailBody:SetChecked(DataStore:GetOption("DataStore_Mails", "ScanMailBody"))
 	AltoholicTabOptionsFrame3_GuildMailWarning:SetChecked(O.GuildMailWarning)
+	AltoholicTabOptionsFrame3_NameAutoComplete:SetChecked(O.NameAutoComplete)
 
 	AltoholicTabOptionsFrame4_AccSharingComm:SetChecked(O.AccSharingHandlerEnabled)
 	
@@ -215,13 +219,6 @@ function Altoholic.Options:RestoreToUI()
 	AltoholicTabOptionsFrame5MultiAccount:SetChecked(O.TooltipMultiAccount)
 	
 	AltoholicTabOptionsFrame6FirstDay:SetChecked(O.WeekStartsMonday)
-	AltoholicTabOptionsFrame6Warning15:SetChecked(O.Warning15Min)
-	AltoholicTabOptionsFrame6Warning10:SetChecked(O.Warning10Min)
-	AltoholicTabOptionsFrame6Warning5:SetChecked(O.Warning5Min)
-	AltoholicTabOptionsFrame6Warning4:SetChecked(O.Warning4Min)
-	AltoholicTabOptionsFrame6Warning3:SetChecked(O.Warning3Min)
-	AltoholicTabOptionsFrame6Warning2:SetChecked(O.Warning2Min)
-	AltoholicTabOptionsFrame6Warning1:SetChecked(O.Warning1Min)
 	AltoholicTabOptionsFrame6DialogBox:SetChecked(O.WarningDialogBox)
 	AltoholicTabOptionsFrame6DisableWarnings:SetChecked(O.DisableWarnings)
 end

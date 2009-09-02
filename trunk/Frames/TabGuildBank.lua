@@ -136,8 +136,6 @@ function Altoholic.Tabs.GuildBank:ButtonHandler(button)
 	AltoholicTabGuildBankMoney:SetText("")
 	
 	AltoGuildBank:Hide()
-	wipe(guild[guildname])	-- clear all content for this guild ..
-	guild[guildname] = nil						-- .. then the guild entry itself
 	
 	local DS = DataStore
 	DS:DeleteGuild(guildname, realm, account)
