@@ -46,7 +46,7 @@ local INSTANCE_LINE = 2
 local CALENDAR_LINE = 3
 local CONNECTMMO_LINE = 4
 local TIMER_LINE = 5
-local GENERIC_EVENT_LINE = 6		-- this type is used for lines like shared cooldowns (alchemy, etc..) among others.
+local SHARED_CD_LINE = 6		-- this type is used for shared cooldowns (alchemy, etc..) among others.
 
 Altoholic.Calendar = {}
 Altoholic.Calendar.Days = {}
@@ -192,7 +192,7 @@ local function GetEventExpiry(event)
 	return difftime(time(TimeTable), time() + GetClockDiff())	-- in seconds
 end
 
-local TimerThresholds = { 15, 10, 5, 4, 3, 2, 1	}
+local TimerThresholds = { 30, 15, 10, 5, 4, 3, 2, 1 }
 
 local CalendarEventTypes = {
 	[COOLDOWN_LINE] = {
@@ -319,7 +319,7 @@ local CalendarEventTypes = {
 				return title, format("%s %s", COOLDOWN_REMAINING, Altoholic:GetTimeString(expiresIn))
 			end,
 	},
-	[GENERIC_EVENT_LINE] = {
+	[SHARED_CD_LINE] = {
 		GetReadyNowWarning = function(self, event)
 				return format(L["%s is now ready (%s on %s)"], event.source, event.char, event.realm)
 			end,
@@ -392,6 +392,29 @@ local function ClearExpiredEvents()
 	end
 end
 
+local function IsNumberInString(number, str)
+	-- ex: with str = "15|10|3" returns true if value is in this string
+	for v in str:gmatch("(%d+)") do
+		if tonumber(v) == number then
+			return true
+		end
+	end
+end
+
+local WARNING_TYPE_PROFESSION_CD = 1
+local WARNING_TYPE_DUNGEON_RESET = 2
+local WARNING_TYPE_CALENDAR_EVENT = 3
+local WARNING_TYPE_ITEM_TIMER = 4
+
+local EventToWarningType = {
+	[COOLDOWN_LINE] = WARNING_TYPE_PROFESSION_CD,
+	[INSTANCE_LINE] = WARNING_TYPE_DUNGEON_RESET,
+	[CALENDAR_LINE] = WARNING_TYPE_CALENDAR_EVENT,
+	[CONNECTMMO_LINE] = WARNING_TYPE_CALENDAR_EVENT,
+	[TIMER_LINE] = WARNING_TYPE_ITEM_TIMER,
+	[SHARED_CD_LINE] = WARNING_TYPE_PROFESSION_CD,
+}
+
 function Altoholic.Calendar:CheckEvents(elapsed)
 	if Altoholic.Options:Get("DisableWarnings") == 1 then	-- warnings disabled ? do nothing
 		Altoholic.Tasks:Reschedule("EventWarning", 60)
@@ -409,12 +432,17 @@ function Altoholic.Calendar:CheckEvents(elapsed)
 		elseif numMin == 0 then
 			ShowExpiryWarning(k, 0)
 			hasEventExpired = true		-- at least one event has expired
-		elseif numMin <= 15 then
+		elseif numMin <= 30 then
+			local warnings = Altoholic.Options:Get("WarningType"..EventToWarningType[v.eventType])		-- Gets something like "15|5|1"
 			for _, threshold in pairs(TimerThresholds) do
 				if threshold == numMin then			-- if snooze is allowed for this value
-					if Altoholic.Options:Get("Warning"..threshold.."Min") == 1 then
+					if IsNumberInString(threshold, warnings) then
 						ShowExpiryWarning(k, numMin)
 					end
+					
+					-- if Altoholic.Options:Get("Warning"..threshold.."Min") == 1 then
+						-- ShowExpiryWarning(k, numMin)
+					-- end
 					break
 				elseif threshold < numMin then		-- save some cpu cycles, exit if threshold too low
 					break
@@ -433,8 +461,6 @@ function Altoholic.Calendar:CheckEvents(elapsed)
 	Altoholic.Tasks:Reschedule("EventWarning", 60)
 	return true
 end
-
-
 
 function Altoholic.Calendar:WarningButtonHandler(button)
 	AltoMsgBox.ButtonHandler = nil		-- prevent any other call to msgbox from coming back here
@@ -665,7 +691,7 @@ function Altoholic.Calendar.Events:BuildList()
 					professionName == GetSpellInfo(2575) then			-- mining
 					supportsSharedCD = true		-- current profession supports shared cooldowns
 				end
-
+				
 				if supportsSharedCD then
 					local sharedCDFound		-- is there a shared cd for this profession ?
 					for i = 1, DS:GetNumActiveCooldowns(profession) do
@@ -674,7 +700,7 @@ function Altoholic.Calendar.Events:BuildList()
 
 						if not sharedCDFound then
 							sharedCDFound = true
-							self:Add(GENERIC_EVENT_LINE, date("%Y-%m-%d",expires), date("%H:%M",expires), characterName, realm, nil, professionName)
+							self:Add(SHARED_CD_LINE, date("%Y-%m-%d",expires), date("%H:%M",expires), characterName, realm, nil, professionName)
 						end
 					end
 				else
@@ -948,4 +974,38 @@ function Altoholic.Calendar:OnUpdate()
 	self:Scan()
 	self.Events:BuildList()
 	Altoholic.Tabs.Summary:Refresh()
+end
+
+local function ToggleWarningThreshold(self)
+	local id = self.arg1
+	local warnings = Altoholic.Options:Get("WarningType"..id)		-- Gets something like "15|5|1"
+	
+	local t = {}		-- create a temporary table to store checked values
+	for v in warnings:gmatch("(%d+)") do
+		v = tonumber(v)
+		if v ~= self.value then		-- add all values except the one that was clicked
+			table.insert(t, v)
+		end
+	end
+	
+	if not IsNumberInString(self.value, warnings) then		-- if number is not yet in the string, save it (we're checking it, otherwise we're unchecking)
+		table.insert(t, self.value)
+	end
+	
+	Altoholic.Options:Set("WarningType"..id, table.concat(t, "|"))		-- Sets something like "15|5|10|1"
+end
+
+function Altoholic.Calendar:WarningType_Initialize()
+	local info = UIDropDownMenu_CreateInfo();
+	local id = self:GetID()
+	local warnings = Altoholic.Options:Get("WarningType"..id)		-- Gets something like "15|5|1"
+	
+	for _, threshold in pairs(TimerThresholds) do
+		info.text = format(D_MINUTES, threshold)
+		info.value = threshold
+		info.func = ToggleWarningThreshold
+		info.checked = IsNumberInString(threshold, warnings)
+		info.arg1 = id		-- save the id of the current option
+		UIDropDownMenu_AddButton(info, 1); 
+	end
 end

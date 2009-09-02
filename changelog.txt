@@ -1,8 +1,18 @@
 Altoholic Changelog (dates in dd/mm/yyyy)
 ===================
 
-3.2.001d
+3.2.002
 
+- Added early support for returned mails.
+- Fixed a Lua error when trying to delete a guild bank.
+- Changed the calendar warning options, you can now set different warning thresholds per event type.
+- Added an option to disable name auto-complete when writing a mail.
+
+
+
+3.2.001d (24/08/2009)
+
+More bugfixes.
 - Removed an unnecessary blank line that sometimes appeared in the tooltip.
 - Fixed mining ore/herbs counters being displayed twice when Informant is present (finally :D).
 - Fixed the detection of goblin AH (DataStore_Auctions).
@@ -12,6 +22,8 @@ Altoholic Changelog (dates in dd/mm/yyyy)
 - Slightly modified the way calendar events are managed, in order to prevent a wall of text when multiple alchemy transmutes expire simultaneously.
 - Several bugfixes in the calendar too.
 - koKR partial localization (thanks Seashop !)
+- Fixed realm deletion in the account summary.
+- Declined invitations are now filtered out.
 
 3.2.001c (14/08/2009)
 

@@ -93,6 +93,11 @@ function Altoholic.Mail:Update()
 	local frame = "AltoholicFrameMail"
 	local entry = frame.."Entry"
 	
+	
+-- TIME_UNTIL_DELETED = "Time until message is deleted"; -- Tooltip for mail that is marked deletable
+-- TIME_UNTIL_RETURNED = "Time until message is returned"; -- Tooltip for items marked returnable
+
+	
 	local player = Altoholic:GetCurrentCharacter()
 	local self = Altoholic.Mail
 	
@@ -126,12 +131,18 @@ function Altoholic.Mail:Update()
 		if line <= numMails then
 			local index = self.view[line]
 			
-			local icon, count, link = DS:GetMailInfo(character, index)
+			local icon, count, link, _, _, wasReturned = DS:GetMailInfo(character, index)
 			
 			_G[ entry..i.."Name" ]:SetText(link or DS:GetMailSubject(character, index))
 			
 			_G[ entry..i.."Character" ]:SetText(DS:GetMailSender(character, index))
-			_G[ entry..i.."Expiry" ]:SetText(FormatExpiry(character, index))
+			
+			if not wasReturned then
+				_G[ entry..i.."Expiry" ]:SetText(FormatExpiry(character, index))
+			else
+				_G[ entry..i.."Expiry" ]:SetText(format("%s %s(%s)", FormatExpiry(character, index), YELLOW, MAIL_RETURN))
+			end
+			
 			_G[ entry..i.."ItemIconTexture" ]:SetTexture(icon);
 			if count and count > 1 then
 				_G[ entry..i.."ItemCount" ]:SetText(count)
@@ -283,16 +294,18 @@ end
 local Orig_SendMailNameEditBox_OnChar = SendMailNameEditBox:GetScript("OnChar")
 
 SendMailNameEditBox:SetScript("OnChar", function(...)
-	local text = this:GetText(); 
-	local textlen = strlen(text); 
-	local DS = DataStore
-	
-	for characterName, character in pairs(DS:GetCharacters()) do
-		if DS:GetCharacterFaction(character) == UnitFactionGroup("player") then
-			if ( strfind(strupper(characterName), strupper(text), 1, 1) == 1 ) then
-				SendMailNameEditBox:SetText(characterName);
-				SendMailNameEditBox:HighlightText(textlen, -1);
-				return;
+	if Altoholic.Options:Get("NameAutoComplete") == 1 then
+		local text = this:GetText(); 
+		local textlen = strlen(text); 
+		local DS = DataStore
+		
+		for characterName, character in pairs(DS:GetCharacters()) do
+			if DS:GetCharacterFaction(character) == UnitFactionGroup("player") then
+				if ( strfind(strupper(characterName), strupper(text), 1, 1) == 1 ) then
+					SendMailNameEditBox:SetText(characterName);
+					SendMailNameEditBox:HighlightText(textlen, -1);
+					return;
+				end
 			end
 		end
 	end

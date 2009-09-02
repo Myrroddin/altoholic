@@ -154,6 +154,12 @@ end
 
 function Altoholic:OnEnable()
 	DS = DataStore
+	
+	DS:RegisterEventListener("Altoholic")
+	-- self:RegisterDataStoreEvent("DATASTORE_MAILBOX_UPDATE")
+	-- self:RegisterDataStoreEvent("DATASTORE_MAILBOX_UPDATE", "mymbhandler")
+	-- self:RegisterDataStoreEvent("DATASTORE_MAILBOX_UPDATE", mymbhandler)
+	-- self:UnregisterDataStoreEvent(4,5,6)
 
 	self:InitLocalization()
 	self.Options:Init()
