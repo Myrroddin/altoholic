@@ -309,7 +309,6 @@ function Altoholic.Summary:Level_OnClick(frame, button)
 		Altoholic:SetCurrentCharacter(charName, realm, account)
 		Altoholic.Tabs.Characters:SetCurrent(charName, realm, account)
 		
-		Altoholic.Reputations:BuildView()
 		Altoholic.Tabs:OnClick(2)
 		Altoholic.Containers:UpdateCache()
 		AltoholicFrameAchievements:Hide()
@@ -479,7 +478,6 @@ function Altoholic.Summary:DeleteAltButtonHandler(button)
 	-- rebuild the main character table, and all the menus
 	Altoholic.Characters:BuildList()
 	Altoholic.Characters:BuildView()
-	Altoholic.Reputations:BuildView()
 	AltoholicFrameAchievements:Hide()
 	Altoholic.Summary:Update()
 		
@@ -543,7 +541,6 @@ function Altoholic.Summary:DeleteRealmButtonHandler(button)
 	-- rebuild the main character table, and all the menus
 	Altoholic.Characters:BuildList()
 	Altoholic.Characters:BuildView()
-	Altoholic.Reputations:BuildView()
 	AltoholicFrameAchievements:Hide()
 	Altoholic.Summary:Update()
 		

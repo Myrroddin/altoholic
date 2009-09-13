@@ -7,8 +7,8 @@ local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local DS
 
 local V = Altoholic.vars
-Altoholic.Version = "v3.2.001d"
-Altoholic.VersionNum = 302001
+Altoholic.Version = "v3.2.002"
+Altoholic.VersionNum = 302002
 
 local WHITE		= "|cFFFFFFFF"
 local RED		= "|cFFFF0000"
@@ -101,6 +101,8 @@ function Altoholic:InitLocalization()
 	AltoholicTabOptionsMenuItem6:SetText(L["Calendar"])
 	
 	AltoholicFramePetsText1:SetText(L["View"])
+	AltoholicFrameReputationsText1:SetText(L["View"])
+	AltoholicFrameCurrenciesText1:SetText(L["View"])
 	
 	AltoholicTabGuildBank_HideInTooltipText:SetText(L["Hide this guild in the tooltip"])
 	
@@ -194,6 +196,7 @@ function Altoholic:OnEnable()
 	self.BagUsage:Init()
 	self.TradeSkills.Recipes:Init()
 	self.Search:Init()
+	self.Currencies:Init()
 	
 	-- do not move this one into the frame's OnLoad
 	UIDropDownMenu_Initialize(AltoholicFrameEquipmentRightClickMenu, Equipment_RightClickMenu_OnLoad, "MENU");
@@ -262,7 +265,6 @@ end
 function Altoholic:OnShow()
 	SetPortraitTexture(AltoholicFramePortrait, "player");	
 
-	self.Reputations:BuildView()
 	self.Characters:BuildList()
 	self.Characters:BuildView()
 	
@@ -1264,18 +1266,22 @@ Altoholic.Tooltip = {}
 function Altoholic.Tooltip:Init()
 	self.Orig_GameTooltip_OnShow = GameTooltip:GetScript("OnShow")
 	self.Orig_GameTooltip_SetItem = GameTooltip:GetScript("OnTooltipSetItem")
+	-- self.Orig_GameTooltip_SetSpell = GameTooltip:GetScript("OnTooltipSetSpell")
 	self.Orig_GameTooltip_ClearItem = GameTooltip:GetScript("OnTooltipCleared")
 	
 	self.Orig_ItemRefTooltip_OnShow = ItemRefTooltip:GetScript("OnShow")
 	self.Orig_ItemRefTooltip_SetItem = ItemRefTooltip:GetScript("OnTooltipSetItem")
+	-- self.Orig_ItemRefTooltip_SetSpell = ItemRefTooltip:GetScript("OnTooltipSetSpell")
 	self.Orig_ItemRefTooltip_ClearItem = ItemRefTooltip:GetScript("OnTooltipCleared")
 	
 	GameTooltip:SetScript("OnShow", self.OnGameTooltipShow)
 	GameTooltip:SetScript("OnTooltipSetItem", self.OnGameTooltipSetItem)
+	-- GameTooltip:SetScript("OnTooltipSetSpell", self.OnGameTooltipSetSpell)
 	GameTooltip:SetScript("OnTooltipCleared", self.OnGameTooltipCleared)
 	
 	ItemRefTooltip:SetScript("OnShow", self.OnItemRefTooltipShow)
 	ItemRefTooltip:SetScript("OnTooltipSetItem", self.OnItemRefTooltipSetItem)
+	-- ItemRefTooltip:SetScript("OnTooltipSetSpell", self.OnItemRefTooltipSetSpell)
 	ItemRefTooltip:SetScript("OnTooltipCleared", self.OnItemRefTooltipCleared)
 end
 
@@ -1340,6 +1346,28 @@ function Altoholic.Tooltip.OnGameTooltipSetItem(tooltip, ...)
 	end
 end
 
+-- function Altoholic.Tooltip.OnGameTooltipSetSpell(tooltip, ...)
+	-- local self = Altoholic.Tooltip
+
+	-- if self.Orig_GameTooltip_SetSpell then
+		-- self.Orig_GameTooltip_SetSpell(tooltip, ...)
+	-- end
+
+	-- local _, _, spellID = tooltip:GetSpell()
+	-- if spellID then
+		-- local DS = DataStore
+		-- for characterName, character in pairs(DS:GetCharacters(realm)) do
+			-- for _, profession in pairs(DS:GetProfessions(character)) do
+				-- if DS:IsCraftKnown(profession, spellID) then
+					-- tooltip:AddLine(TEAL .. L["Already known by "] ..": ".. WHITE.. characterName, 1, 1, 1, 1);
+				-- end
+			-- end
+		-- end
+		-- self:WhoKnowsPet(spellID, "CRITTER", tooltip)
+		-- self:WhoKnowsPet(spellID, "MOUNT", tooltip)
+	-- end
+-- end
+
 function Altoholic.Tooltip.OnGameTooltipCleared(tooltip, ...)
 	local self = Altoholic.Tooltip
 	self.isDone = nil
@@ -1374,6 +1402,28 @@ function Altoholic.Tooltip.OnItemRefTooltipSetItem(tooltip, ...)
 		end
 	end
 end
+
+-- function Altoholic.Tooltip.OnItemRefTooltipSetSpell(tooltip, ...)
+	-- local self = Altoholic.Tooltip
+
+	-- if self.Orig_ItemRefTooltip_SetSpell then
+		-- self.Orig_ItemRefTooltip_SetSpell(tooltip, ...)
+	-- end
+
+	-- local _, _, spellID = tooltip:GetSpell()
+	-- if spellID then
+		-- local DS = DataStore
+		-- for characterName, character in pairs(DS:GetCharacters(realm)) do
+			-- for _, profession in pairs(DS:GetProfessions(character)) do
+				-- if DS:IsCraftKnown(profession, spellID) then
+					-- tooltip:AddLine(TEAL .. L["Already known by "] ..": ".. WHITE.. characterName, 1, 1, 1, 1);
+				-- end
+			-- end
+		-- end
+		-- self:WhoKnowsPet(spellID, "CRITTER", tooltip)
+		-- self:WhoKnowsPet(spellID, "MOUNT", tooltip)
+	-- end
+-- end
 
 function Altoholic.Tooltip.OnItemRefTooltipCleared(tooltip, ...)
 
