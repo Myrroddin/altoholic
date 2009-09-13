@@ -73,6 +73,7 @@ Altoholic.Comm.Sharing.Callbacks = {
 }
 
 local compressionMode = 1
+local importedChars
 
 local function Whisper(player, messageType, ...)
 	local serializedData = Altoholic:Serialize(messageType, ...)
@@ -187,6 +188,15 @@ function Altoholic.Comm.Sharing:Request()
 	end
 end
 
+local function ImportCharacters()
+	-- once data has been transfered, finalize the import by acknowledging that these alts can be seen by client addons
+	-- will be changed when account sharing goes into datastore.
+	for k, v in pairs(importedChars) do
+		DataStore:ImportCharacter(k, v.faction, v.guild)
+	end
+	importedChars = nil
+end
+
 function Altoholic.Comm.Sharing:RequestNext(player)
 	self.NetDestCurItem = self.NetDestCurItem + 1
 	local index = self.NetDestCurItem
@@ -223,7 +233,7 @@ function Altoholic.Comm.Sharing:RequestNext(player)
 		return
 	end
 
-	-- Altoholic:Print(L["Transfer complete"])
+	ImportCharacters()
 	SetStatus(L["Transfer complete"])
 	Whisper(player, MSG_ACCOUNT_SHARING_COMPLETED)
 
@@ -331,6 +341,8 @@ function Altoholic.Comm.Sharing:SetMode(mode)
 		button:Enable()
 		button.requestMode = true	
 	elseif mode == 3 then
+		importedChars = importedChars or {}
+		wipe(importedChars)
 		button:Disable()
 	end
 end
@@ -432,6 +444,14 @@ end
 
 function Altoholic.Comm.Sharing:OnDataStoreCharReceived(sender, data)
 	DataStore:ImportData("DataStore_Characters", data, self.ClientCharName, self.ClientRealmName, self.account)
+
+	-- temporarily deal with this here, will be changed when account sharing goes to  DataStore.
+	local key = format("%s.%s.%s", self.account, self.ClientRealmName, self.ClientCharName)
+	
+	importedChars[key] = {}
+	importedChars[key].faction = data.faction
+	importedChars[key].guild = data.guildName
+	
 	-- NO REQUEST NEXT HERE !!
 end
 
