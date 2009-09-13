@@ -214,6 +214,13 @@
 					</Anchor>
 				</Anchors>
 			</Button>
+			<Button name="$parent_Tokens" inherits="AltoViewIconTemplate" id="11">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parent_Factions" relativePoint="BOTTOMRIGHT" >
+						<Offset x="5" y="0" />
+					</Anchor>
+				</Anchors>
+			</Button>
 
 			<Button name="$parent_Cooking" inherits="AltoViewIconTemplate">
 				<Anchors>
@@ -296,7 +303,10 @@
 		</Frames>
 		<Scripts>
 			<OnShow>
-				if AltoholicFrameReputations:IsVisible() or AltoholicFrameEquipment:IsVisible() or AltoholicFramePetsAllInOne:IsVisible() then
+				if AltoholicFrameReputations:IsVisible() or 
+					AltoholicFrameEquipment:IsVisible() or 
+					AltoholicFrameCurrencies:IsVisible() or 
+					AltoholicFramePetsAllInOne:IsVisible() then
 					AltoholicFrameClasses:Show()
 				end
 				

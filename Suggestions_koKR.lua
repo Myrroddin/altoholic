@@ -15,7 +15,7 @@ Altoholic.Suggestions = {
 		{ 75, "수습 탈것 타기 기술 (30 레벨): |cFFFFFFFF35골\n|cFFFFD700수도 도시 안이나 근처에 있는 기본 탈것: |cFFFFFFFF10골" },
 		{ 150, "중급 탈것 타기 기술 (60 레벨): |cFFFFFFFF600골\n|cFFFFD700수도 도시 안이나 근처에 있는 에픽 탈것: |cFFFFFFFF100골" },
 		{ 225, "숙련 탈것 타기 기술 (70 레벨): |cFFFFFFFF800골\n|cFFFFD700어둠달 골짜기에 있는 나는 탈것: |cFFFFFFFF100골" },
-		{ 300, "전문 탈것 타기 기술 (70 레벨): |cFFFFFFFF5000골\n|cFFFFD700어둠달 골짜기에 있는 에픽 나는 탈것: |cFFFFFFFF200골" }
+		{ 300, "Artisan riding skill (70 레벨): |cFFFFFFFF5000골\n|cFFFFD700어둠달 골짜기에 있는 에픽 나는 탈것: |cFFFFFFFF200골" }
 	},
 	
 	-- source : http://forums.worldofwarcraft.com/thread.html?topicId=102789457&sid=1
@@ -254,52 +254,52 @@ Altoholic.Suggestions = {
 		{ 285, "285 까지: 최상급 마나 물약" },
 		{ 300, "300 까지: 일급 치유 물약" },
 		{ 315, "315 까지: 신속 치유 물약\n또는 일급 마나 물약" },
-		{ 350, "350 까지: 미친 연금술사의 물약\n335에 노란색으로 변하지만 저렴" },
-		{ 375, "375 까지: 일급 Dreamless Sleep 물약\nSold in Allerian 스트롱홀드 (얼)\nor Thunderlord Stronghold (H)" }
+		{ 350, "350 까지: Mad Alchemists's 물약\nTurns yellow at 335, but cheap to make" },
+		{ 375, "375 까지: 일급 Dreamless Sleep 물약\nSold in Allerian Stronghold (A)\nor Thunderlord Stronghold (H)" }
 	},
 	[L["Mining"]] = {
-		{ 65, "65 까지: 구리 채광\n모든 시작 지역에서 가능" },
-		{ 125, "125 까지: 주석, 은, Incendicite and 하급 혈석 채광\n\nMine Incendicite at Thelgen Rock (저습지)\nEasy leveling up to 125" },
-		{ 175, "175 까지: 철, 금 채광\nDesolace, Ashenvale, Badlands, 아라시 고원,\알터렉 산맥, Stranglethorn Vale, 슬픔의 늪" },
-		{ 250, "250 까지: 미스릴, 진은 채광\nBlasted Lands, Searing Gorge, Badlands, The Hinterlands,\n서부 역병지대, 아즈샤라, 여명의 설원, Felwood, Stonetalon Mountains, 타나리스" },
-		{ 300, "300 까지: 토륨 채광\n운고로 분화구, 아즈샤라, 여명의 설원, Blasted Lands\nSearing Gorge, 불타는 평원, 동부 역병지대, 서부 역병지대" },
-		{ 330, "330 까지: 지옥무쇠 채광\n지옥불 반도, 장가르 습지대" },
-		{ 375, "375 까지: 지옥무쇠, 아다만타이트 채광\n테로카르 숲, 나그란드\n아웃랜드의 모든 곳" }
+		{ 65, "65 까지: 구리 채굴\n모든 시작 지역에서 가능" },
+		{ 125, "125 까지: Mine Tin, Silver, Incendicite and 하급 Bloodstone\n\nMine Incendicite at Thelgen Rock (Wetlands)\nEasy leveling up to 125" },
+		{ 175, "175 까지: Mine Iron and Gold\nDesolace, Ashenvale, Badlands, Arathi Highlands,\nAlterac Mountains, Stranglethorn Vale, Swamp of Sorrows" },
+		{ 250, "250 까지: Mine Mithril and Truesilver\nBlasted Lands, Searing Gorge, Badlands, The Hinterlands,\nWestern Plaguelands, Azshara, Winterspring, Felwood, Stonetalon Mountains, Tanaris" },
+		{ 300, "300 까지: Mine Thorium \nUn’goro Crater, Azshara, Winterspring, Blasted Lands\nSearing Gorge, Burning Steppes, Eastern Plaguelands, Western Plaguelands" },
+		{ 330, "330 까지: Mine Fel Iron\nHellfire Peninsula, Zangarmarsh" },
+		{ 375, "375 까지: Mine Fel Iron and Adamantite\nTerrokar Forest, Nagrand\nBasically everywhere in Outland" }
 	},
 	[L["Herbalism"]] = {
-		{ 50, "50 까지: 은엽수잎, 평온초 꽃잎 채집\n모든 시작 지역에서 가능" },
-		{ 70, "70 까지: 마법초 꽃잎, 뱀뿌리 채집\nThe Barrens, 서부 몰락지대, 은빛소나무 숲, Loch Modan" },
-		{ 100, "100 까지: 찔레가시 채집\n은빛소나무 숲, Duskwood, 어둠의 해안,\nLoch Modan, 붉은마루 산맥" },
-		{ 115, "115 까지: 생채기풀 채집\nAshenvale, Stonetalon Mountains, Southern Barrens\nLoch Modan, 붉은마루 산맥" },
-		{ 125, "125 까지: 야생 철쭉 채집\nStonetalon Mountains, 아라시 고원, Stranglethorn Vale\nSouthern Barrens, Thousand Needles" },
-		{ 160, "160 까지: 왕꽃잎풀 채집\nAshenvale, Stonetalon Mountains, Wetlands,\n힐스브래드 구릉지, Swamp of Sorrows" },
-		{ 185, "185 까지: 미명초잎 채집\n슬픔의 늪" },
-		{ 205, "205 까지: 카드가의 수염 채집\nThe Hinterlands, 아라시 고원, 슬픔의 늪" },
-		{ 230, "230 까지: 화염초 꽃잎 채집\nSearing Gorge, Blasted Lands, Tanaris" },
-		{ 250, "250 까지: 태양풀 채집\nFelwood, 페랄라스, 아즈샤라\nThe Hinterlands" },
-		{ 270, "270 까지: 그롬의 피 채집\nFelwood, Blasted Lands,\nMannoroc Coven in Desolace" },
-		{ 285, "285 까지: 꿈풀 채집\n운고로 분화구, 아즈샤라" },
-		{ 300, "300 까지: 역병초 꽃잎 채집\n동부, 서부 역병지대, Felwood\n또는 여명의 설원에서 얼음송이 채집" },
-		{ 330, "330 까지: 지옥풀 채집\n지옥불 반도, 장가르 습지대" },
-		{ 375, "375 까지: 장가르 습지대와 테로카르 숲 위주로\n아웃랜드에 있는 모든 꽃들" }
+		{ 50, "50 까지: Collect Silverleaf and Peacebloom\nAvailable in all starting zones" },
+		{ 70, "70 까지: Collect Mageroyal and Earthroot\nThe Barrens, Westfall, Silverpine Forest, Loch Modan" },
+		{ 100, "100 까지: Collect Briarthorn\nSilverpine Forest, Duskwood, Darkshore,\nLoch Modan, Redridge Mountains" },
+		{ 115, "115 까지: Collect Bruiseweed\nAshenvale, Stonetalon Mountains, Southern Barrens\nLoch Modan, Redridge Mountains" },
+		{ 125, "125 까지: Collect Wild Steelbloom\nStonetalon Mountains, Arathi Highlands, Stranglethorn Vale\nSouthern Barrens, Thousand Needles" },
+		{ 160, "160 까지: Collect Kingsblood\nAshenvale, Stonetalon Mountains, Wetlands,\nHillsbrad Foothills, Swamp of Sorrows" },
+		{ 185, "185 까지: Collect Fadeleaf\nSwamp of Sorrows" },
+		{ 205, "205 까지: Collect Khadgar's Whisker\nThe Hinterlands, Arathi Highlands, Swamp of Sorrows" },
+		{ 230, "230 까지: Collect Firebloom\nSearing Gorge, Blasted Lands, Tanaris" },
+		{ 250, "250 까지: Collect Sungrass\nFelwood, Feralas, Azshara\nThe Hinterlands" },
+		{ 270, "270 까지: Collect Gromsblood\nFelwood, Blasted Lands,\nMannoroc Coven in Desolace" },
+		{ 285, "285 까지: Collect Dreamfoil\nUn'goro Crater, Azshara" },
+		{ 300, "300 까지: Collect Plagueblooms\nEastern & Western Plaguelands, Felwood\nor Icecaps in Winterspring" },
+		{ 330, "330 까지: Collect Felweed\nHellfire Peninsula, Zangarmarsh" },
+		{ 375, "375 까지: Any flower available in Outland\nFocus on Zangarmarsh & Terrokar Forest" }
 	},
 	[L["Skinning"]] = {
-		{ 375, "375 까지: 현 기술 레벨을 5로 나눈 값의\n레벨을 가진 몹들 무두질" }
+		{ 375, "375 까지: Divide your current skill level by 5,\nand skin mobs of that level" }
 	},
 
 	-- source: http://www.elsprofessions.com/inscription/leveling.html
 	[L["Inscription"]] = {
-		{ 18, "18 까지: 상아 잉크" },
-		{ 35, "35 까지: 지능, 정신력, 체력의 두루마리" },
-		{ 50, "50 까지: 달빛 잉크\n'보조 문양 연구'용으로 저장" },
-		{ 75, "75 까지: 귀환, Armor Vellum의 두루마리" },
-		{ 79, "79 까지: 한밤 잉크" },
-		{ 80, "80 까지: 보조 문양 연구" },
-		{ 85, "85 까지: 기습, 얼음 회오리, 회복의 문양 등" },
-		{ 87, "87 까지: 사냥꾼의 잉크" },
+		{ 18, "18 까지: Ivory Ink" },
+		{ 35, "35 까지: Scroll of Intellect, 정신력 or 체력" },
+		{ 50, "50 까지: Moonglow Ink\nSave if for 최하급 Inscription Research" },
+		{ 75, "75 까지: Scroll of Recall, Armor Vellum" },
+		{ 79, "79 까지: Midnight Ink" },
+		{ 80, "80 까지: 최하급 Inscription Research" },
+		{ 85, "85 까지: Glyph of Backstab, Frost Nova\nRejuvenation, ..." },
+		{ 87, "87 까지: Hunter's Ink" },
 		{ 90, "90 까지: Glyph of Corruption, Flame Shock\nRapid Charge, Wrath" },
 		{ 100, "100 까지: Glyph of Ice Armor, Maul\nSerpent Sting" },
-		{ 104, "104 까지: 사자의 잉크" },
+		{ 104, "104 까지: Lion's Ink" },
 		{ 105, "105 까지: Glyph of Arcane Shot, Arcane Explosion" },
 		{ 110, "110 까지: Glyph of Eviscerate, Holy Light, Fade" },
 		{ 115, "115 까지: Glyph of Fire Nova Totem\n생명력 Funel, Rending" },
@@ -362,15 +362,15 @@ Altoholic.Suggestions = {
 
 	-- source: http://www.almostgaming.com/wowguides/world-of-warcraft-lockpicking-guide
 	[L["Lockpicking"]] = {
-		{ 85, "85 까지: Thieves Training\nAtler Mill, 붉은마루 산맥 (얼)\nShip near Ratchet (H)" },
-		{ 150, "150 까지: Chest near the boss of the poison quest\n서부 몰락지대 (A) or The Barrens (H)" },
-		{ 185, "185 까지: Murloc camps (저습지)" },
+		{ 85, "85 까지: Thieves Training\nAtler Mill, Redridge Moutains (A)\nShip near Ratchet (H)" },
+		{ 150, "150 까지: Chest near the boss of the poison quest\nWestfall (A) or The Barrens (H)" },
+		{ 185, "185 까지: Murloc camps (Wetlands)" },
 		{ 225, "225 까지: Sar'Theris Strand (Desolace)\n" },
 		{ 250, "250 까지: Angor Fortress (Badlands)" },
 		{ 275, "275 까지: Slag Pit (Searing Gorge)" },
-		{ 300, "300 까지: Lost Rigger Cove (타나리스)\nBay of Storms (아즈샤라)" },
-		{ 325, "325 까지: Feralfen Village (장가르 습지대)" },
-		{ 350, "350 까지: Kil'sorrow Fortress (나그란드)\nPickpocket the Boulderfists in 나그란드" }
+		{ 300, "300 까지: Lost Rigger Cove (Tanaris)\nBay of Storms (Azshara)" },
+		{ 325, "325 까지: Feralfen Village (Zangarmarsh)" },
+		{ 350, "350 까지: Kil'sorrow Fortress (Nagrand)\nPickpocket the Boulderfists in Nagrand" }
 	},
 	
 	-- ** Secondary professions **
@@ -378,7 +378,7 @@ Altoholic.Suggestions = {
 		{ 40, "40 까지: 리넨 붕대" },
 		{ 80, "80 까지: 두꺼운 리넨 붕대\n50에 중급" },
 		{ 115, "115 까지: 양모 붕대" },
-		{ 150, "150 까지: 두꺼운 양모 붕대\n125에 숙련 응급치료 책\nBuy the 2 manuals in 스트롬가드 (얼) or Brackenwall Village (H)" },
+		{ 150, "150 까지: 두꺼운 양모 붕대\n125에 숙련 응급치료 책\nBuy the 2 manuals in Stromguarde (A) or Brackenwall Village (H)" },
 		{ 180, "180 까지: 비단 붕대" },
 		{ 210, "210 까지: 두꺼운 비단 붕대" },
 		{ 240, "240 까지: 마법 붕대\n레벨 35에 응급치료 퀘스트\n테라모어 섬 (얼) 또는 헤머폴 (호)" },
@@ -397,7 +397,7 @@ Altoholic.Suggestions = {
 		{ 200, "200 까지: 랩터 숯불구이" },
 		{ 225, "225 까지: 거미 소시지\n\n|cFFFFFFFF요리 퀘스트:\n|cFFFFD70012 거대한 알,\n10 Zesty Clam Meat,\n20 알터렉 스위스 " },
 		{ 275, "275 까지: 괴물 오믈렛\n또는 연한 늑대 스테이크" },
-		{ 285, "285 까지: 룬툼 줄기 별미\nDire Maul (푸실린)" },
+		{ 285, "285 까지: 룬툼 줄기 별미\nDire Maul (Pusillin)" },
 		{ 300, "300 까지: 훈제 사막 경단\n실리더스에서 퀘스트" },
 		{ 325, "325 까지: Ravager Dogs, Buzzard Bites" },
 		{ 350, "350 까지: 갈래발굽 숯불구이\n차원의 버거, 탈부크 스테이크" },
@@ -406,16 +406,16 @@ Altoholic.Suggestions = {
 	-- source: http://www.wowguideonline.com/fishing.html
 	[BI["Fishing"]] = {
 		{ 50, "50 까지: 모든 시작 지역" },
-		{ 75, "75 까지:\n스톰윈드 안 운하\n오그리마 안 연못" },
-		{ 150, "150 까지: 힐스브래드 Foothills' river" },
+		{ 75, "75 까지:\n스톰윈드 안 운하\n오그리마 안 연못The Pond in Orgrimmar" },
+		{ 150, "150 까지: 힐스블래드 Foothills' river" },
 		{ 225, "225 까지: 숙련 낚시 기술 책 구입 in Booty Bay\nFish in Desolace 또는 아라시 고원" },
-		{ 250, "250 까지: Hinterlands, 타나리스\n\n|cFFFFFFFFFishing quest in 먼지진흙 습지대\n|cFFFFD700Savage Coast Blue Sailfin (Stranglethorn Vale)\n페랄라스 Ahi (Verdantis River, Feralas)\nSer'theris Striker (Northern Sartheris Strand, Desolace)\nMisty Reed Mahi Mahi (슬픔의 늪 해변)" },
+		{ 250, "250 까지: Hinterlands, 타나리스\n\n|cFFFFFFFFFishing quest in Dustwallow Marsh\n|cFFFFD700Savage Coast Blue Sailfin (Stranglethorn Vale)\nFeralas Ahi (Verdantis River, Feralas)\nSer'theris Striker (Northern Sartheris Strand, Desolace)\nMisty Reed Mahi Mahi (Swamp of Sorrows coastline)" },
 		{ 260, "260 까지: Felwood" },
 		{ 300, "300 까지: 아즈라샤" },
 		{ 330, "330 까지: 장가르 습지대 동부에 있는 물고기\n세나리온 원정대에 전문 낚시책" },
 		{ 345, "345 까지: 장가르 습지대 서부" },
-		{ 360, "360 까지: 테로카르 숲" },
-		{ 375, "375 까지: 테로카르 숲, in altitude\n나르는 탈 것 필요" }
+		{ 360, "360 까지: Terrokar Forest" },
+		{ 375, "375 까지: Terrokar Forest, in altitude\nFlying mount required" }
 	},
 	
 	-- suggested leveling zones, compiled by Thaoky, based on too many sources to list + my own leveling experience on Alliance side
@@ -471,7 +471,7 @@ Altoholic.Suggestions = {
 	[BF["The Aldor"]] = {
 		{ 0, "중립적 까지:\n" .. WHITE .. "[Dreadfang Venom Sac]|r +250 rep\n\n"
 				.. YELLOW .. "Dreadfang Lurker,\nDreadfang Widow\n"
-				.. WHITE .. "(테로카르 숲)" },
+				.. WHITE .. "(Terrokar Forest)" },
 		{ 9000, "우호적 까지:\n" .. WHITE .. "[Mark of Kil'jaeden]|r\n+25 rep" },
 		{ 42000, "확고한 까지:\n" .. WHITE .. "[Mark of Sargeras]|r +25 rep per mark\n" 
 				.. GREEN .. "[Fel Armament]|r +350 rep (+1 Holy Dust)"       }
@@ -479,7 +479,7 @@ Altoholic.Suggestions = {
 	[BF["The Scryers"]] = {
 		{ 0, "중립적 까지:\n" .. WHITE .. "[Dampscale Basilisk Eye]|r +250 rep\n\n"
 				.. YELLOW .. "Ironspine Petrifier,\nDampscale Devourer,\nDampscale Basilisk\n"
-				.. WHITE .. "(테로카르 숲)" },
+				.. WHITE .. "(Terrokar Forest)" },
 		{ 9000, "우호적 까지:\n" .. WHITE .. "[Firewing Signet]|r\n+25 rep" },
 		{ 42000, "확고한 까지:\n" .. WHITE .. "[Sunfury Signet]|r +25 rep per mark\n" 
 				.. GREEN .. "[Arcane Tome]|r +350 rep (+1 Arcane Rune)"       }
@@ -516,7 +516,7 @@ Altoholic.Suggestions = {
 	},
 	[BF["Thrallmar"]] = {
 		{ 9000, "우호적 까지:\n\n" 
-				.. YELLOW .. "Quest in 지옥불 반도\n"
+				.. YELLOW .. "Quest in Hellfire Peninsula\n"
 				.. GREEN .. "Hellfire Remparts |r(Normal)\n"
 				.. GREEN .. "Blood Furnace |r(Normal)" },		
 		{ 42000, "확고한 까지:\n\n" 
@@ -527,12 +527,12 @@ Altoholic.Suggestions = {
 	[BF["Cenarion Expedition"]] = {
 		{ 3000, "약간 우호적 까지:\n\n" 
 				.. WHITE .. "Darkcrest & Bloodscale Nagas (+5 rep)\n"
-				.. YELLOW .. "Quest in 장가르 습지대\n"
+				.. YELLOW .. "Quest in Zangarmarsh\n"
 				.. "|rRun any " .. GREEN .. "Coilfang|r instance\n\n"
 				.. WHITE .. "Keep [Unidentified Plant Parts] for later" },	
 		{ 9000, "우호적 까지:\n\n" 
 				.. WHITE .. "Turn in [Unidentified Plant Parts] x240\n"
-				.. YELLOW .. "Quest in 장가르 습지대\n"
+				.. YELLOW .. "Quest in Zangarmarsh\n"
 				.. "|rRun any " .. GREEN .. "Coilfang|r instance" },
 		{ 42000, "확고한 까지:\n\n" 
 				.. WHITE .. "Turn in [Coilfang Armaments] +75 rep\n\n"
@@ -541,8 +541,8 @@ Altoholic.Suggestions = {
 	},
 	[BF["Keepers of Time"]] = {
 		{ 42000, "확고한 까지:\n\n" 
-				.. "|rRun the " .. GREEN .. "옛 힐스브래드 구릉지|r & " .. GREEN .. "The Black Morass\n\n"
-				.. YELLOW .. "Keep quests for later:\n옛 힐스브래드 퀘스트들 = 5000 rep\nBlack Morass questline = 8000 rep" }
+				.. "|rRun the " .. GREEN .. "Old Hillsbrad Foothills|r & " .. GREEN .. "The Black Morass\n\n"
+				.. YELLOW .. "Keep quests for later:\nOld Hillsbrad quesline = 5000 rep\nBlack Morass questline = 8000 rep" }
 	},
 	[BF["The Sha'tar"]] = {
 		{ 42000, "확고한 까지:\n\n" 

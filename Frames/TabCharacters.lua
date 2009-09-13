@@ -18,6 +18,7 @@ local VIEW_COMPANIONS = 7
 local VIEW_MOUNTS = 8
 local VIEW_REP = 9
 local VIEW_EQUIP = 10
+local VIEW_TOKENS = 11
 
 local ICON_VIEW_BAGS = "Interface\\Buttons\\Button-Backpack-Up"
 local ICON_VIEW_MAILS = "Interface\\Icons\\INV_Misc_Note_01"
@@ -29,6 +30,7 @@ local ICON_VIEW_MOUNTS = "Interface\\Icons\\Ability_Mount_RidingHorse"
 local ICON_VIEW_REP = "Interface\\Icons\\INV_BannerPVP_02"
 local ICON_VIEW_EQUIP = "Interface\\Icons\\INV_Chest_Plate04"
 local ICON_VIEW_TALENTS = "Interface\\Icons\\Spell_Nature_NatureGuardian"
+local ICON_VIEW_TOKENS = "Interface\\Icons\\Spell_Holy_SummonChampion"
 
 Altoholic.Tabs.Characters = {}
 
@@ -43,6 +45,7 @@ local CharInfoButtons = {
 	"AltoholicTabCharacters_Mounts",
 	"AltoholicTabCharacters_Factions",
 	"AltoholicTabCharacters_Equipment",
+	"AltoholicTabCharacters_Tokens",
 }
 
 function Altoholic.Tabs.Characters:UpdateViewIcons()
@@ -144,6 +147,10 @@ function Altoholic.Tabs.Characters:UpdateViewIcons()
 	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Factions", ICON_VIEW_REP, size, size)
 	AltoholicTabCharacters_Factions.text = L["Reputations"]
 	AltoholicTabCharacters_Factions:Show()
+	
+	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Tokens", ICON_VIEW_TOKENS, size, size)
+	AltoholicTabCharacters_Tokens.text = CURRENCY
+	AltoholicTabCharacters_Tokens:Show()	
 	
 	-- ** Professions **
 	local professionName = GetSpellInfo(2550)		-- cooking
@@ -253,7 +260,6 @@ function Altoholic.Tabs.Characters:ChangeRealm(account, realm, checked)
 			AltoholicTabCharactersStatus:SetText("")
 			Altoholic:SetCurrentCharacter(nil)
 			Altoholic.TradeSkills.CurrentProfession = nil
-			Altoholic.Reputations:BuildView()
 			
 			self:HideAll()
 			self:StopAutoCastShine()
@@ -316,9 +322,6 @@ function Altoholic.Tabs.Characters:GetCurrent()
 	-- the right character key is in this widget, use it to avoid querying DataStore all the time
 	return UIDropDownMenu_GetSelectedValue(AltoholicTabCharacters_SelectChar)
 end
-
-
-
 
 function Altoholic.Tabs.Characters:ViewCharInfo(index, autoCastDone)
 	index = index or self.value
@@ -408,6 +411,10 @@ function Altoholic.Tabs.Characters:ShowCharInfo(infoType)
 		AltoholicFrameClasses:Show()
 		AltoholicFrameEquipment:Show()
 		Altoholic.Equipment:Update()	
+	elseif infoType == VIEW_TOKENS then
+		AltoholicFrameClasses:Show()
+		AltoholicFrameCurrencies:Show()
+		Altoholic.Currencies:Update()	
 	end
 end
 
@@ -421,6 +428,7 @@ function Altoholic.Tabs.Characters:HideAll()
 	AltoholicFrameRecipes:Hide()
 	AltoholicFrameReputations:Hide()
 	AltoholicFrameEquipment:Hide()
+	AltoholicFrameCurrencies:Hide()
 	AltoholicFrameClasses:Hide()
 end
 

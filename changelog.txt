@@ -6,9 +6,9 @@ Altoholic Changelog (dates in dd/mm/yyyy)
 - Added early support for returned mails.
 - Fixed a Lua error when trying to delete a guild bank.
 - Changed the calendar warning options, you can now set different warning thresholds per event type.
-- Added an option to disable name auto-complete when writing a mail.
-
-
+- Added an option to disable name auto-complete when writing a mail (to prevent conflicts with other addons offering the same feature).
+- The reputations pane has been redone. I'm still playing a bit with the icon colors, feel free to make suggestions/tests by changing the values in Frames\Reputations.lua
+- Added a new pane for the currencies. They are still visible per character in the activity pane.
 
 3.2.001d (24/08/2009)
 

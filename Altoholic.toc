@@ -1,22 +1,6 @@
 ﻿## Interface: 30200
 ## Title: Altoholic
 ## Title-zhCN: |cffeedd99 [物品] |r: 全角色统计 Altoholic
-## X-Curse-Packaged-Version: r8
-## X-Curse-Project-Name: Altoholic
-## X-Curse-Project-ID: altoholic
-## X-Curse-Repository-ID: wow/altoholic/mainline
-## X-Curse-Packaged-Version: r13
-## X-Curse-Project-Name: Altoholic
-## X-Curse-Project-ID: altoholic
-## X-Curse-Repository-ID: wow/altoholic/mainline
-## X-Curse-Packaged-Version: r39
-## X-Curse-Project-Name: Altoholic
-## X-Curse-Project-ID: altoholic
-## X-Curse-Repository-ID: wow/altoholic/mainline
-## X-Curse-Packaged-Version: r47
-## X-Curse-Project-Name: Altoholic
-## X-Curse-Project-ID: altoholic
-## X-Curse-Repository-ID: wow/altoholic/mainline
 
 ## Notes: Provides information about your alts
 ## Notes-ruRU: Предоставляет информацию о вашем персонажах
@@ -24,7 +8,7 @@
 ## Notes-zhCN: 能让你全面掌握你的所有角色的信息。
 
 ## Author: Thaoky
-## Version: 3.2.001d
+## Version: 3.2.002
 ## Dependencies: DataStore
 
 ## OptionalDeps: Ace3, LibDataBroker-1.1, LibPeriodicTable-3.1, LibBabble-Zone-3.0, LibBabble-Boss-3.0, LibBabble-Inventory-3.0, LibBabble-Faction-3.0, LibBabble-Class-3.0, LibCompress
@@ -63,6 +47,7 @@ Frames\AuctionHouse.xml
 Frames\BagUsage.xml
 Frames\Calendar.xml
 Frames\Containers.xml
+Frames\Currencies.xml
 Frames\GuildBank.xml
 Frames\GuildMembers.xml
 Frames\GuildBankTabs.xml
