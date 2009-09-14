@@ -939,17 +939,18 @@ function Altoholic.Calendar:Scan()
 	Altoholic:UnregisterEvent("CALENDAR_UPDATE_EVENT_LIST")	-- prevent CalendarSetAbsMonth from triggering a scan (= avoid infinite loop)
 	
 	local currentMonth, currentYear = CalendarGetMonth()		-- save the current month
-	local _, thisMonth, _, thisYear = CalendarGetDate();
+	local _, thisMonth, thisDay, thisYear = CalendarGetDate();
 	CalendarSetAbsMonth(thisMonth, thisYear);
 	
 	local c = Altoholic.ThisCharacter
 	wipe(c.Calendar)
 	
-	-- save last month, this month + 6 following months
-	for monthOffset = -1, 6 do
+	-- save this month (from today) + 6 following months
+	for monthOffset = 0, 6 do
 		local month, year, numDays = CalendarGetMonth(monthOffset)
+		local startDay = (monthOffset == 0) and thisDay or 1
 		
-		for day = 1, numDays do
+		for day = startDay, numDays do
 			for i = 1, CalendarGetNumDayEvents(monthOffset, day) do		-- number of events that day ..
 				-- http://www.wowwiki.com/API_CalendarGetDayEvent
 				local title, hour, minute, calendarType, _, eventType, _, _, inviteStatus = CalendarGetDayEvent(monthOffset, day, i)
