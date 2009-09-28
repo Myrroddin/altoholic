@@ -216,7 +216,7 @@ local RealmScrollFrame_Desc = {
 					return Altoholic:GetSpellIcon(Altoholic.ProfessionSpellID[profession])
 				end,
 			GetCharacter = function(self, result)
-					local _, _, englishClass = Altoholic.Guild.Members:GetInfo(result.char)
+					local _, _, _, _, _, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(result.char)
 					return result.char, Altoholic:GetClassColor(englishClass)
 				end,
 			GetRealm = function(self, result)

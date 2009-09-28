@@ -101,6 +101,7 @@ function Altoholic.Guild.Members:Update()
 			if v.linetype == NORMALPLAYER_LINE then
 				_G[entry..i.."Collapse"]:Hide()
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 15, 0)
+				_G[entry..i.."Name"].CharName = c.name
 				_G[entry..i.."NameNormalText"]:SetText(YELLOW..c.name)
 				_G[entry..i.."Level"]:SetText(GREEN .. c.level)
 				_G[entry..i.."AvgILevelNormalText"]:SetText(YELLOW..format("%.1f", c.averageItemLvl))
@@ -123,6 +124,7 @@ function Altoholic.Guild.Members:Update()
 				end
 				_G[entry..i.."Collapse"]:Show()
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 25, 0)
+				_G[entry..i.."Name"].CharName = c.name
 				_G[entry..i.."NameNormalText"]:SetText(YELLOW..c.name)
 				_G[entry..i.."Level"]:SetText(GREEN .. c.level)
 				_G[entry..i.."AvgILevelNormalText"]:SetText(YELLOW..format("%.1f", c.averageItemLvl))
@@ -140,6 +142,7 @@ function Altoholic.Guild.Members:Update()
 				
 				_G[entry..i.."Collapse"]:Hide()
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 15, 0)
+				_G[entry..i.."Name"].CharName = char.name
 				_G[entry..i.."NameNormalText"]:SetText(LIGHTBLUE..char.name)
 				_G[entry..i.."Level"]:SetText(GREEN .. char.level)
 				if char.averageItemLvl then
@@ -168,41 +171,15 @@ function Altoholic.Guild.Members:Update()
 end
 
 function Altoholic.Guild.Members:Name_OnEnter(self)
-	local line = self:GetParent():GetID()		-- get the id of the line that was clicked
-	if line == 0 then return end		-- 0 is for hidden frames, should never happen
-	
-	local owner = self
-	local self = Altoholic.Guild.Members
-	
-	local player = self.view[line]
-	local c = self:Get(player.parentID)
-	if not c then		-- if c is invalid here, it means that a player known in the table is no longer valid and the roster hasn't been updated
-		GuildRoster()
-		return
-	end
-	
-	if not c.skills then return end	-- not an altoholic user
-	
-	local char = c.skills[player.skillIndex]
-	
-	if not char then return end
-	
-	local name, rank, rankIndex, zone, note, officernote
-	local playerFound
+	local member = self.CharName
+	if not member then return end
 
-  	for i=1, GetNumGuildMembers(true) do		-- browse offline players too !
-		name, rank, rankIndex, _, _, zone, note, officernote = GetGuildRosterInfo(i);
-		if name == char.name then
-			playerFound = true
-			break
-		end
-	end
-  
-	if not playerFound then return end
+	local name, rank, rankIndex, _, _, zone, note, officernote, _, _, englishClass = DataStore:GetGuildMemberInfo(member)
+	if name ~= member then return end
   
 	AltoTooltip:ClearLines();
-	AltoTooltip:SetOwner(owner, "ANCHOR_RIGHT");
-	AltoTooltip:AddLine(Altoholic:GetClassColor(char.englishClass) .. char.name,1,1,1);
+	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
+	AltoTooltip:AddLine(Altoholic:GetClassColor(englishClass) .. member,1,1,1);
 	AltoTooltip:AddLine(WHITE .. RANK_COLON .. "|r " .. rank .. GREEN .. " (".. rankIndex .. ")");
 	if zone then
 		AltoTooltip:AddLine(WHITE .. ZONE_COLON .. "|r " .. zone);
@@ -294,7 +271,7 @@ function Altoholic.Guild.Members:OnRosterUpdate()
 
 	-- get rid of disconnected users
 	for k, v in pairs(self.List) do
-		if not self:IsConnected(v.name) then		
+		if not DataStore:IsGuildMemberOnline(v.name) then	
 			-- warn other altoholic users in the guild that player v.name has disconnected
 
 			-- deprecated
@@ -393,15 +370,6 @@ function Altoholic.Guild.Members:GetInfo(player)
 	return nil, nil, nil
 end
 
-function Altoholic.Guild.Members:IsConnected(player)
-	for i=1, GetNumGuildMembers() do		-- browse online players only
-		if GetGuildRosterInfo(i) == player then
-			return true
-		end
-	end
-	return nil
-end
-
 function Altoholic.Guild.Members:IsKnown(player, checkAlts)
 	-- is the player already in self.List ?
 	for k, v in pairs(self.List) do
@@ -456,9 +424,8 @@ function Altoholic.Guild.Members:Save(player)
 end
 
 local function SortByLevel(a, b, ascending)
-	local m = Altoholic.Guild.Members
-	local levelA = m:GetInfo(a.name)
-	local levelB = m:GetInfo(b.name)
+	local levelA = select(4, DataStore:GetGuildMemberInfo(a.name))
+	local levelB = select(4, DataStore:GetGuildMemberInfo(b.name))
 	
 	levelA = tonumber(levelA) or 0
 	levelB = tonumber(levelB) or 0
@@ -471,9 +438,8 @@ local function SortByLevel(a, b, ascending)
 end
 
 local function SortByClass(a, b, ascending)
-	local m = Altoholic.Guild.Members
-	local _, _, classA = m:GetInfo(a.name)
-	local _, _, classB = m:GetInfo(b.name)
+	local classA = select(11, DataStore:GetGuildMemberInfo(a.name))
+	local classB = select(11, DataStore:GetGuildMemberInfo(b.name))
 	
 	classA = classA or ""
 	classB = classB or ""

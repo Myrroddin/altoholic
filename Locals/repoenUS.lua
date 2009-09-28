@@ -763,6 +763,7 @@ L["Show counters on gathering nodes"] = true
 L["Show counters for both factions"] = true
 L["Show counters for all accounts"] = true
 L["Include guild bank count in the total count"] = true
+L["Detailed guild bank count"] = true
 
 -- ** Frame 6 : Calendar **
 L["Week starts on Monday"] = true

@@ -7,7 +7,7 @@ local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local DS
 
 local V = Altoholic.vars
-Altoholic.Version = "v3.2.002"
+Altoholic.Version = "v3.2.002b"
 Altoholic.VersionNum = 302002
 
 local WHITE		= "|cFFFFFFFF"
@@ -1094,13 +1094,32 @@ function Altoholic:GetItemCount(searchedID)
 		for guildKey, guild in pairs(Altoholic.db.global.Guilds) do
 			if not guild.hideInTooltip then
 				local _, _, guildName = strsplit(".", guildKey)
-				local guildCount = DS:GetGuildBankItemCount(searchedID, guildName, GetRealmName(), THIS_ACCOUNT)
-				if guildCount > 0 then
-					V.ItemCount[GREEN .. guildName] = format("%s(%s: %s%s)", WHITE, GUILD_BANK, TEAL..guildCount, WHITE)
-				end
 				
-				if Altoholic.Options:Get("TooltipGuildBankCount") == 1 then
-					count = count + guildCount
+				if Altoholic.Options:Get("TooltipGuildBankCountPerTab") == 1 then
+					-- variable names in this block will be changed later, too many guildxxx stuff
+					local dsGuild = DS:GetGuild(guildName, GetRealmName(), THIS_ACCOUNT)
+					local tabCounters = {}
+					
+					for tabID = 1, 6 do 
+						local tabCount = DS:GetGuildBankTabItemCount(dsGuild, tabID, searchedID)
+						if tabCount > 0 then
+							table.insert(tabCounters,  format("%s: %s", WHITE .. DS:GetGuildBankTabName(dsGuild, tabID), TEAL..tabCount))
+						end
+					end
+					
+					if #tabCounters > 0 then
+						local guildCount = DS:GetGuildBankItemCount(searchedID, guildName, GetRealmName(), THIS_ACCOUNT)
+						V.ItemCount[GREEN .. guildName] = format("%s %s(%s%s)", ORANGE .. guildCount, WHITE, table.concat(tabCounters, ","), WHITE)
+					end
+				else
+					local guildCount = DS:GetGuildBankItemCount(searchedID, guildName, GetRealmName(), THIS_ACCOUNT)
+					if guildCount > 0 then
+						V.ItemCount[GREEN .. guildName] = format("%s(%s: %s%s)", WHITE, GUILD_BANK, TEAL..guildCount, WHITE)
+					end
+					
+					if Altoholic.Options:Get("TooltipGuildBankCount") == 1 then
+						count = count + guildCount
+					end
 				end
 			end	-- end if not hidden
 		end	-- end guild
@@ -1308,8 +1327,12 @@ function Altoholic.Tooltip:ShowGatheringNodeCounters()
 	end
 	
 	if (Altoholic.Options:Get("TooltipCount") == 1) then			-- add count per character
-		GameTooltip:AddLine(" ",1,1,1);
+		local needsBlankLine = true
 		for CharacterName, c in pairs (V.ItemCount) do
+			if needsBlankLine then
+				GameTooltip:AddLine(" ",1,1,1);
+				needsBlankLine = nil
+			end
 			GameTooltip:AddDoubleLine(CharacterName,  TEAL .. c);
 		end
 	end
@@ -1701,8 +1724,8 @@ function Altoholic:CHAT_MSG_LOOT(event, arg)
 	item = gsub(item, "[\]]", "")
 	
 	local trackedItems = {		-- temporarly here, will be moved
-		[39878] = 604800, -- Mysterious Egg, 7 days
-		[44717] = 604800, -- Disgusting Jar, 7 days
+		[39878] = 590400, -- Mysterious Egg, 6 days 20 hours
+		[44717] = 590400, -- Disgusting Jar, 6 days 20 hours
 	}
 
 	for k, v in pairs(trackedItems) do

@@ -1,7 +1,17 @@
 Altoholic Changelog (dates in dd/mm/yyyy)
 ===================
 
-3.2.002
+3.2.002b
+
+- Removed the "Method missing" error message in DataStore, it now fails silently (it's mostly a debug feature).
+- Added an option to display detailed guild bank counters (per tab). Disabled by default.
+- Fixed a Lua error in the Auctions/bids panes.
+- Updated the list of Feats of Strength.
+- Added 3.2 pets.
+- Changed the mysterious egg/disgusting jar timers from 7 days to 6 days 20 hours.
+- Fixed a bug where the message "No player named xx is currently playing." could be spammed if a guildmate logged in & out too quickly.
+
+3.2.002 (14/09/2009)
 
 - Added early support for returned mails.
 - Fixed a Lua error when trying to delete a guild bank.

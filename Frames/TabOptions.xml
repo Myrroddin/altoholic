@@ -1052,6 +1052,23 @@
 							</OnClick>
 						</Scripts>
 					</CheckButton>
+					<CheckButton name="$parentGuildBankCountPerTab" inherits="UICheckButtonTemplate">
+						<Size>
+							<AbsDimension x="20" y="20"/>
+						</Size>
+						<Anchors> 
+							<Anchor point="TOPLEFT" relativeTo="$parentGuildBankCount" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension  x="0" y="-10"/>
+								</Offset>
+							</Anchor>
+						</Anchors>      
+						<Scripts>
+							<OnClick>
+								Altoholic.Options:Toggle(self, "TooltipGuildBankCountPerTab")
+							</OnClick>
+						</Scripts>
+					</CheckButton>
 				</Frames>
 			</Frame>
 			<Frame name="$parentFrame6" hidden="true">

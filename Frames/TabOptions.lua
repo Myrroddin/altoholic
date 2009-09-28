@@ -133,6 +133,7 @@ function Altoholic.Options:Init()
 	AltoholicTabOptionsFrame5MultiAccountText:SetText(L["Show counters for all accounts"])
 	AltoholicTabOptionsFrame5GuildBankText:SetText(L["Show guild bank count"])
 	AltoholicTabOptionsFrame5GuildBankCountText:SetText(L["Include guild bank count in the total count"])
+	AltoholicTabOptionsFrame5GuildBankCountPerTabText:SetText(L["Detailed guild bank count"])
 	L["Show item source"] = nil
 	L["Show item count per character"] = nil
 	L["Show total item count"] = nil
@@ -212,6 +213,7 @@ function Altoholic.Options:RestoreToUI()
 	AltoholicTabOptionsFrame5Total:SetChecked(O.TooltipTotal)
 	AltoholicTabOptionsFrame5GuildBank:SetChecked(O.TooltipGuildBank)
 	AltoholicTabOptionsFrame5GuildBankCount:SetChecked(O.TooltipGuildBankCount)
+	AltoholicTabOptionsFrame5GuildBankCountPerTab:SetChecked(O.TooltipGuildBankCountPerTab)
 	AltoholicTabOptionsFrame5RecipeInfo:SetChecked(O.TooltipRecipeInfo)
 	AltoholicTabOptionsFrame5ItemID:SetChecked(O.TooltipItemID)
 	AltoholicTabOptionsFrame5GatheringNode:SetChecked(O.TooltipGatheringNode)

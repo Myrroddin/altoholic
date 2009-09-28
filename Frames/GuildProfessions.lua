@@ -12,9 +12,8 @@ local ALT_LINE = 1
 Altoholic.Guild.Professions = {}
 
 local function SortByLevel(a, b, ascending)
-	local m = Altoholic.Guild.Members
-	local levelA = m:GetInfo(a.name)
-	local levelB = m:GetInfo(b.name)
+	local levelA = select(4, DataStore:GetGuildMemberInfo(a))
+	local levelB = select(4, DataStore:GetGuildMemberInfo(b))
 	
 	levelA = tonumber(levelA) or 0
 	levelB = tonumber(levelB) or 0
@@ -27,9 +26,8 @@ local function SortByLevel(a, b, ascending)
 end
 
 local function SortByClass(a, b, ascending)
-	local m = Altoholic.Guild.Members
-	local _, _, classA = m:GetInfo(a.name)
-	local _, _, classB = m:GetInfo(b.name)
+	local classA = select(11, DataStore:GetGuildMemberInfo(a))
+	local classB = select(11, DataStore:GetGuildMemberInfo(b))
 	
 	classA = classA or ""
 	classB = classB or ""
@@ -105,14 +103,14 @@ function Altoholic.Guild.Professions:BuildView()
 	
 	local offlineMembers = {}
 	
-	for k, v in pairs(Altoholic:GetGuildMembers(guild)) do
-		local level = Altoholic.Guild.Members:GetInfo(k)
-		if not level then	-- no level found = no longer in the guild, remove it
+	for member, v in pairs(Altoholic:GetGuildMembers(guild)) do
+		local name = DataStore:GetGuildMemberInfo(member)
+		if not name then	-- no name found = no longer in the guild, remove it
 			v = nil
 		else
 			-- if character is not connected (or under an alt), list it
-			if not Altoholic.Guild.Members:IsKnown(k, true) then
-				offlineMembers[ #offlineMembers + 1 ] = k
+			if not Altoholic.Guild.Members:IsKnown(member, true) then
+				offlineMembers[ #offlineMembers + 1 ] = member
 			end
 		end
 	end
@@ -253,7 +251,7 @@ function Altoholic.Guild.Professions:Update()
 					char = members[v.parentID]		-- replace "char" reference to use data of an offline player
 					_G[entry..i.."NameNormalText"]:SetText(GRAY..v.parentID)
 					
-					local level, class, englishClass = Altoholic.Guild.Members:GetInfo(v.parentID)
+					local _, _, _, level, class, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(v.parentID)
 					
 					if level then
 						_G[entry..i.."Level"]:SetText(GREEN .. level)
@@ -324,7 +322,8 @@ function Altoholic.Guild.Professions:OnEnter(self)
 	AltoTooltip:ClearLines();
 	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
 	
-	local _, _, englishClass = Altoholic.Guild.Members:GetInfo(name)
+	
+	local _, _, _, _, _, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(name)
 	AltoTooltip:AddLine(Altoholic:GetClassColor(englishClass) .. name,1,1,1);
 	
 	local skillName = GetSpellInfo(spellID)

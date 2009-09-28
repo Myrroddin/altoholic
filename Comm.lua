@@ -567,13 +567,13 @@ function Altoholic.Comm.Guild:OnAnnounceLogin(sender, data)
 	if sender ~= UnitName("player") then
 		data.name = sender
 	
-		local level, class, englishClass = m:GetInfo(sender)
+		local _, _, _, level, class, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(sender)
 		data.level = level or 0
 		data.class = class or ""
 		data.englishClass = englishClass or ""
 
 		for k, v in pairs(data.skills) do
-			level, class, englishClass = m:GetInfo(v.name)
+			_, _, _, level, class, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(v.name)
 			v.level = level or 0
 			v.class = class or ""
 			v.englishClass = englishClass or ""
@@ -598,21 +598,6 @@ function Altoholic.Comm.Guild:OnAnnounceLogin(sender, data)
 end
 
 function Altoholic.Comm.Guild:OnAnnounceLogout(sender, data)
-	-- another altoholic user in the guild has detected that player "data" has disconnected and announced it to me
-
-	local member = Altoholic.Guild.Members
-	
-	if sender ~= UnitName("player") then		-- don't process if it's coming from self
-		for k, v in pairs(member.List) do
-			if v.name == data and not v.RemoveForbidden then
-				if not member:IsConnected(v.name) then		-- if the user is still in the table, remove it
-					member:Delete(k)
-					break
-				end
-			end
-		end
-	end
-	Altoholic.Tabs.Summary:Refresh()
 end
 
 function Altoholic.Comm.Guild:OnPublicInfoReceived(sender, data)
@@ -624,13 +609,13 @@ function Altoholic.Comm.Guild:OnPublicInfoReceived(sender, data)
 	if sender ~= UnitName("player") then
 		data.name = sender
 		
-		local level, class, englishClass = m:GetInfo(sender)
+		local _, _, _, level, class, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(sender)
 		data.level = level or 0
 		data.class = class or ""
 		data.englishClass = englishClass or ""
 
 		for k, v in pairs(data.skills) do
-			level, class, englishClass = m:GetInfo(v.name)
+			_, _, _, level, class, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(v.name)
 			v.level = level or 0
 			v.class = class or ""
 			v.englishClass = englishClass or ""
@@ -775,8 +760,10 @@ function Altoholic.Comm.Guild:Broadcast(messageType, ...)
 end
 
 function Altoholic.Comm.Guild:Whisper(player, messageType, ...)
-	local serializedData = Altoholic:Serialize(messageType, ...)
-	Altoholic:SendCommMessage("AltoGuild", serializedData, "WHISPER", player)
+	if DataStore:IsGuildMemberOnline(player) then
+		local serializedData = Altoholic:Serialize(messageType, ...)
+		Altoholic:SendCommMessage("AltoGuild", serializedData, "WHISPER", player)
+	end
 end
 
 
