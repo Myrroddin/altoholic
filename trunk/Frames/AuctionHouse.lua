@@ -136,6 +136,8 @@ function Altoholic.AuctionHouse:UpdateAuctions()
 			local isGoblin, itemID, count, highBidder, startPrice, buyoutPrice, timeLeft = DS:GetAuctionHouseItemInfo(character, "Auctions", index)
 
 			local itemName, _, itemRarity = GetItemInfo(itemID)
+			itemName = itemName or L["N/A"]
+			itemRarity = itemRarity or 1
 			_G[ entry..i.."Name" ]:SetText(select(4, GetItemQualityColor(itemRarity)) .. itemName)
 			
 			if not timeLeft then	-- secure this in case it is nil (may happen when other auction monitoring addons are present)
@@ -215,6 +217,8 @@ function Altoholic.AuctionHouse:UpdateBids()
 			local isGoblin, itemID, count, ownerName, bidPrice, buyoutPrice, timeLeft = DS:GetAuctionHouseItemInfo(character, "Bids", index)
 			
 			local itemName, _, itemRarity = GetItemInfo(itemID)
+			itemName = itemName or L["N/A"]
+			itemRarity = itemRarity or 1
 			_G[ entry..i.."Name" ]:SetText(select(4, GetItemQualityColor(itemRarity)) .. itemName)
 			
 			_G[ entry..i.."TimeLeft" ]:SetText( TEAL .. _G["AUCTION_TIME_LEFT"..timeLeft] 
@@ -257,13 +261,14 @@ function Altoholic.AuctionHouse:OnEnter(self)
 	local index = self:GetID()
 	
 	local _, id = DS:GetAuctionHouseItemInfo(character, ahType, index)
+	if not id then return end
 	
-	if id then
-		local _, link = GetItemInfo(id)
-		GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
-		GameTooltip:SetHyperlink(link);
-		GameTooltip:Show();
-	end
+	local _, link = GetItemInfo(id)
+	if not link then return end
+
+	GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+	GameTooltip:SetHyperlink(link);
+	GameTooltip:Show();
 end
 
 function Altoholic.AuctionHouse:OnClick(self, button)
@@ -273,17 +278,18 @@ function Altoholic.AuctionHouse:OnClick(self, button)
 	local index = self:GetID()
 	
 	local _, id = DS:GetAuctionHouseItemInfo(character, ahType, index)
+	if not id then return end
 
-	if id then
-		local _, link = GetItemInfo(id)
-		if ( button == "LeftButton" ) and ( IsControlKeyDown() ) then
-			DressUpItemLink(link);
-		elseif ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
-			if ( ChatFrameEditBox:IsShown() ) then
-				ChatFrameEditBox:Insert(link);
-			else
-				AltoholicFrame_SearchEditBox:SetText(GetItemInfo(link))
-			end
+	local _, link = GetItemInfo(id)
+	if not link then return end
+	
+	if ( button == "LeftButton" ) and ( IsControlKeyDown() ) then
+		DressUpItemLink(link);
+	elseif ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
+		if ( ChatFrameEditBox:IsShown() ) then
+			ChatFrameEditBox:Insert(link);
+		else
+			AltoholicFrame_SearchEditBox:SetText(GetItemInfo(link))
 		end
 	end
 end

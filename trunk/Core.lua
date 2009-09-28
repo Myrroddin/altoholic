@@ -123,6 +123,7 @@ local AltoholicDB_Defaults = {
 			
 			TooltipGuildBank = 1,
 			TooltipGuildBankCount = 1,		-- total count = alts + guildbank (1) or alts only (0)
+			TooltipGuildBankCountPerTab = 0,	-- guild count = guild:count or guild (tab 1: x, tab2: y ..)
 			
 			-- ** Calendar options **
 			WeekStartsMonday = 0,
