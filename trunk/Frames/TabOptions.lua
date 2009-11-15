@@ -19,11 +19,7 @@ function Altoholic.Options:Init()
 	L["|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option will allow other Altoholic users\nto update their guild bank information with yours automatically.\n\n"] = nil
 	L["When |cFFFF0000disabled|cFFFFFFFF, your confirmation will be\nrequired before sending any information.\n\n"] = nil
 	L["Security hint: disable this if you have officer rights\non guild bank tabs that may not be viewed by everyone,\nand authorize requests manually"] = nil
-
-	AltoholicTabOptionsFrame1_GuildCommText:SetText(L["Guild Communication Enabled"])
-	
 	L["Max rest XP displayed as 150%"] = nil
-	L["Guild Communication Enabled"] = nil
 	L["Automatically authorize guild bank updates"] = nil
 	
 	value = AltoholicTabOptionsFrame1_SliderAngle:GetValue()
@@ -168,7 +164,6 @@ function Altoholic.Options:RestoreToUI()
 	AltoholicTabOptionsFrame1_RestXPMode:SetChecked(O.RestXPMode)
 	AltoholicTabOptionsFrame1_GuildBankAutoUpdate:SetChecked(O.GuildBankAutoUpdate)
 
-	AltoholicTabOptionsFrame1_GuildComm:SetChecked(O.GuildHandlerEnabled)
 	AltoholicTabOptionsFrame1_SliderAngle:SetValue(O.MinimapIconAngle)
 	AltoholicTabOptionsFrame1_SliderRadius:SetValue(O.MinimapIconRadius)
 	AltoholicTabOptionsFrame1_ShowMinimap:SetChecked(O.ShowMinimap)
@@ -183,12 +178,6 @@ function Altoholic.Options:RestoreToUI()
 		Altoholic.Comm.Sharing:SetMessageHandler("EmptyHandler")
 	end
 	
-	if O.GuildHandlerEnabled == 1 then
-		Altoholic.Comm.Guild:SetMessageHandler("ActiveHandler")
-	else
-		Altoholic.Comm.Guild:SetMessageHandler("EmptyHandler")
-	end
-	
 	AltoholicTabOptionsFrame2_SearchAutoQuery:SetChecked(O.SearchAutoQuery)
 	AltoholicTabOptionsFrame2_SortDescending:SetChecked(O.SortDescending)
 	AltoholicTabOptionsFrame2_IncludeNoMinLevel:SetChecked(O.IncludeNoMinLevel)
@@ -199,7 +188,7 @@ function Altoholic.Options:RestoreToUI()
 	AltoholicTabOptionsFrame2LootInfo:SetText(GREEN .. O.TotalLoots .. "|r " .. L["Loots"] .. " / "
 										.. GREEN .. O.UnknownLoots .. "|r " .. L["Unknown"])
 
-	AltoholicTabOptionsFrame3_SliderMailExpiry:SetValue(O.MailWarningThreshold)
+	AltoholicTabOptionsFrame3_SliderMailExpiry:SetValue(DataStore:GetOption("DataStore_Mails", "MailWarningThreshold"))
 	AltoholicTabOptionsFrame3_CheckMailExpiry:SetChecked(O.CheckMailExpiry)
 	
 	AltoholicTabOptionsFrame3_ScanMailBody:SetChecked(DataStore:GetOption("DataStore_Mails", "ScanMailBody"))

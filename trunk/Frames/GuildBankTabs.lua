@@ -1,68 +1,77 @@
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 
 local WHITE		= "|cFFFFFFFF"
-local GRAY		= "|cFFBBBBBB"
+--local GRAY		= "|cFFBBBBBB"
+local GRAY		= "|cFF888888"
 local GREEN		= "|cFF00FF00"
 local LIGHTBLUE = "|cFFB0B0FF"
 local YELLOW	= "|cFFFFFF00"
 
+local view
+local isViewValid
+local myClientTimes = {}		-- small hash table containing the current player's client times, this allows quick comparison of client times among guild members.
+local expandedHeaders = {}
+
 local TABINFO_LINE = 0	-- Bank tab info line
 local CHAR_LINE = 1		-- Character line
 
-Altoholic.Guild.BankTabs = {}
-
-function Altoholic.Guild.BankTabs:BuildView()
+local function BuildView()
+	view = view or {}
+	wipe(view)
 	
-	self.view = self.view or {}
-	wipe(self.view)
-	
-	local DS = DataStore
-	local guildName = GetGuildInfo("player")
-	if not guildName then return end
-	
-	local guild = DS:GetGuild(guildName)
+	local guild = DataStore:GetGuild()
 	if not guild then return end
 
 	local line = 0
-	
-	for tabID, guildTab in pairs (guild) do
-		if guildTab.name then
-			table.insert(self.view, {			-- insert an entry for the tab name
-				linetype = line,
-				isCollapsed = false,
-				parentID = tabID
-			} )
-			
+	for tabID = 1, 6 do
+		local tabName = DataStore:GetGuildBankTabName(guild, tabID)
+		if tabName then
+			table.insert(view, {	lineType = line, id = tabID } )	-- insert an entry for the tab name
 			line = line + 1
 			
-			for playerIndex, playerTable in pairs(Altoholic.Guild.Members.List) do
-				if (playerTable.version ~= L["N/A"]) and 
-					(playerTable.name ~= UnitName("player")) and playerTable.guildbank then		-- only take altoholic users into account
-					
-					for i=1, #playerTable.guildbank do
-						if guildTab.name == playerTable.guildbank[i].name then
-							table.insert(self.view, {
-								linetype = line,
-								parentID = playerIndex,
-								tabIndex = i,
-							} )
-						end
-					end
+			for member in pairs(DataStore:GetGuildBankTabSuppliers()) do
+				local clientTime = DataStore:GetGuildMemberBankTabInfo(member, tabName)
+				if clientTime then	-- if there's data, we can add this member in the view for the current bank tab
+					table.insert(view, { lineType = line, id = member,	name = tabName } )				
 				end
 			end
-			
 			line = line + 1
 		end
 	end
+		
+	isViewValid = true
 end
 
+local function DisplayClientTime(frame, color, clientTime)
+	if clientTime then
+		frame:SetText(color .. date("%m/%d/%Y %H:%M", clientTime))
+		frame:Show()
+	else
+		frame:Hide()
+	end
+end
+
+local function DisplayServerTime(frame, serverHour, serverMinute)
+	if serverHour and serverMinute then
+		frame:SetText(format("%s%02d%s:%s%02d", GREEN, serverHour, WHITE, GREEN, serverMinute ))
+		frame:Show()
+	else
+		frame:Hide()
+	end
+end
+
+Altoholic.Guild.BankTabs = {}
+
 function Altoholic.Guild.BankTabs:Update()
+	if not isViewValid then
+		BuildView()
+	end
+
 	local VisibleLines = 14
 	local frame = "AltoholicFrameGuildBankTabs"
 	local entry = frame.."Entry"
 	
-	local self = Altoholic.Guild.BankTabs
-	if #self.view == 0 then
+	if #view == 0 then
 		Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
 		return
 	end
@@ -73,17 +82,14 @@ function Altoholic.Guild.BankTabs:Update()
 	local DrawAlts
 	local i=1
 	
-	local DS = DataStore
-	local guildName = GetGuildInfo("player")
-	local guild = DS:GetGuild(guildName)
+	local guild = DataStore:GetGuild()
 	
-	for line, v in pairs(self.view) do
-		
-		local lineType = mod(v.linetype, 2)
+	for line, v in pairs(view) do
+		local lineType = mod(v.lineType, 2)
 		
 		if (offset > 0) or (DisplayedCount >= VisibleLines) then		-- if the line will not be visible
 			if lineType == TABINFO_LINE then								-- then keep track of counters
-				if v.isCollapsed == false then
+				if expandedHeaders[v.id] then
 					DrawAlts = true
 				else
 					DrawAlts = false
@@ -98,7 +104,7 @@ function Altoholic.Guild.BankTabs:Update()
 			
 			if lineType == TABINFO_LINE then
 				
-				if v.isCollapsed == false then
+				if expandedHeaders[v.id] then
 					_G[ entry..i.."Collapse" ]:SetNormalTexture("Interface\\Buttons\\UI-MinusButton-Up"); 
 					DrawAlts = true
 				else
@@ -106,17 +112,15 @@ function Altoholic.Guild.BankTabs:Update()
 					DrawAlts = false
 				end
 
-				local tab = DS:GetGuildBankTab(guild, v.parentID)
-				local localTime
-				localTime = format("%s%02d%s:%s%02d", GREEN, tab.ClientHour, WHITE, GREEN, tab.ClientMinute )
-				
+				local tabName = DataStore:GetGuildBankTabName(guild, v.id)
 				_G[entry..i.."Collapse"]:Show()
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 25, 0)
-				_G[entry..i.."NameNormalText"]:SetText(YELLOW..tab.name)
-				_G[entry..i.."Client"]:SetText(format("%s%s %s", WHITE, tab.ClientDate, localTime))
-				_G[entry..i.."Client"]:Show()
-				_G[entry..i.."Server"]:SetText(format("%s%02d%s:%s%02d", GREEN, tab.ServerHour, WHITE, GREEN, tab.ServerMinute ))
-				_G[entry..i.."Server"]:Show()
+				_G[entry..i.."NameNormalText"]:SetText(YELLOW..tabName)
+				
+				local clientTime, serverHour, serverMinute = DataStore:GetGuildMemberBankTabInfo(UnitName("player"), tabName)
+				myClientTimes[tabName] = clientTime
+				DisplayClientTime( _G[entry..i.."Client"], WHITE, clientTime)
+				DisplayServerTime( _G[entry..i.."Server"], serverHour, serverMinute)
 				_G[entry..i.."UpdateTab"]:Hide()
 				
 				_G[ entry..i ]:SetID(line)
@@ -125,18 +129,23 @@ function Altoholic.Guild.BankTabs:Update()
 				VisibleCount = VisibleCount + 1
 				DisplayedCount = DisplayedCount + 1
 			elseif DrawAlts then
-				local c = Altoholic.Guild.Members.List[v.parentID]
-				local s = c.guildbank[v.tabIndex]
+				local member = v.id
 				_G[entry..i.."Collapse"]:Hide()
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 15, 0)
-				_G[entry..i.."NameNormalText"]:SetText(LIGHTBLUE..c.name)
+				_G[entry..i.."NameNormalText"]:SetText(LIGHTBLUE..member)
 				
-				local localTime
-				localTime = format("%s%02d%s:%s%02d", GREEN, s.ClientHour, WHITE, GREEN, s.ClientMinute )
-				_G[entry..i.."Client"]:SetText(format("%s%s %s", GRAY, s.ClientDate, localTime))
-				_G[entry..i.."Client"]:Show()
-				_G[entry..i.."Server"]:SetText(format("%s%02d%s:%s%02d", GREEN, s.ServerHour, WHITE, GREEN, s.ServerMinute ))
-				_G[entry..i.."Server"]:Show()
+				local tabName = v.name
+				local clientTime, serverHour, serverMinute = DataStore:GetGuildMemberBankTabInfo(member, tabName)
+
+				local color = GRAY
+				if myClientTimes[tabName] then
+					if clientTime > myClientTimes[tabName] then
+						color = YELLOW
+					end
+				end
+				
+				DisplayClientTime( _G[entry..i.."Client"], color, clientTime)
+				DisplayServerTime( _G[entry..i.."Server"], serverHour, serverMinute)
 				_G[entry..i.."UpdateTab"]:Show()
 
 				_G[ entry..i ]:SetID(line)
@@ -158,35 +167,65 @@ end
 
 function Altoholic.Guild.BankTabs:OnClick(self, button)
 	if button ~= "LeftButton" then return end
-	
-	local line = self:GetParent():GetID()		-- get the id of the line that was clicked
-	if line == 0 then return end		-- 0 is for hidden frames, should never happen
-	
-	local player =  Altoholic.Guild.BankTabs.view[line]
-	local c = Altoholic.Guild.Members.List[player.parentID]
-	local tab = c.guildbank[player.tabIndex]
-	
-	-- DEFAULT_CHAT_FRAME:AddMessage("requesting player " .. c.name)
-	-- DEFAULT_CHAT_FRAME:AddMessage("tab " .. tab.name)
-	
-	if c.name == UnitName("player") then return end		-- do nothing if clicking on own alts
 
-	Altoholic:Print(format(L["Requesting %s information from %s"], tab.name, c.name ))
-	Altoholic.Comm.Guild:Whisper(c.name, 4, tab.name)		-- MSG_GUILD_BANKUPDATEREQUEST = 4
+	local id = self:GetParent():GetID()
+	if id == 0 then return end
+	
+	local line = view[id]
+	local member = line.id
+	local tabName = line.name
+
+	if member == UnitName("player") then return end		-- do nothing if clicking on own alts
+
+	Altoholic:Print(format(L["Requesting %s information from %s"], tabName, member ))
+	DataStore:RequestGuildMemberBankTab(member, tabName)
 end
 
 function Altoholic.Guild.BankTabs:OnEnter(self)
-	local line = self:GetParent():GetID()		-- get the id of the line that was clicked
-	if line == 0 then return end		-- 0 is for hidden frames, should never happen
+	local id = self:GetParent():GetID()
+	if id == 0 then return end
 	
-	local player = Altoholic.Guild.BankTabs.view[line]
-	local c = Altoholic.Guild.Members.List[player.parentID]
-	local tab = c.guildbank[player.tabIndex]
+	local line = view[id]
+	local member = line.id
+	local tabName = line.name
 	
 	AltoTooltip:ClearLines();
 	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
 	
 	AltoTooltip:AddLine(L["Guild Bank Remote Update"]);
-	AltoTooltip:AddLine(format(L["Clicking this button will update\nyour local %s%s|r bank tab\nbased on %s%s's|r data"], LIGHTBLUE, tab.name, YELLOW, c.name),1,1,1);
+	AltoTooltip:AddLine(format(L["Clicking this button will update\nyour local %s%s|r bank tab\nbased on %s%s's|r data"], LIGHTBLUE, line.name, YELLOW, line.id),1,1,1);
 	AltoTooltip:Show();
+end
+
+function Altoholic.Guild.BankTabs:Collapse_OnClick(self)
+	local id = self:GetParent():GetID()
+	if id == 0 then return end
+	
+	local line = view[id]
+	if expandedHeaders[line.id] then		-- toggle header
+		expandedHeaders[line.id] = nil
+	else
+		expandedHeaders[line.id] = true
+	end
+	Altoholic.Guild.BankTabs:Update()
+end
+
+function Altoholic.Guild.BankTabs:ToggleView(self)
+	if self.isCollapsed then	-- collapse all headers
+		wipe(expandedHeaders)
+	else								-- expand all headers
+		for _, line in pairs(view) do
+			if mod(line.lineType, 2) == TABINFO_LINE then
+				expandedHeaders[line.id] = true
+			end
+		end
+	end
+	Altoholic.Guild.BankTabs:Update()
+end
+
+function Altoholic.Guild.BankTabs:InvalidateView()
+	isViewValid = nil
+	if AltoholicFrameGuildBankTabs:IsVisible() then
+		self:Update()
+	end
 end

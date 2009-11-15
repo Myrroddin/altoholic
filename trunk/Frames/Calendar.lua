@@ -361,8 +361,11 @@ local function ClearExpiredEvents()
 		for characterName, character in pairs(DS:GetCharacters(realm)) do
 
 			-- Profession Cooldowns
-			for professionName, profession in pairs(DS:GetProfessions(character)) do
-				DS:ClearExpiredCooldowns(profession)
+			local professions = DS:GetProfessions(character)
+			if professions then
+				for professionName, profession in pairs(professions) do
+					DS:ClearExpiredCooldowns(profession)
+				end
 			end
 			
 			local c = Altoholic:GetCharacterTable(characterName, realm)
@@ -439,10 +442,6 @@ function Altoholic.Calendar:CheckEvents(elapsed)
 					if IsNumberInString(threshold, warnings) then
 						ShowExpiryWarning(k, numMin)
 					end
-					
-					-- if Altoholic.Options:Get("Warning"..threshold.."Min") == 1 then
-						-- ShowExpiryWarning(k, numMin)
-					-- end
 					break
 				elseif threshold < numMin then		-- save some cpu cycles, exit if threshold too low
 					break
@@ -643,6 +642,7 @@ function Altoholic.Calendar.Events:InitialExpiryCheck()
 		end
 	end
 	
+	ClearExpiredEvents()	-- quick fix, it seems that for some reason, egg timers did not get cleared as they should without this call
 	self.InitialExpiryCheck = nil		-- kill self, function won't be called again
 end
 
@@ -684,31 +684,34 @@ function Altoholic.Calendar.Events:BuildList()
 			-- add all timers, even expired ones. Expiries will be handled elsewhere.
 
 			-- Profession Cooldowns
-			for professionName, profession in pairs(DS:GetProfessions(character)) do
-				local supportsSharedCD
-				if professionName == GetSpellInfo(2259) or			-- alchemy
-					professionName == GetSpellInfo(3908) or 			-- tailoring
-					professionName == GetSpellInfo(2575) then			-- mining
-					supportsSharedCD = true		-- current profession supports shared cooldowns
-				end
-				
-				if supportsSharedCD then
-					local sharedCDFound		-- is there a shared cd for this profession ?
-					for i = 1, DS:GetNumActiveCooldowns(profession) do
-						local name, _, reset, lastCheck = DS:GetCraftCooldownInfo(profession, i)
-						local expires = reset + lastCheck + ClockDiff
-
-						if not sharedCDFound then
-							sharedCDFound = true
-							self:Add(SHARED_CD_LINE, date("%Y-%m-%d",expires), date("%H:%M",expires), characterName, realm, nil, professionName)
-						end
+			local professions = DS:GetProfessions(character)
+			if professions then
+				for professionName, profession in pairs(professions) do
+					local supportsSharedCD
+					if professionName == GetSpellInfo(2259) or			-- alchemy
+						professionName == GetSpellInfo(3908) or 			-- tailoring
+						professionName == GetSpellInfo(2575) then			-- mining
+						supportsSharedCD = true		-- current profession supports shared cooldowns
 					end
-				else
-					for i = 1, DS:GetNumActiveCooldowns(profession) do
-						local name, _, reset, lastCheck = DS:GetCraftCooldownInfo(profession, i)
-						local expires = reset + lastCheck + ClockDiff
+					
+					if supportsSharedCD then
+						local sharedCDFound		-- is there a shared cd for this profession ?
+						for i = 1, DS:GetNumActiveCooldowns(profession) do
+							local name, _, reset, lastCheck = DS:GetCraftCooldownInfo(profession, i)
+							local expires = reset + lastCheck + ClockDiff
 
-						self:Add(COOLDOWN_LINE, date("%Y-%m-%d",expires), date("%H:%M",expires), characterName, realm, i, profession)
+							if not sharedCDFound then
+								sharedCDFound = true
+								self:Add(SHARED_CD_LINE, date("%Y-%m-%d",expires), date("%H:%M",expires), characterName, realm, nil, professionName)
+							end
+						end
+					else
+						for i = 1, DS:GetNumActiveCooldowns(profession) do
+							local name, _, reset, lastCheck = DS:GetCraftCooldownInfo(profession, i)
+							local expires = reset + lastCheck + ClockDiff
+
+							self:Add(COOLDOWN_LINE, date("%Y-%m-%d",expires), date("%H:%M",expires), characterName, realm, i, profession)
+						end
 					end
 				end
 			end

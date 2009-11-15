@@ -483,316 +483,63 @@ function Altoholic.Comm.Sharing:OnRefDataReceived(sender, data)
 end
 
 
-
--- Message types
-local MSG_GUILD_ANNOUNCELOGIN				= 1
-
--- deprecated, this message is no longer sent, but is kept in the handler for backwards compatibility
-local MSG_GUILD_ANNOUNCELOGOUT			= 2		-- announces the logout of ANOTHER player, not self
-
-local MSG_GUILD_SENDPUBLICINFO			= 3		-- whisper your own data in answer to an ANNOUNCELOGIN
-local MSG_GUILD_BANKUPDATEREQUEST		= 4		-- "can you please send info about bank tab "name" ?
-local MSG_GUILD_BANKUPDATEREPLY			= 5		-- "sure! here it is !"
-local MSG_GUILD_EQUIPMENTREQUEST			= 6		-- "can you please send info about your equipment ?
-local MSG_GUILD_EQUIPMENTREPLY			= 7		-- "sure! here it is !"
-local MSG_GUILD_COMMDISABLED				= 8		-- The player has disabled  guild comm
-local MSG_GUILD_BANKUPDATEREFUSED		= 9		-- Negative answer to MSG_GUILD_BANKUPDATEREQUEST
-local MSG_GUILD_SENDMAIL_INIT				= 10
-local MSG_GUILD_SENDMAIL_END				= 11
-local MSG_GUILD_SENDMAIL_ATTACHMENTS	= 12
-local MSG_GUILD_SENDMAIL_BODY				= 13
-local MSG_GUILD_BANKUPDATEINFO			= 14		-- after having  updated a guild bank tab, broadcast updated info
-local MSG_GUILD_BANKUPDATEWAITING		= 15		-- if bank tab update is not configured to be automatic, tell the requester to wait
-
-Altoholic.Comm.Guild = {}
-Altoholic.Comm.Guild.Callbacks = {
-	[MSG_GUILD_ANNOUNCELOGIN] = "OnAnnounceLogin",
-	[MSG_GUILD_ANNOUNCELOGOUT] = "OnAnnounceLogout",
-	[MSG_GUILD_SENDPUBLICINFO] = "OnPublicInfoReceived",
-	[MSG_GUILD_COMMDISABLED] = "OnCommDisabled",
-	
-	[MSG_GUILD_BANKUPDATEREQUEST] = "OnBankUpdateRequest",
-	[MSG_GUILD_BANKUPDATEREPLY] = "OnBankUpdateReply",
-	[MSG_GUILD_BANKUPDATEINFO] = "OnBankUpdateInfo",
-	[MSG_GUILD_BANKUPDATEREFUSED] = "OnBankUpdateRefused",
-	[MSG_GUILD_BANKUPDATEWAITING] = "OnBankUpdateWaiting",
-	
-	[MSG_GUILD_EQUIPMENTREQUEST] = "OnEquipmentRequest",
-	[MSG_GUILD_EQUIPMENTREPLY] = "OnEquipmentReply",
-	
-	[MSG_GUILD_SENDMAIL_INIT] = "OnSendMailInit",
-	[MSG_GUILD_SENDMAIL_END] = "OnSendMailEnd",
-	[MSG_GUILD_SENDMAIL_ATTACHMENTS] = "OnSendMailAttachments",
-	[MSG_GUILD_SENDMAIL_BODY] = "OnSendMailBody",
-}
-
-
-function Altoholic:GuildCommHandler(prefix, message, distribution, sender)
-	local self = Altoholic.Comm.Guild
-
-	if self and self.msgHandler then
-		self[self.msgHandler](self, prefix, message, distribution, sender)
-	end
-end
-
-function Altoholic.Comm.Guild:SetMessageHandler(handler)
-	self.msgHandler = handler
-end
-
-function Altoholic.Comm.Guild:EmptyHandler(prefix, message, distribution, sender)
-	self:Whisper(sender, MSG_GUILD_COMMDISABLED)
-end
-
-function Altoholic.Comm.Guild:ActiveHandler(prefix, message, distribution, sender)
-	local success, msgType, msgData = Altoholic:Deserialize(message)
-	
-	if success and msgType then
-		local comm = Altoholic.Comm.Guild
-		local cb = comm.Callbacks[msgType]
-		
-		if cb then
-			comm[cb](self, sender, msgData)
-		end
-	end
-end
-
--- *** Guild Comm Callbacks ***
---	GENERAL
-function Altoholic.Comm.Guild:OnAnnounceLogin(sender, data)
-	local m = Altoholic.Guild.Members
-	
-	-- complete data that will not be sent later on, this will minimize the amount of data broadcasted over the guild channel
-	m:Clear(data.name)
-	
-	if sender ~= UnitName("player") then
-		data.name = sender
-	
-		local _, _, _, level, class, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(sender)
-		data.level = level or 0
-		data.class = class or ""
-		data.englishClass = englishClass or ""
-
-		for k, v in pairs(data.skills) do
-			_, _, _, level, class, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(v.name)
-			v.level = level or 0
-			v.class = class or ""
-			v.englishClass = englishClass or ""
-		end
-	end
-	
-	m:Add(data)
-	
-	-- after receiving & saving info, send our own data
-	if sender ~= UnitName("player") then		-- don't send back to self
-		Altoholic.Guild.Members:Save(data)
-		Altoholic:SendPublicInfo(MSG_GUILD_SENDPUBLICINFO, sender)
-	else
-		-- when saving self, make sure it can never be deleted
-		m.List[#m.List].RemoveForbidden = true
-	end
-	
-	if IsInGuild() then
-		GuildRoster()
-	end
-	Altoholic.Tabs.Summary:Refresh()
-end
-
-function Altoholic.Comm.Guild:OnAnnounceLogout(sender, data)
-end
-
-function Altoholic.Comm.Guild:OnPublicInfoReceived(sender, data)
-	local m = Altoholic.Guild.Members
-	
-	-- complete data that will not be sent later on, this will minimize the amount of data broadcasted over the guild channel
-	m:Clear(data.name)
-	
-	if sender ~= UnitName("player") then
-		data.name = sender
-		
-		local _, _, _, level, class, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(sender)
-		data.level = level or 0
-		data.class = class or ""
-		data.englishClass = englishClass or ""
-
-		for k, v in pairs(data.skills) do
-			_, _, _, level, class, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(v.name)
-			v.level = level or 0
-			v.class = class or ""
-			v.englishClass = englishClass or ""
-		end
-	end
-	
-	m:Add(data)
-	m:Save(data)
-	Altoholic.Tabs.Summary:Refresh()
-end
-
-function Altoholic.Comm.Guild:OnCommDisabled(sender, data)
-	Altoholic:Print(format(L["%s has disabled guild communication"], sender ))
-end
-
---	BANK
-function Altoholic.Comm.Guild:OnBankUpdateRequest(sender, data)
+-- *** DataStore Event Handlers ***
+function Altoholic:DATASTORE_BANKTAB_REQUESTED(event, sender, tabName)
 	if Altoholic.Options:Get("GuildBankAutoUpdate") == 1 then
-		Altoholic:SendGuildTab(sender, data)
-	else
-		Altoholic.Comm.Guild:Whisper(sender, MSG_GUILD_BANKUPDATEWAITING)
-		AltoMsgBox:SetHeight(130)
-		AltoMsgBox_Text:SetHeight(60)
-		AltoMsgBox.ButtonHandler = AltoholicBankTabUpdate_ButtonHandler
-		AltoMsgBox.Sender = sender
-		AltoMsgBox.BankTab = data
-		AltoMsgBox_Text:SetText(format(L["%s%s|r has requested the bank tab %s%s|r\nSend this information ?"], WHITE, sender, WHITE, data) .. "\n\n"
-								.. format(L["%sWarning:|r make sure this user may view this information before accepting"], WHITE))
-		AltoMsgBox:Show()
+		DataStore:SendBankTabToGuildMember(sender, tabName)
+		return
 	end
-end
 
-function Altoholic.Comm.Guild:OnBankUpdateReply(sender, data)
-	local DS = DataStore
-	local guildName = GetGuildInfo("player")
-	local guild	= DS:GetGuild(guildName)
+	AltoMsgBox:SetHeight(130)
+	AltoMsgBox_Text:SetHeight(60)
 	
-	for tabID = 1, 6 do
-		if data.name == GetGuildBankTabInfo(tabID) then
-			DS:ImportGuildBankTab(guild, tabID, data)
-		
-			Altoholic.Tabs.GuildBank:LoadGuild("Default", GetRealmName(), guildName)
-			Altoholic:Print(format(L["Guild bank tab %s successfully updated !"], data.name ))
-			
-			-- since bank tab info has been updated, broadcast updated data to the guild
-			local tab = DS:GetGuildBankTab(guild, tabID)
-			
-			local t = {
-				name = tab.name,
-				ClientDate = tab.ClientDate,
-				ClientHour = tab.ClientHour,
-				ClientMinute = tab.ClientMinute,
-				ServerHour = tab.ServerHour,
-				ServerMinute = tab.ServerMinute
-			}
-			
-			self:Broadcast(MSG_GUILD_BANKUPDATEINFO, t)
-			break
-		end
-	end
-	Altoholic.Tabs.Summary:Refresh()
-end
-
-function Altoholic.Comm.Guild:OnBankUpdateInfo(sender, data)
-	for k, v in pairs(Altoholic.Guild.Members.List) do
-		if v.name == sender and v.guildbank then		-- find the player
-			for tabID, tab in ipairs(v.guildbank) do
-				if tab.name == data.name then		-- find the tab
-					
-					-- update the info
-					tab.ClientDate = data.ClientDate
-					tab.ClientHour = data.ClientHour
-					tab.ClientMinute = data.ClientMinute
-					tab.ServerHour = data.ServerHour
-					tab.ServerMinute = data.ServerMinute
-					
-					Altoholic.Tabs.Summary:Refresh()
-					break
-				end
+	Altoholic:SetMsgBoxHandler(function(self, button, sender, tabName)
+			if not button then 
+				DataStore:RejectBankTabRequest(sender)
+			else
+				DataStore:SendBankTabToGuildMember(sender, tabName)
 			end
-		end
-	end
+		end, sender, tabName)
+	
+	AltoMsgBox_Text:SetText(format(L["%s%s|r has requested the bank tab %s%s|r\nSend this information ?"], WHITE, sender, WHITE, tabName) .. "\n\n"
+							.. format(L["%sWarning:|r make sure this user may view this information before accepting"], WHITE))
+	AltoMsgBox:Show()
 end
 
-function Altoholic.Comm.Guild:OnBankUpdateRefused(sender, data)
-	Altoholic:Print(format(L["Request rejected by %s"], sender))
-end
-
-function Altoholic.Comm.Guild:OnBankUpdateWaiting(sender, data)
+function Altoholic:DATASTORE_BANKTAB_REQUEST_ACK(event, sender)
 	Altoholic:Print(format(L["Waiting for %s to accept .."], sender))
 end
 
---	EQUIPMENT
-function Altoholic.Comm.Guild:OnEquipmentRequest(sender, data)
-	local DS = DataStore
-	local character = DS:GetCharacter(data)
-	Altoholic.Comm.Guild:Whisper(sender, MSG_GUILD_EQUIPMENTREPLY, DS:GetInventory(character))
+function Altoholic:DATASTORE_BANKTAB_REQUEST_REJECTED(event, sender)
+	Altoholic:Print(format(L["Request rejected by %s"], sender))
 end
 
-function Altoholic.Comm.Guild:OnEquipmentReply(sender, data)
-	Altoholic.Guild.Members:UpdateEquipment(data)
+function Altoholic:DATASTORE_BANKTAB_UPDATE_SUCCESS(event, sender, guildName, tabName, tabID)
+	Altoholic.Tabs.GuildBank:LoadGuild("Default", GetRealmName(), guildName)
+	Altoholic:Print(format(L["Guild bank tab %s successfully updated !"], tabName ))
+	Altoholic.Guild.BankTabs:InvalidateView()
 end
 
---	MAIL
-function Altoholic.Comm.Guild:OnSendMailInit(sender, data)
-	self.recipient = data
+function Altoholic:DATASTORE_GUILD_ALTS_RECEIVED(event, sender, alts)
+	Altoholic.Guild.Members:InvalidateView()
+	Altoholic.Guild.Professions:InvalidateView()
 end
 
-function Altoholic.Comm.Guild:OnSendMailEnd(sender, data)
-	if self.recipient and Altoholic.Options:Get("GuildMailWarning") == 1 then
-		Altoholic:Print(format(L["%s|r has received a mail from %s"], GREEN..self.recipient, GREEN..sender))
-	end
-	self.recipient = nil
+function Altoholic:DATASTORE_GUILD_BANKTABS_UPDATED(event, sender)
+	Altoholic.Guild.BankTabs:InvalidateView()
 end
 
-function Altoholic.Comm.Guild:OnSendMailAttachments(sender, data)
-	if not self.recipient then return end
-	
-	local character = DataStore:GetCharacter(self.recipient)
-	if not character then return end
-
-	-- mails are saved into the mailCache instead of the normal mail table, to avoid getting deleted if the mailbox is checked BEFORE the mail actually arrives in the mailbox
-	for _, v in pairs(data) do		--  .. save attachments into his mailbox
-		DataStore:SaveMailAttachmentToCache(character, v.icon, v.link, v.count, sender)
-	end
+function Altoholic:DATASTORE_GUILD_PROFESSION_RECEIVED(event, sender, alt, data, index)
+	Altoholic.Guild.Professions:InvalidateView()
 end
 
-function Altoholic.Comm.Guild:OnSendMailBody(sender, data)
-	if not self.recipient then return end
-	
-	local character = DataStore:GetCharacter(self.recipient)
-	if not character then return end
-	
-	-- data sent as :  { moneySent, body, subject }
-	DataStore:SaveMailToCache(character, data[1], data[2], data[3], sender)
+function Altoholic:DATASTORE_GUILD_MEMBER_OFFLINE(event, member)
+	Altoholic.Guild.Members:InvalidateView()
+	Altoholic.Guild.Professions:InvalidateView()
 end
 
--- rename these to : guildbroadcast, guildwhisper
-function Altoholic.Comm.Guild:Broadcast(messageType, ...)
-	local serializedData = Altoholic:Serialize(messageType, ...)
-	Altoholic:SendCommMessage("AltoGuild", serializedData, "GUILD")
-end
-
-function Altoholic.Comm.Guild:Whisper(player, messageType, ...)
-	if DataStore:IsGuildMemberOnline(player) then
-		local serializedData = Altoholic:Serialize(messageType, ...)
-		Altoholic:SendCommMessage("AltoGuild", serializedData, "WHISPER", player)
-	end
-end
-
-
-function AltoholicBankTabUpdate_ButtonHandler(self, button)
-	AltoMsgBox.ButtonHandler = nil		-- prevent any other call to msgbox from coming back here
-	local sender = AltoMsgBox.Sender
-	local tabName = AltoMsgBox.BankTab
-	AltoMsgBox.Sender = nil
-	AltoMsgBox.BankTab = nil
-	
-	if not button then 
-		Altoholic.Comm.Guild:Whisper(sender, MSG_GUILD_BANKUPDATEREFUSED)
-		return 
-	end
-	
-	Altoholic:SendGuildTab(sender, tabName)
-end
-
-function Altoholic:SendGuildTab(player, tabName)
-	local DS = DataStore
-	local guildName = GetGuildInfo("player")
-	local guild	= DS:GetGuild(guildName)	
-	
-	for i=1, 6 do
-		local tab = DS:GetGuildBankTab(guild, i)
-
-		if tab.name == tabName then
-			Altoholic.Comm.Guild:Whisper(player, MSG_GUILD_BANKUPDATEREPLY, tab)
-			break
-		end
+function Altoholic:DATASTORE_GUILD_MAIL_RECEIVED(event, sender, recipient)
+	if Altoholic.Options:Get("GuildMailWarning") == 1 then
+		Altoholic:Print(format(L["%s|r has received a mail from %s"], GREEN..recipient, GREEN..sender))
 	end
 end

@@ -1,8 +1,16 @@
-﻿Altoholic = LibStub("AceAddon-3.0"):NewAddon("Altoholic", "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0")
+﻿local addonName = "Altoholic"
 
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+_G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0")
 
-BINDING_HEADER_ALTOHOLIC = "Altoholic";
+local addon = _G[addonName]
+
+addon.Version = "v3.2.003"
+addon.VersionNum = 302003
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
+local commPrefix = addonName
+
+BINDING_HEADER_ALTOHOLIC = addonName;
 BINDING_NAME_ALTOHOLIC_TOGGLE = "Toggle UI";
 
 local options = { 
@@ -137,7 +145,7 @@ local AltoholicDB_Defaults = {
 }}
 
 -- ** LDB Launcher **
-LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("Altoholic", {
+LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject(addonName, {
 	type = "launcher",
 	icon = "Interface\\Icons\\INV_Drink_13",
 	OnClick = function(clickedframe, button)
@@ -145,23 +153,94 @@ LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("Altoholic", {
 	end,
 })
 
-local WHITE		= "|cFFFFFFFF"
-local GREEN		= "|cFF00FF00"
 
-function Altoholic:OnInitialize()
+local guildMembersVersion = {} 	-- hash table containing guild member info
+
+-- Message types
+local MSG_SEND_VERSION							= 1	-- Send Altoholic's version
+local MSG_VERSION_REPLY							= 2	-- Reply
+
+-- *** Utility functions ***
+local function GuildBroadcast(messageType, ...)
+	local serializedData = addon:Serialize(messageType, ...)
+	addon:SendCommMessage(commPrefix, serializedData, "GUILD")
+end
+
+local function GuildWhisper(player, messageType, ...)
+	if DataStore:IsGuildMemberOnline(player) then
+		local serializedData = addon:Serialize(messageType, ...)
+		addon:SendCommMessage(commPrefix, serializedData, "WHISPER", player)
+	end
+end
+
+local function SaveVersion(sender, version)
+	guildMembersVersion[sender] = version
+end
+
+-- *** Guild Comm ***
+local function OnAnnounceLogin(self, guildName)
+	-- when the main DataStore module sends its login info, share the guild bank last visit time across guild members
+	GuildBroadcast(MSG_SEND_VERSION, addon.Version)
+end
+
+local function OnSendVersion(sender, version)
+	if sender ~= UnitName("player") then								-- don't send back to self
+		GuildWhisper(sender, MSG_VERSION_REPLY, addon.Version)		-- reply by sending my own version
+	end
+	SaveVersion(sender, version)											-- .. and save it
+end
+
+local function OnVersionReply(sender, version)
+	SaveVersion(sender, version)
+end
+
+local GuildCommCallbacks = {
+	[MSG_SEND_VERSION] = OnSendVersion,
+	[MSG_VERSION_REPLY] = OnVersionReply,
+}
+
+function addon:OnInitialize()
 	Altoholic.db = LibStub("AceDB-3.0"):New("AltoholicDB", AltoholicDB_Defaults)
-	LibStub("AceConfig-3.0"):RegisterOptionsTable("Altoholic", options)
+	LibStub("AceConfig-3.0"):RegisterOptionsTable(addonName, options)
 
-	self:RegisterChatCommand("Altoholic", "ChatCommand")
-	self:RegisterChatCommand("Alto", "ChatCommand")
+	addon:RegisterChatCommand("Altoholic", "ChatCommand")
+	addon:RegisterChatCommand("Alto", "ChatCommand")
 	
-	Altoholic:RegisterComm("AltoShare", "AccSharingHandler")
-	Altoholic:RegisterComm("AltoGuild", "GuildCommHandler")
+	DataStore:SetGuildCommCallbacks(commPrefix, GuildCommCallbacks)
+
+	addon:RegisterMessage("DATASTORE_ANNOUNCELOGIN", OnAnnounceLogin)
+	addon:RegisterMessage("DATASTORE_GUILD_ALTS_RECEIVED")
+	
+	addon:RegisterComm("AltoShare", "AccSharingHandler")
+	addon:RegisterComm(commPrefix, DataStore:GetGuildCommHandler())
+	
+	addon:RegisterMessage("DATASTORE_BANKTAB_REQUESTED")
+	addon:RegisterMessage("DATASTORE_BANKTAB_REQUEST_ACK")
+	addon:RegisterMessage("DATASTORE_BANKTAB_REQUEST_REJECTED")
+	addon:RegisterMessage("DATASTORE_BANKTAB_UPDATE_SUCCESS")
+	addon:RegisterMessage("DATASTORE_PLAYER_EQUIPMENT_RECEIVED")
+	addon:RegisterMessage("DATASTORE_GUILD_BANKTABS_UPDATED")
+	addon:RegisterMessage("DATASTORE_GUILD_PROFESSION_RECEIVED")
+	addon:RegisterMessage("DATASTORE_GUILD_MEMBER_OFFLINE")
+	addon:RegisterMessage("DATASTORE_GUILD_MAIL_RECEIVED")
+	addon:RegisterMessage("DATASTORE_GLOBAL_MAIL_EXPIRY")
+end
+
+function addon:GetGuildMemberVersion(member)
+	if guildMembersVersion[member] then			-- version number of a main ?
+		return guildMembersVersion[member]		-- return it immediately
+	end
+	
+	-- check if member is an alt
+	local main = DataStore:GetNameOfMain(member)
+	if main and guildMembersVersion[main] then
+		return guildMembersVersion[main]
+	end
 end
 
 function Altoholic:ChatCommand(input)
 	if not input then
-		LibStub("AceConfigDialog-3.0"):Open("Altoholic")
+		LibStub("AceConfigDialog-3.0"):Open(addonName)
 	else
 		LibStub("AceConfigCmd-3.0").HandleCommand(Altoholic, "Alto", "Altoholic", input)
 	end

@@ -41,6 +41,9 @@
 			<OnEnter>
 				Altoholic.Achievements:OnEnter(self)
 			</OnEnter>
+			<OnClick>
+				Altoholic.Achievements:OnClick(self, button)
+			</OnClick>
 			<OnLeave>
 				AltoTooltip:Hide();
 			</OnLeave>

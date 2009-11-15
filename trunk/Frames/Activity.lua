@@ -103,27 +103,28 @@ function Altoholic.Activity:Update()
 					_G[entry..i.."NameNormalText"]:SetText(icon .. format("%s (%s)", DS:GetColoredCharacterName(character), DS:GetCharacterClass(character)))
 					_G[entry..i.."Level"]:SetText(GREEN .. DS:GetCharacterLevel(character))
 				
-					local num = DS:GetNumMails(character)
+					local color
+					local num = DS:GetNumMails(character) or 0
 					if num == 0 then
+						color = GREY
 						_G[entry..i.."MailsNormalText"]:SetText(GREY .. "0")
 					else
-						local color = GREEN		-- green by default, red if at least one mail is about to expire
+						color = GREEN		-- green by default, red if at least one mail is about to expire
 						
-						local threshold = Altoholic.Options:Get("MailWarningThreshold")
+						local threshold = DataStore:GetOption("DataStore_Mails", "MailWarningThreshold")
 						if DS:GetNumExpiredMails(character, threshold) > 0 then
 							color = RED
 						end
-					
-						_G[entry..i.."MailsNormalText"]:SetText(color .. num)
 					end
+					_G[entry..i.."MailsNormalText"]:SetText(color .. num)
 					
 					local lastVisit = DS:GetMailboxLastVisit(character)
 					_G[entry..i.."LastMailCheckNormalText"]:SetText(WHITE .. Altoholic:FormatDelay(lastVisit))
 					
-					num = DS:GetNumAuctions(character)
+					num = DS:GetNumAuctions(character) or 0
 					_G[entry..i.."AuctionsNormalText"]:SetText(((num == 0) and GREY or GREEN) .. num)
 
-					num = DS:GetNumBids(character)
+					num = DS:GetNumBids(character) or 0
 					_G[entry..i.."BidsNormalText"]:SetText(((num == 0) and GREY or GREEN) .. num)
 					
 					lastVisit = DS:GetAuctionHouseLastVisit(character)
@@ -239,18 +240,21 @@ function Altoholic.Activity:OnClick(self)
 	local DS = DataStore
 	local character = DS:GetCharacter(Altoholic.Characters:GetInfo(line))
 	
-	local action
+	local action, num
 	
 	if id == 1 then			-- mails
-		if DS:GetNumMails(character) > 0 then				-- only set the action if there are data to show
+		num = DS:GetNumMails(character) or 0
+		if num > 0 then				-- only set the action if there are data to show
 			action = VIEW_MAILS
 		end
 	elseif id == 3 then		-- auctions
-		if DS:GetNumAuctions(character) > 0 then
+		num = DS:GetNumAuctions(character) or 0
+		if num > 0 then
 			action = VIEW_AUCTIONS
 		end
 	elseif id == 4 then		-- bids
-		if DS:GetNumBids(character) > 0 then
+		num = DS:GetNumBids(character) or 0
+		if num > 0 then
 			action = VIEW_BIDS
 		end
 	end

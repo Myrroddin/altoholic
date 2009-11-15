@@ -92,29 +92,4 @@ function Altoholic.GuildBank:OnOpen()
 	local guild = Altoholic:GetGuild()
 	guild.bankmoney = GetGuildBankMoney()
 	guild.faction = UnitFactionGroup("player")
-	
-	Altoholic:RegisterEvent("GUILDBANKFRAME_CLOSED", Altoholic.GuildBank.OnClose)
-end
-
-function Altoholic.GuildBank:OnClose()
-	Altoholic:UnregisterEvent("GUILDBANKFRAME_CLOSED")
-
-	-- when leaving the guild bank, send updated timestaps to the guild
-	local DS = DataStore
-	local guildName = GetGuildInfo("player")
-	local guild	= DS:GetGuild(guildName)
-	
-	if not guild then return end
-
-	for tabID = 1, 6 do
-		local tab = DS:GetGuildBankTab(guild, tabID)
-		Altoholic.Comm.Guild:Broadcast(14, {		-- MSG_GUILD_BANKUPDATEINFO = 14
-					name = tab.name,
-					ClientDate = tab.ClientDate,
-					ClientHour = tab.ClientHour,
-					ClientMinute = tab.ClientMinute,
-					ServerHour = tab.ServerHour,
-					ServerMinute = tab.ServerMinute
-				})
-	end
 end

@@ -6,170 +6,222 @@ local GREEN		= "|cFF00FF00"
 local LIGHTBLUE = "|cFFB0B0FF"
 local YELLOW	= "|cFFFFFF00"
 
-local MAIN_LINE = 0
-local ALT_LINE = 1
+local view
+local viewSortField = "name"
+local viewSortOrder
+local viewSortArg1
+local isViewValid
+local expandedHeaders = {}
+
+local PrimaryLevelSort = {	-- sort functions for the mains
+	["name"] = function(a, b)
+			if viewSortOrder then
+				return a.name < b.name
+			else
+				return a.name > b.name 
+			end
+		end,
+	["level"] = function(a, b)
+			local levelA = select(4, DataStore:GetGuildMemberInfo(a.name))
+			local levelB = select(4, DataStore:GetGuildMemberInfo(b.name))
+			
+			if viewSortOrder then
+				return levelA < levelB
+			else
+				return levelA > levelB
+			end
+		end,
+	["englishClass"] = function(a, b)
+			local classA = select(11, DataStore:GetGuildMemberInfo(a.name))
+			local classB = select(11, DataStore:GetGuildMemberInfo(b.name))
+			
+			classA = classA or ""
+			classB = classB or ""
+			
+			if viewSortOrder then
+				return classA < classB
+			else
+				return classA > classB
+			end
+		end,
+	["profLink"] = function(a, b)
+			local guild = DataStore:GetGuild()
+			local link
+
+			_, link = DataStore:GetGuildMemberProfession(guild, a.name, viewSortArg1)
+			local levelA = DataStore:GetProfessionInfo(link)
+			_, link = DataStore:GetGuildMemberProfession(guild, b.name, viewSortArg1)
+			local levelB = DataStore:GetProfessionInfo(link)
+
+			levelA = levelA or 0
+			levelB = levelB or 0
+			
+			if viewSortOrder then
+				return levelA < levelB
+			else
+				return levelA > levelB
+			end
+		end,
+}
+
+local SecondaryLevelSort = {-- sort functions for the alts
+	["name"] = function(a, b)
+			if viewSortOrder then
+				return a < b
+			else
+				return a > b
+			end
+		end,
+	["level"] = function(a, b)
+			local levelA = select(4, DataStore:GetGuildMemberInfo(a))
+			local levelB = select(4, DataStore:GetGuildMemberInfo(b))
+			
+			if viewSortOrder then
+				return levelA < levelB
+			else
+				return levelA > levelB
+			end
+		end,
+	["englishClass"] = function(a, b)
+			local classA = select(11, DataStore:GetGuildMemberInfo(a))
+			local classB = select(11, DataStore:GetGuildMemberInfo(b))
+			
+			classA = classA or ""
+			classB = classB or ""
+			
+			if viewSortOrder then
+				return classA < classB
+			else
+				return classA > classB
+			end
+		end,
+	["profLink"] = function(a, b)
+			local guild = DataStore:GetGuild()
+			local link
+
+			_, link = DataStore:GetGuildMemberProfession(guild, a, viewSortArg1)
+			local levelA = DataStore:GetProfessionInfo(link)
+			_, link = DataStore:GetGuildMemberProfession(guild, b, viewSortArg1)
+			local levelB = DataStore:GetProfessionInfo(link)
+
+			levelA = levelA or 0
+			levelB = levelB or 0
+			
+			if viewSortOrder then
+				return levelA < levelB
+			else
+				return levelA > levelB
+			end
+		end,
+}
+
+local ALTO_MAIN_LINE = 0			-- the currently connected character of a guild mate using altoholic
+local ALTO_ALT_LINE = 1				-- an alt belonging to the previous line
+local OFFLINEHEADER_LINE = 2
+local OFFLINEMEMBER_LINE = 3
+
+local HEADER_LINE = 0				-- line number modulo 2 = 0, it's a header
+
+local function BuildView()
+	view = view or {}
+	wipe(view)
+	
+	local altoOnlineMembers = {}		-- list of online guild members for which we have professions
+
+	-- 1) Start by adding mains, users of altoholic only
+	for member in pairs(DataStore:GetOnlineGuildMembers()) do
+		if Altoholic:GetGuildMemberVersion(member) then			-- altoholic user
+			table.insert(view, { lineType = ALTO_MAIN_LINE, name = member } )			-- main character first
+			altoOnlineMembers[member] = true
+		end
+	end
+	
+	-- 2) sort the highest level
+	table.sort(view, PrimaryLevelSort[viewSortField])
+	
+	-- 3) add the alts whenver applicable
+	for index, line in ipairs(view) do
+		if line.lineType == ALTO_MAIN_LINE then
+			local alts = DataStore:GetGuildMemberAlts(line.name)
+			if alts then
+				local altsTable = { strsplit("|", alts) }
+				
+				-- 4) sort the alts on the same criteria
+				table.sort(altsTable, SecondaryLevelSort[viewSortField])
+			
+				local altCount = 1	-- because the insert must be done at index+1 for alt 1, index+2 for alt2, etc..
+				for _, altName in ipairs(altsTable) do
+					table.insert(view, index + altCount, { lineType = ALTO_ALT_LINE, name = altName } )
+					altoOnlineMembers[altName] = true
+					altCount = altCount + 1
+				end
+			end
+		end
+	end
+	
+	-- 5) add the header "offline members"
+	table.insert(view, {	lineType = OFFLINEHEADER_LINE, name = L["Offline Members"] } )
+	
+	-- 6) Prepare the list of offline members for which we have data, sort it, then add it to the view
+	local offlineMembers = {}
+
+	local guild = DataStore:GetGuild()
+	for member, crafts in pairs(DataStore:GetGuildCrafters(guild)) do
+		if not altoOnlineMembers[member] then
+			offlineMembers[ #offlineMembers + 1 ] = member
+		end
+	end
+	
+	table.sort(offlineMembers, SecondaryLevelSort[viewSortField])
+
+	for _, member in ipairs(offlineMembers) do
+		table.insert(view, {	lineType = OFFLINEMEMBER_LINE, name = member } )
+	end
+	
+	isViewValid = true
+end
+
+local function DisplayProfessionLink(frameName, member, index)
+	local frame = _G[frameName]
+	if not member then 
+		frame:Hide()
+		return 
+	end
+	
+	local text = _G[frameName.."NormalText"]
+	local guild = DataStore:GetGuild()
+	local spellID, link = DataStore:GetGuildMemberProfession(guild, member, index)
+	
+	if spellID then
+		local icon = Altoholic:TextureToFontstring(Altoholic:GetSpellIcon(tonumber(spellID)), 18, 18) .. " "
+		if link then
+			local curRank, maxRank = DataStore:GetProfessionInfo(link)
+			local ts = Altoholic.TradeSkills
+			text:SetText(icon .. ts:GetColor(curRank) .. curRank .. "/" .. maxRank)
+		else
+			local spellName = GetSpellInfo(spellID)
+			text:SetText(WHITE..spellName)
+		end
+		frame:Show()
+	else
+		frame:Hide()
+	end
+end
 
 Altoholic.Guild.Professions = {}
 
-local function SortByLevel(a, b, ascending)
-	local levelA = select(4, DataStore:GetGuildMemberInfo(a))
-	local levelB = select(4, DataStore:GetGuildMemberInfo(b))
-	
-	levelA = tonumber(levelA) or 0
-	levelB = tonumber(levelB) or 0
-	
-	if ascending then
-		return levelA < levelB
-	else
-		return levelA > levelB
-	end
-end
-
-local function SortByClass(a, b, ascending)
-	local classA = select(11, DataStore:GetGuildMemberInfo(a))
-	local classB = select(11, DataStore:GetGuildMemberInfo(b))
-	
-	classA = classA or ""
-	classB = classB or ""
-	
-	if ascending then
-		return classA < classB
-	else
-		return classA > classB
-	end
-end
-
-local function SortBySkillLevel(a, b, field, ascending)
-	local guild = Altoholic:GetGuild()
-	local m = Altoholic:GetGuildMembers(guild)
-	
-	local levelA = DataStore:GetProfessionInfo(m[a][field])
-	local levelB = DataStore:GetProfessionInfo(m[b][field])
-	levelA = levelA or 0
-	levelB = levelB or 0
-	
-	if ascending then
-		return levelA < levelB
-	else
-		return levelA > levelB
-	end
-end
-
-function Altoholic.Guild.Professions:BuildView()
-	
-	self.view = self.view or {}
-	wipe(self.view)
-	
-	local line = 0
-	
-	for k, v in pairs(Altoholic.Guild.Members.List) do
-		if v.version ~= L["N/A"] then		-- only take altoholic users into account
-			-- main character first
-			for skillIdx, s in pairs(v.skills) do
-				if s.name == v.name then
-					table.insert(self.view, {
-						linetype = line,
-						isCollapsed = false,
-						parentID = k,
-						skillIndex = skillIdx,
-					} )
-				end
-			end
-			
-			-- then alts
-			for skillIdx, s in pairs(v.skills) do
-				if s.name ~= v.name then
-					table.insert(self.view, {
-						linetype = line+1,
-						parentID = k,
-						skillIndex = skillIdx,
-					} )
-				end
-			end
-			
-			line = line + 2
-		end
-	end
-	
-	local guild = Altoholic:GetGuild()
-	if not guild then return end
-	
-	-- add a line for the "offline members" category header
-	table.insert(self.view, {
-		linetype = line,
-		isCollapsed = false,
-		parentID = L["Offline Members"]
-	} )
-	
-	local offlineMembers = {}
-	
-	for member, v in pairs(Altoholic:GetGuildMembers(guild)) do
-		local name = DataStore:GetGuildMemberInfo(member)
-		if not name then	-- no name found = no longer in the guild, remove it
-			v = nil
-		else
-			-- if character is not connected (or under an alt), list it
-			if not Altoholic.Guild.Members:IsKnown(member, true) then
-				offlineMembers[ #offlineMembers + 1 ] = member
-			end
-		end
-	end
-	
-	local field = Altoholic.Tabs.Summary.GuildProfessionsSortBy
-	
-	if field then
-		local ascending = Altoholic.Tabs.Summary.GuildProfessionsSortOrder
-	
-		if field == "level" then
-			table.sort(offlineMembers, function(a, b) return SortByLevel(a, b, ascending) end)
-		elseif field == "englishClass" then
-			table.sort(offlineMembers, function(a, b) return SortByClass(a, b, ascending) end)
-		elseif field == "prof1link" or field == "prof2link" or field == "cookinglink"  then
-			table.sort(offlineMembers, function(a, b) return SortBySkillLevel(a, b, field, ascending) end)
-		else
-			if ascending then				-- by default, sort by name, ascending
-				table.sort(offlineMembers)
-			else
-				table.sort(offlineMembers, function(a, b)	return a > b end)
-			end
-		end
-	end
-	
-	for k, v in ipairs(offlineMembers) do
-		table.insert(self.view, {
-			linetype = line+1,
-			parentID = v
-		} )
-	end
-end
-
 function Altoholic.Guild.Professions:Update()
+	if not isViewValid then
+		BuildView()
+	end
+
 	local VisibleLines = 14
 	local frame = "AltoholicFrameGuildProfessions"
 	local entry = frame.."Entry"
 	
-	local self = Altoholic.Guild.Professions
-	if #self.view == 0 then
+	if #view == 0 then
 		Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
 		return
-	end
-	
-	local function WriteLink(frame, link)
-		if not link then 
-			frame:Hide()
-			return 
-		end
-		frame:Show()
-		
-		local curRank, maxRank, spellID = DataStore:GetProfessionInfo(link)
-		
-		if spellID then		-- recent version, spell ID available, draw icon + level
-			local ts = Altoholic.TradeSkills
-			local icon = Altoholic:TextureToFontstring(Altoholic:GetSpellIcon(tonumber(spellID)), 18, 18) .. " "
-			frame:SetText(icon .. ts:GetColor(curRank) .. curRank .. "/" .. maxRank)
-		else	-- older version, spell id missing, draw the link, not the level
-			frame:SetText(WHITE..link)
-		end
 	end
 	
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
@@ -178,16 +230,12 @@ function Altoholic.Guild.Professions:Update()
 	local DrawAlts
 	local i=1
 	
-	local guild = Altoholic:GetGuild()
-	local members = Altoholic:GetGuildMembers(guild)
-	
-	for line, v in pairs(self.view) do
-		local c = Altoholic.Guild.Members.List[v.parentID]
-		local lineType = mod(v.linetype, 2)
+	for lineIndex, v in pairs(view) do
+		local lineType = mod(v.lineType, 2)
 		
 		if (offset > 0) or (DisplayedCount >= VisibleLines) then		-- if the line will not be visible
-			if lineType == MAIN_LINE then								-- then keep track of counters
-				if v.isCollapsed == false then
+			if lineType == HEADER_LINE then												-- then keep track of counters
+				if expandedHeaders[v.name] then
 					DrawAlts = true
 				else
 					DrawAlts = false
@@ -199,14 +247,11 @@ function Altoholic.Guild.Professions:Update()
 				offset = offset - 1		-- no further control, nevermind if it goes negative
 			end
 		else		-- line will be displayed
-			local char
+			local member = v.name
+			local _, _, _, level, class, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(member)
 			
-			if type(v.parentID) == "number" then				-- number = online member
-				char = c.skills[v.skillIndex]
-			end
-			
-			if lineType == MAIN_LINE then
-				if v.isCollapsed == false then
+			if lineType == HEADER_LINE then
+				if expandedHeaders[v.name] then
 					_G[ entry..i.."Collapse" ]:SetNormalTexture("Interface\\Buttons\\UI-MinusButton-Up"); 
 					DrawAlts = true
 				else
@@ -216,25 +261,24 @@ function Altoholic.Guild.Professions:Update()
 				_G[entry..i.."Collapse"]:Show()
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 25, 0)
 				
-				if type(v.parentID) == "number" then				-- number = online member
-					_G[entry..i.."NameNormalText"]:SetText(YELLOW..c.name)
-					_G[entry..i.."Level"]:SetText(GREEN .. c.level)
-					_G[entry..i.."Class"]:SetText(format("%s%s", Altoholic:GetClassColor(char.englishClass), char.class))
+				_G[entry..i.."NameNormalText"]:SetText(YELLOW..member)
+				_G[entry..i.."Level"]:SetText(GREEN .. (level or ""))
+				
+				if v.lineType == ALTO_MAIN_LINE then
+					_G[entry..i.."Class"]:SetText(format("%s%s", Altoholic:GetClassColor(englishClass), class))
 
-					WriteLink( _G[entry..i.."Skill1NormalText"], char.prof1link )
-					WriteLink( _G[entry..i.."Skill2NormalText"], char.prof2link )
-					WriteLink( _G[entry..i.."Skill3NormalText"], char.cookinglink )					
+					for index = 1, 3 do
+						DisplayProfessionLink( entry..i.."Skill"..index, member, index )
+					end
 				else
-					_G[entry..i.."NameNormalText"]:SetText(YELLOW..v.parentID)		-- "Offline Members"
-					_G[entry..i.."Level"]:SetText("")
 					_G[entry..i.."Class"]:SetText("")
-					
-					WriteLink( _G[entry..i.."Skill1NormalText"], nil)
-					WriteLink( _G[entry..i.."Skill2NormalText"], nil)
-					WriteLink( _G[entry..i.."Skill3NormalText"], nil)
+					for index = 1, 3 do
+						DisplayProfessionLink( entry..i.."Skill"..index)
+					end					
 				end
 				
-				_G[ entry..i ]:SetID(line)
+				_G[ entry..i ].CharName = member
+				_G[ entry..i ]:SetID(lineIndex)
 				_G[ entry..i ]:Show()
 				i = i + 1
 				VisibleCount = VisibleCount + 1
@@ -242,31 +286,21 @@ function Altoholic.Guild.Professions:Update()
 			elseif DrawAlts then
 				_G[entry..i.."Collapse"]:Hide()
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 15, 0)
+				_G[entry..i.."Level"]:SetText(GREEN .. (level or ""))
+				_G[entry..i.."Class"]:SetText(format("%s%s", Altoholic:GetClassColor(englishClass), class))
 				
-				if type(v.parentID) == "number" then				-- number = online member
-					_G[entry..i.."NameNormalText"]:SetText(LIGHTBLUE..char.name)
-					_G[entry..i.."Level"]:SetText(GREEN .. char.level)
-					_G[entry..i.."Class"]:SetText(format("%s%s", Altoholic:GetClassColor(char.englishClass), char.class))
+				if v.lineType == ALTO_ALT_LINE then
+					_G[entry..i.."NameNormalText"]:SetText(LIGHTBLUE..member)
 				else
-					char = members[v.parentID]		-- replace "char" reference to use data of an offline player
-					_G[entry..i.."NameNormalText"]:SetText(GRAY..v.parentID)
-					
-					local _, _, _, level, class, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(v.parentID)
-					
-					if level then
-						_G[entry..i.."Level"]:SetText(GREEN .. level)
-						_G[entry..i.."Class"]:SetText(format("%s%s", Altoholic:GetClassColor(englishClass), class))
-					else
-						_G[entry..i.."Level"]:SetText("")
-						_G[entry..i.."Class"]:SetText("")
-					end
+					_G[entry..i.."NameNormalText"]:SetText(GRAY..member)
 				end
 				
-				WriteLink( _G[entry..i.."Skill1NormalText"], char.prof1link )
-				WriteLink( _G[entry..i.."Skill2NormalText"], char.prof2link )
-				WriteLink( _G[entry..i.."Skill3NormalText"], char.cookinglink )
+				for index = 1, 3 do
+					DisplayProfessionLink( entry..i.."Skill"..index, member, index )
+				end
 
-				_G[ entry..i ]:SetID(line)
+				_G[ entry..i ].CharName = member
+				_G[ entry..i ]:SetID(lineIndex)
 				_G[ entry..i ]:Show()
 				i = i + 1
 				VisibleCount = VisibleCount + 1
@@ -283,54 +317,38 @@ function Altoholic.Guild.Professions:Update()
 	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleCount, VisibleLines, 18);
 end	
 
-function Altoholic.Guild.Professions:OnEnter(self)
-	local line = self:GetParent():GetID()		-- get the id of the line that was clicked
-	if line == 0 then return end		-- 0 is for hidden frames, should never happen
+function Altoholic.Guild.Professions:Sort(self, field, index)
+	viewSortField = field
+	viewSortOrder = self.ascendingSort
+	viewSortArg1 = index			-- arg 1 = index of the profession, to use the same function for all
 	
-	local player = Altoholic.Guild.Professions.view[line]
-	local char
-	local name
-		
-	if type(player.parentID) == "number" then				-- number = online member
-		local c = Altoholic.Guild.Members.List[player.parentID]
-		char = c.skills[player.skillIndex]
-		name = char.name
-	else
-		local guild = Altoholic:GetGuild()
-		local members = Altoholic:GetGuildMembers(guild)
-		char = members[player.parentID]
-		name = player.parentID
-	end
-	
-	local link
-	local id = self:GetID()			-- id of the button that was clicked
-	
-	if id == 1 then
-		link = char.prof1link
-	elseif id == 2 then
-		link = char.prof2link
-	elseif id == 3 then
-		link = char.cookinglink
-	end
-	
-	if not link then return end
+	Altoholic.Guild.Professions:InvalidateView()
+end
 
-	local curRank, maxRank, spellID = DataStore:GetProfessionInfo(link)
-	
-	if not spellID then return end
+function Altoholic.Guild.Professions:OnEnter(self)
+	local member = self:GetParent().CharName
+	if not member then return end
+
+	local id = self:GetID()					-- id of the button that was clicked
+	local guild = DataStore:GetGuild()
+	local spellID, link, lastUpdate = DataStore:GetGuildMemberProfession(guild, member, id)
+	if not spellID or not link then return end
+
+	local curRank, maxRank = DataStore:GetProfessionInfo(link)
 	
 	AltoTooltip:ClearLines();
 	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
 	
-	
-	local _, _, _, _, _, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(name)
-	AltoTooltip:AddLine(Altoholic:GetClassColor(englishClass) .. name,1,1,1);
+	local _, _, _, _, _, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(member)
+	AltoTooltip:AddLine(Altoholic:GetClassColor(englishClass) .. member,1,1,1);
 	
 	local skillName = GetSpellInfo(spellID)
 	AltoTooltip:AddLine(skillName,1,1,1);
 	
 	local ts = Altoholic.TradeSkills
 	AltoTooltip:AddLine(ts:GetColor(curRank) .. curRank .. "/" .. maxRank,1,1,1);
+	AltoTooltip:AddLine(" ",1,1,1);
+	AltoTooltip:AddLine(date("%m/%d/%Y %H:%M", lastUpdate),1,1,1);
 	AltoTooltip:AddLine(" ",1,1,1);
 	AltoTooltip:AddLine(GREEN..L["Left click to view"],1,1,1);
 	AltoTooltip:AddLine(GREEN..L["Shift+Left click to link"],1,1,1);
@@ -341,38 +359,50 @@ end
 function Altoholic.Guild.Professions:OnClick(self, button)
 	if button ~= "LeftButton" then return end
 	
-	local line = self:GetParent():GetID()		-- get the id of the line that was clicked
-	if line == 0 then return end		-- 0 is for hidden frames, should never happen
+	local member = self:GetParent().CharName
+	if not member then return end
 	
-	local player = Altoholic.Guild.Professions.view[line]
-	local char
-		
-	if type(player.parentID) == "number" then				-- number = online member
-		local c = Altoholic.Guild.Members.List[player.parentID]
-		char = c.skills[player.skillIndex]
-	else
-		local guild = Altoholic:GetGuild()
-		local members = Altoholic:GetGuildMembers(guild)
-		char = members[player.parentID]
-	end
-	
-	local link
-	local id = self:GetID()			-- id of the button that was clicked
-	
-	if id == 1 then
-		link = char.prof1link
-	elseif id == 2 then
-		link = char.prof2link
-	elseif id == 3 then
-		link = char.cookinglink
-	end
-	
+	local id = self:GetID()					-- id of the button that was clicked
+	local guild = DataStore:GetGuild()
+	local _, link = DataStore:GetGuildMemberProfession(guild, member, id)
 	if not link then return end
-	if not link:match("trade:") then return end
 
 	if ChatFrameEditBox:IsShown() and IsShiftKeyDown() then
 		ChatFrameEditBox:Insert(link);
 	else
 		SetItemRef(link:match("|H([^|]+)"), "Profession", "LeftButton")
+	end
+end
+
+function Altoholic.Guild.Professions:Collapse_OnClick(self)
+	local id = self:GetParent():GetID()
+	if id == 0 then return end
+	
+	local line = view[id]
+	if expandedHeaders[line.name] then		-- toggle header
+		expandedHeaders[line.name] = nil
+	else
+		expandedHeaders[line.name] = true
+	end
+	Altoholic.Guild.Professions:Update()
+end
+
+function Altoholic.Guild.Professions:ToggleView(self)
+	if self.isCollapsed then	-- collapse all headers
+		wipe(expandedHeaders)
+	else								-- expand all headers
+		for _, line in pairs(view) do
+			if mod(line.lineType, 2) == HEADER_LINE then
+				expandedHeaders[line.name] = true
+			end
+		end
+	end
+	Altoholic.Guild.Professions:Update()
+end
+
+function Altoholic.Guild.Professions:InvalidateView()
+	isViewValid = nil
+	if AltoholicFrameGuildProfessions:IsVisible() then
+		self:Update()
 	end
 end

@@ -149,7 +149,7 @@ function Altoholic.Summary:Update()
 					_G[entry..i.."NameNormalText"]:SetWidth(200)
 					_G[entry..i.."NameNormalText"]:SetText(L["Totals"])
 					_G[entry..i.."Level"]:SetText(s.level)
-					_G[entry..i.."Money"]:SetText(s.money)
+					_G[entry..i.."Money"]:SetText(Altoholic:GetMoneyString(s.money, WHITE))
 					_G[entry..i.."Money"]:SetTextColor(1.0, 1.0, 1.0)
 					_G[entry..i.."Played"]:SetText(s.played)
 					_G[entry..i.."XP"]:SetText("")
@@ -195,11 +195,11 @@ function Altoholic.Summary:Level_OnEnter(self)
 		
 		AltoTooltip:AddLine(" ",1,1,1);
 		AltoTooltip:AddDoubleLine(WHITE..MONEY, format("%s|r (%s %s|r, %s %s|r)", 
-			s.money,
+			Altoholic:GetMoneyString(s.money, WHITE, true),
 			Altoholic:TextureToFontstring(ICON_FACTION_ALLIANCE, 18, 18), 
-			Altoholic:GetMoneyString(aMoney, WHITE),
+			Altoholic:GetMoneyString(aMoney, WHITE, true),
 			Altoholic:TextureToFontstring(ICON_FACTION_HORDE, 18, 18), 
-			Altoholic:GetMoneyString(hMoney, WHITE)))
+			Altoholic:GetMoneyString(hMoney, WHITE, true)))
 		
 		AltoTooltip:AddLine(" ",1,1,1);
 		AltoTooltip:AddDoubleLine(WHITE..PLAYED , format("%s|r (%s %s|r, %s %s|r)",

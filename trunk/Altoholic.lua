@@ -7,8 +7,7 @@ local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local DS
 
 local V = Altoholic.vars
-Altoholic.Version = "v3.2.002b"
-Altoholic.VersionNum = 302002
+
 
 local WHITE		= "|cFFFFFFFF"
 local RED		= "|cFFFF0000"
@@ -156,12 +155,6 @@ end
 
 function Altoholic:OnEnable()
 	DS = DataStore
-	
-	DS:RegisterEventListener("Altoholic")
-	-- self:RegisterDataStoreEvent("DATASTORE_MAILBOX_UPDATE")
-	-- self:RegisterDataStoreEvent("DATASTORE_MAILBOX_UPDATE", "mymbhandler")
-	-- self:RegisterDataStoreEvent("DATASTORE_MAILBOX_UPDATE", mymbhandler)
-	-- self:UnregisterDataStoreEvent(4,5,6)
 
 	self:InitLocalization()
 	self.Options:Init()
@@ -170,16 +163,13 @@ function Altoholic:OnEnable()
 	self.Tooltip:Init()
 	
 	self:RegisterEvent("PLAYER_ALIVE")
-	self:RegisterEvent("PLAYER_GUILD_UPDATE")
 	self:RegisterEvent("PLAYER_LOGOUT")
 	self:RegisterEvent("UPDATE_INSTANCE_INFO", "UpdateRaidTimers")
 	self:RegisterEvent("RAID_INSTANCE_WELCOME", "RequestUpdateRaidInfo")
 
 	self:RegisterEvent("GUILDBANKFRAME_OPENED", Altoholic.GuildBank.OnOpen)
 	self:RegisterEvent("AUCTION_HOUSE_SHOW", Altoholic.AuctionHouse.OnShow)
-
 	self:RegisterEvent("PLAYER_TALENT_UPDATE", Altoholic.Talents.OnUpdate);
-	-- self:RegisterEvent("MAIL_SHOW", Altoholic.Mail.OnShow)
 	
 	AltoholicFrameName:SetText("Altoholic |cFFFFFFFF".. Altoholic.Version .. " by |cFF69CCF0Thaoky")
 
@@ -192,7 +182,6 @@ function Altoholic:OnEnable()
 
 	self.Tabs.Summary:Init()
 	self.Containers:Init()
-	self.Achievements:Init()
 	self.BagUsage:Init()
 	self.TradeSkills.Recipes:Init()
 	self.Search:Init()
@@ -232,9 +221,7 @@ function Altoholic:OnEnable()
       LinkWrangler.RegisterCallback ("Altoholic",  Hook_LinkWrangler, "refresh")
    end
 
-	self.DoInitialBroadcast = true
-	
-	-- create an empty frame to manager the timer via its Onupdate
+	-- create an empty frame to manage the timer via its Onupdate
 	self.TimerFrame = CreateFrame("Frame", "AltoholicTimerFrame", UIParent)
 	local f = self.TimerFrame
 	
@@ -244,9 +231,7 @@ function Altoholic:OnEnable()
 	f:SetScript("OnUpdate", function(self, elapsed) Altoholic.Tasks:OnUpdate(elapsed) end)
 	f:Show()
 	
-	Altoholic.Tasks:Add("CheckExpiries", 1, Altoholic.Mail.CheckExpiries, self)
-	
-	-- clean up old data, thank AnrDaemon for the suggestion.
+	-- clean up old data, thanks AnrDaemon for the suggestion.
 	AltoholicDB.global.data = nil
 	AltoholicDB.global.reference = nil
 end
@@ -322,7 +307,8 @@ function Altoholic.Characters:BuildList()
 	end
 	
 	AltoholicFrameTotalLv:SetText(WHITE .. levels .. " |rLv")
-	AltoholicFrameTotalGold:SetText(floor( money / 10000 ) .. "|cFFFFD700g")
+	--AltoholicFrameTotalGold:SetText(floor( money / 10000 ) .. "|cFFFFD700g")
+	AltoholicFrameTotalGold:SetText(format(GOLD_AMOUNT_TEXTURE, floor( money / 10000 ), 13, 13))
 	AltoholicFrameTotalPlayed:SetText(floor(played / 86400) .. "|cFFFFD700d")
 end
 
@@ -402,7 +388,7 @@ function Altoholic.Characters:AddRealm(AccountName, RealmName, realmID)
 	table.insert(self.List, { linetype = INFO_TOTAL_LINE + (realmID*3),
 		parentID = parentRealm,
 		level = WHITE .. realmlevels,
-		money = Altoholic:GetMoneyString(realmmoney, WHITE),
+		money = realmmoney,
 		played = Altoholic:GetTimeString(realmplayed),
 		bagSlots = realmBagSlots,
 		freeBagSlots = realmFreeBagSlots,
@@ -572,84 +558,6 @@ function Altoholic.Characters:GetInfoLineNum(charName, realm, account)
 				return k
 			end
 		end
-	end
-end
-
-function Altoholic:SendPublicInfo(msgType, player, guildName)
-
-	guildName = guildName or GetGuildInfo("player")
-	local character = DS:GetCharacter()
-	local characterClass, characterEnglishClass = DS:GetCharacterClass(character)
-	
-	local t = {
-		name = UnitName("player"),							-- can be removed in a future release (like 4.0)
-		level = DS:GetCharacterLevel(character),		-- can be removed
-		averageItemLvl = DS:GetAverageItemLevel(character),
-		class = characterClass,								-- can be removed
-		englishClass = characterEnglishClass,			-- can be removed
-		version = Altoholic.Version
-	}
-	
-	local SkillsCache = { {}, {}, {} }	-- 3 tables for prof 1, 2, cooking
-	
-	t.skills = {}
-	
-	local characterGuild = DS:GetGuildInfo(character)
-	for altName, alt in pairs(DS:GetCharacters()) do
-		local altGuild = DS:GetGuildInfo(alt)
-		if characterGuild and altGuild and (characterGuild == altGuild) then		-- broadcast the skills of all chars of the same realm, same guild
-			for i = 1, 3 do 
-				SkillsCache[i].link = nil
-			end
-			
-			local profession
-			
-			local i = 1
-			for SkillName, s in pairs(DS:GetPrimaryProfessions(alt)) do
-				profession = DS:GetProfession(alt, SkillName)
-				SkillsCache[i].link = profession.FullLink or SkillName		-- if there's a full link for this profession, use it
-				i = i + 1
-			end
-
-			profession = DS:GetProfession(alt, BI["Cooking"])
-			SkillsCache[3].link = profession.FullLink
-			
-			local altClass, altEnglishClass = DS:GetCharacterClass(alt)
-			table.insert(t.skills, {
-				name = altName,
-				level = DS:GetCharacterLevel(alt),		-- can be removed
-				class = altClass,								-- can be removed
-				englishClass = altEnglishClass,			-- can be removed
-				averageItemLvl = DS:GetAverageItemLevel(alt),
-				prof1link = SkillsCache[1].link,
-				prof2link = SkillsCache[2].link,
-				cookinglink = SkillsCache[3].link,
-			})
-		end
-	end
-	
-	local guild = DS:GetGuild(guildName)
-	t.guildbank = {}
-	
-	for i=1, 6 do
-		local tab = DS:GetGuildBankTab(guild, i)
-	
-		if tab.ClientDate then			-- if there's a client date, the tab can be sent
-			table.insert(t.guildbank, {
-				name = tab.name,
-				ClientDate = tab.ClientDate,
-				ClientHour = tab.ClientHour,
-				ClientMinute = tab.ClientMinute,
-				ServerHour = tab.ServerHour,
-				ServerMinute = tab.ServerMinute
-			})
-		end
-	end
-	
-	if msgType == MSG_GUILD_ANNOUNCELOGIN then
-		self.Comm.Guild:Broadcast(MSG_GUILD_ANNOUNCELOGIN, t)
-	else
-		self.Comm.Guild:Whisper(player, msgType, t)
 	end
 end
 
@@ -922,7 +830,7 @@ function Altoholic:GetEnchantInfo(link)
 	return isEnchanted, enchantId, jewelId1, jewelId2, jewelId3, jewelId4, suffixId
 end
 
-function Altoholic:GetMoneyString(copper, color)
+function Altoholic:GetMoneyString(copper, color, noTexture)
 	color = color or "|cFFFFD700"
 
 	local gold = floor( copper / 10000 );
@@ -930,10 +838,16 @@ function Altoholic:GetMoneyString(copper, color)
 	local silver = floor( copper / 100 );
 	copper = mod(copper, 100)
 	
-	-- use this later, when it will be possible to use texcoords in a fontstring
-	--DEFAULT_CHAT_FRAME:AddMessage("|TInterface\\MoneyFrame\\UI-MoneyIcons:30|t")
-	
-	return color .. gold .. "|cFFFFD700g " .. color .. silver .. "|cFFC7C7CFs " .. color .. copper .. "|cFFEDA55Fc"
+	if noTexture then				-- use noTexture for places where the texture does not fit too well,  ex: tooltips
+		copper = format("%s%s%s%s", color, copper, "|cFFEDA55F", COPPER_AMOUNT_SYMBOL)
+		silver = format("%s%s%s%s", color, silver, "|cFFC7C7CF", SILVER_AMOUNT_SYMBOL)
+		gold = format("%s%s%s%s", color, gold, "|cFFFFD700", GOLD_AMOUNT_SYMBOL)
+	else
+		copper = color..format(COPPER_AMOUNT_TEXTURE, copper, 13, 13)
+		silver = color..format(SILVER_AMOUNT_TEXTURE, silver, 13, 13)
+		gold = color..format(GOLD_AMOUNT_TEXTURE, gold, 13, 13)
+	end
+	return format("%s %s %s", gold, silver, copper)
 end
 
 function Altoholic:GetTimeString(seconds)
@@ -968,6 +882,10 @@ end
 
 function Altoholic:FormatDelay(timeStamp)
 	-- timeStamp = value when time() was last called for a given variable (ex: last time the mailbox was checked)
+	if not timeStamp then
+		return YELLOW .. NEVER
+	end
+	
 	if timeStamp == 0 then
 		return YELLOW .. "N/A"
 	end
@@ -1036,8 +954,8 @@ function Altoholic:GetCharacterItemCount(character, searchedID)
 	end
 	
 	if charCount > 0 then
-		local name = DS:GetColoredCharacterName(character)
-		local account = strsplit(".", character)
+		local account, _, char = strsplit(".", character)
+		local name = DS:GetColoredCharacterName(character) or char		-- if for any reason this char isn't in DS_Characters.. use the name part of the key
 		if account ~= THIS_ACCOUNT then
 			name = name .. YELLOW .. " (" .. account .. ")"
 		end
@@ -1094,32 +1012,31 @@ function Altoholic:GetItemCount(searchedID)
 		for guildKey, guild in pairs(Altoholic.db.global.Guilds) do
 			if not guild.hideInTooltip then
 				local _, _, guildName = strsplit(".", guildKey)
+				local guildCount = 0
 				
 				if Altoholic.Options:Get("TooltipGuildBankCountPerTab") == 1 then
-					-- variable names in this block will be changed later, too many guildxxx stuff
-					local dsGuild = DS:GetGuild(guildName, GetRealmName(), THIS_ACCOUNT)
 					local tabCounters = {}
 					
 					for tabID = 1, 6 do 
-						local tabCount = DS:GetGuildBankTabItemCount(dsGuild, tabID, searchedID)
+						local tabCount = DS:GetGuildBankTabItemCount(guildKey, tabID, searchedID)
 						if tabCount > 0 then
-							table.insert(tabCounters,  format("%s: %s", WHITE .. DS:GetGuildBankTabName(dsGuild, tabID), TEAL..tabCount))
+							table.insert(tabCounters,  format("%s: %s", WHITE .. DS:GetGuildBankTabName(guildKey, tabID), TEAL..tabCount))
 						end
 					end
 					
 					if #tabCounters > 0 then
-						local guildCount = DS:GetGuildBankItemCount(searchedID, guildName, GetRealmName(), THIS_ACCOUNT)
+						guildCount = DS:GetGuildBankItemCount(guildKey, searchedID)
 						V.ItemCount[GREEN .. guildName] = format("%s %s(%s%s)", ORANGE .. guildCount, WHITE, table.concat(tabCounters, ","), WHITE)
 					end
 				else
-					local guildCount = DS:GetGuildBankItemCount(searchedID, guildName, GetRealmName(), THIS_ACCOUNT)
+					guildCount = DS:GetGuildBankItemCount(guildKey, searchedID)
 					if guildCount > 0 then
 						V.ItemCount[GREEN .. guildName] = format("%s(%s: %s%s)", WHITE, GUILD_BANK, TEAL..guildCount, WHITE)
 					end
+				end
 					
-					if Altoholic.Options:Get("TooltipGuildBankCount") == 1 then
-						count = count + guildCount
-					end
+				if Altoholic.Options:Get("TooltipGuildBankCount") == 1 then
+					count = count + guildCount
 				end
 			end	-- end if not hidden
 		end	-- end guild
@@ -1225,12 +1142,12 @@ function Altoholic:CreateButtonBorder(frame)
 	if frame.border ~= nil then return end
 
 	-- this part was taken from Combuctor
-	local border = frame:CreateTexture(nil, 'OVERLAY')
+	local border = frame:CreateTexture(nil, "OVERLAY")
 	border:SetWidth(67);
 	border:SetHeight(67)
-	border:SetPoint('CENTER', frame)
+	border:SetPoint("CENTER", frame)
 	border:SetTexture('Interface/Buttons/UI-ActionButton-Border')
-	border:SetBlendMode('ADD')
+	border:SetBlendMode("ADD")
 	border:Hide()
 	
 	frame.border = border
@@ -1263,6 +1180,29 @@ function Altoholic:DrawCharacterTooltip(self, charName)
 	end
 	
 	AltoTooltip:Show();
+end
+
+function Altoholic:SetMsgBoxHandler(func, arg1, arg2)
+	AltoMsgBox.ButtonHandler = func
+	AltoMsgBox.arg1 = arg1
+	AltoMsgBox.arg2 = arg2
+end
+
+function Altoholic:MsgBox_OnClick(button)
+	-- until I have time to check all the places where msgbox is used, keep "button" as 1 for yes, and nil for no
+	-- also, change the handler to work with ...
+
+	if AltoMsgBox.ButtonHandler then
+		AltoMsgBox:ButtonHandler(button, AltoMsgBox.arg1, AltoMsgBox.arg2)
+		AltoMsgBox.ButtonHandler = nil		-- prevent subsequent calls from coming back here
+		AltoMsgBox.arg1 = nil
+		AltoMsgBox.arg2 = nil
+	else
+		DEFAULT_CHAT_FRAME:AddMessage("Altoholic: MessageBox Hangler not defined")
+	end
+	AltoMsgBox:Hide();
+	AltoMsgBox:SetHeight(100)
+	AltoMsgBox_Text:SetHeight(28)
 end
 
 
@@ -1625,34 +1565,38 @@ function Altoholic.Tooltip:WhoKnowsRecipe(professionName, link, recipeLevel)
 	for characterName, character in pairs(DS:GetCharacters()) do
 		local profession = DS:GetProfession(character, professionName)
 
-		local isKnownByChar
-		
-		if spellID then			-- if spell id is known, just find its equivalent in the professions
-			isKnownByChar = DS:IsCraftKnown(profession, spellID)
-		else
-			for i = 1, DS:GetNumCraftLines(profession) do
-				local isHeader, _, info = DS:GetCraftLineInfo(profession, i)
-				
-				if not isHeader then
-					local skillName = GetSpellInfo(info) or ""
+		if profession then
+			local isKnownByChar
+			
+			if spellID then			-- if spell id is known, just find its equivalent in the professions
+				isKnownByChar = DS:IsCraftKnown(profession, spellID)
+			else
+				for i = 1, DS:GetNumCraftLines(profession) do
+					local isHeader, _, info = DS:GetCraftLineInfo(profession, i)
+					
+					if not isHeader then
+						local skillName = GetSpellInfo(info) or ""
 
-					if string.lower(skillName) == string.lower(craftName) then
-						isKnownByChar = true
-						break
-					end				
+						if string.lower(skillName) == string.lower(craftName) then
+							isKnownByChar = true
+							break
+						end				
+					end
 				end
 			end
-		end
 
-		if isKnownByChar then
-			table.insert(know, characterName)
-		else
-			local currentLevel = DS:GetSkillInfo(character, professionName)
-			if currentLevel > 0 then
-				if currentLevel < recipeLevel then
-					table.insert(willLearn, characterName)
-				else
-					table.insert(couldLearn, characterName)
+			local coloredName = DS:GetColoredCharacterName(character)
+			
+			if isKnownByChar then
+				table.insert(know, coloredName)
+			else
+				local currentLevel = DS:GetSkillInfo(character, professionName)
+				if currentLevel > 0 then
+					if currentLevel < recipeLevel then
+						table.insert(willLearn, format("%s |r(%d)", coloredName, currentLevel))
+					else
+						table.insert(couldLearn, format("%s |r(%d)", coloredName, currentLevel))
+					end
 				end
 			end
 		end
@@ -1660,11 +1604,11 @@ function Altoholic.Tooltip:WhoKnowsRecipe(professionName, link, recipeLevel)
 	
 	local lines = {}
 	if #know > 0 then
-		table.insert(lines, TEAL .. L["Already known by "] ..": ".. WHITE.. table.concat(know, ", "))
+		table.insert(lines, TEAL .. L["Already known by "] ..": ".. WHITE.. table.concat(know, ", ") .."\n")
 	end
 	
 	if #couldLearn > 0 then
-		table.insert(lines, YELLOW .. L["Could be learned by "] ..": ".. WHITE.. table.concat(couldLearn, ", "))
+		table.insert(lines, YELLOW .. L["Could be learned by "] ..": ".. WHITE.. table.concat(couldLearn, ", ") .."\n")
 	end
 	
 	if #willLearn > 0 then
@@ -1677,22 +1621,6 @@ end
 -- *** EVENT HANDLERS ***
 function Altoholic:PLAYER_ALIVE()
 	Altoholic:UpdateFriends()
-end
-
-function Altoholic:PLAYER_GUILD_UPDATE()
-	-- at login this event is called between OnEnable and PLAYER_ALIVE, where GetGuildInfo returns a wrong value
-	-- however, the value returned here is correct
-	
-	-- to do : turn this into a task, called 2-3 seconds after the end of OnEnable
-	if IsInGuild() then
-		local guildName = GetGuildInfo("player")
-
-		if self.DoInitialBroadcast and guildName then
-			-- best place to do this, since it depends on the guild name returned above.
-			Altoholic:SendPublicInfo(MSG_GUILD_ANNOUNCELOGIN, nil, guildName)
-			self.DoInitialBroadcast = nil
-		end
-	end
 end
 
 function Altoholic:PLAYER_LOGOUT()
@@ -1741,11 +1669,7 @@ end
 
 function Altoholic:CHAT_MSG_SYSTEM(event, arg)
 	if arg then
-		if arg:match(L["has come online"]) or arg:match(L["has gone offline"]) then
-			if IsInGuild() then
-				GuildRoster()
-			end
-		elseif tostring(arg1) == INSTANCE_SAVED then
+		if tostring(arg1) == INSTANCE_SAVED then
 			Altoholic:RequestUpdateRaidInfo()
 		end
 	end
