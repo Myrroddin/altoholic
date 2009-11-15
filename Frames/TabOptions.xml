@@ -146,41 +146,6 @@
 							</OnLeave>
 						</Scripts>
 					</CheckButton>
-					<CheckButton name="$parent_GuildComm" inherits="UICheckButtonTemplate" hidden="true">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension  x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								if self:GetChecked() then 
-									Altoholic.Options:Set("GuildHandlerEnabled", 1)
-									Altoholic.GuildCommHandleMessage = Altoholic.GuildCommHandlerActive
-								else
-									Altoholic.Options:Set("GuildHandlerEnabled", 0)
-									Altoholic.GuildCommHandleMessage = Altoholic.GuildCommHandlerEmpty
-								end
-							</OnClick>
-							<OnEnter>
-								local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
-								
-								AltoTooltip:SetOwner(self, "ANCHOR_LEFT");
-								AltoTooltip:ClearLines();
-								AltoTooltip:AddLine(L["|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option will allow your guildmates\nto see your alts and their professions.\n\n"])
-								AltoTooltip:AddLine(L["When |cFFFF0000disabled|cFFFFFFFF, there will be no communication with the guild."])
-								AltoTooltip:Show();
-							</OnEnter>
-							<OnLeave>
-								AltoTooltip:Hide();
-							</OnLeave>
-						</Scripts>
-					</CheckButton>
 					<Slider name="$parent_SliderAngle" inherits="OptionsSliderTemplate"  minValue="1" maxValue="360" defaultValue="180" valueStep="1">
 						<Size>
 							<AbsDimension x="180" y="16"/>
@@ -512,7 +477,7 @@
 								
 								local name = self:GetName()
 								_G[name .. "Text"]:SetText(L["Mail Expiry Warning"] .. " (" .. self:GetValue() ..")");
-								Altoholic.Options:Set("MailWarningThreshold", self:GetValue())
+								DataStore:SetOption("DataStore_Mails", "MailWarningThreshold", self:GetValue())
 							</OnValueChanged>
 						</Scripts>
 					</Slider>

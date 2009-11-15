@@ -1,7 +1,32 @@
 Altoholic Changelog (dates in dd/mm/yyyy)
 ===================
 
-3.2.002b
+3.2.003
+
+- Fixed a compatibility issue with MrTrader (DataStore_Crafts)
+- Added the character skill level in the recipe tooltip (in "Could be learned by ..")
+- Fixed a Lua error in when trying to get the item count of a missing character.
+- Fixed invalid reporting of the number of free bank slots.
+- Added a counter in the achievements tooltip to show the amount of completed criterias, this is particulary useful for achievements like "Northrend Gourmet"
+- Some achievement categories are now sorted in a custom fashion, rather than alphabetically, in order to show progressive achievements side by side.
+- Achievements can now be linked into chat frames. (You will need to relog your alts at least once for this to work).
+- Moved the option that manages the mail expiry threshold to DataStore_Mails. It is thus reset to 5 days for everyone, make sure to change it back to whatever you like in the options pane.
+- Guild communication has been entirely rewritten. 
+	The bad news is that backwards compatibility is not maintained (way too much work), meaning that you will not see your guild mates' data in the guild panes unless they upgrade to this version.
+	The good news is that the amount of data put on the guild channel has been decreased by around 30-35%, and as guild comm is now mostly managed by datastore, this will open doors for new features.
+- Improved the "Guild Bank Tabs" pane:
+	- if you're playing in a guild where players use different localizations of Altoholic, you will now see all timestamps in the same format.
+	- Players who have more recent data than yours are now shown in yellow (the colour may change if I find something more suitable).
+- Improved return mail support. If a guildmate returns a mail to one of your alts, you will be noticed immediately.
+- Mail expiries are now checked 5 seconds after login, to slightly decrease the processing load at startup.
+- Your alts' professions are now sent 5 seconds after login at a pace of 1 per 0.5 seconds, this also decreases the amount of info put on the network at startup. Same thing when you reply to someone else's login.
+- Guild member professions will now automatically be cleaned after a patch, to make sure your database only contains usable links.
+- Most money amounts are now displayed using money icons, some of them will remain as they were due to graphic inconsistencies.
+- DataStore_Talents now scans talent tree reference only once per game patch, this saves some cpu cycles at loading.
+- Fixed a lot of small bugs in a lot of places.
+
+
+3.2.002b (28/09/2009)
 
 - Removed the "Method missing" error message in DataStore, it now fails silently (it's mostly a debug feature).
 - Added an option to display detailed guild bank counters (per tab). Disabled by default.

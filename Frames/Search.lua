@@ -786,19 +786,22 @@ function Altoholic.Search:BrowseCharacter(character)
 		and (self.SearchSlot == 0) then
 		
 		local isHeader, spellID, itemID
-		for professionName, profession in pairs(DS:GetProfessions(character)) do
-			for index = 1, DS:GetNumCraftLines(profession) do
-				isHeader, _, spellID = DS:GetCraftLineInfo(profession, index)
-				
-				if not isHeader then
-					if CraftMatchFound(spellID, self.SearchValue) then
-						self.Results:Add(	{
-							linetype = PLAYER_CRAFT_LINE,
-							char = self.SearchCharacterIndex,
-							professionName = professionName,
-							profession = profession,
-							craftIndex = index,
-						} )
+		local professions = DS:GetProfessions(character)
+		if professions then
+			for professionName, profession in pairs(professions) do
+				for index = 1, DS:GetNumCraftLines(profession) do
+					isHeader, _, spellID = DS:GetCraftLineInfo(profession, index)
+					
+					if not isHeader then
+						if CraftMatchFound(spellID, self.SearchValue) then
+							self.Results:Add(	{
+								linetype = PLAYER_CRAFT_LINE,
+								char = self.SearchCharacterIndex,
+								professionName = professionName,
+								profession = profession,
+								craftIndex = index,
+							} )
+						end
 					end
 				end
 			end

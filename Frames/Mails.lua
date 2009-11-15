@@ -170,30 +170,6 @@ function Altoholic.Mail:Sort(self, field)
 	Altoholic.Mail:Update()
 end
 
-function Altoholic.Mail:CheckExpiries(elapsed)
-	-- this function checks the expiry date of each mail stored on all realms, and sets a flag if any is below threshold
-	if Altoholic.Options:Get("CheckMailExpiry") == 0 then return end
-	
-	local threshold = Altoholic.Options:Get("MailWarningThreshold")
-	local DS = DataStore
-	
-	for realm, _ in pairs(DS:GetRealms()) do
-		for _, character in pairs(DS:GetCharacters(realm)) do
-			if DS:GetNumExpiredMails(character, threshold) > 0 then
-				AltoMsgBox:SetHeight(130)
-				AltoMsgBox_Text:SetHeight(60)
-				AltoMsgBox.ButtonHandler = AltoholicMailExpiry_ButtonHandler
-				AltoMsgBox_Text:SetText(format("%sAltoholic: %s%s", TEAL, WHITE, 
-					"\n" .. L["Mail is about to expire on at least one character."] .. "\n" 
-					.. L["Refer to the activity pane for more details."].. "\n\n")
-					.. L["Do you want to view it now ?"])
-				AltoMsgBox:Show()
-				return
-			end
-		end
-	end
-end
-
 function Altoholic.Mail:OnEnter(self)
 	local DS = DataStore
 	local character = Altoholic.Tabs.Characters:GetCurrent()
@@ -237,60 +213,27 @@ function Altoholic.Mail:OnClick(self, button)
 	end
 end
 
+function Altoholic:DATASTORE_GLOBAL_MAIL_EXPIRY(event, threshold)
+	-- at least one mail has expired
+	if Altoholic.Options:Get("CheckMailExpiry") == 0 then return end
 
-function AltoholicMailExpiry_ButtonHandler(self, button)
-	AltoMsgBox.ButtonHandler = nil		-- prevent any other call to msgbox from coming back here
-	if not button then return end
+	AltoMsgBox:SetHeight(130)
+	AltoMsgBox_Text:SetHeight(60)
+	Altoholic:SetMsgBoxHandler(function(self, button)
+			if button then
+				Altoholic:ToggleUI()
+				Altoholic.Tabs.Summary:MenuItem_OnClick(4)
+			end
+		end)
 	
-	Altoholic:ToggleUI()
-	Altoholic.Tabs.Summary:MenuItem_OnClick(4)
+	AltoMsgBox_Text:SetText(format("%sAltoholic: %s%s", TEAL, WHITE, 
+		"\n" .. L["Mail is about to expire on at least one character."] .. "\n" 
+		.. L["Refer to the activity pane for more details."].. "\n\n")
+		.. L["Do you want to view it now ?"])
+	AltoMsgBox:Show()
 end
-
 
 -- *** Hooks ***
-
-local Orig_SendMail = SendMail
-
--- from Comm.lua
-local MSG_GUILD_SENDMAIL_INIT				= 10
-local MSG_GUILD_SENDMAIL_END				= 11
-local MSG_GUILD_SENDMAIL_ATTACHMENTS	= 12
-local MSG_GUILD_SENDMAIL_BODY				= 13
-
-function SendMail(recipient, subject, body, ...)
-	local isRecipientAnAlt
-
-	-- check if recipient in an alt
-	for CharacterName, _ in pairs(DataStore:GetCharacters()) do
-		if strlower(CharacterName) == strlower(recipient) then			-- if recipient is a known alt
-			isRecipientAnAlt = true
-			break
-		end
-	end
-	
-	if not isRecipientAnAlt then	-- if recipient is not an alt, maybe it's a guildmate
-		local player = Altoholic.Guild.Members:GetNameOfMain(recipient)
-		
-		if player then 
-			-- this mail is sent to "player", but is for alt  "recipient"
-			local comm = Altoholic.Comm.Guild
-			
-			comm:Whisper(player, MSG_GUILD_SENDMAIL_INIT, recipient)
-			comm:Whisper(player, MSG_GUILD_SENDMAIL_ATTACHMENTS, DataStore:GetMailAttachments())
-			
-			-- .. then save the mail itself + gold if any
-			local moneySent = GetSendMailMoney()
-			if (moneySent > 0) or (strlen(body) > 0) then
-				comm:Whisper(player, MSG_GUILD_SENDMAIL_BODY, { moneySent, body, subject })
-			end
-			
-			comm:Whisper(player, MSG_GUILD_SENDMAIL_END)
-		end
-	end
-	
-	Orig_SendMail(recipient, subject, body, ...)
-end
-
 local Orig_SendMailNameEditBox_OnChar = SendMailNameEditBox:GetScript("OnChar")
 
 SendMailNameEditBox:SetScript("OnChar", function(...)

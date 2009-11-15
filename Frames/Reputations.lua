@@ -329,7 +329,7 @@ function Altoholic.Reputations:OnEnter(self)
 	AltoTooltip:AddLine(format("%s = %s", ICON_EXALTED, FACTION_STANDING_LABEL8), 1, 1, 1);
 	
 	AltoTooltip:AddLine(" ",1,1,1);
-	AltoTooltip:AddLine(GREEN .. L["Shift-Click to link this info"],1,1,1);
+	AltoTooltip:AddLine(GREEN .. L["Shift+Left click to link"]);
 	AltoTooltip:Show();
 end
 

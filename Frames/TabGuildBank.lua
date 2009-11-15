@@ -90,7 +90,7 @@ function Altoholic.Tabs.GuildBank:LoadGuild(account, realm, name)
 	end
 	
 	AltoholicTabGuildBank_HideInTooltip:SetChecked(guild.hideInTooltip)
-	AltoholicTabGuildBankMoney:SetText(MONEY .. ": " .. Altoholic:GetMoneyString(guild.bankmoney))
+	AltoholicTabGuildBankMoney:SetText(MONEY .. ": " .. Altoholic:GetMoneyString(guild.bankmoney, WHITE))
 end
 
 function Altoholic.Tabs.GuildBank:HideGuild(self)

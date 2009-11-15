@@ -154,20 +154,20 @@ function Altoholic.Tabs.Summary:SetMode(mode)
 		Columns:Add(LASTONLINE, 90, function(self) Altoholic.Characters:Sort(self, "GetLastLogout") end)
 
 	elseif mode == 5 then
-		Columns:Add(NAME, 100, function(self) Altoholic.Tabs.Summary:SortGuild(self, "name") end)
-		Columns:Add(LEVEL, 60, function(self) Altoholic.Tabs.Summary:SortGuild(self, "level") end)
-		Columns:Add("AiL", 65, function(self) Altoholic.Tabs.Summary:SortGuild(self, "averageItemLvl") end)
-		Columns:Add(GAME_VERSION_LABEL, 80, function(self) Altoholic.Tabs.Summary:SortGuild(self, "version") end)
-		Columns:Add(CLASS, 100, function(self) Altoholic.Tabs.Summary:SortGuild(self, "englishClass") end)
+		Columns:Add(NAME, 100, function(self) Altoholic.Guild.Members:Sort(self, "name") end)
+		Columns:Add(LEVEL, 60, function(self) Altoholic.Guild.Members:Sort(self, "level") end)
+		Columns:Add("AiL", 65, function(self) Altoholic.Guild.Members:Sort(self, "averageItemLvl") end)
+		Columns:Add(GAME_VERSION_LABEL, 80, function(self) Altoholic.Guild.Members:Sort(self, "version") end)
+		Columns:Add(CLASS, 100, function(self) Altoholic.Guild.Members:Sort(self, "englishClass") end)
 
 	elseif mode == 6 then
-		Columns:Add(NAME, 60, function(self) Altoholic.Tabs.Summary:SortGuild(self, "name") end)
-		Columns:Add(LEVEL, 60, function(self) Altoholic.Tabs.Summary:SortGuild(self, "level") end)
-		Columns:Add(CLASS, 120, function(self) Altoholic.Tabs.Summary:SortGuild(self, "englishClass") end)
-		Columns:Add(L["Prof. 1"], 110, function(self) Altoholic.Tabs.Summary:SortGuild(self, "prof1link") end)
-		Columns:Add(L["Prof. 2"], 110, function(self) Altoholic.Tabs.Summary:SortGuild(self, "prof2link") end)
+		Columns:Add(NAME, 60, function(self) Altoholic.Guild.Professions:Sort(self, "name") end)
+		Columns:Add(LEVEL, 60, function(self) Altoholic.Guild.Professions:Sort(self, "level") end)
+		Columns:Add(CLASS, 120, function(self) Altoholic.Guild.Professions:Sort(self, "englishClass") end)
+		Columns:Add(L["Prof. 1"], 110, function(self) Altoholic.Guild.Professions:Sort(self, "profLink", 1) end)
+		Columns:Add(L["Prof. 2"], 110, function(self) Altoholic.Guild.Professions:Sort(self, "profLink", 2) end)
 		title = GetSpellInfo(2550)		-- cooking
-		Columns:Add(title, 110, function(self) Altoholic.Tabs.Summary:SortGuild(self, "cookinglink") end)
+		Columns:Add(title, 110, function(self) Altoholic.Guild.Professions:Sort(self, "profLink", 3) end)
 		
 	elseif mode == 7 then
 		Columns:Add(NAME, 100, nil)
@@ -180,17 +180,6 @@ function Altoholic.Tabs.Summary:SetMode(mode)
 	end
 end
 
-function Altoholic.Tabs.Summary:SortGuild(self, field)
-	
-	if Altoholic.Tabs.Summary.mode == 6 then
-		Altoholic.Tabs.Summary.GuildProfessionsSortBy = field
-		Altoholic.Tabs.Summary.GuildProfessionsSortOrder = self.ascendingSort
-	end
-	
-	Altoholic.Guild.Members:Sort(field, self.ascendingSort)
-	Altoholic.Tabs.Summary:Refresh()
-end
-
 function Altoholic.Tabs.Summary:Refresh()
 	if AltoholicFrameSummary:IsVisible() then
 		Altoholic.Summary:Update()
@@ -201,13 +190,10 @@ function Altoholic.Tabs.Summary:Refresh()
 	elseif AltoholicFrameActivity:IsVisible() then
 		Altoholic.Activity:Update()
 	elseif AltoholicFrameGuildMembers:IsVisible() then
-		Altoholic.Guild.Members:BuildView()
 		Altoholic.Guild.Members:Update()
 	elseif AltoholicFrameGuildProfessions:IsVisible() then
-		Altoholic.Guild.Professions:BuildView()
 		Altoholic.Guild.Professions:Update()
 	elseif AltoholicFrameGuildBankTabs:IsVisible() then
-		Altoholic.Guild.BankTabs:BuildView()
 		Altoholic.Guild.BankTabs:Update()
 	elseif AltoholicFrameCalendar:IsVisible() then
 		Altoholic.Calendar.Events:BuildList()
@@ -236,26 +222,11 @@ function Altoholic.Tabs.Summary:ToggleView(self)
 		end
 		Altoholic.Tabs.Summary:Refresh()
 	elseif mode == 5 then
-		for line, s in pairs(Altoholic.Guild.Members.view) do
-			if s.linetype == 1 then			-- ALTO_MAIN_LINE = 1
-				s.isCollapsed = (self.isCollapsed) or false
-			end
-		end
-		Altoholic.Guild.Members:Update()
+		Altoholic.Guild.Members:ToggleView(self)
 	elseif mode == 6 then
-		for line, s in pairs(Altoholic.Guild.Professions.view) do
-			if mod(s.linetype, 2) == 0 then		-- MAIN_LINE = 0
-				s.isCollapsed = (self.isCollapsed) or false
-			end
-		end
-		Altoholic.Guild.Professions:Update()
+		Altoholic.Guild.Professions:ToggleView(self)
 	elseif mode == 7 then
-		for line, s in pairs(Altoholic.Guild.BankTabs.view) do
-			if mod(s.linetype, 2) == 0 then		-- CHAR_LINE = 0
-				s.isCollapsed = (self.isCollapsed) or false
-			end
-		end
-		Altoholic.Guild.BankTabs:Update()
+		Altoholic.Guild.BankTabs:ToggleView(self)
 	end
 end
 

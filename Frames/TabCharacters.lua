@@ -85,7 +85,7 @@ function Altoholic.Tabs.Characters:UpdateViewIcons()
 	
 	-- ** Auctions / Bids / Mails **
 	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Auctions", ICON_VIEW_AUCTIONS, size, size)
-	local num = DS:GetNumAuctions(character)
+	local num = DS:GetNumAuctions(character) or 0
 	if num > 0 then
 		AltoholicTabCharacters_AuctionsCount:SetText(num)
 		AltoholicTabCharacters_AuctionsCount:Show()
@@ -96,7 +96,7 @@ function Altoholic.Tabs.Characters:UpdateViewIcons()
 	AltoholicTabCharacters_Auctions:Show()
 	
 	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Bids", ICON_VIEW_BIDS, size, size)
-	num = DS:GetNumBids(character)
+	num = DS:GetNumBids(character) or 0
 	if num > 0 then
 		AltoholicTabCharacters_BidsCount:SetText(num)
 		AltoholicTabCharacters_BidsCount:Show()
@@ -107,7 +107,7 @@ function Altoholic.Tabs.Characters:UpdateViewIcons()
 	AltoholicTabCharacters_Bids:Show()
 	
 	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Mails", ICON_VIEW_MAILS, size, size)
-	num = DS:GetNumMails(character)
+	num = DS:GetNumMails(character) or 0
 	if num > 0 then
 		AltoholicTabCharacters_MailsCount:SetText(num)
 		AltoholicTabCharacters_MailsCount:Show()
@@ -119,7 +119,7 @@ function Altoholic.Tabs.Characters:UpdateViewIcons()
 	
 	-- ** Pets / Mounts / Reputations **
 	local pets = DS:GetPets(character, "CRITTER")
-	num = DS:GetNumPets(pets)
+	num = DS:GetNumPets(pets) or 0
 
 	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Pets", ICON_VIEW_COMPANIONS, size, size)
 	if num > 0 then
@@ -132,7 +132,7 @@ function Altoholic.Tabs.Characters:UpdateViewIcons()
 	AltoholicTabCharacters_Pets:Show()
 
 	pets = DS:GetPets(character, "MOUNT")
-	num = DS:GetNumPets(pets)
+	num = DS:GetNumPets(pets) or 0
 
 	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Mounts", ICON_VIEW_MOUNTS, size, size)
 	if num > 0 then

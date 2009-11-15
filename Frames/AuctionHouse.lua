@@ -72,9 +72,9 @@ function Altoholic.AuctionHouse:BuildView(AHType, field, ascending)
 	
 	local num
 	if AHType == "Auctions" then
-		num = DS:GetNumAuctions(character)
+		num = DS:GetNumAuctions(character) or 0
 	else
-		num = DS:GetNumBids(character)
+		num = DS:GetNumBids(character) or 0
 	end
 	
 	for i = 1, num do
@@ -116,7 +116,7 @@ function Altoholic.AuctionHouse:UpdateAuctions()
 		AltoholicFrameAuctionsInfo1:Hide()
 	end
 	
-	local numAuctions = DS:GetNumAuctions(character)
+	local numAuctions = DS:GetNumAuctions(character) or 0
 	if numAuctions == 0 then
 		AltoholicTabCharactersStatus:SetText(format(L["%s has no auctions"], player))
 		-- make sure the scroll frame is cleared !
@@ -198,7 +198,7 @@ function Altoholic.AuctionHouse:UpdateBids()
 		AltoholicFrameAuctionsInfo1:Hide()
 	end
 	
-	local numBids = DS:GetNumBids(character)
+	local numBids = DS:GetNumBids(character) or 0
 	if numBids == 0 then
 		AltoholicTabCharactersStatus:SetText(format(L["%s has no bids"], player))
 		-- make sure the scroll frame is cleared !

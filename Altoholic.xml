@@ -462,14 +462,7 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						if AltoMsgBox.ButtonHandler then
-							AltoMsgBox:ButtonHandler(1)
-						else
-							DEFAULT_CHAT_FRAME:AddMessage("Altoholic: MessageBox Hangler not defined")
-						end
-						AltoMsgBox:Hide();
-						AltoMsgBox:SetHeight(100)
-						AltoMsgBox_Text:SetHeight(28)
+						Altoholic:MsgBox_OnClick(1)
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -486,14 +479,7 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						if AltoMsgBox.ButtonHandler then
-							AltoMsgBox:ButtonHandler()
-						else
-							DEFAULT_CHAT_FRAME:AddMessage("Altoholic: MessageBox Hangler not defined")
-						end
-						AltoMsgBox:Hide();
-						AltoMsgBox:SetHeight(100)
-						AltoMsgBox_Text:SetHeight(28)
+						Altoholic:MsgBox_OnClick(nil)
 					</OnClick>
 				</Scripts>
 			</Button>
