@@ -215,7 +215,6 @@ end
 
 function Altoholic:DATASTORE_GLOBAL_MAIL_EXPIRY(event, threshold)
 	-- at least one mail has expired
-	if Altoholic.Options:Get("CheckMailExpiry") == 0 then return end
 
 	AltoMsgBox:SetHeight(130)
 	AltoMsgBox_Text:SetHeight(60)

@@ -94,11 +94,6 @@ function Altoholic:InitLocalization()
 	AltoholicTabSearchSlot:SetText(L["Equipment Slot"])
 	AltoholicTabSearchLocation:SetText(L["Location"])
 	
-	AltoholicTabOptionsMenuItem1:SetText(L["General"])
-	AltoholicTabOptionsMenuItem4:SetText(L["Account Sharing"])
-	AltoholicTabOptionsMenuItem5:SetText(L["Tooltip"])
-	AltoholicTabOptionsMenuItem6:SetText(L["Calendar"])
-	
 	AltoholicFramePetsText1:SetText(L["View"])
 	AltoholicFrameReputationsText1:SetText(L["View"])
 	AltoholicFrameCurrenciesText1:SetText(L["View"])
@@ -128,14 +123,11 @@ function Altoholic:InitLocalization()
 	L["Activity"] = nil
 	L["Guild Skills"] = nil
 	L["Guild Bank Tabs"] = nil
-	L["Calendar"] = nil
-	L["Account Sharing"] = nil
+
 	L["View"] = nil
 	L["Hide this guild in the tooltip"] = nil
 	L["Not started"] = nil
 	L["Started"] = nil
-	L["General"] = nil
-	L["Tooltip"] = nil
 	L["Search Containers"] = nil
 	L["Equipment Slot"] = nil
 	L["Location"] = nil
@@ -479,10 +471,13 @@ local function SortByFunction(a, b, func, ascending)
 		local charA = DS:GetCharacter(a.name, a.realm, a.account)
 		local charB = DS:GetCharacter(b.name, b.realm, b.account)
 		
+		local retA = DS[func](self, charA) or 0		-- set to zero if a return value is nil, so that they can be compared
+		local retB = DS[func](self, charB) or 0
+		
 		if ascending then
-			return DS[func](self, charA) < DS[func](self, charB)
+			return retA < retB
 		else
-			return DS[func](self, charA) > DS[func](self, charB)
+			return retA > retB
 		end
 	end
 end

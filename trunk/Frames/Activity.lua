@@ -202,7 +202,8 @@ function Altoholic.Activity:OnEnter(self)
 	AltoTooltip:AddLine(" ",1,1,1);
 	AltoTooltip:AddLine(GOLD..CURRENCY..":",1,1,1);
 	
-	for i = 1, DS:GetNumCurrencies(character) do
+	local num = DS:GetNumCurrencies(character) or 0
+	for i = 1, num do
 		local isHeader, name, count = DS:GetCurrencyInfo(character, i)
 		if isHeader then
 			AltoTooltip:AddLine(YELLOW..name)
@@ -211,7 +212,7 @@ function Altoholic.Activity:OnEnter(self)
 		end
 	end
 	
-	if DS:GetNumCurrencies(character) == 0 then
+	if num == 0 then
 		AltoTooltip:AddLine(WHITE..NONE,1,1,1);
 	end
 	

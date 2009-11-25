@@ -225,6 +225,13 @@ function Altoholic.TradeSkills:OnEnter(self)
 	
 	if id <= 4 then	-- all skills except fishing & riding
 		AltoTooltip:AddLine(" ");
+		
+		if not profession then
+			AltoTooltip:AddLine(L["No data"]);
+			AltoTooltip:Show();
+			return
+		end
+		
 		if DS:GetNumCraftLines(profession) == 0 then
 			AltoTooltip:AddLine(L["No data"].. ": 0 " .. TRADESKILL_SERVICE_LEARN,1,1,1);
 		else
@@ -257,7 +264,7 @@ function Altoholic.TradeSkills:OnEnter(self)
 	end
 	
 	-- parse profession cooldowns
-	if id ~= 7 then
+	if id ~= 7 and profession then
 		DS:ClearExpiredCooldowns(profession)
 		local numCooldows = DS:GetNumActiveCooldowns(profession)
 		

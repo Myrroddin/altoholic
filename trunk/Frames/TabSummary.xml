@@ -271,6 +271,23 @@
 					</OnClick>
 				</Scripts>
 			</Button>
+			<Button name="$parent_Options" inherits="UIPanelButtonTemplate" text="GAMEOPTIONS_MENU">
+				<Size>
+					<AbsDimension x="100" y="24"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_RequestSharing" relativePoint="RIGHT" >
+						<Offset>
+							<AbsDimension x="30" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						InterfaceOptionsFrame_OpenToCategory("Altoholic")
+					</OnClick>
+				</Scripts>
+			</Button>
 		</Frames>
 	</Frame>
 

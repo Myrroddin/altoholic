@@ -21,7 +21,8 @@ local function GetUsedHeaders()
 	local usedHeaders = {}
 
 	for _, character in pairs(DS:GetCharacters(realm, account)) do	-- all alts on this realm
-		for i = 1, DS:GetNumCurrencies(character) do
+		local num = DS:GetNumCurrencies(character) or 0
+		for i = 1, num do
 			local isHeader, name = DS:GetCurrencyInfo(character, i)	-- save ech header found in the table
 			if isHeader then
 				usedHeaders[name] = true
@@ -42,7 +43,8 @@ local function GetUsedTokens(header)
 	local useData				-- use data for a specific header or not
 
 	for _, character in pairs(DS:GetCharacters(realm, account)) do	-- all alts on this realm
-		for i = 1, DS:GetNumCurrencies(character) do
+		local num = DS:GetNumCurrencies(character) or 0
+		for i = 1, num do
 			local isHeader, name, _, itemID = DS:GetCurrencyInfo(character, i)
 			if isHeader then
 				if name == header then		-- the header we're searching for, set the flag

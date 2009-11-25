@@ -772,7 +772,8 @@ function Altoholic.Search:BrowseCharacter(character)
 	
 	if Altoholic.Options:Get("IncludeMailbox") == 1 then			-- check mail ?
 		self.SearchLocation = L["Mail"]
-		for i = 1, DS:GetNumMails(character) do
+		local num = DS:GetNumMails(character) or 0
+		for i = 1, num do
 			local _, count, link = DS:GetMailInfo(character, i)
 			if link then
 				self:VerifyItem(link, count)
@@ -902,7 +903,7 @@ function Altoholic.Search:FindEquipmentUpgrade()
 	else	-- simple search, point to simple VerifyUpgrade method
 		Altoholic.Loots:FindUpgrade( itemLevel, itemType, itemSubType,
 			Altoholic.Equipment:GetInventoryTypeIndex(itemEquipLoc))
-		AltoholicTabOptionsFrame2LootInfo:SetText(
+		AltoholicSearchOptionsLootInfo:SetText(
 				GREEN .. Altoholic.Options:Get("TotalLoots") .. "|r " .. L["Loots"] .. " / "
 				.. GREEN .. Altoholic.Options:Get("UnknownLoots") .. "|r " .. L["Unknown"])
 	end
