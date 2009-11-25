@@ -25,1139 +25,1073 @@
 			</OnLoad>
 		</Scripts>
 	</Frame>
-	
-	<Frame name="AltoholicTabOptions" parent="AltoholicFrame" hidden="true">
+
+	<Frame name="AltoholicGeneralOptions" hidden="true">
 		<Size>
-			<AbsDimension x="758" y="447"/>
+			<AbsDimension x="615" y="306"/>
 		</Size>
-		<Anchors>
-			<Anchor point="TOPLEFT"/>
-		</Anchors>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString name="$parent_Title" inherits="GameFontHighlightLarge" justifyH="CENTER">
+					<Size>
+						<AbsDimension x="400" y="30"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOP" />
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
 		<Frames>
-			<Button name="$parentMenuItem1" inherits="AltoOptionMenuItemTemplate" id="1">
+			<CheckButton name="$parent_RestXPMode" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension  x="30" y="-50"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "RestXPMode")
+						Altoholic.Summary:Update()
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parent_GuildBankAutoUpdate" inherits="UICheckButtonTemplate" >
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT" relativeTo="$parent_RestXPMode" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension  x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						if self:GetChecked() then 
+							Altoholic.Options:Set("GuildBankAutoUpdate", 1)
+						else
+							Altoholic.Options:Set("GuildBankAutoUpdate", 0)
+						end
+					</OnClick>
+					<OnEnter>
+						Altoholic:ShowWidgetTooltip(self)
+					</OnEnter>
+					<OnLeave>
+						AltoTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parent_ShowMinimap" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT" relativeTo="$parent_GuildBankAutoUpdate" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension  x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						if self:GetChecked() then 
+							Altoholic.Options:Set("ShowMinimap", 1)
+							AltoholicMinimapButton:Show()
+						else
+							Altoholic.Options:Set("ShowMinimap", 0)
+							AltoholicMinimapButton:Hide()
+						end
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<Slider name="$parent_SliderAngle" inherits="OptionsSliderTemplate"  minValue="1" maxValue="360" defaultValue="180" valueStep="1">
+				<Size>
+					<AbsDimension x="180" y="16"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ShowMinimap" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="20" y="-30" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnValueChanged>
+						local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+						Altoholic:UpdateSlider(self:GetName(), L["Minimap Icon Angle"], "MinimapIconAngle")
+					</OnValueChanged>
+				</Scripts>
+			</Slider>
+			<Slider name="$parent_SliderRadius" inherits="OptionsSliderTemplate"  minValue="1" maxValue="200" defaultValue="78" valueStep="1">
+				<Size>
+					<AbsDimension x="180" y="16"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ShowMinimap" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="20" y="-80" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnValueChanged>
+						local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+						Altoholic:UpdateSlider(self:GetName(), L["Minimap Icon Radius"], "MinimapIconRadius")
+					</OnValueChanged>
+				</Scripts>
+			</Slider>
+			
+			<Slider name="$parent_SliderScale" inherits="OptionsSliderTemplate"  minValue="0.5" maxValue="4.0" defaultValue="1.0" valueStep="0.1">
+				<Size>
+					<AbsDimension x="180" y="16"/>
+				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="23" y="-105"/>
+							<AbsDimension x="400" y="-60" />
 						</Offset>
 					</Anchor>
 				</Anchors>
-			</Button>
-			<Button name="$parentMenuItem2" inherits="AltoOptionMenuItemTemplate" id="2" text="SEARCH">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem1" relativePoint="BOTTOMLEFT">
-						<Offset>
-							<AbsDimension x="0" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-			</Button>
-			<Button name="$parentMenuItem3" inherits="AltoOptionMenuItemTemplate" id="3" text="MAIL_LABEL">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem2" relativePoint="BOTTOMLEFT">
-						<Offset>
-							<AbsDimension x="0" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-			</Button>
-			<Button name="$parentMenuItem4" inherits="AltoOptionMenuItemTemplate" id="4">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem3" relativePoint="BOTTOMLEFT">
-						<Offset>
-							<AbsDimension x="0" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-			</Button>
-			<Button name="$parentMenuItem5" inherits="AltoOptionMenuItemTemplate" id="5">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem4" relativePoint="BOTTOMLEFT">
-						<Offset>
-							<AbsDimension x="0" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-			</Button>
-			<Button name="$parentMenuItem6" inherits="AltoOptionMenuItemTemplate" id="6">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem5" relativePoint="BOTTOMLEFT">
-						<Offset>
-							<AbsDimension x="0" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-			</Button>
-
-			<Frame name="$parentFrame1" hidden="true">
-				<Size>
-					<AbsDimension x="615" y="306"/>
-				</Size>
-				<Anchors>
-					<Anchor point="TOPRIGHT">
-						<Offset>
-							<AbsDimension x="39" y="-105"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<Frames>
-					<CheckButton name="$parent_RestXPMode" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension  x="30" y="-30"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "RestXPMode")
-								Altoholic.Summary:Update()
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="$parent_GuildBankAutoUpdate" inherits="UICheckButtonTemplate" >
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOPLEFT" relativeTo="$parent_RestXPMode" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension  x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								if self:GetChecked() then 
-									Altoholic.Options:Set("GuildBankAutoUpdate", 1)
-								else
-									Altoholic.Options:Set("GuildBankAutoUpdate", 0)
-								end
-							</OnClick>
-							<OnEnter>
-								Altoholic:ShowWidgetTooltip(self)
-							</OnEnter>
-							<OnLeave>
-								AltoTooltip:Hide();
-							</OnLeave>
-						</Scripts>
-					</CheckButton>
-					<Slider name="$parent_SliderAngle" inherits="OptionsSliderTemplate"  minValue="1" maxValue="360" defaultValue="180" valueStep="1">
-						<Size>
-							<AbsDimension x="180" y="16"/>
-						</Size>
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parent_GuildBankAutoUpdate" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension x="20" y="-30" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnValueChanged>
-								local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
-								Altoholic:UpdateSlider(self:GetName(), L["Minimap Icon Angle"], "MinimapIconAngle")
-							</OnValueChanged>
-						</Scripts>
-					</Slider>
-					<Slider name="$parent_SliderRadius" inherits="OptionsSliderTemplate"  minValue="1" maxValue="200" defaultValue="78" valueStep="1">
-						<Size>
-							<AbsDimension x="180" y="16"/>
-						</Size>
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parent_GuildBankAutoUpdate" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension x="20" y="-80" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnValueChanged>
-								local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
-								Altoholic:UpdateSlider(self:GetName(), L["Minimap Icon Radius"], "MinimapIconRadius")
-							</OnValueChanged>
-						</Scripts>
-					</Slider>
-					<CheckButton name="$parent_ShowMinimap" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOPLEFT" relativeTo="$parent_SliderRadius" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension  x="0" y="-20"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								if self:GetChecked() then 
-									Altoholic.Options:Set("ShowMinimap", 1)
-									AltoholicMinimapButton:Show()
-								else
-									Altoholic.Options:Set("ShowMinimap", 0)
-									AltoholicMinimapButton:Hide()
-								end
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					
-					<Slider name="$parent_SliderScale" inherits="OptionsSliderTemplate"  minValue="0.5" maxValue="4.0" defaultValue="1.0" valueStep="0.1">
-						<Size>
-							<AbsDimension x="180" y="16"/>
-						</Size>
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="400" y="-40" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								local name = self:GetName()
-								_G[name .. "Low"]:SetText("0.5");
-								_G[name .. "High"]:SetText("4.0"); 
-								_G[name .. "Text"]:SetText(format("%s (%1.1f)", UI_SCALE, self:GetValue()));
-							</OnLoad>
-							<OnValueChanged>
-								local value = self:GetValue()
-								_G[self:GetName() .. "Text"]:SetText(format("%s (%1.1f)", UI_SCALE, value));
-							</OnValueChanged>
-						</Scripts>
-					</Slider>
-					<Button name="$parent_ResetButton" inherits="UIPanelButtonTemplate" text="RESET">
-						<Size>
-							<AbsDimension x="80" y="24"/>
-						</Size>
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="400" y="-90" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								local name = self:GetParent():GetName()
-								_G[name .. "_SliderScale"]:SetValue(1.0)
-								_G[name .. "_SliderScaleText"]:SetText(format("%s (%1.1f)", UI_SCALE, 1.0));
-								AltoholicFrame:SetScale(1.0)
-								Altoholic.Options:Set("UIScale", 1.0)
-							</OnClick>
-						</Scripts>
-					</Button>
-
-					<Button name="$parent_ApplyButton" inherits="UIPanelButtonTemplate" text="APPLY">
-						<Size>
-							<AbsDimension x="80" y="24"/>
-						</Size>
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parent_ResetButton" relativePoint="TOPRIGHT" >
-								<Offset>
-									<AbsDimension x="20" y="0" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								local name = self:GetParent():GetName()
-								local value = _G[name .. "_SliderScale"]:GetValue()
-								AltoholicFrame:SetScale(value)
-								Altoholic.Options:Set("UIScale", value)
-							</OnClick>
-						</Scripts>
-					</Button>
-
-					<Slider name="$parent_SliderAlpha" inherits="OptionsSliderTemplate"  minValue="0.1" maxValue="1" defaultValue="1" valueStep="0.05">
-						<Size>
-							<AbsDimension x="180" y="16"/>
-						</Size>
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="400" y="-140" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnValueChanged>
-								local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
-								
-								local value = self:GetValue()
-								_G[self:GetName() .. "Text"]:SetText(format("%s (%1.2f)", L["Transparency"], value));
-								AltoholicFrame:SetAlpha(value)
-								Altoholic.Options:Set("UITransparency", value)
-							</OnValueChanged>
-						</Scripts>
-					</Slider>
-				</Frames>
-			</Frame>
-			<Frame name="$parentFrame2" hidden="true">
-				<Size>
-					<AbsDimension x="615" y="306"/>
-				</Size>
-				<Anchors>
-					<Anchor point="TOPRIGHT">
-						<Offset>
-							<AbsDimension x="39" y="-105"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<Layers>
-					<Layer level="OVERLAY">
-						<FontString name="$parentLootInfo" inherits="GameFontNormalSmall" justifyH="RIGHT">
-							<Size x="160" y="20" />
-							<Anchors>
-								<Anchor point="TOPLEFT">
-									<Offset x="30" y="-30" />
-								</Anchor>
-							</Anchors>
-						</FontString>
-					</Layer>
-				</Layers>
-				<Frames>
-					<CheckButton name="$parent_SearchAutoQuery" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension  x="20" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "SearchAutoQuery")
-							</OnClick>
-							<OnEnter>
-								Altoholic:ShowWidgetTooltip(self)
-							</OnEnter>
-							<OnLeave>
-								AltoTooltip:Hide();
-							</OnLeave>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="$parent_SortDescending" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOPLEFT" relativeTo="$parent_SearchAutoQuery" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension  x="0" y="-40"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "SortDescending")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="$parent_IncludeNoMinLevel" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOP" relativeTo="$parent_SortDescending" relativePoint="BOTTOM" >
-								<Offset>
-									<AbsDimension  x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "IncludeNoMinLevel")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="$parent_IncludeMailbox" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOP" relativeTo="$parent_IncludeNoMinLevel" relativePoint="BOTTOM" >
-								<Offset>
-									<AbsDimension  x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "IncludeMailbox")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="$parent_IncludeGuildBank" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOP" relativeTo="$parent_IncludeMailbox" relativePoint="BOTTOM" >
-								<Offset>
-									<AbsDimension  x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "IncludeGuildBank")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="$parent_IncludeRecipes" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOP" relativeTo="$parent_IncludeGuildBank" relativePoint="BOTTOM" >
-								<Offset>
-									<AbsDimension  x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "IncludeRecipes")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="$parent_IncludeGuildSkills" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOP" relativeTo="$parent_IncludeRecipes" relativePoint="BOTTOM" >
-								<Offset>
-									<AbsDimension  x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "IncludeGuildSkills")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-				</Frames>
-			</Frame>
-			<Frame name="$parentFrame3" hidden="true">
-				<Size>
-					<AbsDimension x="615" y="306"/>
-				</Size>
-				<Anchors>
-					<Anchor point="TOPRIGHT">
-						<Offset>
-							<AbsDimension x="39" y="-105"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<Frames>
-					<Slider name="$parent_SliderMailExpiry" inherits="OptionsSliderTemplate"  minValue="1" maxValue="15" defaultValue="5" valueStep="1">
-						<Size>
-							<AbsDimension x="180" y="16"/>
-						</Size>
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="40" y="-40" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnValueChanged>
-								local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
-								
-								local name = self:GetName()
-								_G[name .. "Text"]:SetText(L["Mail Expiry Warning"] .. " (" .. self:GetValue() ..")");
-								DataStore:SetOption("DataStore_Mails", "MailWarningThreshold", self:GetValue())
-							</OnValueChanged>
-						</Scripts>
-					</Slider>
-
-					<CheckButton name="$parent_CheckMailExpiry" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOPLEFT" relativeTo="$parent_SliderMailExpiry" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension  x="0" y="-20"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "CheckMailExpiry")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="$parent_ScanMailBody" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOP" relativeTo="$parent_CheckMailExpiry" relativePoint="BOTTOM" >
-								<Offset>
-									<AbsDimension  x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors> 
-						<Scripts>
-							<OnClick>
-								if self:GetChecked() then
-									DataStore:SetOption("DataStore_Mails", "ScanMailBody", 1)
-								else
-									DataStore:SetOption("DataStore_Mails", "ScanMailBody", 0)
-								end
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="$parent_GuildMailWarning" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOP" relativeTo="$parent_ScanMailBody" relativePoint="BOTTOM" >
-								<Offset>
-									<AbsDimension  x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "GuildMailWarning")
-							</OnClick>
-							<OnEnter>
-								Altoholic:ShowWidgetTooltip(self)
-							</OnEnter>
-							<OnLeave>
-								AltoTooltip:Hide();
-							</OnLeave>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="$parent_NameAutoComplete" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOP" relativeTo="$parent_GuildMailWarning" relativePoint="BOTTOM" >
-								<Offset>
-									<AbsDimension  x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "NameAutoComplete")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-				</Frames>
-			</Frame>
-			<Frame name="$parentFrame4" hidden="true">
-				<Size>
-					<AbsDimension x="615" y="306"/>
-				</Size>
-				<Anchors>
-					<Anchor point="TOPRIGHT">
-						<Offset>
-							<AbsDimension x="39" y="-105"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<Layers>
-					<Layer level="BACKGROUND">
-						<FontString name="$parentText1" inherits="GameFontNormalSmall">
-							<Size>
-								<AbsDimension x="100" y="18"/>
-							</Size>
-							<Anchors>
-								<Anchor point="TOPLEFT">
-									<Offset>
-										<AbsDimension x="30" y="-50"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
-						</FontString>
-						<FontString name="$parentText2" inherits="GameFontNormalSmall">
-							<Size>
-								<AbsDimension x="80" y="18"/>
-							</Size>
-							<Anchors>
-								<Anchor point="TOPLEFT">
-									<Offset>
-										<AbsDimension x="20" y="-235"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
-						</FontString>
-						<FontString name="$parentText3" inherits="GameFontNormalSmall">
-							<Size>
-								<AbsDimension x="100" y="18"/>
-							</Size>
-							<Anchors>
-								<Anchor point="TOPLEFT">
-									<Offset>
-										<AbsDimension x="390" y="-20"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
-						</FontString>
-						<FontString name="$parentIconNever" inherits="GameFontNormalSmall">
-							<Size>
-								<AbsDimension x="20" y="18"/>
-							</Size>
-							<Anchors>
-								<Anchor point="TOPLEFT">
-									<Offset>
-										<AbsDimension x="183" y="-58"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
-						</FontString>
-						<FontString name="$parentIconAsk" inherits="GameFontNormalSmall">
-							<Size>
-								<AbsDimension x="20" y="18"/>
-							</Size>
-							<Anchors>
-								<Anchor point="TOPLEFT" relativeTo="$parentIconNever" relativePoint="TOPRIGHT" >
-									<Offset>
-										<AbsDimension x="3" y="0"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
-						</FontString>
-						<FontString name="$parentIconAuto" inherits="GameFontNormalSmall">
-							<Size>
-								<AbsDimension x="20" y="18"/>
-							</Size>
-							<Anchors>
-								<Anchor point="TOPLEFT" relativeTo="$parentIconAsk" relativePoint="TOPRIGHT" >
-									<Offset>
-										<AbsDimension x="3" y="0"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
-						</FontString>
-					</Layer>
-				</Layers>
-				<Frames>
-					<!-- for readability reasons, the 2 scrollframes of this pane are located in AccountSharing.xml  -->
-					<CheckButton name="$parent_AccSharingComm" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension  x="30" y="-20"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								if self:GetChecked() then 
-									Altoholic.Options:Set("AccSharingHandlerEnabled", 1)
-									Altoholic.Comm.Sharing:SetMessageHandler("ActiveHandler")
-								else
-									Altoholic.Options:Set("AccSharingHandlerEnabled", 0)
-									Altoholic.Comm.Sharing:SetMessageHandler("EmptyHandler")
-								end
-							</OnClick>
-							<OnEnter>
-								Altoholic:ShowWidgetTooltip(self)
-							</OnEnter>
-							<OnLeave>
-								AltoTooltip:Hide();
-							</OnLeave>
-						</Scripts>
-					</CheckButton>
-					<Button name="$parent_InfoButton" inherits="UIPanelButtonTemplate" text="?">
-						<Size>
-							<AbsDimension x="20" y="24"/>
-						</Size>
-						<Anchors>
-							<Anchor point="LEFT" relativeTo="$parentText1" relativePoint="RIGHT" >
-								<Offset>
-									<AbsDimension x="5" y="0"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnEnter>
-								Altoholic:ShowWidgetTooltip(self)
-							</OnEnter>
-							<OnLeave>
-								AltoTooltip:Hide();
-							</OnLeave>
-						</Scripts>
-					</Button>
-
-					<Button name="$parent_ToggleAll">
-						<Size>
-							<AbsDimension x="16" y="16"/>
-						</Size>
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="310" y="-25"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								Altoholic.Sharing.Content:ToggleAll(self, button)
-							</OnClick>
-						</Scripts>
-						<NormalTexture name="$parentIcon" file="Interface\Buttons\UI-MinusButton-UP" />
-						<HighlightTexture file="Interface\Buttons\UI-PlusButton-Hilight" alphaMode="ADD" />
-					</Button>
-					<CheckButton name="$parent_CheckAll" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="LEFT" relativeTo="$parent_ToggleAll" relativePoint="RIGHT">
-								<Offset>
-									<AbsDimension  x="5" y="0"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnLoad>
-								_G[self:GetName() .. "Text"]:SetText(ALL)
-							</OnLoad>
-							<OnClick>
-								Altoholic.Sharing.Content:CheckAll(self, button)
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<Button name="$parent_SharedContentInfoButton" inherits="UIPanelButtonTemplate" text="?">
-						<Size>
-							<AbsDimension x="20" y="24"/>
-						</Size>
-						<Anchors>
-							<Anchor point="LEFT" relativeTo="$parentText3" relativePoint="RIGHT" >
-								<Offset>
-									<AbsDimension x="5" y="0"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnEnter>
-								Altoholic:ShowWidgetTooltip(self)
-							</OnEnter>
-							<OnLeave>
-								AltoTooltip:Hide();
-							</OnLeave>
-						</Scripts>
-					</Button>
-
-					<EditBox name="$parent_CharNameEditBox" inherits="InputBoxTemplate">
-						<Size x="100" y="16" />
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentText2" relativePoint="BOTTOMLEFT" >
-								<Offset x="10" y="-5" />
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								self:SetAutoFocus( true );
-							</OnLoad>
-							<OnEnterPressed>
-								self:ClearFocus();
-								self:SetFocus();
-								Altoholic.Sharing.Clients:Add( self:GetText() )
-								Altoholic.Sharing.Clients:Update()
-							</OnEnterPressed>
-							<OnEscapePressed>
-								if self:GetText() == "" then
-									Altoholic:ToggleUI()
-								else
-									self:SetText("")
-								end
-							</OnEscapePressed>
-						</Scripts>
-					</EditBox>
-					<Button name="$parent_AddButton" inherits="UIPanelButtonTemplate" text="Add">
-						<Size>
-							<AbsDimension x="60" y="24"/>
-						</Size>
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parent_CharNameEditBox" relativePoint="TOPRIGHT" >
-								<Offset>
-									<AbsDimension x="10" y="0" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								local name = _G[self:GetParent():GetName() .."_CharNameEditBox"]:GetText()
-								Altoholic.Sharing.Clients:Add(name)
-								Altoholic.Sharing.Clients:Update()
-							</OnClick>
-						</Scripts>
-					</Button>
-					<Button name="$parent_DelButton" inherits="UIPanelButtonTemplate" text="Del">
-						<Size>
-							<AbsDimension x="60" y="24"/>
-						</Size>
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parent_AddButton" relativePoint="TOPRIGHT" >
-								<Offset>
-									<AbsDimension x="10" y="0" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								local name = _G[self:GetParent():GetName() .."_CharNameEditBox"]:GetText()
-								Altoholic.Sharing.Clients:Delete(name)
-								Altoholic.Sharing.Clients:Update()
-							</OnClick>
-						</Scripts>
-					</Button>
-				</Frames>
 				<Scripts>
-					<OnShow>
-						Altoholic.Sharing.Content:BuildView()
-						Altoholic.Sharing.Content:Update()
-						Altoholic.Sharing.Clients:Update()
-					</OnShow>
+					<OnLoad>
+						local name = self:GetName()
+						_G[name .. "Low"]:SetText("0.5");
+						_G[name .. "High"]:SetText("4.0"); 
+						_G[name .. "Text"]:SetText(format("%s (%1.1f)", UI_SCALE, self:GetValue()));
+					</OnLoad>
+					<OnValueChanged>
+						local value = self:GetValue()
+						_G[self:GetName() .. "Text"]:SetText(format("%s (%1.1f)", UI_SCALE, value));
+					</OnValueChanged>
 				</Scripts>
-			</Frame>
-			<Frame name="$parentFrame5" hidden="true">
+			</Slider>
+			<Button name="$parent_ResetButton" inherits="UIPanelButtonTemplate" text="RESET">
 				<Size>
-					<AbsDimension x="615" y="306"/>
+					<AbsDimension x="80" y="24"/>
 				</Size>
 				<Anchors>
-					<Anchor point="TOPRIGHT">
+					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="39" y="-105"/>
+							<AbsDimension x="400" y="-90" />
 						</Offset>
 					</Anchor>
 				</Anchors>
-				<Frames>
-					<CheckButton name="$parentSource" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension  x="20" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "TooltipSource")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="$parentCount" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOPLEFT" relativeTo="$parentSource" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension  x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "TooltipCount")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="$parentTotal" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOPLEFT" relativeTo="$parentCount" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension  x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "TooltipTotal")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="$parentRecipeInfo" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOPLEFT" relativeTo="$parentTotal" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension  x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "TooltipRecipeInfo")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="$parentItemID" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOPLEFT" relativeTo="$parentRecipeInfo" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension  x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "TooltipItemID")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="$parentGatheringNode" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOPLEFT" relativeTo="$parentItemID" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension  x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "TooltipGatheringNode")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="$parentCrossFaction" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOPLEFT" relativeTo="$parentGatheringNode" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension  x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "TooltipCrossFaction")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="$parentMultiAccount" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOPLEFT" relativeTo="$parentCrossFaction" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension  x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "TooltipMultiAccount")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					
-					<CheckButton name="$parentGuildBank" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOPLEFT" relativeTo="$parentSource" relativePoint="TOPRIGHT">
-								<Offset>
-									<AbsDimension  x="250" y="0"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "TooltipGuildBank")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="$parentGuildBankCount" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOPLEFT" relativeTo="$parentGuildBank" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension  x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "TooltipGuildBankCount")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="$parentGuildBankCountPerTab" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOPLEFT" relativeTo="$parentGuildBankCount" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension  x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "TooltipGuildBankCountPerTab")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-				</Frames>
-			</Frame>
-			<Frame name="$parentFrame6" hidden="true">
+				<Scripts>
+					<OnClick>
+						local name = self:GetParent():GetName()
+						_G[name .. "_SliderScale"]:SetValue(1.0)
+						_G[name .. "_SliderScaleText"]:SetText(format("%s (%1.1f)", UI_SCALE, 1.0));
+						AltoholicFrame:SetScale(1.0)
+						Altoholic.Options:Set("UIScale", 1.0)
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="$parent_ApplyButton" inherits="UIPanelButtonTemplate" text="APPLY">
 				<Size>
-					<AbsDimension x="615" y="306"/>
+					<AbsDimension x="80" y="24"/>
 				</Size>
 				<Anchors>
-					<Anchor point="TOPRIGHT">
+					<Anchor point="TOPLEFT" relativeTo="$parent_ResetButton" relativePoint="TOPRIGHT" >
 						<Offset>
-							<AbsDimension x="39" y="-105"/>
+							<AbsDimension x="20" y="0" />
 						</Offset>
 					</Anchor>
 				</Anchors>
-				<Frames>
-					<CheckButton name="$parentFirstDay" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension  x="20" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "WeekStartsMonday")
-								if self:GetChecked() then 
-									Altoholic.Calendar:SetFirstDayOfWeek(2)
-								else
-									Altoholic.Calendar:SetFirstDayOfWeek(1)
-								end
-								Altoholic.Calendar:Update()
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="$parentDialogBox" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOPLEFT" relativeTo="$parentFirstDay" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension  x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "WarningDialogBox")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="$parentDisableWarnings" inherits="UICheckButtonTemplate">
-						<Size>
-							<AbsDimension x="20" y="20"/>
-						</Size>
-						<Anchors> 
-							<Anchor point="TOPLEFT" relativeTo="$parentDialogBox" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension  x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>      
-						<Scripts>
-							<OnClick>
-								Altoholic.Options:Toggle(self, "DisableWarnings")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<Frame name="$parent_WarningType1" inherits="AltoWarningTypeTemplate" id="1">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentDisableWarnings" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-					</Frame>
-					<Frame name="$parent_WarningType2" inherits="AltoWarningTypeTemplate" id="2">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parent_WarningType1" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-					</Frame>
-					<Frame name="$parent_WarningType3" inherits="AltoWarningTypeTemplate" id="3">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parent_WarningType2" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-					</Frame>
-					<Frame name="$parent_WarningType4" inherits="AltoWarningTypeTemplate" id="4">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parent_WarningType3" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension x="0" y="-10"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-					</Frame>
-				</Frames>
-			</Frame>
+				<Scripts>
+					<OnClick>
+						local name = self:GetParent():GetName()
+						local value = _G[name .. "_SliderScale"]:GetValue()
+						AltoholicFrame:SetScale(value)
+						Altoholic.Options:Set("UIScale", value)
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Slider name="$parent_SliderAlpha" inherits="OptionsSliderTemplate"  minValue="0.1" maxValue="1" defaultValue="1" valueStep="0.05">
+				<Size>
+					<AbsDimension x="180" y="16"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="400" y="-140" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnValueChanged>
+						local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+						
+						local value = self:GetValue()
+						_G[self:GetName() .. "Text"]:SetText(format("%s (%1.2f)", L["Transparency"], value));
+						AltoholicFrame:SetAlpha(value)
+						Altoholic.Options:Set("UITransparency", value)
+					</OnValueChanged>
+				</Scripts>
+			</Slider>
+		</Frames>
+	</Frame>
+	
+	<Frame name="AltoholicSearchOptions" hidden="true">
+		<Size>
+			<AbsDimension x="615" y="306"/>
+		</Size>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString name="$parentLootInfo" inherits="GameFontNormalSmall" justifyH="RIGHT">
+					<Size x="160" y="20" />
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset x="30" y="-40" />
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<CheckButton name="$parent_SearchAutoQuery" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension  x="20" y="-20"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "SearchAutoQuery")
+					</OnClick>
+					<OnEnter>
+						Altoholic:ShowWidgetTooltip(self)
+					</OnEnter>
+					<OnLeave>
+						AltoTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parent_SortDescending" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT" relativeTo="$parent_SearchAutoQuery" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension  x="0" y="-40"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "SortDescending")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parent_IncludeNoMinLevel" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOP" relativeTo="$parent_SortDescending" relativePoint="BOTTOM" >
+						<Offset>
+							<AbsDimension  x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "IncludeNoMinLevel")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parent_IncludeMailbox" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOP" relativeTo="$parent_IncludeNoMinLevel" relativePoint="BOTTOM" >
+						<Offset>
+							<AbsDimension  x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "IncludeMailbox")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parent_IncludeGuildBank" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOP" relativeTo="$parent_IncludeMailbox" relativePoint="BOTTOM" >
+						<Offset>
+							<AbsDimension  x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "IncludeGuildBank")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parent_IncludeRecipes" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOP" relativeTo="$parent_IncludeGuildBank" relativePoint="BOTTOM" >
+						<Offset>
+							<AbsDimension  x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "IncludeRecipes")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parent_IncludeGuildSkills" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOP" relativeTo="$parent_IncludeRecipes" relativePoint="BOTTOM" >
+						<Offset>
+							<AbsDimension  x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "IncludeGuildSkills")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+		</Frames>
+	</Frame>
+
+	<Frame name="AltoholicMailOptions" hidden="true">
+		<Size>
+			<AbsDimension x="615" y="306"/>
+		</Size>
+		<Frames>
+			<CheckButton name="$parent_GuildMailWarning" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="40" y="-40" />
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "GuildMailWarning")
+					</OnClick>
+					<OnEnter>
+						Altoholic:ShowWidgetTooltip(self)
+					</OnEnter>
+					<OnLeave>
+						AltoTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parent_NameAutoComplete" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOP" relativeTo="$parent_GuildMailWarning" relativePoint="BOTTOM" >
+						<Offset>
+							<AbsDimension  x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "NameAutoComplete")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+		</Frames>
+	</Frame>
+	
+	<Frame name="AltoholicTooltipOptions" hidden="true">
+		<Size>
+			<AbsDimension x="615" y="306"/>
+		</Size>
+		<Frames>
+			<CheckButton name="$parentSource" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension  x="20" y="-20"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "TooltipSource")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parentCount" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT" relativeTo="$parentSource" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension  x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "TooltipCount")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parentTotal" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT" relativeTo="$parentCount" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension  x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "TooltipTotal")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parentRecipeInfo" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT" relativeTo="$parentTotal" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension  x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "TooltipRecipeInfo")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parentItemID" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT" relativeTo="$parentRecipeInfo" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension  x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "TooltipItemID")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parentGatheringNode" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT" relativeTo="$parentItemID" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension  x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "TooltipGatheringNode")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parentCrossFaction" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT" relativeTo="$parentGatheringNode" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension  x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "TooltipCrossFaction")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parentMultiAccount" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT" relativeTo="$parentCrossFaction" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension  x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "TooltipMultiAccount")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			
+			<CheckButton name="$parentGuildBank" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT" relativeTo="$parentSource" relativePoint="TOPRIGHT">
+						<Offset>
+							<AbsDimension  x="250" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "TooltipGuildBank")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parentGuildBankCount" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT" relativeTo="$parentGuildBank" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension  x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "TooltipGuildBankCount")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parentGuildBankCountPerTab" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT" relativeTo="$parentGuildBankCount" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension  x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "TooltipGuildBankCountPerTab")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+		</Frames>
+	</Frame>
+	
+	<Frame name="AltoholicAccountSharingOptions" hidden="true">
+		<Size>
+			<AbsDimension x="615" y="306"/>
+		</Size>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString name="$parentText1" inherits="GameFontNormalSmall">
+					<Size>
+						<AbsDimension x="100" y="18"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="30" y="-50"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentText2" inherits="GameFontNormalSmall">
+					<Size>
+						<AbsDimension x="80" y="18"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="20" y="-235"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentText3" inherits="GameFontNormalSmall">
+					<Size>
+						<AbsDimension x="100" y="18"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="390" y="-20"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentIconNever" inherits="GameFontNormalSmall">
+					<Size>
+						<AbsDimension x="20" y="18"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="183" y="-58"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentIconAsk" inherits="GameFontNormalSmall">
+					<Size>
+						<AbsDimension x="20" y="18"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parentIconNever" relativePoint="TOPRIGHT" >
+							<Offset>
+								<AbsDimension x="3" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentIconAuto" inherits="GameFontNormalSmall">
+					<Size>
+						<AbsDimension x="20" y="18"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parentIconAsk" relativePoint="TOPRIGHT" >
+							<Offset>
+								<AbsDimension x="3" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<!-- for readability reasons, the 2 scrollframes of this pane are located in AccountSharing.xml  -->
+			<CheckButton name="$parent_AccSharingComm" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension  x="30" y="-20"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						if self:GetChecked() then 
+							Altoholic.Options:Set("AccSharingHandlerEnabled", 1)
+							Altoholic.Comm.Sharing:SetMessageHandler("ActiveHandler")
+						else
+							Altoholic.Options:Set("AccSharingHandlerEnabled", 0)
+							Altoholic.Comm.Sharing:SetMessageHandler("EmptyHandler")
+						end
+					</OnClick>
+					<OnEnter>
+						Altoholic:ShowWidgetTooltip(self)
+					</OnEnter>
+					<OnLeave>
+						AltoTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</CheckButton>
+			<Button name="$parent_InfoButton" inherits="UIPanelButtonTemplate" text="?">
+				<Size>
+					<AbsDimension x="20" y="24"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentText1" relativePoint="RIGHT" >
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnEnter>
+						Altoholic:ShowWidgetTooltip(self)
+					</OnEnter>
+					<OnLeave>
+						AltoTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</Button>
+
+			<Button name="$parent_ToggleAll">
+				<Size>
+					<AbsDimension x="16" y="16"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="310" y="-25"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						Altoholic.Sharing.Content:ToggleAll(self, button)
+					</OnClick>
+				</Scripts>
+				<NormalTexture name="$parentIcon" file="Interface\Buttons\UI-MinusButton-UP" />
+				<HighlightTexture file="Interface\Buttons\UI-PlusButton-Hilight" alphaMode="ADD" />
+			</Button>
+			<CheckButton name="$parent_CheckAll" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="LEFT" relativeTo="$parent_ToggleAll" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension  x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnLoad>
+						_G[self:GetName() .. "Text"]:SetText(ALL)
+					</OnLoad>
+					<OnClick>
+						Altoholic.Sharing.Content:CheckAll(self, button)
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<Button name="$parent_SharedContentInfoButton" inherits="UIPanelButtonTemplate" text="?">
+				<Size>
+					<AbsDimension x="20" y="24"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentText3" relativePoint="RIGHT" >
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnEnter>
+						Altoholic:ShowWidgetTooltip(self)
+					</OnEnter>
+					<OnLeave>
+						AltoTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</Button>
+
+			<EditBox name="$parent_CharNameEditBox" inherits="InputBoxTemplate">
+				<Size x="100" y="16" />
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentText2" relativePoint="BOTTOMLEFT" >
+						<Offset x="10" y="-5" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:SetAutoFocus( true );
+					</OnLoad>
+					<OnEnterPressed>
+						self:ClearFocus();
+						self:SetFocus();
+						Altoholic.Sharing.Clients:Add( self:GetText() )
+						Altoholic.Sharing.Clients:Update()
+					</OnEnterPressed>
+					<OnEscapePressed>
+						if self:GetText() == "" then
+							Altoholic:ToggleUI()
+						else
+							self:SetText("")
+						end
+					</OnEscapePressed>
+				</Scripts>
+			</EditBox>
+			<Button name="$parent_AddButton" inherits="UIPanelButtonTemplate" text="Add">
+				<Size>
+					<AbsDimension x="60" y="24"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_CharNameEditBox" relativePoint="TOPRIGHT" >
+						<Offset>
+							<AbsDimension x="10" y="0" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						local name = _G[self:GetParent():GetName() .."_CharNameEditBox"]:GetText()
+						Altoholic.Sharing.Clients:Add(name)
+						Altoholic.Sharing.Clients:Update()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="$parent_DelButton" inherits="UIPanelButtonTemplate" text="Del">
+				<Size>
+					<AbsDimension x="60" y="24"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_AddButton" relativePoint="TOPRIGHT" >
+						<Offset>
+							<AbsDimension x="10" y="0" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						local name = _G[self:GetParent():GetName() .."_CharNameEditBox"]:GetText()
+						Altoholic.Sharing.Clients:Delete(name)
+						Altoholic.Sharing.Clients:Update()
+					</OnClick>
+				</Scripts>
+			</Button>
 		</Frames>
 		<Scripts>
 			<OnShow>
-				-- as soon as one of the frames is found to be visible, exit
-				for i=1, 6 do 
-					if _G[ "AltoholicTabOptionsFrame"..i ]:IsVisible() then
-						return
-					end
-				end
-				
-				-- none visible ? show first
-				AltoholicTabOptionsMenuItem1:LockHighlight();
-				AltoholicTabOptionsFrame1:Show();					
+				Altoholic.Sharing.Content:BuildView()
+				Altoholic.Sharing.Content:Update()
+				Altoholic.Sharing.Clients:Update()
 			</OnShow>
 		</Scripts>
 	</Frame>
+	
+	<Frame name="AltoholicCalendarOptions" hidden="true">
+		<Size>
+			<AbsDimension x="615" y="306"/>
+		</Size>
+		<Frames>
+			<CheckButton name="$parentFirstDay" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension  x="20" y="-20"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "WeekStartsMonday")
+						if self:GetChecked() then 
+							Altoholic.Calendar:SetFirstDayOfWeek(2)
+						else
+							Altoholic.Calendar:SetFirstDayOfWeek(1)
+						end
+						Altoholic.Calendar:Update()
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parentDialogBox" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT" relativeTo="$parentFirstDay" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension  x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "WarningDialogBox")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parentDisableWarnings" inherits="UICheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT" relativeTo="$parentDialogBox" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension  x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "DisableWarnings")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<Frame name="$parent_WarningType1" inherits="AltoWarningTypeTemplate" id="1">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentDisableWarnings" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Frame>
+			<Frame name="$parent_WarningType2" inherits="AltoWarningTypeTemplate" id="2">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_WarningType1" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Frame>
+			<Frame name="$parent_WarningType3" inherits="AltoWarningTypeTemplate" id="3">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_WarningType2" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Frame>
+			<Frame name="$parent_WarningType4" inherits="AltoWarningTypeTemplate" id="4">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_WarningType3" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Frame>
+		</Frames>
+	</Frame>
+	
+	<Frame name="AltoholicHelp" hidden="true">
+		<Size>
+			<AbsDimension x="615" y="400"/>
+		</Size>
+		<Frames>
+			<ScrollFrame name="$parent_ScrollFrame" inherits="UIPanelScrollFrameTemplate">
+				<Size>
+					<AbsDimension x="615" y="400"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="10" y="-20"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<ScrollChild>
+					<Frame name="$parentScrollChildFrame">
+						<Size>
+							<AbsDimension x="270" y="304"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY">
+								<FontString name="AltoholicHelp_Text" inherits="GameFontNormal" justifyH="LEFT" justifyV="TOP">
+									<Size>
+										<AbsDimension x="580" />
+									</Size>
+									<Anchors>
+										<Anchor point="TOPLEFT">
+											<Offset>
+												<AbsDimension x="0" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+				</ScrollChild>
+			</ScrollFrame>
+		</Frames>
+	</Frame>	
+	
+	<Frame name="AltoholicWhatsNew" hidden="true">
+		<Size>
+			<AbsDimension x="615" y="400"/>
+		</Size>
+		<Frames>
+			<ScrollFrame name="$parent_ScrollFrame" inherits="UIPanelScrollFrameTemplate">
+				<Size>
+					<AbsDimension x="615" y="400"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="10" y="-20"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<ScrollChild>
+					<Frame name="$parentScrollChildFrame">
+						<Size>
+							<AbsDimension x="270" y="304"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY">
+								<FontString name="AltoholicWhatsNew_Text" inherits="GameFontNormal" justifyH="LEFT" justifyV="TOP">
+									<Size>
+										<AbsDimension x="580" />
+									</Size>
+									<Anchors>
+										<Anchor point="TOPLEFT">
+											<Offset>
+												<AbsDimension x="0" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+				</ScrollChild>
+			</ScrollFrame>
+		</Frames>
+	</Frame>	
 	
 </Ui>

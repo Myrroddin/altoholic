@@ -307,7 +307,7 @@ function Altoholic.Achievements:OnEnter(self)
 		for criteriaIndex = 1, numCriteria do	-- browse all criterias
 			local criteriaString, criteriaType, _, _, reqQuantity = GetAchievementCriteriaInfo(achievementID, criteriaIndex);
 			local isCriteriaStarted, isCriteriaComplete, quantity = DS:GetCriteriaInfo(character, achievementID, criteriaIndex)
-			
+
 			local icon = ""
 			local color = GRAY
 
@@ -320,7 +320,7 @@ function Altoholic.Achievements:OnEnter(self)
 					criteriaString = criteriaString .. WHITE
 				end
 				
-				if criteriaType == 67 then		-- this type is an amoung of gold, format it as such, make something more generic later on if necessary
+				if criteriaType == 62 or criteriaType == 67 then		-- this type is an amount of gold, format it as such, make something more generic later on if necessary
 					quantity = Altoholic:GetMoneyString(tonumber(quantity))
 					reqQuantity = Altoholic:GetMoneyString(tonumber(reqQuantity))
 					criteriaString = format(" - %s (%s/%s)", criteriaString, quantity..WHITE, reqQuantity..WHITE)

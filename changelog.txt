@@ -1,7 +1,18 @@
 Altoholic Changelog (dates in dd/mm/yyyy)
 ===================
 
-3.2.003
+3.2.003b
+
+- Fixed a Lua error in the when sorting the activity pane by auctions or bids, this happened if one of the alts had never visited the AH.
+- Fixed a Lua error in the search pane.
+- Fixed a Lua error when mousing over the skill level of an unscanned profession in the Skills pane.
+- The options tab has been removed, all options are now available in the Blizzard Options panel. A button has been added at the top of the summary tab, for faster access.
+- Added an help topic in the options panel. More topics will be added along the way, don't hesitate to ask if you want to see a particular topic.
+- Added a "what's new" topic in the options panel.
+- Added an option to turn off the broadcast of profession links to the guild channel into DataStore_Crafts. This is what consumes the most bandwidth, so disable it if you/your guild considers this as critical.
+
+
+3.2.003 (16/11/2009)
 
 - Fixed a compatibility issue with MrTrader (DataStore_Crafts)
 - Added the character skill level in the recipe tooltip (in "Could be learned by ..")
@@ -17,7 +28,7 @@ Altoholic Changelog (dates in dd/mm/yyyy)
 - Improved the "Guild Bank Tabs" pane:
 	- if you're playing in a guild where players use different localizations of Altoholic, you will now see all timestamps in the same format.
 	- Players who have more recent data than yours are now shown in yellow (the colour may change if I find something more suitable).
-- Improved return mail support. If a guildmate returns a mail to one of your alts, you will be noticed immediately.
+- Improved return mail support. If a guildmate returns a mail to one of your alts, you will be notified immediately.
 - Mail expiries are now checked 5 seconds after login, to slightly decrease the processing load at startup.
 - Your alts' professions are now sent 5 seconds after login at a pace of 1 per 0.5 seconds, this also decreases the amount of info put on the network at startup. Same thing when you reply to someone else's login.
 - Guild member professions will now automatically be cleaned after a patch, to make sure your database only contains usable links.

@@ -4,7 +4,7 @@ _G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "A
 
 local addon = _G[addonName]
 
-addon.Version = "v3.2.003"
+addon.Version = "v3.2.003b"
 addon.VersionNum = 302003
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
@@ -109,8 +109,6 @@ local AltoholicDB_Defaults = {
 			IncludeGuildSkills = 1,			-- search other guild members' professions ? (via their profession links)
 
 			-- ** Mail options **
-			MailWarningThreshold = 5,
-			CheckMailExpiry = 1,				-- check mail expiry or not
 			GuildMailWarning = 1,			-- be informed when a guildie sends a mail to one of my alts
 			NameAutoComplete = 1,
 			
@@ -258,7 +256,6 @@ Altoholic.Tabs.List = {
 	"Search",
 	"GuildBank",
 	"Achievements",
-	"Options",
 }
 
 function Altoholic.Tabs:HideAll()

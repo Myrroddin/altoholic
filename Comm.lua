@@ -1,4 +1,4 @@
-﻿local LibComp = LibStub:GetLibrary("LibCompress")
+﻿-- local LibComp = LibStub:GetLibrary("LibCompress")
 local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 
 local WHITE		= "|cFFFFFFFF"
@@ -146,9 +146,9 @@ function Altoholic.Comm.Sharing:ActiveHandler(prefix, message, distribution, sen
 	
 	if compressionMode == 1 then	
 		success, msgType, msgData = Altoholic:Deserialize(message)
-	else
-		local decompData = LibComp:Decompress(message)
-		success, msgType, msgData = Altoholic:Deserialize(decompData)
+--	else
+--		local decompData = LibComp:Decompress(message)
+--		success, msgType, msgData = Altoholic:Deserialize(decompData)
 	end
 	
 	if not success then

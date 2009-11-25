@@ -60,7 +60,10 @@ function Altoholic.Summary:Update()
 	
 	local DS = DataStore
 	
-	for _, line in pairs(Characters:GetView()) do
+	local view = Characters:GetView()
+	if not view then return end
+	
+	for _, line in pairs(view) do
 		local s = Characters:Get(line)
 		local lineType = mod(s.linetype, 3)
 		

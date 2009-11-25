@@ -42,7 +42,7 @@
 					<OnClick>
 						-- This will contain a character name, when clicked, set this name in the edit box
 						local name = _G[ self:GetName() .. "NormalText" ].name
-						AltoholicTabOptionsFrame4_CharNameEditBox:SetText(name)
+						AltoholicAccountSharingOptions_CharNameEditBox:SetText(name)
 					</OnClick>
 					<OnEnter>
 						-- todo
@@ -140,7 +140,7 @@
 		</Frames>
 	</Button>
 
-	<Frame name="AltoholicFrameSharingClients" parent="AltoholicTabOptionsFrame4">
+	<Frame name="AltoholicFrameSharingClients" parent="AltoholicAccountSharingOptions">
 		<Size>
 			<AbsDimension x="250" y="150"/>
 		</Size>
@@ -334,7 +334,7 @@
 		</Frames>
 	</Button>
 	
-	<Frame name="AltoholicFrameSharedContent" parent="AltoholicTabOptionsFrame4">
+	<Frame name="AltoholicFrameSharedContent" parent="AltoholicAccountSharingOptions">
 		<Size>
 			<AbsDimension x="300" y="240"/>
 		</Size>

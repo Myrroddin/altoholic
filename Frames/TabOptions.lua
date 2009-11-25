@@ -2,16 +2,174 @@ local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
+local TEAL		= "|cFF00FF9A"
+local ORANGE   = "|cFFFF8400"
+
+local helpText
+local url1 = "http://wow.curse.com/downloads/wow-addons/details/altoholic.aspx"
+local url2 = "http://www.wowinterface.com/downloads/info8533-Altoholic.html"
+local url3 = "http://wow.curseforge.com/addons/altoholic/localization/"
+
+local help = {
+	{	name = "General",
+		questions = {
+			"How do I remove a character that has been renamed/transfered/deleted?",
+			"Does Altoholic support command line options?",
+			"My minimap icon is gone, how do I get it back?",
+			"What are the official homepages?",
+			"What is this 'DataStore' thing? Why so many directories?",
+			"I am developper, I want to know more about DataStore",
+			"Does the add-on support FuBar?",
+			"What is the add-on's memory footprint?",
+			"Where have my suggestions gone?",
+		},
+		answers = {
+			"Go into the 'Account Summary', mouse over the character, right-click it to get the contextual menu, and select 'Delete this Alt'.",
+			"Type /alto or /altoholic to get the list of command line options.",
+			"Go into Altoholic's main option panel, and check 'Show Minimap Icon'. You can also type /alto show.",
+			format("%s%s\n%s\n%s", "The add-on is only released on these two sites, it is recommended NOT TO get it through other means:", GREEN, url1, url2 ),
+			"DataStore and its modules take care of storing data for client add-ons; Altoholic itself now only stores very little information. The main purpose of the numerous directories is to offer split databases, instead of one massive database containing all the information required by the add-on.",
+			"Refer to DataStore's own help topic for more information.",
+			"Not anymore. Instead, it supports LibDataBroker (aka LDB), if you really want FuBar, use Broker2FuBar.",
+			"For 10 characters and 1 guild bank, the add-on takes around 4-5mb on my machine. Note that due to its name, the add-on is one of the first in the alphabet, and often gets credited of the memory/cpu usage of its libraries.",
+			"Development is an iterative process, and I review parts of the add-on constantly. Depending on my spare time, some suggestions might take longer than others to make it into the add-on. Be patient, the add-on is still far from being complete.",
+		}
+	},
+	{	name = "Containers",
+		questions = {
+			"Do I have to open all my bags to let the add-on know about their content?",
+			"What about my bank? .. and my guild bank?",
+			"Will the content of my bags be visible in the tooltip? Can I configure that?",
+		},
+		answers = {
+			"No. This happens silently and does not require any action from your part.",
+			"You have to open your bank in order to let the add-on read its content. Same goes for the guild bank, except that the add-on can only read it tab per tab, so make sure to open them all.",
+			"Yes. There are several tooltip options that can be set to specify what you want to see or not."
+		}
+	},
+	{	name = "Professions",
+		questions = {
+			"Do I have to open all professions manually?",
+		},
+		answers = {
+			"Yes. Some advanced features require that you open the tradeskill pane once per profession.",
+		}
+	},
+	{	name = "Mails",
+		questions = {
+			"Can Altoholic read my mails without being at the mailbox?",
+			"Altoholic marks all my mails as read, how can I avoid that?",
+			"My mailbox is full, can Altoholic read beyond the list of visible mails?",
+		},
+		answers = {
+			"No. This is a restriction imposed by Blizzard. Your character must physically be at a mailbox to retrieve your mails.",
+			"Go into the 'Mail Options' and disable 'Scan mail body'.",
+			"No. You will have to clear your mailbox to release mails that are queued server-side.",
+		}
+	},
+	{	name = "Localization",
+		questions = {
+			"I found a bad translation, how can I help fixing it?",
+		},
+		answers = {
+			format("Use the CurseForge localization tool, at %s|r.", GREEN..url3),
+		}
+	},
+	{	name = "Reporting Bugs",
+		questions = {
+			"I found an error, how/where do I report it?",
+			"What should I do before reporting?",
+			"I just upgraded to the latest version, and there are so many Lua errors, what the..??",
+			"I have multiple Lua errors at login, should I report them all?",
+			"Thaoky you're so cool, can I hire you?",
+		},
+		answers = {
+			"Both Curse and WoWInterface have a ticket section, I also read comments and respond as often as I materially can, so feel free to report in one of these places.",
+			format("%s\n\n%s\n%s\n%s\n%s\n%s\n", 
+				"A few things:",
+				"1) Make sure you have the latest version of the add-on.",
+				"2) If you suspect a conflict with another add-on, try to reproduce the issue with only Altoholic enabled. As the add-on deals with a lot of things, a conflict is always possible.",
+				"3) Make sure your issue has not been reported by someone else.",
+				"4) Never, ever, report that 'it does not work', this is the most useless sentence in the world! Be specific about what does not work.",
+				"5) DO NOT copy the entire add-on list from Swatter. While conflicts are possible, they are the exception rather than the rule."
+			),
+			"I'm just human, I make mistakes. But because I'm human, I fix them too, so be patient. This is a project that I develop in my spare time, and it fluctuates a lot.",
+			"No. Only the first error you will get is relevant, it means that something failed during the initialization process of the add-on, or of a library, and this is likely to cause several subsequent errors that are more often than not irrelevant.",
+			format("%s\n%s|r\n%s\n%s",
+				"That would be a very good idea! :)\nFull resume is available on demand, send serious job proposals by mail:",
+				GREEN.."thaoky.altoholic@yahoo.com",
+				"Age: 33\nSector: IT\nReady to relocate about anywhere in the EU & the US.",
+				"Positions sought include (but are not limited to): Project Management, Solutions Architect, Software Development."
+			)
+		}
+	},
+}
+
+-- this content will be subject to change, often, do not bother translating it !!
+local whatsnew = {
+	{	name = "3.2.003b Changes",
+		bulletedList = {
+			"The options tab has been removed, all options are now available in the Blizzard Options panel. A button has been added at the top of the summary tab, for faster access.",
+			"Added an help topic in the options panel.",
+			"Added a 'What's new' topic in the options panel.",
+			"Fixed a few Lua errors.",
+			"Added an option to turn off the broadcast of profession links to the guild channel into DataStore_Crafts. This is what consumes the most bandwidth, so disable it if you/your guild considers this as critical.",
+		},
+	},
+	{	name = "3.2.003 Changes",
+		bulletedList = {
+			"Fixed a compatibility issue with MrTrader (DataStore_Crafts).",
+			"Added the character skill level in the recipe tooltip.",
+			"Fixed a Lua error in when trying to get the item count of a missing character.",
+			"Fixed invalid reporting of the number of free bank slots.",
+			"Added a counter in the achievements tooltip to show the amount of completed criterias.",
+			"Some achievement categories are now sorted in a custom fashion, rather than alphabetically, in order to show progressive achievements side by side.",
+			"Achievements can now be linked into chat frames. You will need to relog your alts at least once for this to work.",
+			"Moved the option that manages the mail expiry threshold to DataStore_Mails. It is thus reset to 5 days for everyone, make sure to change it back to whatever you like in the options pane.",
+			"Guild communication has been entirely rewritten.", 
+			"Brought a few improvements to the Guild Bank Tabs pane.",
+			"Improved return mail support. If a guildmate returns a mail to one of your alts, you will be notified immediately.",
+			"Mail expiries are now checked 5 seconds after login.",
+			"Your alts' professions are now sent 5 seconds after login at a pace of 1 per 0.5 seconds.",
+			"Guild member professions will now automatically be cleaned after a patch, to make sure your database only contains usable links.",
+			"Most money amounts are now displayed using money icons.",
+			"DataStore_Talents now scans talent tree reference only once per game patch.",
+			"Fixed several Lua errors in various places.",
+		},
+	},
+	{	name = "Earlier changes",
+		textLines = {
+			"Refer to |cFF00FF00changelog.txt",
+		},
+	},
+}
 
 Altoholic.Options = {}
 
 function Altoholic.Options:Init()
+	-- create categories in Blizzard's options panel
+	local addonName = "Altoholic"
+	
+	DataStore:AddOptionCategory(AltoholicGeneralOptions, addonName)
+	LibStub("LibAboutPanel").new(addonName, addonName);
+	DataStore:AddOptionCategory(AltoholicHelp, HELP_LABEL, addonName)
+	DataStore:AddOptionCategory(AltoholicWhatsNew, "What's new?", addonName)
+	DataStore:AddOptionCategory(AltoholicSearchOptions, SEARCH, addonName)
+	DataStore:AddOptionCategory(AltoholicMailOptions, MAIL_LABEL, addonName)
+	DataStore:AddOptionCategory(AltoholicAccountSharingOptions, L["Account Sharing"], addonName)
+	DataStore:AddOptionCategory(AltoholicTooltipOptions, L["Tooltip"], addonName)
+	DataStore:AddOptionCategory(AltoholicCalendarOptions, L["Calendar"], addonName)
+
+	DataStore:SetupInfoPanel(help, AltoholicHelp_Text)
+	DataStore:SetupInfoPanel(whatsnew, AltoholicWhatsNew_Text)
+	
 	local value
 	
-	-- ** Frame 1 : General **
-	AltoholicTabOptionsFrame1_RestXPModeText:SetText(L["Max rest XP displayed as 150%"])
-	AltoholicTabOptionsFrame1_GuildBankAutoUpdateText:SetText(L["Automatically authorize guild bank updates"])
-	AltoholicTabOptionsFrame1_GuildBankAutoUpdate.tooltip = format("%s%s%s",
+	-- ** General **
+	AltoholicGeneralOptions_Title:SetText(TEAL..format("Altoholic %s", Altoholic.Version))
+	AltoholicGeneralOptions_RestXPModeText:SetText(L["Max rest XP displayed as 150%"])
+	AltoholicGeneralOptions_GuildBankAutoUpdateText:SetText(L["Automatically authorize guild bank updates"])
+	AltoholicGeneralOptions_GuildBankAutoUpdate.tooltip = format("%s%s%s",
 		L["|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option will allow other Altoholic users\nto update their guild bank information with yours automatically.\n\n"],
 		L["When |cFFFF0000disabled|cFFFFFFFF, your confirmation will be\nrequired before sending any information.\n\n"],
 		L["Security hint: disable this if you have officer rights\non guild bank tabs that may not be viewed by everyone,\nand authorize requests manually"])
@@ -22,42 +180,42 @@ function Altoholic.Options:Init()
 	L["Max rest XP displayed as 150%"] = nil
 	L["Automatically authorize guild bank updates"] = nil
 	
-	value = AltoholicTabOptionsFrame1_SliderAngle:GetValue()
-	AltoholicTabOptionsFrame1_SliderAngle.tooltipText = L["Move to change the angle of the minimap icon"]
-	AltoholicTabOptionsFrame1_SliderAngleLow:SetText("1");
-	AltoholicTabOptionsFrame1_SliderAngleHigh:SetText("360"); 
-	AltoholicTabOptionsFrame1_SliderAngleText:SetText(format("%s (%s)", L["Minimap Icon Angle"], value))
+	value = AltoholicGeneralOptions_SliderAngle:GetValue()
+	AltoholicGeneralOptions_SliderAngle.tooltipText = L["Move to change the angle of the minimap icon"]
+	AltoholicGeneralOptions_SliderAngleLow:SetText("1");
+	AltoholicGeneralOptions_SliderAngleHigh:SetText("360"); 
+	AltoholicGeneralOptions_SliderAngleText:SetText(format("%s (%s)", L["Minimap Icon Angle"], value))
 	L["Move to change the angle of the minimap icon"] = nil
 	
-	value = AltoholicTabOptionsFrame1_SliderRadius:GetValue()
-	AltoholicTabOptionsFrame1_SliderRadius.tooltipText = L["Move to change the radius of the minimap icon"]; 
-	AltoholicTabOptionsFrame1_SliderRadiusLow:SetText("1");
-	AltoholicTabOptionsFrame1_SliderRadiusHigh:SetText("200"); 
-	AltoholicTabOptionsFrame1_SliderRadiusText:SetText(format("%s (%s)", L["Minimap Icon Radius"], value))
+	value = AltoholicGeneralOptions_SliderRadius:GetValue()
+	AltoholicGeneralOptions_SliderRadius.tooltipText = L["Move to change the radius of the minimap icon"]; 
+	AltoholicGeneralOptions_SliderRadiusLow:SetText("1");
+	AltoholicGeneralOptions_SliderRadiusHigh:SetText("200"); 
+	AltoholicGeneralOptions_SliderRadiusText:SetText(format("%s (%s)", L["Minimap Icon Radius"], value))
 	L["Move to change the radius of the minimap icon"] = nil
 	
-	AltoholicTabOptionsFrame1_ShowMinimapText:SetText(L["Show Minimap Icon"])
+	AltoholicGeneralOptions_ShowMinimapText:SetText(L["Show Minimap Icon"])
 	L["Show Minimap Icon"] = nil
 	
-	value = AltoholicTabOptionsFrame1_SliderAlpha:GetValue()
-	AltoholicTabOptionsFrame1_SliderAlphaLow:SetText("0.1");
-	AltoholicTabOptionsFrame1_SliderAlphaHigh:SetText("1.0"); 
-	AltoholicTabOptionsFrame1_SliderAlphaText:SetText(format("%s (%1.2f)", L["Transparency"], value));
+	value = AltoholicGeneralOptions_SliderAlpha:GetValue()
+	AltoholicGeneralOptions_SliderAlphaLow:SetText("0.1");
+	AltoholicGeneralOptions_SliderAlphaHigh:SetText("1.0"); 
+	AltoholicGeneralOptions_SliderAlphaText:SetText(format("%s (%1.2f)", L["Transparency"], value));
 	
-	-- ** Frame 2 : Search **
-	AltoholicTabOptionsFrame2_SearchAutoQueryText:SetText(L["AutoQuery server |cFFFF0000(disconnection risk)"])
-	AltoholicTabOptionsFrame2_SearchAutoQuery.tooltip = format("%s%s%s%s",
+	-- ** Search **
+	AltoholicSearchOptions_SearchAutoQueryText:SetText(L["AutoQuery server |cFFFF0000(disconnection risk)"])
+	AltoholicSearchOptions_SearchAutoQuery.tooltip = format("%s%s%s%s",
 		L["|cFFFFFFFFIf an item not in the local item cache\nis encountered while searching loot tables,\nAltoholic will attempt to query the server for 5 new items.\n\n"],
 		L["This will gradually improve the consistency of the searches,\nas more items are available in the item cache.\n\n"],
 		L["There is a risk of disconnection if the queried item\nis a loot from a high level dungeon.\n\n"],
 		L["|cFF00FF00Disable|r to avoid this risk"])	
 	
-	AltoholicTabOptionsFrame2_SortDescendingText:SetText(L["Sort loots in descending order"])
-	AltoholicTabOptionsFrame2_IncludeNoMinLevelText:SetText(L["Include items without level requirement"])
-	AltoholicTabOptionsFrame2_IncludeMailboxText:SetText(L["Include mailboxes"])
-	AltoholicTabOptionsFrame2_IncludeGuildBankText:SetText(L["Include guild bank(s)"])
-	AltoholicTabOptionsFrame2_IncludeRecipesText:SetText(L["Include known recipes"])
-	AltoholicTabOptionsFrame2_IncludeGuildSkillsText:SetText(L["Include guild members' professions"])
+	AltoholicSearchOptions_SortDescendingText:SetText(L["Sort loots in descending order"])
+	AltoholicSearchOptions_IncludeNoMinLevelText:SetText(L["Include items without level requirement"])
+	AltoholicSearchOptions_IncludeMailboxText:SetText(L["Include mailboxes"])
+	AltoholicSearchOptions_IncludeGuildBankText:SetText(L["Include guild bank(s)"])
+	AltoholicSearchOptions_IncludeRecipesText:SetText(L["Include known recipes"])
+	AltoholicSearchOptions_IncludeGuildSkillsText:SetText(L["Include guild members' professions"])
 	L["AutoQuery server |cFFFF0000(disconnection risk)"] = nil
 	L["Sort loots in descending order"] = nil
 	L["Include items without level requirement"] = nil
@@ -66,29 +224,18 @@ function Altoholic.Options:Init()
 	L["Include known recipes"] = nil
 	L["Include guild members' professions"] = nil
 	
-	-- ** Frame 3 : Mail **
-	value = AltoholicTabOptionsFrame3_SliderMailExpiry:GetValue()
-	AltoholicTabOptionsFrame3_SliderMailExpiry.tooltipText = L["Warn when mail expires in less days than this value"]; 
-	AltoholicTabOptionsFrame3_SliderMailExpiryLow:SetText("1");
-	AltoholicTabOptionsFrame3_SliderMailExpiryHigh:SetText("15"); 
-	AltoholicTabOptionsFrame3_SliderMailExpiryText:SetText(format("%s (%s)", L["Mail Expiry Warning"], value))
-	L["Warn when mail expires in less days than this value"] = nil
-	
-	AltoholicTabOptionsFrame3_CheckMailExpiryText:SetText(L["Mail Expiry Warning"])
-	AltoholicTabOptionsFrame3_ScanMailBodyText:SetText(L["Scan mail body (marks it as read)"])
-	L["Scan mail body (marks it as read)"] = nil
-	
-	AltoholicTabOptionsFrame3_GuildMailWarningText:SetText(L["New mail notification"])
+	-- ** Mail **
+	AltoholicMailOptions_GuildMailWarningText:SetText(L["New mail notification"])
 	L["New mail notification"] = nil
 		
-	AltoholicTabOptionsFrame3_GuildMailWarning.tooltip = format("%s",
+	AltoholicMailOptions_GuildMailWarning.tooltip = format("%s",
 		L["Be informed when a guildmate sends a mail to one of my alts.\n\nMail content is directly visible without having to reconnect the character"])
 
-	AltoholicTabOptionsFrame3_NameAutoCompleteText:SetText("Auto-complete recipient name" )
+	AltoholicMailOptions_NameAutoCompleteText:SetText("Auto-complete recipient name" )
 		
-	-- ** Frame 4 : Account Sharing **
-	AltoholicTabOptionsFrame4_AccSharingCommText:SetText(L["Account Sharing Enabled"])
-	AltoholicTabOptionsFrame4_AccSharingComm.tooltip = format("%s%s%s%s",
+	-- ** Account Sharing **
+	AltoholicAccountSharingOptions_AccSharingCommText:SetText(L["Account Sharing Enabled"])
+	AltoholicAccountSharingOptions_AccSharingComm.tooltip = format("%s%s%s%s",
 		L["|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option will allow other Altoholic users\nto send you account sharing requests.\n"],
 		L["Your confirmation will still be required any time someone requests your information.\n\n"],
 		L["When |cFFFF0000disabled|cFFFFFFFF, all requests will be automatically rejected.\n\n"],
@@ -100,36 +247,36 @@ function Altoholic.Options:Init()
 	L["When |cFFFF0000disabled|cFFFFFFFF, all requests will be automatically rejected.\n\n"] = nil
 	L["Security hint: Only enable this when you actually need to transfer data,\ndisable otherwise"] = nil
 
-	AltoholicTabOptionsFrame4Text1:SetText(WHITE.."Authorizations")
-	AltoholicTabOptionsFrame4Text2:SetText(WHITE..L["Character"])
-	AltoholicTabOptionsFrame4Text3:SetText(WHITE.."Shared Content")
-	AltoholicTabOptionsFrame4_InfoButton.tooltip = format("%s\n%s\n\n%s", 
+	AltoholicAccountSharingOptionsText1:SetText(WHITE.."Authorizations")
+	AltoholicAccountSharingOptionsText2:SetText(WHITE..L["Character"])
+	AltoholicAccountSharingOptionsText3:SetText(WHITE.."Shared Content")
+	AltoholicAccountSharingOptions_InfoButton.tooltip = format("%s\n%s\n\n%s", 
 	
 	WHITE.."This list allows you to automate responses to account sharing requests.",
 	"You can choose to automatically accept or reject requests, or be asked when a request comes in.",
 	"If account sharing is totally disabled, this list will be ignored, and all requests will be rejected." )
 	
-	AltoholicTabOptionsFrame4IconNever:SetText("\124TInterface\\RaidFrame\\ReadyCheck-NotReady:14\124t")
-	AltoholicTabOptionsFrame4IconAsk:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Waiting:14\124t")
-	AltoholicTabOptionsFrame4IconAuto:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Ready:14\124t")
+	AltoholicAccountSharingOptionsIconNever:SetText("\124TInterface\\RaidFrame\\ReadyCheck-NotReady:14\124t")
+	AltoholicAccountSharingOptionsIconAsk:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Waiting:14\124t")
+	AltoholicAccountSharingOptionsIconAuto:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Ready:14\124t")
 	
-	AltoholicTabOptionsFrame4_SharedContentInfoButton.tooltip = format("%s\n%s", 
+	AltoholicAccountSharingOptions_SharedContentInfoButton.tooltip = format("%s\n%s", 
 		WHITE.."Select the content that will be visible to players who send you",
 		"account sharing requests.")
 	
 	
-	-- ** Frame 5 : Tooltip **
-	AltoholicTabOptionsFrame5SourceText:SetText(L["Show item source"])
-	AltoholicTabOptionsFrame5CountText:SetText(L["Show item count per character"])
-	AltoholicTabOptionsFrame5TotalText:SetText(L["Show total item count"])
-	AltoholicTabOptionsFrame5RecipeInfoText:SetText(L["Show already known/learnable by"])
-	AltoholicTabOptionsFrame5ItemIDText:SetText(L["Show item ID and item level"])
-	AltoholicTabOptionsFrame5GatheringNodeText:SetText(L["Show counters on gathering nodes"])
-	AltoholicTabOptionsFrame5CrossFactionText:SetText(L["Show counters for both factions"])
-	AltoholicTabOptionsFrame5MultiAccountText:SetText(L["Show counters for all accounts"])
-	AltoholicTabOptionsFrame5GuildBankText:SetText(L["Show guild bank count"])
-	AltoholicTabOptionsFrame5GuildBankCountText:SetText(L["Include guild bank count in the total count"])
-	AltoholicTabOptionsFrame5GuildBankCountPerTabText:SetText(L["Detailed guild bank count"])
+	-- ** Tooltip **
+	AltoholicTooltipOptionsSourceText:SetText(L["Show item source"])
+	AltoholicTooltipOptionsCountText:SetText(L["Show item count per character"])
+	AltoholicTooltipOptionsTotalText:SetText(L["Show total item count"])
+	AltoholicTooltipOptionsRecipeInfoText:SetText(L["Show already known/learnable by"])
+	AltoholicTooltipOptionsItemIDText:SetText(L["Show item ID and item level"])
+	AltoholicTooltipOptionsGatheringNodeText:SetText(L["Show counters on gathering nodes"])
+	AltoholicTooltipOptionsCrossFactionText:SetText(L["Show counters for both factions"])
+	AltoholicTooltipOptionsMultiAccountText:SetText(L["Show counters for all accounts"])
+	AltoholicTooltipOptionsGuildBankText:SetText(L["Show guild bank count"])
+	AltoholicTooltipOptionsGuildBankCountText:SetText(L["Include guild bank count in the total count"])
+	AltoholicTooltipOptionsGuildBankCountPerTabText:SetText(L["Detailed guild bank count"])
 	L["Show item source"] = nil
 	L["Show item count per character"] = nil
 	L["Show total item count"] = nil
@@ -141,35 +288,35 @@ function Altoholic.Options:Init()
 	L["Show counters for all accounts"] = nil
 	L["Include guild bank count in the total count"] = nil
 	
-	-- ** Frame 6 : Calendar **
-	AltoholicTabOptionsFrame6FirstDayText:SetText(L["Week starts on Monday"])
-	AltoholicTabOptionsFrame6DialogBoxText:SetText(L["Display warnings in a dialog box"])
-	AltoholicTabOptionsFrame6DisableWarningsText:SetText(L["Disable warnings"])
+	-- ** Calendar **
+	AltoholicCalendarOptionsFirstDayText:SetText(L["Week starts on Monday"])
+	AltoholicCalendarOptionsDialogBoxText:SetText(L["Display warnings in a dialog box"])
+	AltoholicCalendarOptionsDisableWarningsText:SetText(L["Disable warnings"])
 	L["Week starts on Monday"] = nil
 	L["Warn %d minutes before an event starts"] = nil
 	L["Display warnings in a dialog box"] = nil
 	
 	for i = 1, 4 do 
-		UIDropDownMenu_Initialize(_G["AltoholicTabOptionsFrame6_WarningType"..i], Altoholic.Calendar.WarningType_Initialize)
+		UIDropDownMenu_Initialize(_G["AltoholicCalendarOptions_WarningType"..i], Altoholic.Calendar.WarningType_Initialize)
 	end
-	UIDropDownMenu_SetText(AltoholicTabOptionsFrame6_WarningType1, "Profession Cooldowns")
-	UIDropDownMenu_SetText(AltoholicTabOptionsFrame6_WarningType2, "Dungeon Resets")
-	UIDropDownMenu_SetText(AltoholicTabOptionsFrame6_WarningType3, "Calendar Events")
-	UIDropDownMenu_SetText(AltoholicTabOptionsFrame6_WarningType4, "Item Timers")
+	UIDropDownMenu_SetText(AltoholicCalendarOptions_WarningType1, "Profession Cooldowns")
+	UIDropDownMenu_SetText(AltoholicCalendarOptions_WarningType2, "Dungeon Resets")
+	UIDropDownMenu_SetText(AltoholicCalendarOptions_WarningType3, "Calendar Events")
+	UIDropDownMenu_SetText(AltoholicCalendarOptions_WarningType4, "Item Timers")
 end
 
 function Altoholic.Options:RestoreToUI()
 	local O = Altoholic.db.global.options
 	
-	AltoholicTabOptionsFrame1_RestXPMode:SetChecked(O.RestXPMode)
-	AltoholicTabOptionsFrame1_GuildBankAutoUpdate:SetChecked(O.GuildBankAutoUpdate)
+	AltoholicGeneralOptions_RestXPMode:SetChecked(O.RestXPMode)
+	AltoholicGeneralOptions_GuildBankAutoUpdate:SetChecked(O.GuildBankAutoUpdate)
 
-	AltoholicTabOptionsFrame1_SliderAngle:SetValue(O.MinimapIconAngle)
-	AltoholicTabOptionsFrame1_SliderRadius:SetValue(O.MinimapIconRadius)
-	AltoholicTabOptionsFrame1_ShowMinimap:SetChecked(O.ShowMinimap)
-	AltoholicTabOptionsFrame1_SliderScale:SetValue(O.UIScale)
+	AltoholicGeneralOptions_SliderAngle:SetValue(O.MinimapIconAngle)
+	AltoholicGeneralOptions_SliderRadius:SetValue(O.MinimapIconRadius)
+	AltoholicGeneralOptions_ShowMinimap:SetChecked(O.ShowMinimap)
+	AltoholicGeneralOptions_SliderScale:SetValue(O.UIScale)
 	AltoholicFrame:SetScale(O.UIScale)
-	AltoholicTabOptionsFrame1_SliderAlpha:SetValue(O.UITransparency)
+	AltoholicGeneralOptions_SliderAlpha:SetValue(O.UITransparency)
 
 	-- set communication handlers according to user settings.
 	if O.AccSharingHandlerEnabled == 1 then
@@ -178,40 +325,36 @@ function Altoholic.Options:RestoreToUI()
 		Altoholic.Comm.Sharing:SetMessageHandler("EmptyHandler")
 	end
 	
-	AltoholicTabOptionsFrame2_SearchAutoQuery:SetChecked(O.SearchAutoQuery)
-	AltoholicTabOptionsFrame2_SortDescending:SetChecked(O.SortDescending)
-	AltoholicTabOptionsFrame2_IncludeNoMinLevel:SetChecked(O.IncludeNoMinLevel)
-	AltoholicTabOptionsFrame2_IncludeMailbox:SetChecked(O.IncludeMailbox)
-	AltoholicTabOptionsFrame2_IncludeGuildBank:SetChecked(O.IncludeGuildBank)
-	AltoholicTabOptionsFrame2_IncludeRecipes:SetChecked(O.IncludeRecipes)
-	AltoholicTabOptionsFrame2_IncludeGuildSkills:SetChecked(O.IncludeGuildSkills)
-	AltoholicTabOptionsFrame2LootInfo:SetText(GREEN .. O.TotalLoots .. "|r " .. L["Loots"] .. " / "
+	AltoholicSearchOptions_SearchAutoQuery:SetChecked(O.SearchAutoQuery)
+	AltoholicSearchOptions_SortDescending:SetChecked(O.SortDescending)
+	AltoholicSearchOptions_IncludeNoMinLevel:SetChecked(O.IncludeNoMinLevel)
+	AltoholicSearchOptions_IncludeMailbox:SetChecked(O.IncludeMailbox)
+	AltoholicSearchOptions_IncludeGuildBank:SetChecked(O.IncludeGuildBank)
+	AltoholicSearchOptions_IncludeRecipes:SetChecked(O.IncludeRecipes)
+	AltoholicSearchOptions_IncludeGuildSkills:SetChecked(O.IncludeGuildSkills)
+	AltoholicSearchOptionsLootInfo:SetText(GREEN .. O.TotalLoots .. "|r " .. L["Loots"] .. " / "
 										.. GREEN .. O.UnknownLoots .. "|r " .. L["Unknown"])
 
-	AltoholicTabOptionsFrame3_SliderMailExpiry:SetValue(DataStore:GetOption("DataStore_Mails", "MailWarningThreshold"))
-	AltoholicTabOptionsFrame3_CheckMailExpiry:SetChecked(O.CheckMailExpiry)
-	
-	AltoholicTabOptionsFrame3_ScanMailBody:SetChecked(DataStore:GetOption("DataStore_Mails", "ScanMailBody"))
-	AltoholicTabOptionsFrame3_GuildMailWarning:SetChecked(O.GuildMailWarning)
-	AltoholicTabOptionsFrame3_NameAutoComplete:SetChecked(O.NameAutoComplete)
+	AltoholicMailOptions_GuildMailWarning:SetChecked(O.GuildMailWarning)
+	AltoholicMailOptions_NameAutoComplete:SetChecked(O.NameAutoComplete)
 
-	AltoholicTabOptionsFrame4_AccSharingComm:SetChecked(O.AccSharingHandlerEnabled)
+	AltoholicAccountSharingOptions_AccSharingComm:SetChecked(O.AccSharingHandlerEnabled)
 	
-	AltoholicTabOptionsFrame5Source:SetChecked(O.TooltipSource)
-	AltoholicTabOptionsFrame5Count:SetChecked(O.TooltipCount)
-	AltoholicTabOptionsFrame5Total:SetChecked(O.TooltipTotal)
-	AltoholicTabOptionsFrame5GuildBank:SetChecked(O.TooltipGuildBank)
-	AltoholicTabOptionsFrame5GuildBankCount:SetChecked(O.TooltipGuildBankCount)
-	AltoholicTabOptionsFrame5GuildBankCountPerTab:SetChecked(O.TooltipGuildBankCountPerTab)
-	AltoholicTabOptionsFrame5RecipeInfo:SetChecked(O.TooltipRecipeInfo)
-	AltoholicTabOptionsFrame5ItemID:SetChecked(O.TooltipItemID)
-	AltoholicTabOptionsFrame5GatheringNode:SetChecked(O.TooltipGatheringNode)
-	AltoholicTabOptionsFrame5CrossFaction:SetChecked(O.TooltipCrossFaction)
-	AltoholicTabOptionsFrame5MultiAccount:SetChecked(O.TooltipMultiAccount)
+	AltoholicTooltipOptionsSource:SetChecked(O.TooltipSource)
+	AltoholicTooltipOptionsCount:SetChecked(O.TooltipCount)
+	AltoholicTooltipOptionsTotal:SetChecked(O.TooltipTotal)
+	AltoholicTooltipOptionsGuildBank:SetChecked(O.TooltipGuildBank)
+	AltoholicTooltipOptionsGuildBankCount:SetChecked(O.TooltipGuildBankCount)
+	AltoholicTooltipOptionsGuildBankCountPerTab:SetChecked(O.TooltipGuildBankCountPerTab)
+	AltoholicTooltipOptionsRecipeInfo:SetChecked(O.TooltipRecipeInfo)
+	AltoholicTooltipOptionsItemID:SetChecked(O.TooltipItemID)
+	AltoholicTooltipOptionsGatheringNode:SetChecked(O.TooltipGatheringNode)
+	AltoholicTooltipOptionsCrossFaction:SetChecked(O.TooltipCrossFaction)
+	AltoholicTooltipOptionsMultiAccount:SetChecked(O.TooltipMultiAccount)
 	
-	AltoholicTabOptionsFrame6FirstDay:SetChecked(O.WeekStartsMonday)
-	AltoholicTabOptionsFrame6DialogBox:SetChecked(O.WarningDialogBox)
-	AltoholicTabOptionsFrame6DisableWarnings:SetChecked(O.DisableWarnings)
+	AltoholicCalendarOptionsFirstDay:SetChecked(O.WeekStartsMonday)
+	AltoholicCalendarOptionsDialogBox:SetChecked(O.WarningDialogBox)
+	AltoholicCalendarOptionsDisableWarnings:SetChecked(O.DisableWarnings)
 end
 
 function Altoholic:UpdateMinimapIconCoords()
@@ -228,7 +371,7 @@ function Altoholic:UpdateMinimapIconCoords()
 	if(O.MinimapIconAngle < 0) then
 		O.MinimapIconAngle = O.MinimapIconAngle + 360
 	end
-	AltoholicTabOptionsFrame1_SliderAngle:SetValue(O.MinimapIconAngle)
+	AltoholicGeneralOptions_SliderAngle:SetValue(O.MinimapIconAngle)
 end
 
 function Altoholic:MoveMinimapIcon()
