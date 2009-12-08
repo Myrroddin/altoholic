@@ -75,7 +75,8 @@ function Altoholic.Mail:BuildView(field, ascending)
 	local character = Altoholic.Tabs.Characters:GetCurrent()
 	if not character then return end
 	
-	for i = 1, DS:GetNumMails(character) do
+	local numMails = DS:GetNumMails(character) or 0
+	for i = 1, numMails do
 		table.insert(self.view, i)
 	end
 
@@ -114,7 +115,7 @@ function Altoholic.Mail:Update()
 		AltoholicFrameMailInfo1:Hide()
 	end
 	
-	local numMails = DS:GetNumMails(character)
+	local numMails = DS:GetNumMails(character) or 0
 	if numMails == 0 then
 		AltoholicTabCharactersStatus:SetText(format(L["%s has no mail"], player))
 		-- make sure the scroll frame is cleared !

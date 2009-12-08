@@ -25,6 +25,7 @@ function Altoholic.TradeSkills.Recipes:BuildView()
 	local ts = Altoholic.TradeSkills
 	local character = Altoholic.Tabs.Characters:GetCurrent()
 	local profession = DS:GetProfession(character, ts.CurrentProfession)
+	if not profession then return end
 	
 	local selectedColor = UIDropDownMenu_GetSelectedValue(AltoholicFrameRecipesInfo_SelectColor)
 	local selectedClass = UIDropDownMenu_GetSelectedValue(AltoholicFrameRecipesInfo_SelectSubclass)

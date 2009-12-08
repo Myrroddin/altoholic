@@ -284,6 +284,7 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
+						Altoholic:ToggleUI()
 						InterfaceOptionsFrame_OpenToCategory("Altoholic")
 					</OnClick>
 				</Scripts>

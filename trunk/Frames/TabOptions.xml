@@ -43,7 +43,7 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<CheckButton name="$parent_RestXPMode" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parent_RestXPMode" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -61,7 +61,7 @@
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parent_GuildBankAutoUpdate" inherits="UICheckButtonTemplate" >
+			<CheckButton name="$parent_GuildBankAutoUpdate" inherits="InterfaceOptionsSmallCheckButtonTemplate" >
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -88,7 +88,7 @@
 					</OnLeave>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parent_ShowMinimap" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parent_ShowMinimap" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -153,9 +153,9 @@
 					<AbsDimension x="180" y="16"/>
 				</Size>
 				<Anchors>
-					<Anchor point="TOPLEFT">
+					<Anchor point="TOPLEFT" relativeTo="$parent_ShowMinimap" relativePoint="BOTTOMLEFT">
 						<Offset>
-							<AbsDimension x="400" y="-60" />
+							<AbsDimension x="20" y="-130" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -177,9 +177,9 @@
 					<AbsDimension x="80" y="24"/>
 				</Size>
 				<Anchors>
-					<Anchor point="TOPLEFT">
+					<Anchor point="TOPLEFT" relativeTo="$parent_ShowMinimap" relativePoint="BOTTOMLEFT">
 						<Offset>
-							<AbsDimension x="400" y="-90" />
+							<AbsDimension x="20" y="-165" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -218,9 +218,9 @@
 					<AbsDimension x="180" y="16"/>
 				</Size>
 				<Anchors>
-					<Anchor point="TOPLEFT">
+					<Anchor point="TOPLEFT" relativeTo="$parent_ShowMinimap" relativePoint="BOTTOMLEFT">
 						<Offset>
-							<AbsDimension x="400" y="-140" />
+							<AbsDimension x="20" y="-210" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -255,7 +255,7 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<CheckButton name="$parent_SearchAutoQuery" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parent_SearchAutoQuery" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -278,7 +278,7 @@
 					</OnLeave>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parent_SortDescending" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parent_SortDescending" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -295,7 +295,7 @@
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parent_IncludeNoMinLevel" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parent_IncludeNoMinLevel" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -312,7 +312,7 @@
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parent_IncludeMailbox" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parent_IncludeMailbox" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -329,7 +329,7 @@
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parent_IncludeGuildBank" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parent_IncludeGuildBank" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -346,7 +346,7 @@
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parent_IncludeRecipes" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parent_IncludeRecipes" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -363,7 +363,7 @@
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parent_IncludeGuildSkills" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parent_IncludeGuildSkills" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -388,7 +388,7 @@
 			<AbsDimension x="615" y="306"/>
 		</Size>
 		<Frames>
-			<CheckButton name="$parent_GuildMailWarning" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parent_GuildMailWarning" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -411,7 +411,7 @@
 					</OnLeave>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parent_NameAutoComplete" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parent_NameAutoComplete" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -436,7 +436,7 @@
 			<AbsDimension x="615" y="306"/>
 		</Size>
 		<Frames>
-			<CheckButton name="$parentSource" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parentSource" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -453,7 +453,7 @@
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parentCount" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parentCount" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -470,7 +470,7 @@
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parentTotal" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parentTotal" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -487,7 +487,7 @@
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parentRecipeInfo" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parentRecipeInfo" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -504,7 +504,7 @@
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parentItemID" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parentItemID" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -521,7 +521,7 @@
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parentGatheringNode" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parentGatheringNode" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -538,7 +538,7 @@
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parentCrossFaction" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parentCrossFaction" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -555,7 +555,7 @@
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parentMultiAccount" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parentMultiAccount" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -572,15 +572,14 @@
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			
-			<CheckButton name="$parentGuildBank" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parentGuildBank" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
 				<Anchors> 
-					<Anchor point="TOPLEFT" relativeTo="$parentSource" relativePoint="TOPRIGHT">
+					<Anchor point="TOPLEFT" relativeTo="$parentMultiAccount" relativePoint="BOTTOMLEFT">
 						<Offset>
-							<AbsDimension  x="250" y="0"/>
+							<AbsDimension  x="0" y="-10"/>
 						</Offset>
 					</Anchor>
 				</Anchors>      
@@ -590,7 +589,7 @@
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parentGuildBankCount" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parentGuildBankCount" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -607,7 +606,7 @@
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parentGuildBankCountPerTab" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parentGuildBankCountPerTab" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -657,18 +656,6 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentText3" inherits="GameFontNormalSmall">
-					<Size>
-						<AbsDimension x="100" y="18"/>
-					</Size>
-					<Anchors>
-						<Anchor point="TOPLEFT">
-							<Offset>
-								<AbsDimension x="390" y="-20"/>
-							</Offset>
-						</Anchor>
-					</Anchors>
-				</FontString>
 				<FontString name="$parentIconNever" inherits="GameFontNormalSmall">
 					<Size>
 						<AbsDimension x="20" y="18"/>
@@ -709,7 +696,7 @@
 		</Layers>
 		<Frames>
 			<!-- for readability reasons, the 2 scrollframes of this pane are located in AccountSharing.xml  -->
-			<CheckButton name="$parent_AccSharingComm" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parent_AccSharingComm" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -759,65 +746,6 @@
 				</Scripts>
 			</Button>
 
-			<Button name="$parent_ToggleAll">
-				<Size>
-					<AbsDimension x="16" y="16"/>
-				</Size>
-				<Anchors>
-					<Anchor point="TOPLEFT">
-						<Offset>
-							<AbsDimension x="310" y="-25"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<Scripts>
-					<OnClick>
-						Altoholic.Sharing.Content:ToggleAll(self, button)
-					</OnClick>
-				</Scripts>
-				<NormalTexture name="$parentIcon" file="Interface\Buttons\UI-MinusButton-UP" />
-				<HighlightTexture file="Interface\Buttons\UI-PlusButton-Hilight" alphaMode="ADD" />
-			</Button>
-			<CheckButton name="$parent_CheckAll" inherits="UICheckButtonTemplate">
-				<Size>
-					<AbsDimension x="20" y="20"/>
-				</Size>
-				<Anchors> 
-					<Anchor point="LEFT" relativeTo="$parent_ToggleAll" relativePoint="RIGHT">
-						<Offset>
-							<AbsDimension  x="5" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>      
-				<Scripts>
-					<OnLoad>
-						_G[self:GetName() .. "Text"]:SetText(ALL)
-					</OnLoad>
-					<OnClick>
-						Altoholic.Sharing.Content:CheckAll(self, button)
-					</OnClick>
-				</Scripts>
-			</CheckButton>
-			<Button name="$parent_SharedContentInfoButton" inherits="UIPanelButtonTemplate" text="?">
-				<Size>
-					<AbsDimension x="20" y="24"/>
-				</Size>
-				<Anchors>
-					<Anchor point="LEFT" relativeTo="$parentText3" relativePoint="RIGHT" >
-						<Offset>
-							<AbsDimension x="5" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<Scripts>
-					<OnEnter>
-						Altoholic:ShowWidgetTooltip(self)
-					</OnEnter>
-					<OnLeave>
-						AltoTooltip:Hide();
-					</OnLeave>
-				</Scripts>
-			</Button>
 
 			<EditBox name="$parent_CharNameEditBox" inherits="InputBoxTemplate">
 				<Size x="100" y="16" />
@@ -886,19 +814,108 @@
 		</Frames>
 		<Scripts>
 			<OnShow>
-				Altoholic.Sharing.Content:BuildView()
-				Altoholic.Sharing.Content:Update()
 				Altoholic.Sharing.Clients:Update()
 			</OnShow>
 		</Scripts>
 	</Frame>
+	
+	<Frame name="AltoholicSharedContent" hidden="true">
+		<Size>
+			<AbsDimension x="615" y="306"/>
+		</Size>
+		<Scripts>
+			<OnShow>
+				Altoholic.Sharing.Content:BuildView()
+				Altoholic.Sharing.Content:Update()
+			</OnShow>
+		</Scripts>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString name="$parentText1" inherits="GameFontNormalSmall">
+					<Size>
+						<AbsDimension x="100" y="18"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="110" y="-20"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button name="$parent_ToggleAll">
+				<Size>
+					<AbsDimension x="16" y="16"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="30" y="-25"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						Altoholic.Sharing.Content:ToggleAll(self, button)
+					</OnClick>
+				</Scripts>
+				<NormalTexture name="$parentIcon" file="Interface\Buttons\UI-MinusButton-UP" />
+				<HighlightTexture file="Interface\Buttons\UI-PlusButton-Hilight" alphaMode="ADD" />
+			</Button>
+			<CheckButton name="$parent_CheckAll" inherits="InterfaceOptionsSmallCheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="LEFT" relativeTo="$parent_ToggleAll" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension  x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnLoad>
+						_G[self:GetName() .. "Text"]:SetText(ALL)
+					</OnLoad>
+					<OnClick>
+						Altoholic.Sharing.Content:CheckAll(self, button)
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<Button name="$parent_SharedContentInfoButton" inherits="UIPanelButtonTemplate" text="?">
+				<Size>
+					<AbsDimension x="20" y="24"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentText1" relativePoint="RIGHT" >
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnEnter>
+						Altoholic:ShowWidgetTooltip(self)
+					</OnEnter>
+					<OnLeave>
+						AltoTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</Button>
+		</Frames>
+		
+	</Frame>
+	
 	
 	<Frame name="AltoholicCalendarOptions" hidden="true">
 		<Size>
 			<AbsDimension x="615" y="306"/>
 		</Size>
 		<Frames>
-			<CheckButton name="$parentFirstDay" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parentFirstDay" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -921,7 +938,7 @@
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parentDialogBox" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parentDialogBox" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -938,7 +955,7 @@
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parentDisableWarnings" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parentDisableWarnings" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -998,6 +1015,14 @@
 		<Size>
 			<AbsDimension x="615" y="400"/>
 		</Size>
+		<Scripts>
+			<OnUpdate>
+				Altoholic.Options:OnUpdate(self)
+			</OnUpdate>
+			<OnShow>
+				Altoholic.Options:OnUpdate(self, true)
+			</OnShow>
+		</Scripts>
 		<Frames>
 			<ScrollFrame name="$parent_ScrollFrame" inherits="UIPanelScrollFrameTemplate">
 				<Size>
@@ -1048,6 +1073,14 @@
 		<Size>
 			<AbsDimension x="615" y="400"/>
 		</Size>
+		<Scripts>
+			<OnUpdate>
+				Altoholic.Options:OnUpdate(self)
+			</OnUpdate>
+			<OnShow>
+				Altoholic.Options:OnUpdate(self, true)
+			</OnShow>
+		</Scripts>
 		<Frames>
 			<ScrollFrame name="$parent_ScrollFrame" inherits="UIPanelScrollFrameTemplate">
 				<Size>
