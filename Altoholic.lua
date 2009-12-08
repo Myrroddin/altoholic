@@ -341,14 +341,17 @@ function Altoholic.Characters:AddRealm(AccountName, RealmName, realmID)
 		SkillsCache[2].spellID = nil
 
 		local i = 1
-		for SkillName, s in pairs(DS:GetPrimaryProfessions(character)) do
-			SkillsCache[i].name = SkillName
-			SkillsCache[i].rank = DS:GetSkillInfo(character, SkillName)
-			SkillsCache[i].spellID = Altoholic:GetProfessionSpellID(SkillName)
-			i = i + 1
-			
-			if i > 2 then		-- it seems that under certain conditions, the loop continues after 2 professions.., so break
-				break
+		local professions = DS:GetPrimaryProfessions(character)
+		if professions then
+			for SkillName, s in pairs(professions) do
+				SkillsCache[i].name = SkillName
+				SkillsCache[i].rank = DS:GetSkillInfo(character, SkillName)
+				SkillsCache[i].spellID = Altoholic:GetProfessionSpellID(SkillName)
+				i = i + 1
+				
+				if i > 2 then		-- it seems that under certain conditions, the loop continues after 2 professions.., so break
+					break
+				end
 			end
 		end
 		
@@ -367,14 +370,14 @@ function Altoholic.Characters:AddRealm(AccountName, RealmName, realmID)
 			riding = DS:GetRidingRank(character),
 		} )
 
-		realmlevels = realmlevels + DS:GetCharacterLevel(character)
-		realmmoney = realmmoney + DS:GetMoney(character)
-		realmplayed = realmplayed + DS:GetPlayTime(character)
+		realmlevels = realmlevels + (DS:GetCharacterLevel(character) or 0)
+		realmmoney = realmmoney + (DS:GetMoney(character) or 0)
+		realmplayed = realmplayed + (DS:GetPlayTime(character) or 0)
 		
-		realmBagSlots = realmBagSlots + DS:GetNumBagSlots(character)
-		realmFreeBagSlots = realmFreeBagSlots + DS:GetNumFreeBagSlots(character)
-		realmBankSlots = realmBankSlots + DS:GetNumBankSlots(character)
-		realmFreeBankSlots = realmFreeBankSlots + DS:GetNumFreeBankSlots(character)
+		realmBagSlots = realmBagSlots + (DS:GetNumBagSlots(character) or 0)
+		realmFreeBagSlots = realmFreeBagSlots + (DS:GetNumFreeBagSlots(character) or 0)
+		realmBankSlots = realmBankSlots + (DS:GetNumBankSlots(character) or 0)
+		realmFreeBankSlots = realmFreeBankSlots + (DS:GetNumFreeBankSlots(character) or 0)
 	end		-- end char
 
 	table.insert(self.List, { linetype = INFO_TOTAL_LINE + (realmID*3),
@@ -935,16 +938,17 @@ end
 
 -- finally some decent code for the tooltip counters ...
 local ItemCounts = {}
-local ItemCountsLabels = {	L["Bags"], L["Bank"], L["AH"], L["Equipped"], L["Mail"] }
+local ItemCountsLabels = {	L["Bags"], L["Bank"], L["AH"], L["Equipped"], L["Mail"], CURRENCY }
 
 function Altoholic:GetCharacterItemCount(character, searchedID)
 	ItemCounts[1], ItemCounts[2] = DS:GetContainerItemCount(character, searchedID)
 	ItemCounts[3] = DS:GetAuctionHouseItemCount(character, searchedID)
 	ItemCounts[4] = DS:GetInventoryItemCount(character, searchedID)
 	ItemCounts[5] = DS:GetMailItemCount(character, searchedID)
+	ItemCounts[6] = DS:GetCurrencyItemCount(character, searchedID)
 	
 	local charCount = 0
-	for _, v in ipairs(ItemCounts) do
+	for _, v in pairs(ItemCounts) do
 		charCount = charCount + v
 	end
 	
@@ -956,7 +960,7 @@ function Altoholic:GetCharacterItemCount(character, searchedID)
 		end
 		
 		local t = {}
-		for k, v in ipairs(ItemCounts) do
+		for k, v in pairs(ItemCounts) do
 			if v > 0 then	-- if there are more than 0 items in this container
 				table.insert(t, WHITE .. ItemCountsLabels[k] .. ": "  .. TEAL .. v)
 			end

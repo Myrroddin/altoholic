@@ -1,4 +1,4 @@
-﻿## Interface: 30200
+﻿## Interface: 30300
 ## Title: Altoholic
 ## Title-zhCN: |cffeedd99 [物品] |r: 全角色统计 Altoholic
 
@@ -8,14 +8,14 @@
 ## Notes-zhCN: 能让你全面掌握你的所有角色的信息。
 
 ## Author: Thaoky (EU-Marécages de Zangar)
-## Version: 3.2.003b
+## Version: 3.3.001
 ## X-Category: Inventory, Tradeskill, Mail
 ## X-Localizations: enUS, frFR, zhCN, zhTW, deDE, koKR, esES, esMX, ruRU
 ## X-Website: http://wow.curse.com/downloads/wow-addons/details/altoholic.aspx
 ## X-eMail: thaoky.altoholic@yahoo.com
 ## X-Donate: http://wow.curse.com/downloads/wow-addons/details/altoholic.aspx
 ## X-Credits: My guild (Odysseüs), all translators, the wowace community, and all users for their invaluable suggestions !
-## Dependencies: DataStore
+## Dependencies: DataStore, DataStore_Characters, DataStore_Containers
 
 ## OptionalDeps: Ace3, LibDataBroker-1.1, LibPeriodicTable-3.1, LibBabble-Zone-3.0, LibBabble-Boss-3.0, LibBabble-Inventory-3.0, LibBabble-Faction-3.0, LibBabble-Class-3.0, LibCompress
 ## SavedVariables: AltoholicDB

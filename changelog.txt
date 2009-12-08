@@ -1,7 +1,27 @@
 Altoholic Changelog (dates in dd/mm/yyyy)
 ===================
 
-3.2.003b
+Join the #altoholic IRC channel on Freenode : irc://irc.freenode.net:6667/
+
+
+3.3.001 
+
+2 reminders :
+
+1) In the previous version, all options have been moved to Blizzard's option panel, under 2 categories : Altoholic & DataStore (click on '+'). No options has been removed.
+2) Help topics have been added in both categories, make sure to read them, they contain a lot of frequently asked questions. 
+
+- Added two new options in DataStore_Mails to check mail expiries for all accounts and/or all realms
+- Slightly modified the options panels to better fit all resolutions/UI scales.
+- The "Shared Content" scroll frame now has its own panel, right under "Account Sharing". This will change in the future when the entire account sharing feature gets an upgrade and becomes entirely managed by DataStore.
+- Added an option to automatically clear expired auctions and bids (DataStore_Auctions).
+- Fixed a bug where mail counters were not always displayed in the tooltip. (Thanks Quagm1re !)
+- Added currencies count to the tooltip.
+- Added 4 missing pets.
+- Added mandatory dependencies on DataStore_Characters & DataStore_Containers. The other modules are optional, and the addon will be updated to reflect that soon. Until you read a note about this in the changelog, keep all modules activated.
+- Manually updated the loot tables of Onyxia's Lair & ToC, since they are not yet in LPT.
+
+3.2.003b (25/11/2009)
 
 - Fixed a Lua error in the when sorting the activity pane by auctions or bids, this happened if one of the alts had never visited the AH.
 - Fixed a Lua error in the search pane.

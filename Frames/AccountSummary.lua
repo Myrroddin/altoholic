@@ -179,6 +179,7 @@ end
 function Altoholic.Summary:Level_OnEnter(self)
 	local line = self:GetParent():GetID()
 	local s = Altoholic.Characters:Get(line)
+	if not s then return end
 	
 	if mod(s.linetype, 3) == INFO_REALM_LINE then		
 		return

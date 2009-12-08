@@ -29,6 +29,24 @@ function Altoholic.Tabs.GuildBank:DropDownGuild_Initialize()
 		info.arg2 = guildRealm
 		UIDropDownMenu_AddButton(info, 1); 
 	end
+	
+	-- local DS = DataStore
+	
+	-- for account in pairs(DS:GetAccounts()) do
+		-- for realm in pairs(DS:GetRealms(account)) do
+			-- for guildName, guild in pairs(DS:GetGuilds(realm, account)) do
+				-- local info = UIDropDownMenu_CreateInfo(); 
+				
+				-- info.text = format("%s %s(%s / %s%s)", GREEN..guildName, WHITE, realm, YELLOW..account, WHITE)
+				-- info.value = format("%s|%s|%s", account, realm, guildName)
+				-- info.checked = nil; 
+				-- info.func = ChangeGuild
+				-- info.arg1 = account
+				-- info.arg2 = realm
+				-- UIDropDownMenu_AddButton(info, 1); 
+			-- end
+		-- end
+	-- end
 end
 
 function Altoholic.Tabs.GuildBank:OnShow()

@@ -26,7 +26,7 @@ local help = {
 		answers = {
 			"Go into the 'Account Summary', mouse over the character, right-click it to get the contextual menu, and select 'Delete this Alt'.",
 			"Type /alto or /altoholic to get the list of command line options.",
-			"Go into Altoholic's main option panel, and check 'Show Minimap Icon'. You can also type /alto show.",
+			"Go into Altoholic's main option panel, and check 'Show Minimap Icon'.\nYou can also type /alto show.",
 			format("%s%s\n%s\n%s", "The add-on is only released on these two sites, it is recommended NOT TO get it through other means:", GREEN, url1, url2 ),
 			"DataStore and its modules take care of storing data for client add-ons; Altoholic itself now only stores very little information. The main purpose of the numerous directories is to offer split databases, instead of one massive database containing all the information required by the add-on.",
 			"Refer to DataStore's own help topic for more information.",
@@ -103,10 +103,31 @@ local help = {
 			)
 		}
 	},
+	{	name = "Live support",
+		questions = {
+			"Is there an IRC channel where I could get live support?",
+		},
+		answers = {
+			format("Yes. Join the %s#altoholic|r IRC channel on Freenode : %sirc://irc.freenode.net:6667/|r", WHITE, GREEN),
+		}
+	},
 }
 
--- this content will be subject to change, often, do not bother translating it !!
+-- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "3.3.001 Changes",
+		bulletedList = {
+			"Added two new options in DataStore_Mails to check mail expiries for all accounts and/or all realms.",
+			"Slightly modified the options panels to better fit all resolutions/UI scales.",
+			"The 'Shared Content' scroll frame now has its own panel, right under 'Account Sharing'.",
+			"Added an option to automatically clear expired auctions and bids (DataStore_Auctions).",
+			"Fixed a bug where mail counters were not always displayed in the tooltip. (Thanks Quagm1re !)",
+			"Added currencies count to the tooltip.",
+			"Added 4 missing pets.",
+			"Added mandatory dependencies on DataStore_Characters & DataStore_Containers.",
+			"Manually updated the loot tables of Onyxia's Lair & ToC.",
+		},
+	},
 	{	name = "3.2.003b Changes",
 		bulletedList = {
 			"The options tab has been removed, all options are now available in the Blizzard Options panel. A button has been added at the top of the summary tab, for faster access.",
@@ -157,6 +178,7 @@ function Altoholic.Options:Init()
 	DataStore:AddOptionCategory(AltoholicSearchOptions, SEARCH, addonName)
 	DataStore:AddOptionCategory(AltoholicMailOptions, MAIL_LABEL, addonName)
 	DataStore:AddOptionCategory(AltoholicAccountSharingOptions, L["Account Sharing"], addonName)
+	DataStore:AddOptionCategory(AltoholicSharedContent, "Shared Content", addonName)
 	DataStore:AddOptionCategory(AltoholicTooltipOptions, L["Tooltip"], addonName)
 	DataStore:AddOptionCategory(AltoholicCalendarOptions, L["Calendar"], addonName)
 
@@ -249,7 +271,6 @@ function Altoholic.Options:Init()
 
 	AltoholicAccountSharingOptionsText1:SetText(WHITE.."Authorizations")
 	AltoholicAccountSharingOptionsText2:SetText(WHITE..L["Character"])
-	AltoholicAccountSharingOptionsText3:SetText(WHITE.."Shared Content")
 	AltoholicAccountSharingOptions_InfoButton.tooltip = format("%s\n%s\n\n%s", 
 	
 	WHITE.."This list allows you to automate responses to account sharing requests.",
@@ -260,7 +281,9 @@ function Altoholic.Options:Init()
 	AltoholicAccountSharingOptionsIconAsk:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Waiting:14\124t")
 	AltoholicAccountSharingOptionsIconAuto:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Ready:14\124t")
 	
-	AltoholicAccountSharingOptions_SharedContentInfoButton.tooltip = format("%s\n%s", 
+	-- ** Shared Content **
+	AltoholicSharedContentText1:SetText(WHITE.."Shared Content")
+	AltoholicSharedContent_SharedContentInfoButton.tooltip = format("%s\n%s", 
 		WHITE.."Select the content that will be visible to players who send you",
 		"account sharing requests.")
 	
@@ -396,5 +419,50 @@ function Altoholic.Options:Toggle(self, option)
 		Altoholic.Options:Set(option, 1)
 	else
 		Altoholic.Options:Set(option, 0)
+	end
+end
+
+local function ResizeScrollFrame(frame, width, height)
+	-- just a small wrapper, nothing generic in here.
+	
+	local name = frame:GetName()
+	_G[name]:SetWidth(width-45)
+	_G[name.."_ScrollFrame"]:SetWidth(width-45)
+	_G[name]:SetHeight(height-30)
+	_G[name.."_ScrollFrame"]:SetHeight(height-30)
+	_G[name.."_Text"]:SetWidth(width-80)
+end
+
+local OnSizeUpdate = {	-- custom resize functions
+	AltoholicHelp = ResizeScrollFrame,
+	AltoholicWhatsNew = ResizeScrollFrame,
+
+	-- AltoholicWhatsNew = function(self, width, height)
+			-- AltoholicWhatsNew:SetWidth(width-45)
+			-- AltoholicWhatsNew_ScrollFrame:SetWidth(width-45)
+			-- AltoholicWhatsNew:SetHeight(height-30)
+			-- AltoholicWhatsNew_ScrollFrame:SetHeight(height-30)
+			-- AltoholicWhatsNew_Text:SetWidth(width-80)
+		-- end,
+}
+
+local OptionsPanelWidth, OptionsPanelHeight
+local lastOptionsPanelWidth = 0
+local lastOptionsPanelHeight = 0
+
+function Altoholic.Options:OnUpdate(self, mandatoryResize)
+	OptionsPanelWidth = InterfaceOptionsFramePanelContainer:GetWidth()
+	OptionsPanelHeight = InterfaceOptionsFramePanelContainer:GetHeight()
+	
+	if not mandatoryResize then -- if resize is not mandatory, allow exit
+		if OptionsPanelWidth == lastOptionsPanelWidth and OptionsPanelHeight == lastOptionsPanelHeight then return end		-- no size change ? exit
+	end
+		
+	lastOptionsPanelWidth = OptionsPanelWidth
+	lastOptionsPanelHeight = OptionsPanelHeight
+	
+	local frameName = self:GetName()
+	if frameName and OnSizeUpdate[frameName] then
+		OnSizeUpdate[frameName](self, OptionsPanelWidth, OptionsPanelHeight)
 	end
 end

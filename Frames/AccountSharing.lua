@@ -212,7 +212,7 @@ end
 local ContentCollapsedHeaders			-- a table containing the collapsed headers (character keys)
 
 local ContentScrollFrame_Desc = {
-	NumLines = 10,
+	NumLines = 14,
 	LineHeight = 18,
 	Frame = "AltoholicFrameSharedContent",
 	GetSize = function()

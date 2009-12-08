@@ -334,14 +334,14 @@
 		</Frames>
 	</Button>
 	
-	<Frame name="AltoholicFrameSharedContent" parent="AltoholicAccountSharingOptions">
+	<Frame name="AltoholicFrameSharedContent" parent="AltoholicSharedContent">
 		<Size>
-			<AbsDimension x="300" y="240"/>
+			<AbsDimension x="300" y="320"/>
 		</Size>
 		<Anchors>
-			<Anchor point="TOPLEFT">
+			<Anchor point="TOPLEFT" relativeTo="$parent_ToggleAll" relativePoint="BOTTOMLEFT">
 				<Offset>
-					<AbsDimension x="300" y="-50"/>
+					<AbsDimension x="0" y="-15"/>
 				</Offset>
 			</Anchor>
 		</Anchors>
@@ -498,6 +498,26 @@
 			<Button name="$parentEntry10" inherits="AltoSharedContentTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentEntry9" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry11" inherits="AltoSharedContentTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry10" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry12" inherits="AltoSharedContentTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry11" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry13" inherits="AltoSharedContentTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry12" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentEntry14" inherits="AltoSharedContentTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentEntry13" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</Button>
 		</Frames>

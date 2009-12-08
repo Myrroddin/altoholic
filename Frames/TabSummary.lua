@@ -107,6 +107,7 @@ function Altoholic.Tabs.Summary:SetMode(mode)
 	AltoholicTabSummaryToggleView:Show()
 	AltoholicTabSummary_SelectLocation:Show()
 	AltoholicTabSummary_RequestSharing:Show()
+	AltoholicTabSummary_Options:Show()
 	
 	local Columns = Altoholic.Tabs.Columns
 	Columns:Init()
@@ -177,6 +178,7 @@ function Altoholic.Tabs.Summary:SetMode(mode)
 		AltoholicTabSummaryToggleView:Hide()
 		AltoholicTabSummary_SelectLocation:Hide()
 		AltoholicTabSummary_RequestSharing:Hide()
+		AltoholicTabSummary_Options:Hide()
 	end
 end
 
