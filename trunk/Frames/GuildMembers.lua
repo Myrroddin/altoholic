@@ -288,6 +288,11 @@ function Altoholic.Guild.Members:Update()
 			local _, _, _, level, class, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(member)
 			level = level or 0
 			
+			local classText = L["N/A"]
+			if class and englishClass then
+				classText = format("%s%s", Altoholic:GetClassColor(englishClass), class)
+			end
+			
 			local version = Altoholic:GetGuildMemberVersion(member) or L["N/A"]
 			local averageItemLvl = DataStore:GetGuildMemberAverageItemLevel(guild, member) or 0
 		
@@ -298,7 +303,7 @@ function Altoholic.Guild.Members:Update()
 				_G[entry..i.."Level"]:SetText(GREEN .. level)
 				_G[entry..i.."AvgILevelNormalText"]:SetText(YELLOW..format("%.1f", averageItemLvl))
 				_G[entry..i.."Version"]:SetText(WHITE..version)
-				_G[entry..i.."Class"]:SetText(format("%s%s", Altoholic:GetClassColor(englishClass), class))
+				_G[entry..i.."Class"]:SetText(classText)
 				
 				_G[ entry..i ].CharName = member
 				_G[ entry..i ]:SetID(lineIndex)
@@ -321,7 +326,7 @@ function Altoholic.Guild.Members:Update()
 				_G[entry..i.."Level"]:SetText(GREEN .. level)
 				_G[entry..i.."AvgILevelNormalText"]:SetText(YELLOW..format("%.1f", averageItemLvl))
 				_G[entry..i.."Version"]:SetText(WHITE..version)
-				_G[entry..i.."Class"]:SetText(format("%s%s", Altoholic:GetClassColor(englishClass), class))
+				_G[entry..i.."Class"]:SetText(classText)
 				
 				_G[ entry..i ].CharName = member
 				_G[ entry..i ]:SetID(lineIndex)
@@ -338,7 +343,7 @@ function Altoholic.Guild.Members:Update()
 				_G[entry..i.."Level"]:SetText(GREEN .. level)
 				_G[entry..i.."AvgILevelNormalText"]:SetText(YELLOW..format("%.1f", averageItemLvl))
 				_G[entry..i.."Version"]:SetText(WHITE..version)
-				_G[entry..i.."Class"]:SetText(format("%s%s", Altoholic:GetClassColor(englishClass), class))
+				_G[entry..i.."Class"]:SetText(classText)
 				
 				_G[ entry..i ].CharName = member
 				_G[ entry..i ]:SetID(lineIndex)
