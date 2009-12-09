@@ -286,6 +286,8 @@ function Altoholic.Guild.Members:Update()
 		else		-- line will be displayed
 			local member = v.name
 			local _, _, _, level, class, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(member)
+			level = level or 0
+			
 			local version = Altoholic:GetGuildMemberVersion(member) or L["N/A"]
 			local averageItemLvl = DataStore:GetGuildMemberAverageItemLevel(guild, member) or 0
 		
