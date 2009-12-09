@@ -8,7 +8,7 @@ local GREEN		= "|cFF00FF00"
 
 Altoholic.Loots = {}
 
--- Simplified loot table containing item ID's only, based on AtlasLoot v5.04.00
+-- Simplified loot table containing item ID's only, based on AtlasLoot v5.09.00
 Altoholic.Loots.List = {
 			
 	-- to do: HardModeArena & HardModeArena2 from sets_en.lua
@@ -748,6 +748,48 @@ Altoholic.Loots.List = {
 				47552, 47549, 47545, 47547, 47518, 47513, 47516, 47528, 47520, 47525,
 				47523, 47551, 47550, 47548, 47554, 47546 },
 	},
+	
+	-- 3.3
+
+	[BZ["The Forge of Souls"]] = {
+		[BB["Bronjahm"]] = {	49788, 49785, 49786, 49787, 49784, 49783 },
+		[BB["Devourer of Souls"]] = {	49792, 49796, 49798, 49791, 49797, 49794, 49795, 49799, 49800, 49789, 49790, 49793 },
+	},
+	[BZ["The Forge of Souls"] .. L[" (Heroic)"]] = {
+		[BB["Bronjahm"]] = {	50193, 50197, 50194, 50196, 50191, 50169 },
+		[BB["Devourer of Souls"]] = {	50213, 50206, 50212, 50214, 50209, 50208, 50207, 50215, 50211, 50198,
+				50203, 50210 },
+	},
+	[BZ["Pit of Saron"]] = {
+		[BB["Forgemaster Garfrost"]] = {	49805, 49806, 49804, 49803, 49802, 49801 },
+		-- temporarily not localized
+		["Krick and Ick"] = { 49809, 49810, 49811, 49808, 49812, 49807 },
+		["Scourgelord Tyrannus"] = { 49823, 49825, 49822, 49817, 49824, 49826, 49820, 49819, 49816, 49818,
+				49813, 49821 },
+	},
+	[BZ["Pit of Saron"] .. L[" (Heroic)"]] = {
+		[BB["Forgemaster Garfrost"]] = {	50233, 50234, 50230, 50229, 50228, 50227 },
+		-- temporarily not localized
+		["Krick and Ick"] = { 50266, 50263, 50624, 50265, 50235, 50262 },
+		["Scourgelord Tyrannus"] = { 50286, 50269, 50270, 50283, 50272, 50285, 50284, 50271, 50259, 50268,
+				50267, 50273 },
+	},
+	[BZ["Halls of Reflection"]] = {
+		-- temporarily not localized
+		["Falric"] = { 49823, 49828, 49830, 49831, 49829, 49827 },
+		["Marwyn"] = { 49834, 49838, 49837, 49836, 49835, 49828 },
+		["The Lich King"] = { 49842, 49849, 49848, 49841, 49847, 49851, 49843, 49840, 49846, 49845,
+				49839, 49844 },
+	},
+	[BZ["Halls of Reflection"] .. L[" (Heroic)"]] = {
+		["Falric"] = { 50292, 50293, 50295, 50294, 50290, 50291 },
+		["Marwyn"] = { 50298, 50299, 50300, 50297, 50260, 50296 },
+		["The Lich King"] = { 50314, 50312, 50308, 50304, 50311, 50305, 50310, 50313, 50306, 50302,
+				50303, 50309 },
+	},
+	
+	-- [] = {
+	-- },
 	
 }
 
