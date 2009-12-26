@@ -8,25 +8,27 @@ local YELLOW	= "|cFFFFFF00"
 local ORANGE	= "|cFFFF7F00"
 local GRAY		= "|cFF909090"
 
-local GENERAL_CATEGORY_ID				= 92
-local QUESTS_CATEGORY_ID				= 96
-local QUESTS_WOW_CATEGORY_ID			= 14861
-local QUESTS_BC_CATEGORY_ID			= 14862
-local QUESTS_WOTLK_CATEGORY_ID		= 14863
-local PVP_CATEGORY_ID					= 95
-local PVPARENA_CATEGORY_ID				= 165
-local PVPWINTERGRASP_CATEGORY_ID		= 14901
-local DUNGEONS_CATEGORY_ID				= 168
-local PROFESSIONS_CATEGORY_ID			= 169
-local COOKING_CATEGORY_ID				= 170
-local FISHING_CATEGORY_ID				= 171
-local FIRSTAID_CATEGORY_ID				= 172
-local REPUTATIONS_CATEGORY_ID			= 201
-local LUNARFESTIVAL_CATEGORY_ID		= 160
-local FEATS_CATEGORY_ID					= 81
+local GENERAL_CATEGORY_ID = 92
+local QUESTS_CATEGORY_ID = 96
+local QUESTS_WOW_CATEGORY_ID = 14861
+local QUESTS_BC_CATEGORY_ID = 14862
+local QUESTS_WOTLK_CATEGORY_ID = 14863
+local EXPLORATION_OUTLAND_CATEGORY_ID = 14779
+local EXPLORATION_NORTHREND_CATEGORY_ID = 14780
+local PVP_CATEGORY_ID = 95
+local PVPARENA_CATEGORY_ID = 165
+local PVPWINTERGRASP_CATEGORY_ID = 14901
+local DUNGEONS_CATEGORY_ID = 168
+local PROFESSIONS_CATEGORY_ID = 169
+local COOKING_CATEGORY_ID = 170
+local FISHING_CATEGORY_ID = 171
+local FIRSTAID_CATEGORY_ID = 172
+local REPUTATIONS_CATEGORY_ID = 201
+local LUNARFESTIVAL_CATEGORY_ID = 160
+local FEATS_CATEGORY_ID = 81
 
 local Categories = {
--- Reference Table for some achievement categories. Since progressive achievements are not listed as part of an alt's known achievements, and since
+-- Reference Table for some achievement categories. Since progressive (series of) achievements are not listed as part of an alt's known achievements, and since
 -- not all alts are at the same level (think of character level for instance), it's necessary to keep track of all achievements in a specific category.
 -- Categories that contain no progressive achievements do not need to be here (ex: exploration)
 
@@ -40,6 +42,12 @@ local Categories = {
 	[QUESTS_CATEGORY_ID] = {										-- updated Feb 6, 2009
 		31, 32, 503, 504, 505, 506, 507, 508, 941, 973, 974, 975,
 		976, 977, 978, 1182, 1576, 1681, 1682	
+	},
+	[EXPLORATION_OUTLAND_CATEGORY_ID] = {						-- updated Dec 26, 2009
+		843, 862, 863, 864, 865, 866, 867, 1311, 1312,
+	},
+	[EXPLORATION_NORTHREND_CATEGORY_ID] = {					-- updated Dec 26, 2009
+		1263, 1264, 1265, 1266, 1267, 1268, 1269, 1270, 1457, 2256, 2257
 	},
 	[PVP_CATEGORY_ID] = {											-- updated Feb 6, 2009
 		227, 229, 230, 231, 238, 239, 245, 246, 247, 388, 389, 396, 509, 512, 513, 515, 516, 
@@ -110,6 +118,12 @@ local PreSortedCategories = {
 	[QUESTS_CATEGORY_ID] = {
 		503, 504, 505, 506, 507, 508, 32, 978,				-- quests completed
 		973, 974, 975,	976, 977,								-- daily quests completed
+	},
+	[EXPLORATION_OUTLAND_CATEGORY_ID] = {
+		862, 863, 867, 866, 865, 843, 864, 1311, 1312, 
+	},
+	[EXPLORATION_NORTHREND_CATEGORY_ID] = {
+		1263, 1264, 1265, 1266, 1267, 1457, 1268, 1269, 1270, 2256, 2257
 	},
 	[PVP_CATEGORY_ID] = {
 		238, 513, 515, 516, 512, 509, 239, 869, 870,		-- honorable kills
