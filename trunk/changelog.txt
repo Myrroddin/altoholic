@@ -4,7 +4,33 @@ Altoholic Changelog (dates in dd/mm/yyyy)
 Join the #altoholic IRC channel on Freenode : irc://irc.freenode.net:6667/
 
 
-3.3.001 
+3.3.001b (26/12/2009)
+
+Two Year Anniversary Edition
+
+In a few days, Altoholic will turn two, and I would like to take some time to thank you all for the continuous support you have given me :)
+Quite often, I have received warm "thank you" messages from many of you, and apart from the traditional "you're welcome", or "glad you like the addon", I never had the opportunity to tell you how much this keeps me going.
+So here I am, thanking you for being patient when bugfixes do not come in fast enough, for taking the time to dig into the issues yourselves because I cannot reproduce a bug, and for sometimes fixing bugs in my place too.
+For all these little things you have done to help, know that I am extremely grateful, and that what started as a small personal project now binds a small community, thanks to all of you.
+
+I wish you all the very best for 2010!
+
+/kisses
+/hugs
+/love
+x1000
+
+Thaoky
+
+On to the changelog:
+- Fixed a Lua error in DataStore_Auctions.
+- Fixed missing currencies count to the tooltip.
+- Added a sorted list of achievements in the category "Dungeons & Raids".
+- Fixed a tooltip bug where only one of two guilds with the same name would be listed.
+- Added The Ashen Verdict faction.
+
+
+3.3.001 (09/12/2009)
 
 2 reminders :
 

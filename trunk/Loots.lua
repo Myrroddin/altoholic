@@ -789,6 +789,10 @@ Altoholic.Loots.List = {
 	},
 	
 	-- [] = {
+--			trash		49854
+--			saron trash 49852
+--			trash hero	50319
+-- 			boss 1hero 50317
 	-- },
 	
 }

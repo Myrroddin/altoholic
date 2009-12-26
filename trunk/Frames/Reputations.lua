@@ -111,6 +111,7 @@ local Factions = {
 			{ name = BF["The Wyrmrest Accord"], icon = "Achievement_Reputation_WyrmrestTemple" },
 			{ name = BF["Knights of the Ebon Blade"], icon = "Achievement_Reputation_KnightsoftheEbonBlade" },
 			{ name = BF["The Sons of Hodir"], icon = "Achievement_Boss_Hodir_01" },
+			{ name = BF["The Ashen Verdict"], icon = "Achievement_Reputation_ArgentCrusader" },
 		},
 		{	-- [2]
 			name = BF["Alliance Vanguard"],

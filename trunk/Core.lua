@@ -4,7 +4,7 @@ _G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "A
 
 local addon = _G[addonName]
 
-addon.Version = "v3.3.001"
+addon.Version = "v3.3.001b"
 addon.VersionNum = 303001
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
@@ -149,7 +149,7 @@ LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject(addonName, {
 	OnClick = function(clickedframe, button)
 		Altoholic:ToggleUI()
 	end,
-	text = addonName,
+	label = addonName,
 })
 
 
@@ -178,7 +178,6 @@ end
 
 -- *** Guild Comm ***
 local function OnAnnounceLogin(self, guildName)
-	-- when the main DataStore module sends its login info, share the guild bank last visit time across guild members
 	GuildBroadcast(MSG_SEND_VERSION, addon.Version)
 end
 
@@ -244,8 +243,6 @@ function Altoholic:ChatCommand(input)
 		LibStub("AceConfigCmd-3.0").HandleCommand(Altoholic, "Alto", "Altoholic", input)
 	end
 end
-
-Altoholic.vars = {}
 
 Altoholic.Guild = {}
 Altoholic.TradeSkills = {}
@@ -339,101 +336,6 @@ end
 -- Allow ESC to close the main frame
 tinsert(UISpecialFrames, "AltoholicFrame");
 tinsert(UISpecialFrames, "AltoMsgBox");
-
--- Add herb/ore possession info to Plants/Mines, thanks to Tempus on wowace for gathering this.
-Altoholic.Gathering = {
-
-	-- Mining nodes
-	[L["Adamantite Deposit"]]              = 23425, -- Adamantite Ore
-	[L["Copper Vein"]]                     =  2770, -- Copper Ore
-	[L["Dark Iron Deposit"]]               = 11370, -- Dark Iron Ore
-	[L["Fel Iron Deposit"]]                = 23424, -- Fel Iron Ore
-	[L["Gold Vein"]]                       =  2776, -- Gold Ore
-	[L["Hakkari Thorium Vein"]]            = 10620, -- Thorium Ore
-	[L["Iron Deposit"]]                    =  2772, -- Iron Ore
-	[L["Khorium Vein"]]                    = 23426, -- Khorium Ore
-	[L["Mithril Deposit"]]                 =  3858, -- Mithril Ore
-	[L["Ooze Covered Gold Vein"]]          =  2776, -- Gold Ore
-	[L["Ooze Covered Mithril Deposit"]]    =  3858, -- Mithril Ore
-	[L["Ooze Covered Rich Thorium Vein"]]  = 10620, -- Thorium Ore
-	[L["Ooze Covered Silver Vein"]]        =  2775, -- Silver Ore
-	[L["Ooze Covered Thorium Vein"]]       = 10620, -- Thorium Ore
-	[L["Ooze Covered Truesilver Deposit"]] =  7911, -- Truesilver Ore
-	[L["Rich Adamantite Deposit"]]         = 23425, -- Adamantite Ore
-	[L["Rich Thorium Vein"]]               = 10620, -- Thorium Ore
-	[L["Silver Vein"]]                     =  2775, -- Silver Ore
-	[L["Small Thorium Vein"]]              = 10620, -- Thorium Ore
-	[L["Tin Vein"]]                        =  2771, -- Tin Ore
-	[L["Truesilver Deposit"]]              =  7911, -- Truesilver Ore
-
-	[L["Lesser Bloodstone Deposit"]]       =  4278, -- Lesser Bloodstone Ore
-	[L["Incendicite Mineral Vein"]]        =  3340, -- Incendicite Ore
-	[L["Indurium Mineral Vein"]]           =  5833, -- Indurium Ore
-	[L["Nethercite Deposit"]]              = 32464, -- Nethercite Ore
-	[L["Large Obsidian Chunk"]]				= 22203,	-- Large Obsidian Shard	Both drop on both nodes..
-	[L["Small Obsidian Chunk"]]				= 22202,	-- Small Obsidian Shard
-	
-	-- wotlk
-	["Cobalt Deposit"]							= 36909, -- Cobalt Ore
-	["Rich Cobalt Deposit"]						= 36909, -- Cobalt Ore
-	["Saronite Deposit"]							= 36912, -- Saronite Ore
-	["Rich Saronite Deposit"]					= 36912, -- Saronite Ore
-	["Titanium Vein"]								= 36910, -- Titanium Ore
-
-	-- Herbs
-	[L["Ancient Lichen"]]       = 22790,
-	[L["Arthas' Tears"]]        =  8836,
-	[L["Black Lotus"]]          = 13468,
-	[L["Blindweed"]]            =  8839,
-	[L["Bloodthistle"]]         = 22710,
-	[L["Briarthorn"]]           =  2450,
-	[L["Bruiseweed"]]           =  2453,
-	[L["Dreamfoil"]]            = 13463,
-	[L["Dreaming Glory"]]       = 22786,
-	[L["Earthroot"]]            =  2449,
-	[L["Fadeleaf"]]             =  3818,
-	[L["Felweed"]]              = 22785,
-	[L["Firebloom"]]            =  4625,
-	[L["Flame Cap"]]            = 22788,
-	[L["Ghost Mushroom"]]       =  8845,
-	[L["Golden Sansam"]]        = 13464,
-	[L["Goldthorn"]]            =  3821,
-	[L["Grave Moss"]]           =  3369,
-	[L["Gromsblood"]]           =  8846,
-	[L["Icecap"]]               = 13467,
-	[L["Khadgar's Whisker"]]    =  3358,
-	[L["Kingsblood"]]           =  3356,
-	[L["Liferoot"]]             =  3357,
-	[L["Mageroyal"]]            =   785,
-	[L["Mana Thistle"]]         = 22793,
-	[L["Mountain Silversage"]]  = 13465,
-	[L["Netherbloom"]]          = 22791,
-	[L["Nightmare Vine"]]       = 22792,
-	[L["Peacebloom"]]           =  2447,
-	[L["Plaguebloom"]]          = 13466,
-	[L["Purple Lotus"]]         =  8831,
-	[L["Ragveil"]]              = 22787,
-	[L["Silverleaf"]]           =   765,
-	[L["Stranglekelp"]]         =  3820,
-	[L["Sungrass"]]             =  8838,
-	[L["Terocone"]]             = 22789,
-	[L["Wild Steelbloom"]]      =  3355,
-	[L["Wintersbite"]]          =  3819,
-
-	[L["Glowcap"]]              = 24245,
-	[L["Netherdust Bush"]]      = 32468, -- Netherdust Pollen
-	[L["Sanguine Hibiscus"]]    = 24246,
-
-	["Fel Lotus"]					= 22794,
-	["Goldclover"]					= 36901,
-	["Adder's Tongue"]			= 36903,
-	["Tiger Lily"]					= 36904,
-	["Lichbloom"]					= 36905,
-	["Icethorn"]					= 36906,
-	["Talandra's Rose"]			= 36907,
-	["Frost Lotus"]				= 36908,
-	["Firethorn"]					= 39970,
-}
 
 function Altoholic:CmdSearchBags(arg1, arg2)
 	-- arg 1 is a table, no idea of what it does, investigate later, only  arg2 matters at this point
