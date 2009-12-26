@@ -3,6 +3,7 @@
 	<Script file="Profiler.lua"></Script>
 	<Script file="Tasks.lua"></Script>
 	<Script file="Comm.lua"></Script>
+	<Script file="Tooltip.lua"></Script>
 	<Script file="Loots.lua"></Script>
 	<Script file="RecipeDB.lua"></Script>
 	<Script file="Suggestions.lua"></Script>

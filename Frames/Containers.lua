@@ -425,7 +425,7 @@ end
 
 -- *** EVENT HANDLERS ***
 function Altoholic.Containers:OnBagUpdate(bag)
-	Altoholic.Tooltip:ForceRefresh()
+	Altoholic:RefreshTooltip()
 
 	if DataStore:IsMailBoxOpen() and AltoholicFrameMail:IsVisible() then	
 		-- if a bag is updated while the mailbox is opened, this means an attachment has been taken.

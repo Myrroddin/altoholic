@@ -115,6 +115,15 @@ local help = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "3.3.001b Changes - The 'Two Year Anniversary Edition'",
+		bulletedList = {
+			"Fixed a Lua error in DataStore_Auctions.",
+			"Fixed missing currencies count to the tooltip.",
+			"Added a sorted list of achievements in the category 'Dungeons & Raids'.",
+			"Fixed a tooltip bug where only one of two guilds with the same name would be listed.",
+			"Added The Ashen Verdict faction.",
+		},
+	},
 	{	name = "3.3.001 Changes",
 		bulletedList = {
 			"Added two new options in DataStore_Mails to check mail expiries for all accounts and/or all realms.",
