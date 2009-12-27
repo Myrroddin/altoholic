@@ -487,6 +487,13 @@ local function ProcessTooltip(tooltip, name, link)
 	end	
 end
 
+local function Hook_LinkWrangler(frame)
+	local name, link = frame:GetItem()
+	if name and link then
+		ProcessTooltip(frame, name, link)
+	end
+end
+
 -- ** GameTooltip hooks **
 local function OnGameTooltipShow(tooltip, ...)
 	if Orig_GameTooltip_OnShow then
@@ -568,6 +575,11 @@ function addon:InitTooltip()
 	ItemRefTooltip:SetScript("OnTooltipSetItem", OnItemRefTooltipSetItem)
 	ItemRefTooltip:SetScript("OnTooltipCleared", OnItemRefTooltipCleared)
 	-- ItemRefTooltip:SetScript("OnTooltipSetSpell", OnItemRefTooltipSetSpell)
+	
+	-- LinkWrangler supoprt
+   if LinkWrangler then
+      LinkWrangler.RegisterCallback ("Altoholic",  Hook_LinkWrangler, "refresh")
+   end
 end
 
 function addon:RefreshTooltip()
