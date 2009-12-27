@@ -44,13 +44,6 @@ Altoholic.ClassInfo = {
 	["DEATHKNIGHT"] = "|cFFC41F3B"
 }
 
-local function Hook_LinkWrangler (frame)
-	local name, link = frame:GetItem ()
-	if name and link then
-		Altoholic.Tooltip:Process(frame, name, link)
-	end
-end
-
 local THIS_ACCOUNT = "Default"
 local INFO_REALM_LINE = 0
 local INFO_CHARACTER_LINE = 1
@@ -204,11 +197,6 @@ function Altoholic:OnEnable()
 	
 	self.UnsafeItems:BuildList()
 	
-	-- LinkWrangler supoprt
-   if LinkWrangler then
-      LinkWrangler.RegisterCallback ("Altoholic",  Hook_LinkWrangler, "refresh")
-   end
-
 	-- create an empty frame to manage the timer via its Onupdate
 	self.TimerFrame = CreateFrame("Frame", "AltoholicTimerFrame", UIParent)
 	local f = self.TimerFrame

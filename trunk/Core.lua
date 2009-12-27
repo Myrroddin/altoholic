@@ -149,6 +149,7 @@ LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject(addonName, {
 	OnClick = function(clickedframe, button)
 		Altoholic:ToggleUI()
 	end,
+	text = (Broker2FuBar) and addonName or nil,		-- only for fubar,  not for ldb
 	label = addonName,
 })
 
