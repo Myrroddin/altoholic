@@ -588,6 +588,11 @@ function addon:RefreshTooltip()
 	cachedItemID = nil	-- putting this at NIL will force a tooltip refresh in self:ProcessToolTip
 end
 
+function addon:GetItemCount(searchedID)
+	-- "public" for other addons using it
+	return GetItemCount(searchedID)
+end
+
 -- not yet implemented, still needs testing, basic stuff works, but far from being optimized.
 -- function Altoholic.Tooltip.OnGameTooltipSetSpell(tooltip, ...)
 	-- local self = Altoholic.Tooltip
