@@ -908,8 +908,7 @@
 		</Frames>
 		
 	</Frame>
-	
-	
+		
 	<Frame name="AltoholicCalendarOptions" hidden="true">
 		<Size>
 			<AbsDimension x="615" y="306"/>
@@ -1050,6 +1049,64 @@
 						<Layers>
 							<Layer level="OVERLAY">
 								<FontString name="AltoholicHelp_Text" inherits="GameFontNormal" justifyH="LEFT" justifyV="TOP">
+									<Size>
+										<AbsDimension x="580" />
+									</Size>
+									<Anchors>
+										<Anchor point="TOPLEFT">
+											<Offset>
+												<AbsDimension x="0" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+				</ScrollChild>
+			</ScrollFrame>
+		</Frames>
+	</Frame>	
+	
+	<Frame name="AltoholicSupport" hidden="true">
+		<Size>
+			<AbsDimension x="615" y="400"/>
+		</Size>
+		<Scripts>
+			<OnUpdate>
+				Altoholic.Options:OnUpdate(self)
+			</OnUpdate>
+			<OnShow>
+				Altoholic.Options:OnUpdate(self, true)
+			</OnShow>
+		</Scripts>
+		<Frames>
+			<ScrollFrame name="$parent_ScrollFrame" inherits="UIPanelScrollFrameTemplate">
+				<Size>
+					<AbsDimension x="615" y="400"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="10" y="-20"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<ScrollChild>
+					<Frame name="$parentScrollChildFrame">
+						<Size>
+							<AbsDimension x="270" y="304"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY">
+								<FontString name="AltoholicSupport_Text" inherits="GameFontNormal" justifyH="LEFT" justifyV="TOP">
 									<Size>
 										<AbsDimension x="580" />
 									</Size>
