@@ -5,7 +5,6 @@ local GREEN		= "|cFF00FF00"
 local TEAL		= "|cFF00FF9A"
 local ORANGE   = "|cFFFF8400"
 
-local helpText
 local url1 = "http://wow.curse.com/downloads/wow-addons/details/altoholic.aspx"
 local url2 = "http://www.wowinterface.com/downloads/info8533-Altoholic.html"
 local url3 = "http://wow.curseforge.com/addons/altoholic/localization/"
@@ -75,6 +74,9 @@ local help = {
 			format("Use the CurseForge localization tool, at %s|r.", GREEN..url3),
 		}
 	},
+}	
+
+local support = {
 	{	name = "Reporting Bugs",
 		questions = {
 			"I found an error, how/where do I report it?",
@@ -98,7 +100,7 @@ local help = {
 			format("%s\n%s|r\n%s\n%s",
 				"That would be a very good idea! :)\nFull resume is available on demand, send serious job proposals by mail:",
 				GREEN.."thaoky.altoholic@yahoo.com",
-				"Age: 33\nSector: IT\nReady to relocate about anywhere in the EU & the US.",
+				"Age: 34\nSector: IT\nReady to relocate about anywhere in the EU & the US.",
 				"Positions sought include (but are not limited to): Project Management, Solutions Architect, Software Development."
 			)
 		}
@@ -183,6 +185,7 @@ function Altoholic.Options:Init()
 	DataStore:AddOptionCategory(AltoholicGeneralOptions, addonName)
 	LibStub("LibAboutPanel").new(addonName, addonName);
 	DataStore:AddOptionCategory(AltoholicHelp, HELP_LABEL, addonName)
+	DataStore:AddOptionCategory(AltoholicSupport, "Getting support", addonName)
 	DataStore:AddOptionCategory(AltoholicWhatsNew, "What's new?", addonName)
 	DataStore:AddOptionCategory(AltoholicSearchOptions, SEARCH, addonName)
 	DataStore:AddOptionCategory(AltoholicMailOptions, MAIL_LABEL, addonName)
@@ -192,7 +195,12 @@ function Altoholic.Options:Init()
 	DataStore:AddOptionCategory(AltoholicCalendarOptions, L["Calendar"], addonName)
 
 	DataStore:SetupInfoPanel(help, AltoholicHelp_Text)
+	DataStore:SetupInfoPanel(support, AltoholicSupport_Text)
 	DataStore:SetupInfoPanel(whatsnew, AltoholicWhatsNew_Text)
+	
+	help = nil
+	support = nil
+	whatsnew = nil
 	
 	local value
 	
@@ -444,6 +452,7 @@ end
 
 local OnSizeUpdate = {	-- custom resize functions
 	AltoholicHelp = ResizeScrollFrame,
+	AltoholicSupport = ResizeScrollFrame,
 	AltoholicWhatsNew = ResizeScrollFrame,
 
 	-- AltoholicWhatsNew = function(self, width, height)

@@ -142,6 +142,7 @@ function Altoholic:OnEnable()
 	self.Tasks:Init()
 	self.Profiler:Init()
 	self:InitTooltip()
+	self.Achievements:Init()
 	
 	self:RegisterEvent("PLAYER_ALIVE")
 	self:RegisterEvent("PLAYER_LOGOUT")

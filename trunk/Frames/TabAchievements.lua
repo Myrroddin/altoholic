@@ -116,7 +116,7 @@ function Altoholic.Tabs.Achievements:Header_OnClick()
 
 	self:Update();
 	AltoholicFrameAchievements:Show()
-	Altoholic.Achievements:BuildView(self.view[i].id)
+	Altoholic.Achievements:SetCategory(self.view[i].id)
 	Altoholic.Achievements:Update()
 end
 
@@ -127,6 +127,6 @@ function Altoholic.Tabs.Achievements:Item_OnClick()
 	
 	self:Update();
 	AltoholicFrameAchievements:Show()
-	Altoholic.Achievements:BuildView(self.view[i])
+	Altoholic.Achievements:SetCategory(self.view[i])
 	Altoholic.Achievements:Update()
 end
