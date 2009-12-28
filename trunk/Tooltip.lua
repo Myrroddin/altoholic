@@ -243,32 +243,34 @@ local function GetItemCount(searchedID)
 		-- multi account ici
 		for guildKey, guild in pairs(Altoholic.db.global.Guilds) do
 			if not guild.hideInTooltip then
-				local _, _, guildName = strsplit(".", guildKey)
-				local guildCount = 0
-				
-				if Altoholic.Options:Get("TooltipGuildBankCountPerTab") == 1 then
-					local tabCounters = {}
+				local _, realm, guildName = strsplit(".", guildKey)
+				if realm == GetRealmName() then		-- this realm only
+					local guildCount = 0
 					
-					for tabID = 1, 6 do 
-						local tabCount = DataStore:GetGuildBankTabItemCount(guildKey, tabID, searchedID)
-						if tabCount > 0 then
-							table.insert(tabCounters,  format("%s: %s", WHITE .. DataStore:GetGuildBankTabName(guildKey, tabID), TEAL..tabCount))
+					if Altoholic.Options:Get("TooltipGuildBankCountPerTab") == 1 then
+						local tabCounters = {}
+						
+						for tabID = 1, 6 do 
+							local tabCount = DataStore:GetGuildBankTabItemCount(guildKey, tabID, searchedID)
+							if tabCount > 0 then
+								table.insert(tabCounters,  format("%s: %s", WHITE .. DataStore:GetGuildBankTabName(guildKey, tabID), TEAL..tabCount))
+							end
+						end
+						
+						if #tabCounters > 0 then
+							guildCount = DataStore:GetGuildBankItemCount(guildKey, searchedID)
+							AddCounterLine(GREEN..guildName, format("%s %s(%s%s)", ORANGE .. guildCount, WHITE, table.concat(tabCounters, ","), WHITE))
+						end
+					else
+						guildCount = DataStore:GetGuildBankItemCount(guildKey, searchedID)
+						if guildCount > 0 then
+							AddCounterLine(GREEN..guildName, format("%s(%s: %s%s)", WHITE, GUILD_BANK, TEAL..guildCount, WHITE))
 						end
 					end
-					
-					if #tabCounters > 0 then
-						guildCount = DataStore:GetGuildBankItemCount(guildKey, searchedID)
-						AddCounterLine(GREEN..guildName, format("%s %s(%s%s)", ORANGE .. guildCount, WHITE, table.concat(tabCounters, ","), WHITE))
+						
+					if Altoholic.Options:Get("TooltipGuildBankCount") == 1 then
+						count = count + guildCount
 					end
-				else
-					guildCount = DataStore:GetGuildBankItemCount(guildKey, searchedID)
-					if guildCount > 0 then
-						AddCounterLine(GREEN..guildName, format("%s(%s: %s%s)", WHITE, GUILD_BANK, TEAL..guildCount, WHITE))
-					end
-				end
-					
-				if Altoholic.Options:Get("TooltipGuildBankCount") == 1 then
-					count = count + guildCount
 				end
 			end	-- end if not hidden
 		end	-- end guild
