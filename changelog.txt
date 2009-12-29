@@ -9,7 +9,8 @@ Join the #altoholic IRC channel on Freenode : irc://irc.freenode.net:6667/
 - Added back 'text' field in LDB (conditional, for Broker2FuBar)
 - Fixed LinkWrangler hook.
 - Added support for faction specific achievements. They are now displayed on the same line if a given realm contains characters of the two factions. This used to be a bug/limitation of the system in earlier versions.
-
+- Guild bank counters from other realms are no longer displayed in the tooltip.
+- Fixed a Lua error in the 'Guild Skills' pane.
 
 3.3.001b (26/12/2009)
 
