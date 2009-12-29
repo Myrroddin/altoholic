@@ -249,6 +249,12 @@ function Altoholic.Guild.Professions:Update()
 		else		-- line will be displayed
 			local member = v.name
 			local _, _, _, level, class, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(member)
+			level = level or 0
+			
+			local classText = L["N/A"]
+			if class and englishClass then
+				classText = format("%s%s", Altoholic:GetClassColor(englishClass), class)
+			end
 			
 			if lineType == HEADER_LINE then
 				if expandedHeaders[v.name] then
@@ -262,10 +268,10 @@ function Altoholic.Guild.Professions:Update()
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 25, 0)
 				
 				_G[entry..i.."NameNormalText"]:SetText(YELLOW..member)
-				_G[entry..i.."Level"]:SetText(GREEN .. (level or ""))
+				_G[entry..i.."Level"]:SetText(GREEN .. level)
 				
 				if v.lineType == ALTO_MAIN_LINE then
-					_G[entry..i.."Class"]:SetText(format("%s%s", Altoholic:GetClassColor(englishClass), class))
+					_G[entry..i.."Class"]:SetText(classText)
 
 					for index = 1, 3 do
 						DisplayProfessionLink( entry..i.."Skill"..index, member, index )
@@ -286,8 +292,8 @@ function Altoholic.Guild.Professions:Update()
 			elseif DrawAlts then
 				_G[entry..i.."Collapse"]:Hide()
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 15, 0)
-				_G[entry..i.."Level"]:SetText(GREEN .. (level or ""))
-				_G[entry..i.."Class"]:SetText(format("%s%s", Altoholic:GetClassColor(englishClass), class))
+				_G[entry..i.."Level"]:SetText(GREEN .. level)
+				_G[entry..i.."Class"]:SetText(classText)
 				
 				if v.lineType == ALTO_ALT_LINE then
 					_G[entry..i.."NameNormalText"]:SetText(LIGHTBLUE..member)
