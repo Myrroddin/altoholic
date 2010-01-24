@@ -40,6 +40,10 @@ function Altoholic.Talents:Update(treeIndex)
 	local DS = DataStore
 	local _, class = DS:GetCharacterClass(character)
 	if not DS:IsClassKnown(class) then return end
+	
+	local level = DS:GetCharacterLevel(character)
+	if not level or level < 10 then return end
+	
 	local treeName = DS:GetTreeNameByID(class, treeIndex)
 	
 	self.Parent = _G["AltoholicFrameTalents_ScrollFrameTalent1"]:GetParent()

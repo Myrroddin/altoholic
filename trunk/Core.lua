@@ -122,6 +122,7 @@ local AltoholicDB_Defaults = {
 			TooltipCount = 1,
 			TooltipTotal = 1,
 			TooltipRecipeInfo = 1,
+			TooltipPetInfo = 1,
 			TooltipItemID = 0,				-- display item id & item level in the tooltip (default: off)
 			TooltipGatheringNode = 1,		-- display counters when mousing over a gathering node (default:  on)
 			TooltipCrossFaction = 1,		-- display counters for both factions on a pve server
@@ -305,7 +306,7 @@ function Altoholic.Tabs.Columns:Add(title, width, func)
 	button:SetText(title)
 	button:SetWidth(width)
 	button:SetScript("OnClick", function(self)
-			local prefix = Altoholic.Tabs.Columns.prefix
+			local prefix = addon.Tabs.Columns.prefix
 			local i = 1
 			local arrow = _G[ prefix .. i .. "Arrow"]
 			

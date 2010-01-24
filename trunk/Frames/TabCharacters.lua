@@ -1,4 +1,7 @@
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+local addonName = "Altoholic"
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local THIS_ACCOUNT = "Default"
 local WHITE		= "|cFFFFFFFF"
@@ -32,8 +35,6 @@ local ICON_VIEW_EQUIP = "Interface\\Icons\\INV_Chest_Plate04"
 local ICON_VIEW_TALENTS = "Interface\\Icons\\Spell_Nature_NatureGuardian"
 local ICON_VIEW_TOKENS = "Interface\\Icons\\Spell_Holy_SummonChampion"
 
-Altoholic.Tabs.Characters = {}
-
 local CharInfoButtons = {
 	"AltoholicTabCharacters_Bags",
 	"AltoholicTabCharacters_Talents",
@@ -48,10 +49,59 @@ local CharInfoButtons = {
 	"AltoholicTabCharacters_Tokens",
 }
 
-function Altoholic.Tabs.Characters:UpdateViewIcons()
+local lastButton
+
+local function StartAutoCastShine(button)
+	local item = button:GetName()
+	AutoCastShine_AutoCastStart(_G[ item .. "Shine" ]);
+	lastButton = item
+end
+
+local function StopAutoCastShine()
+	-- stop autocast shine on the last button that was clicked
+	if lastButton then
+		AutoCastShine_AutoCastStop(_G[ lastButton .. "Shine" ]);
+	end
+end
+
+local function HideAll()
+	AltoholicFrameContainers:Hide()
+	AltoholicFrameTalents:Hide()
+	AltoholicFrameMail:Hide()
+	AltoholicFrameQuests:Hide()
+	AltoholicFrameAuctions:Hide()
+	AltoholicFramePets:Hide()
+	AltoholicFrameRecipes:Hide()
+	AltoholicFrameReputations:Hide()
+	AltoholicFrameEquipment:Hide()
+	AltoholicFrameCurrencies:Hide()
+	AltoholicFrameClasses:Hide()
+end
+
+addon.Tabs.Characters = {}
+
+local ns = addon.Tabs.Characters		-- ns = namespace
+
+function ns:OnShow()
+	if AltoholicFrameReputations:IsVisible() or 
+		AltoholicFrameEquipment:IsVisible() or 
+		AltoholicFrameCurrencies:IsVisible() or 
+		AltoholicFramePetsAllInOne:IsVisible() then
+		AltoholicFrameClasses:Show()
+	end
+	
+	if not ns.InfoType then
+		StartAutoCastShine(AltoholicTabCharacters_Bags)
+		ns:ViewCharInfo(1)
+	end
+	
+	ns:UpdateViewIcons()
+end
+
+function ns:UpdateViewIcons()
 	
 	local DS = DataStore
-	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local character = ns:GetCurrent()
 	
 	if not character then
 		for k, v in pairs(CharInfoButtons) do
@@ -180,75 +230,28 @@ function Altoholic.Tabs.Characters:UpdateViewIcons()
 	end
 end
 
-function Altoholic.Tabs.Characters:MenuItem_OnClick(frame, button)
-	local self = Altoholic.Tabs.Characters
-	self:StopAutoCastShine()
-	self:StartAutoCastShine(frame)
+function ns:MenuItem_OnClick(frame, button)
+	StopAutoCastShine()
+	StartAutoCastShine(frame)
 	
 	local id = frame:GetID()
 	if id > 0 then
-		self:ViewCharInfo(id, true)
+		ns:ViewCharInfo(id, true)
 		return
 	end
 	
 	if frame.text then		-- profession button
-		self:ViewRecipes(frame.text)
+		ns:ViewRecipes(frame.text)
 	end
 end
 
-function Altoholic.Tabs.Characters:StartAutoCastShine(button)
-	local item = button:GetName()
-	AutoCastShine_AutoCastStart(_G[ item .. "Shine" ]);
-	self.LastButton = item
-end
+-- ** realm selection **
+local function OnRealmChange(account, realm)
+	local OldAccount = addon:GetCurrentAccount()
+	local OldRealm = addon:GetCurrentRealm()
 
-function Altoholic.Tabs.Characters:StopAutoCastShine()
-	-- stop autocast shine on the last button that was clicked
-	if self.LastButton then
-		AutoCastShine_AutoCastStop(_G[ self.LastButton .. "Shine" ]);
-	end
-end
-
-function Altoholic.Tabs.Characters:DropDownRealm_Initialize()
-	if not Altoholic:GetCurrentAccount() or 
-		not Altoholic:GetCurrentRealm() then return end
-
-	local DS = DataStore
-	local self = Altoholic.Tabs.Characters
-	-- this account first ..
-	for realm in pairs(DS:GetRealms()) do
-		self:AddRealm(realm, THIS_ACCOUNT)
-	end
-
-	-- .. then all other accounts
-	for account in pairs(DS:GetAccounts()) do
-		if account ~= THIS_ACCOUNT then
-			for realm in pairs(DS:GetRealms(account)) do
-				self:AddRealm(realm, account)
-			end
-		end
-	end
-end
-
-function Altoholic.Tabs.Characters:AddRealm(realm, account)
-	local info = UIDropDownMenu_CreateInfo(); 
-
-	info.text = GREEN .. account .. ": " .. WHITE.. realm
-	info.value = account .."|" .. realm
-	info.checked = nil
-	info.func = self.ChangeRealm
-	info.arg1 = account
-	info.arg2 = realm
-	UIDropDownMenu_AddButton(info, 1); 
-end
-
-function Altoholic.Tabs.Characters:ChangeRealm(account, realm, checked)
-	local self = Altoholic.Tabs.Characters
-	local OldAccount = Altoholic:GetCurrentAccount()
-	local OldRealm = Altoholic:GetCurrentRealm()
-
-	Altoholic:SetCurrentAccount(account)
-	Altoholic:SetCurrentRealm(realm)
+	addon:SetCurrentAccount(account)
+	addon:SetCurrentRealm(realm)
 	
 	UIDropDownMenu_ClearAll(AltoholicTabCharacters_SelectRealm);
 	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, account .."|".. realm)
@@ -258,94 +261,121 @@ function Altoholic.Tabs.Characters:ChangeRealm(account, realm, checked)
 		if (OldRealm ~= realm) or (OldAccount ~= account) then
 			UIDropDownMenu_ClearAll(AltoholicTabCharacters_SelectChar);
 			AltoholicTabCharactersStatus:SetText("")
-			Altoholic:SetCurrentCharacter(nil)
-			Altoholic.TradeSkills.CurrentProfession = nil
+			addon:SetCurrentCharacter(nil)
+			addon.TradeSkills.CurrentProfession = nil
 			
-			self:HideAll()
-			self:StopAutoCastShine()
+			HideAll()
+			StopAutoCastShine()
 			AltoholicFrameAchievements:Hide()
-			self:UpdateViewIcons()
+			ns:UpdateViewIcons()
 		end
 	end
 end
 
-function Altoholic.Tabs.Characters:DropDownChar_Initialize()
-	if not Altoholic:GetCurrentAccount() or 
-		not Altoholic:GetCurrentRealm() then return end
+local function AddRealm(realm, account)
+	local info = UIDropDownMenu_CreateInfo(); 
+
+	info.text = format("%s: %s", GREEN..account, WHITE..realm)
+	info.value = format("%s|%s", account, realm)
+	info.checked = nil
+	info.func = OnRealmChange
+	info.arg1 = account
+	info.arg2 = realm
+	UIDropDownMenu_AddButton(info, 1); 
+end
+
+function ns:DropDownRealm_Initialize()
+	if not addon:GetCurrentAccount() or not addon:GetCurrentRealm() then return end
+
+	-- this account first ..
+	for realm in pairs(DataStore:GetRealms()) do
+		AddRealm(realm, THIS_ACCOUNT)
+	end
+
+	-- .. then all other accounts
+	for account in pairs(DataStore:GetAccounts()) do
+		if account ~= THIS_ACCOUNT then
+			for realm in pairs(DataStore:GetRealms(account)) do
+				AddRealm(realm, account)
+			end
+		end
+	end
+end
+
+-- ** alt selection **
+local function OnAltChange()
+	local OldAlt = addon:GetCurrentCharacter()
+	local _, _, NewAlt = strsplit(".", self.value)
+	
+	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, self.value);
+	addon:SetCurrentCharacter(NewAlt)
+	
+	ns:UpdateViewIcons()
+	if (not OldAlt) or (OldAlt == NewAlt) then return end
+
+	if (type(ns.InfoType) == "string") or
+		((type(ns.InfoType) == "number") and (ns.InfoType > VIEW_MOUNTS)) then		-- true if we're dealing with a profession
+		addon.TradeSkills.CurrentProfession = nil
+		HideAll()
+		StopAutoCastShine()
+	else
+		ns:ShowCharInfo(ns.InfoType)		-- this will show the same info from another alt (ex: containers/mail/ ..)
+	end
+end
+
+function ns:DropDownChar_Initialize()
+	if not addon:GetCurrentAccount() or 
+		not addon:GetCurrentRealm() then return end
 	
 	local info = UIDropDownMenu_CreateInfo(); 
-	local realm, account = Altoholic:GetCurrentRealm()
+	local realm, account = addon:GetCurrentRealm()
 	
-	local DS = DataStore
-	for characterName, character in pairs(DS:GetCharacters(realm, account)) do
+	for characterName, character in pairs(DataStore:GetCharacters(realm, account)) do
 		info.text = characterName
 		info.value = character
-		info.func = Altoholic.Tabs.Characters.ChangeAlt
+		info.func = OnAltChange
 		info.checked = nil; 
 		UIDropDownMenu_AddButton(info, 1); 
 	end
 end
 
-function Altoholic.Tabs.Characters:ChangeAlt()
-	local OldAlt = Altoholic:GetCurrentCharacter()
-	local _, _, NewAlt = strsplit(".", self.value)
-	
-	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, self.value);
-	Altoholic:SetCurrentCharacter(NewAlt)
-	
-	local self = Altoholic.Tabs.Characters
-	self:UpdateViewIcons()
-	if (not OldAlt) or (OldAlt == NewAlt) then return end
-
-	if (type(self.InfoType) == "string") or
-		((type(self.InfoType) == "number") and (self.InfoType > VIEW_MOUNTS)) then		-- true if we're dealing with a profession
-		Altoholic.TradeSkills.CurrentProfession = nil
-		self:HideAll()
-		self:StopAutoCastShine()
-	else
-		self:ShowCharInfo(self.InfoType)		-- self will show the same info from another alt (ex: containers/mail/ ..)
-	end
-end
-
-function Altoholic.Tabs.Characters:SetCurrent(name, realm, account)
+function ns:SetCurrent(name, realm, account)
 	-- this function sets both drop down menu to the right values
-	self:DropDownRealm_Initialize()
+	ns:DropDownRealm_Initialize()
 	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, account .."|".. realm)
 
-	self:DropDownChar_Initialize()
+	ns:DropDownChar_Initialize()
 	
 	local character = DataStore:GetCharacter(name, realm, account)
 	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectChar, character)
 end
 
-function Altoholic.Tabs.Characters:GetCurrent()
+function ns:GetCurrent()
 	-- the right character key is in this widget, use it to avoid querying DataStore all the time
 	return UIDropDownMenu_GetSelectedValue(AltoholicTabCharacters_SelectChar)
 end
 
-function Altoholic.Tabs.Characters:ViewCharInfo(index, autoCastDone)
+function ns:ViewCharInfo(index, autoCastDone)
 	index = index or self.value
-	local self = Altoholic.Tabs.Characters
 	
 	if not autoCastDone then
-		self:StopAutoCastShine()
-		self:StartAutoCastShine(_G[ CharInfoButtons[index] ] )
+		StopAutoCastShine()
+		StartAutoCastShine(_G[ CharInfoButtons[index] ] )
 	end
 	
-	self.InfoType = index
-	self:HideAll()
-	self:SetMode(index)
-	self:ShowCharInfo(index)
+	ns.InfoType = index
+	HideAll()
+	ns:SetMode(index)
+	ns:ShowCharInfo(index)
 end
 
-function Altoholic.Tabs.Characters:ViewRecipes(profession)
-	local self = Altoholic.Tabs.Characters
+function ns:ViewRecipes(profession)
 	local ts = Altoholic.TradeSkills
 	ts.CurrentProfession = profession
 	
-	self.InfoType = profession
-	self:HideAll()
-	self:SetMode()
+	ns.InfoType = profession
+	HideAll()
+	ns:SetMode()
 	
 	ts.Recipes:ResetDropDownMenus()
 	AltoholicFrameRecipes:Show()
@@ -353,7 +383,7 @@ function Altoholic.Tabs.Characters:ViewRecipes(profession)
 	ts.Recipes:Update()
 end
 
-function Altoholic.Tabs.Characters:ShowCharInfo(infoType)
+function ns:ShowCharInfo(infoType)
 	if infoType == VIEW_BAGS then
 		Altoholic:ClearScrollFrame(_G[ "AltoholicFrameContainersScrollFrame" ], "AltoholicFrameContainersEntry", 7, 41)
 		
@@ -418,23 +448,7 @@ function Altoholic.Tabs.Characters:ShowCharInfo(infoType)
 	end
 end
 
-function Altoholic.Tabs.Characters:HideAll()
-	AltoholicFrameContainers:Hide()
-	AltoholicFrameTalents:Hide()
-	AltoholicFrameMail:Hide()
-	AltoholicFrameQuests:Hide()
-	AltoholicFrameAuctions:Hide()
-	AltoholicFramePets:Hide()
-	AltoholicFrameRecipes:Hide()
-	AltoholicFrameReputations:Hide()
-	AltoholicFrameEquipment:Hide()
-	AltoholicFrameCurrencies:Hide()
-	AltoholicFrameClasses:Hide()
-end
-
-function Altoholic.Tabs.Characters:SetMode(mode)
-	self.mode = mode
-	
+function ns:SetMode(mode)
 	local Columns = Altoholic.Tabs.Columns
 	Columns:Init()
 	

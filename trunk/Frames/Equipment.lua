@@ -1,5 +1,8 @@
+local addonName = "Altoholic"
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
@@ -74,13 +77,15 @@ local STAT_DK_ONLY = L["Classes: Death Knight"] .. "$"
 local STAT_RESIST = L["Resistance"]
 
 
-Altoholic.Equipment = {}
+addon.Equipment = {}
+
+local ns = addon.Equipment		-- ns = namespace
 
 -- When processing item stats, exclude an item if one of these strings is encountered, then discard the item
 -- ex: if you're searching an update for the shoulder slot of your warrior, then the items listed will be of type "Armor" & subtype "Plate",
 -- 	so parsing each line of stat is necessary to determine if a warrior can use the item.. therefore, the algorithm tries to find one of the words
 --	that will help filtering out the item (if plate has +intel or +mana, it's obviously not for a warrior ..)
-Altoholic.Equipment.ExcludeStats = {
+ns.ExcludeStats = {
 	[CLASS_MAGE.."DPS"] = { 
 		STAT_RESIST, 
 		SPELL_STAT1_NAME, 
@@ -274,7 +279,7 @@ Altoholic.Equipment.ExcludeStats = {
 	}
 }
 
-Altoholic.Equipment.BaseStats = {	-- the order of these strings should match the "-s" in the associated entry of the FormatStats table
+ns.BaseStats = {	-- the order of these strings should match the "-s" in the associated entry of the FormatStats table
 	[CLASS_MAGE.."DPS"]		= { SPELL_STAT3_NAME, SPELL_STAT4_NAME, SPELL_STAT5_NAME, ITEM_MOD_CRIT_RATING, ITEM_MOD_HIT_RATING, ITEM_MOD_SPELL_POWER },
 	[CLASS_WARRIOR.."Tank"]	= { SPELL_STAT3_NAME, SPELL_STAT1_NAME, ITEM_MOD_DEFENSE_SKILL_RATING, ITEM_MOD_DODGE_RATING, ITEM_MOD_HIT_RATING },
 	[CLASS_WARRIOR.."DPS"]	= { SPELL_STAT3_NAME, SPELL_STAT1_NAME, SPELL_STAT2_NAME, ITEM_MOD_CRIT_RATING, ITEM_MOD_HIT_RATING, STAT_AP },
@@ -297,7 +302,7 @@ Altoholic.Equipment.BaseStats = {	-- the order of these strings should match the
 	[CLASS_DEATHKNIGHT.."DPS"]	= { SPELL_STAT3_NAME, SPELL_STAT1_NAME, SPELL_STAT2_NAME, ITEM_MOD_CRIT_RATING, ITEM_MOD_HIT_RATING, STAT_AP }
 }
 
-Altoholic.Equipment.FormatStats = {
+ns.FormatStats = {
 	[CLASS_MAGE.."DPS"]		= SPELL_STAT3_NAME .."|".. SPELL_STAT4_NAME .."|".. SPELL_STAT5_NAME .."|".. COMBAT_RATING_NAME11 .."|".. COMBAT_RATING_NAME8 .."|".. SPELLS,
 	[CLASS_WARRIOR.."Tank"]	= SPELL_STAT3_NAME .."|".. SPELL_STAT1_NAME .."|".. COMBAT_RATING_NAME2 .."|".. COMBAT_RATING_NAME3 .."|".. COMBAT_RATING_NAME6,
 	[CLASS_WARRIOR.."DPS"]	= SPELL_STAT3_NAME .."|".. SPELL_STAT1_NAME .."|".. SPELL_STAT2_NAME .."|".. COMBAT_RATING_NAME9 .."|".. COMBAT_RATING_NAME6 .."|" .. ATTACK_POWER_TOOLTIP,
@@ -322,7 +327,7 @@ Altoholic.Equipment.FormatStats = {
 
 -- These two tables are necessary to find equivalences between INVTYPEs returned by GetItemInfo and the actual equipment slots.
 -- For instance, the "ranged" slot can contain bows/guns/wans/relics/thrown weapons.
-Altoholic.Equipment.InventoryTypes = {
+local inventoryTypes = {
 	["INVTYPE_HEAD"] = 1,		-- 1 means first entry in the EquipmentSlots table (just below this one)
 	["INVTYPE_SHOULDER"] = 2,
 	["INVTYPE_CHEST"] = 3,
@@ -349,7 +354,7 @@ Altoholic.Equipment.InventoryTypes = {
 	["INVTYPE_RELIC"] = 18
 }
 
-Altoholic.Equipment.Slots = {
+ns.Slots = {
 	[1] = BI["Head"],			-- "INVTYPE_HEAD" 
 	[2] = BI["Shoulder"],	-- "INVTYPE_SHOULDER"
 	[3] = BI["Chest"],		-- "INVTYPE_CHEST",  "INVTYPE_ROBE"
@@ -371,7 +376,7 @@ Altoholic.Equipment.Slots = {
 	[18] = BI["Ranged"]		-- "INVTYPE_RANGED",  "INVTYPE_THROWN", "INVTYPE_RANGEDRIGHT", "INVTYPE_RELIC"
 }
 
-Altoholic.Equipment.SlotInfo = {
+local slotTypeInfo = {
 	{ color = "|cFF69CCF0", name = BI["Head"], icon = "Interface\\PaperDoll\\UI-PaperDoll-Slot-Head"},
 	{ color = "|cFFABD473", name = BI["Neck"], icon = "Interface\\PaperDoll\\UI-PaperDoll-Slot-Neck"},
 	{ color = "|cFF69CCF0", name = BI["Shoulder"], icon = "Interface\\PaperDoll\\UI-PaperDoll-Slot-Shoulder"},
@@ -393,19 +398,19 @@ Altoholic.Equipment.SlotInfo = {
 	{ color = WHITE, name = BI["Tabard"], icon = "Interface\\PaperDoll\\UI-PaperDoll-Slot-Tabard"}
 }
 
-function Altoholic.Equipment:GetSlotTexture(slot)
-	return self.SlotInfo[slot].icon
+function ns:GetSlotTexture(slot)
+	return slotTypeInfo[slot].icon
 end
 
-function Altoholic.Equipment:GetInventoryTypeIndex(inv)
-	return self.InventoryTypes[inv]
+function ns:GetInventoryTypeIndex(inv)
+	return inventoryTypes[inv]
 end
 
-function Altoholic.Equipment:GetInventoryTypeName(inv)
-	return self.Slots[ self.InventoryTypes[inv] ]
+function ns:GetInventoryTypeName(inv)
+	return self.Slots[ inventoryTypes[inv] ]
 end
 
-function Altoholic.Equipment:Update()
+function ns:Update()
 	local VisibleLines = 7
 	local frame = "AltoholicFrameEquipment"
 	local entry = frame.."Entry"
@@ -419,15 +424,15 @@ function Altoholic.Equipment:Update()
 	
 	for i=1, VisibleLines do
 		local line = i + offset
-		local e = Altoholic.Equipment.SlotInfo[line]
+		local e = slotTypeInfo[line]
 
 		_G[ entry..i.."Name" ]:SetText(e.color .. e.name)
 
 		for j = 1, 10 do
 			local itemName = entry.. i .. "Item" .. j;
 			local itemButton = _G[itemName]
-			itemButton:SetScript("OnEnter", Altoholic.Equipment.OnEnter)
-			itemButton:SetScript("OnClick", Altoholic.Equipment.OnClick)			
+			itemButton:SetScript("OnEnter", ns.OnEnter)
+			itemButton:SetScript("OnClick", ns.OnClick)			
 			
 			local itemCount = _G[itemName .. "Count"]
 			itemCount:Hide();
@@ -473,7 +478,7 @@ function Altoholic.Equipment:Update()
 	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], 19, VisibleLines, 41);
 end
 
-function Altoholic.Equipment:OnEnter()
+function ns:OnEnter()
 	if not self.CharName then return end
 	
 	local DS = DataStore
@@ -502,7 +507,7 @@ function Altoholic.Equipment:OnEnter()
 	GameTooltip:Show();
 end
 
-function Altoholic.Equipment:OnClick(button)
+function ns:OnClick(button)
 	if not self.CharName then return end
 	
 	local slotID = self:GetParent():GetID()

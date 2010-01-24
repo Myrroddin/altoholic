@@ -2,7 +2,11 @@
 Written by : Thaoky, EU-Marécages de Zangar
 --]]
 
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+local addonName = "Altoholic"
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
+
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local DS
 
@@ -692,9 +696,9 @@ function Altoholic:ClearScrollFrame(name, entry, lines, height)
 	FauxScrollFrame_Update( name, lines, lines, height);
 end
 
-function Altoholic:Print(message, color)
+function addon:Print(message, color)
 	color = color or WHITE
-	print(format("%sAltoholic: %s%s", TEAL, color, message))
+	print(format("%s%s: %s%s", TEAL, addonName, color, message))
 end
 
 function Altoholic:Item_OnEnter(frame)

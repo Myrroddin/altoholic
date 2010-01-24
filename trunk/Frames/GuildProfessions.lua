@@ -1,4 +1,7 @@
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+local addonName = "Altoholic"
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local WHITE		= "|cFFFFFFFF"
 local GRAY		= "|cFFBBBBBB"
@@ -130,7 +133,7 @@ local function BuildView()
 
 	-- 1) Start by adding mains, users of altoholic only
 	for member in pairs(DataStore:GetOnlineGuildMembers()) do
-		if Altoholic:GetGuildMemberVersion(member) then			-- altoholic user
+		if addon:GetGuildMemberVersion(member) then			-- altoholic user
 			table.insert(view, { lineType = ALTO_MAIN_LINE, name = member } )			-- main character first
 			altoOnlineMembers[member] = true
 		end
@@ -193,10 +196,10 @@ local function DisplayProfessionLink(frameName, member, index)
 	local spellID, link = DataStore:GetGuildMemberProfession(guild, member, index)
 	
 	if spellID then
-		local icon = Altoholic:TextureToFontstring(Altoholic:GetSpellIcon(tonumber(spellID)), 18, 18) .. " "
+		local icon = addon:TextureToFontstring(addon:GetSpellIcon(tonumber(spellID)), 18, 18) .. " "
 		if link then
 			local curRank, maxRank = DataStore:GetProfessionInfo(link)
-			local ts = Altoholic.TradeSkills
+			local ts = addon.TradeSkills
 			text:SetText(icon .. ts:GetColor(curRank) .. curRank .. "/" .. maxRank)
 		else
 			local spellName = GetSpellInfo(spellID)
@@ -208,9 +211,11 @@ local function DisplayProfessionLink(frameName, member, index)
 	end
 end
 
-Altoholic.Guild.Professions = {}
+addon.Guild.Professions = {}
 
-function Altoholic.Guild.Professions:Update()
+local ns = addon.Guild.Professions		-- ns = namespace
+
+function ns:Update()
 	if not isViewValid then
 		BuildView()
 	end
@@ -220,7 +225,7 @@ function Altoholic.Guild.Professions:Update()
 	local entry = frame.."Entry"
 	
 	if #view == 0 then
-		Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
+		addon:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
 		return
 	end
 	
@@ -253,7 +258,7 @@ function Altoholic.Guild.Professions:Update()
 			
 			local classText = L["N/A"]
 			if class and englishClass then
-				classText = format("%s%s", Altoholic:GetClassColor(englishClass), class)
+				classText = format("%s%s", addon:GetClassColor(englishClass), class)
 			end
 			
 			if lineType == HEADER_LINE then
@@ -268,6 +273,10 @@ function Altoholic.Guild.Professions:Update()
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 25, 0)
 				
 				_G[entry..i.."NameNormalText"]:SetText(YELLOW..member)
+				
+				if member == L["Offline Members"] then
+					level = ""
+				end
 				_G[entry..i.."Level"]:SetText(GREEN .. level)
 				
 				if v.lineType == ALTO_MAIN_LINE then
@@ -323,15 +332,15 @@ function Altoholic.Guild.Professions:Update()
 	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleCount, VisibleLines, 18);
 end	
 
-function Altoholic.Guild.Professions:Sort(self, field, index)
+function ns:Sort(self, field, index)
 	viewSortField = field
 	viewSortOrder = self.ascendingSort
 	viewSortArg1 = index			-- arg 1 = index of the profession, to use the same function for all
 	
-	Altoholic.Guild.Professions:InvalidateView()
+	ns:InvalidateView()
 end
 
-function Altoholic.Guild.Professions:OnEnter(self)
+function ns:OnEnter(self)
 	local member = self:GetParent().CharName
 	if not member then return end
 
@@ -346,12 +355,12 @@ function Altoholic.Guild.Professions:OnEnter(self)
 	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
 	
 	local _, _, _, _, _, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(member)
-	AltoTooltip:AddLine(Altoholic:GetClassColor(englishClass) .. member,1,1,1);
+	AltoTooltip:AddLine(addon:GetClassColor(englishClass) .. member,1,1,1);
 	
 	local skillName = GetSpellInfo(spellID)
 	AltoTooltip:AddLine(skillName,1,1,1);
 	
-	local ts = Altoholic.TradeSkills
+	local ts = addon.TradeSkills
 	AltoTooltip:AddLine(ts:GetColor(curRank) .. curRank .. "/" .. maxRank,1,1,1);
 	AltoTooltip:AddLine(" ",1,1,1);
 	AltoTooltip:AddLine(date("%m/%d/%Y %H:%M", lastUpdate),1,1,1);
@@ -362,7 +371,7 @@ function Altoholic.Guild.Professions:OnEnter(self)
 	AltoTooltip:Show();
 end
 
-function Altoholic.Guild.Professions:OnClick(self, button)
+function ns:OnClick(self, button)
 	if button ~= "LeftButton" then return end
 	
 	local member = self:GetParent().CharName
@@ -380,7 +389,7 @@ function Altoholic.Guild.Professions:OnClick(self, button)
 	end
 end
 
-function Altoholic.Guild.Professions:Collapse_OnClick(self)
+function ns:Collapse_OnClick(self)
 	local id = self:GetParent():GetID()
 	if id == 0 then return end
 	
@@ -390,10 +399,10 @@ function Altoholic.Guild.Professions:Collapse_OnClick(self)
 	else
 		expandedHeaders[line.name] = true
 	end
-	Altoholic.Guild.Professions:Update()
+	ns:Update()
 end
 
-function Altoholic.Guild.Professions:ToggleView(self)
+function ns:ToggleView(self)
 	if self.isCollapsed then	-- collapse all headers
 		wipe(expandedHeaders)
 	else								-- expand all headers
@@ -403,12 +412,12 @@ function Altoholic.Guild.Professions:ToggleView(self)
 			end
 		end
 	end
-	Altoholic.Guild.Professions:Update()
+	ns:Update()
 end
 
-function Altoholic.Guild.Professions:InvalidateView()
+function ns:InvalidateView()
 	isViewValid = nil
 	if AltoholicFrameGuildProfessions:IsVisible() then
-		self:Update()
+		ns:Update()
 	end
 end

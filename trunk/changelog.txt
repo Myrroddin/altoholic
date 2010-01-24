@@ -11,6 +11,13 @@ Join the #altoholic IRC channel on Freenode : irc://irc.freenode.net:6667/
 - Added support for faction specific achievements. They are now displayed on the same line if a given realm contains characters of the two factions. This used to be a bug/limitation of the system in earlier versions.
 - Guild bank counters from other realms are no longer displayed in the tooltip.
 - Fixed a Lua error in the 'Guild Skills' pane.
+- Added "Offline Members" to the 'Guild Members' pane. The AiL of an offline member can still be clicked, and if a players' equipment has been checked earlier, it will be displayed.
+- Fixed a few Lua errors.
+- Added an option to show/hide pets already known/could be learned by xx. (Thanks bsmorgan !)
+- Pets/mounts can now be shift-clicked and linked.
+- Expiries that are supposed to be shown in a dialog box will now be printed to the chat frame instead if player is in combat.
+- Changed dependencies in the .toc file, to help the curse client with DataStore & its modules.
+
 
 3.3.001b (26/12/2009)
 

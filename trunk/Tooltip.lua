@@ -446,7 +446,7 @@ local function ProcessTooltip(tooltip, name, link)
 		end
 	end
 	
-	if DataStore:IsModuleEnabled("DataStore_Pets") then
+	if DataStore:IsModuleEnabled("DataStore_Pets") and Altoholic.Options:Get("TooltipPetInfo") == 1 then
 		local companionID = DataStore:GetCompanionSpellID(itemID)
 		if companionID then
 			tooltip:AddLine(" ",1,1,1);	
