@@ -15,7 +15,16 @@ function Altoholic.Pets:OnEnter(self)
 	AltoTooltip:Show();
 end
 
-function Altoholic.Pets:OnClick(self)
+function Altoholic.Pets:OnClick(self, button)
+	if self.spellID and ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
+		if ( ChatFrameEditBox:IsShown() ) then
+			local link = DataStore:GetCompanionLink(self.spellID)
+			if link then
+				ChatFrameEditBox:Insert(link);
+			end
+		end
+	end
+
 	self:SetChecked(true);
 	
 	local p = Altoholic.Pets

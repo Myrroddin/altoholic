@@ -1023,6 +1023,7 @@ local function OnNoMatch()
 	
 	if allowedQueries > 0 then
 		if Altoholic.Options:Get("SearchAutoQuery") == 1 then		-- if autoquery is enabled
+			local itemID = GetSearchedItemInfo("itemID")
 			if not Altoholic.UnsafeItems:IsItemKnown(itemID) then		-- if the item is not known to be unsafe
 				GameTooltip:SetHyperlink("item:"..itemID..":0:0:0:0:0:0:0")	-- this line queries the server for an unknown id
 				GameTooltip:ClearLines(); -- don't leave residual info in the tooltip after the server query

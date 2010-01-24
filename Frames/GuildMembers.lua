@@ -1,6 +1,10 @@
-﻿local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+﻿local addonName = "Altoholic"
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local WHITE		= "|cFFFFFFFF"
+local GRAY		= "|cFFBBBBBB"
 local GREEN		= "|cFF00FF00"
 local YELLOW	= "|cFFFFFF00"
 local LIGHTBLUE = "|cFFB0B0FF"
@@ -41,8 +45,8 @@ local PrimaryLevelSort = {	-- sort functions for the mains
 			end
 		end,
 	["version"] = function(a, b)
-			local versionA = Altoholic:GetGuildMemberVersion(a.name) or ""
-			local versionB = Altoholic:GetGuildMemberVersion(b.name) or ""
+			local versionA = addon:GetGuildMemberVersion(a.name) or ""
+			local versionB = addon:GetGuildMemberVersion(b.name) or ""
 			
 			if viewSortOrder then
 				return versionA < versionB
@@ -95,8 +99,8 @@ local SecondaryLevelSort = {-- sort functions for the alts
 			end
 		end,
 	["version"] = function(a, b)
-			local versionA = Altoholic:GetGuildMemberVersion(a) or ""
-			local versionB = Altoholic:GetGuildMemberVersion(b) or ""
+			local versionA = addon:GetGuildMemberVersion(a) or ""
+			local versionB = addon:GetGuildMemberVersion(b) or ""
 			
 			if viewSortOrder then
 				return versionA < versionB
@@ -122,21 +126,28 @@ local SecondaryLevelSort = {-- sort functions for the alts
 -- *** Utility functions ***
 
 local NORMALPLAYER_LINE = 0		-- a guild mate who does not use altoholic
-local ALTO_MAIN_LINE = 1			-- the currently connected character of a guild mate using altoholic
-local ALTO_ALT_LINE = 2				-- an alt belonging to the previous line
+local ALTO_MAIN_LINE = 2			-- the currently connected character of a guild mate using altoholic
+local ALTO_ALT_LINE = 3				-- an alt belonging to the previous line
+local OFFLINEHEADER_LINE = 4
+local OFFLINEMEMBER_LINE = 5
+
+local HEADER_LINE = 0				-- line number modulo 2 = 0, it's a header
 
 local function BuildView()
 	
 	view = view or {}
 	wipe(view)
+	
+	local onlineMembers = {}		-- list of online guild members (and their alts)
 
 	-- 1) Start by adding mains, users of altoholic or not
 	for member in pairs(DataStore:GetOnlineGuildMembers()) do
-		if Altoholic:GetGuildMemberVersion(member) then			-- altoholic user
+		if addon:GetGuildMemberVersion(member) then			-- altoholic user
 			table.insert(view, { lineType = ALTO_MAIN_LINE, name = member } )			-- main character first
 		else		-- non altoholic user
 			table.insert(view, { lineType = NORMALPLAYER_LINE, name = member } )
 		end
+		onlineMembers[member] = true
 	end
 	
 	-- 2) sort the highest level
@@ -155,10 +166,32 @@ local function BuildView()
 				local altCount = 1	-- because the insert must be done at index+1 for alt 1, index+2 for alt2, etc..
 				for _, altName in ipairs(altsTable) do
 					table.insert(view, index + altCount, { lineType = ALTO_ALT_LINE, name = altName } )
+					onlineMembers[altName] = true
 					altCount = altCount + 1
 				end
 			end
 		end
+	end
+	
+	-- 5) add the header "offline members"
+	table.insert(view, {	lineType = OFFLINEHEADER_LINE, name = L["Offline Members"] } )
+	
+	-- 6) Prepare the list of offline members for which we have data, sort it, then add it to the view
+	local offlineMembers = {}
+
+	local guild = DataStore:GetGuild()
+	
+	for i=1, GetNumGuildMembers(true) do		-- browse all players (online & offline)
+		local member = GetGuildRosterInfo(i)
+		if not onlineMembers[member] then
+			offlineMembers[ #offlineMembers + 1 ] = member
+		end		
+	end
+	
+	table.sort(offlineMembers, SecondaryLevelSort[viewSortField])
+
+	for _, member in ipairs(offlineMembers) do
+		table.insert(view, {	lineType = OFFLINEMEMBER_LINE, name = member } )
 	end
 	
 	isViewValid = true
@@ -171,7 +204,7 @@ local function LoadEquipmentTextures()
 	
 	for i = 1, 19 do
 		itemName = "AltoholicFrameGuildMembersItem".. i;
-		Altoholic:SetItemButtonTexture(itemName, Altoholic.Equipment:GetSlotTexture(EquipmentToFrame[i]));
+		addon:SetItemButtonTexture(itemName, addon.Equipment:GetSlotTexture(EquipmentToFrame[i]));
 		_G[itemName]:Show()
 	end
 end
@@ -199,17 +232,17 @@ local function UpdateEquipment(member)
 		itemCount = _G[itemName .. "Count"]
 		itemCount:Hide();
 
-		Altoholic:CreateButtonBorder(itemButton)
+		addon:CreateButtonBorder(itemButton)
 		itemButton.border:Hide()
 	
 		local itemID = DataStore:GetGuildMemberInventoryItem(guild, member, EquipmentToFrame[i])
 		if itemID then
-			Altoholic:SetItemButtonTexture(itemName, GetItemIcon(itemID));
+			addon:SetItemButtonTexture(itemName, GetItemIcon(itemID));
 
-			-- set link and id for Altoholic:Item_OnEnter(self)
+			-- set link and id for addon:Item_OnEnter(self)
 			if type(itemID) == "string" then
 				itemButton.link = itemID
-				itemButton.id = Altoholic:GetIDFromLink(itemID)
+				itemButton.id = addon:GetIDFromLink(itemID)
 			elseif type(itemID) == "number" then
 				itemButton.id = itemID
 				itemButton.link = nil
@@ -226,7 +259,7 @@ local function UpdateEquipment(member)
 			itemCount:SetText(itemLevel);
 			itemCount:Show();
 		else
-			Altoholic:SetItemButtonTexture(itemName, Altoholic.Equipment:GetSlotTexture(EquipmentToFrame[i]));
+			addon:SetItemButtonTexture(itemName, addon.Equipment:GetSlotTexture(EquipmentToFrame[i]));
 			itemButton.id = nil
 			itemButton.link = nil
 		end
@@ -235,9 +268,11 @@ local function UpdateEquipment(member)
 	end
 end
 
-Altoholic.Guild.Members = {}
+addon.Guild.Members = {}
 
-function Altoholic.Guild.Members:Update()
+local ns = addon.Guild.Members		-- ns = namespace
+
+function ns:Update()
 	if AltoholicFrameGuildMembers.InitRequired then
 		LoadEquipmentTextures()
 		AltoholicFrameGuildMembers.InitRequired = nil
@@ -254,7 +289,7 @@ function Altoholic.Guild.Members:Update()
 	AltoholicTabSummaryStatus:SetText(L["Click a character's AiL to see its equipment"])
 	
 	if #view == 0 then
-		Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
+		addon:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
 		return
 	end
 	
@@ -267,11 +302,13 @@ function Altoholic.Guild.Members:Update()
 	local guild = DataStore:GetGuild()
 	
 	for lineIndex, v in pairs(view) do
+		local lineType = mod(v.lineType, 2)
+	
 		if (offset > 0) or (DisplayedCount >= VisibleLines) then		-- if the line will not be visible
 			if v.lineType == NORMALPLAYER_LINE then
 				VisibleCount = VisibleCount + 1
 				offset = offset - 1		-- no further control, nevermind if it goes negative
-			elseif v.lineType == ALTO_MAIN_LINE then							-- then keep track of counters
+			elseif lineType == HEADER_LINE then							-- then keep track of counters
 				if expandedHeaders[v.name] then
 					DrawAlts = true
 				else
@@ -290,10 +327,10 @@ function Altoholic.Guild.Members:Update()
 			
 			local classText = L["N/A"]
 			if class and englishClass then
-				classText = format("%s%s", Altoholic:GetClassColor(englishClass), class)
+				classText = format("%s%s", addon:GetClassColor(englishClass), class)
 			end
 			
-			local version = Altoholic:GetGuildMemberVersion(member) or L["N/A"]
+			local version = addon:GetGuildMemberVersion(member) or L["N/A"]
 			local averageItemLvl = DataStore:GetGuildMemberAverageItemLevel(guild, member) or 0
 		
 			if v.lineType == NORMALPLAYER_LINE then
@@ -312,19 +349,31 @@ function Altoholic.Guild.Members:Update()
 				VisibleCount = VisibleCount + 1
 				DisplayedCount = DisplayedCount + 1
 				
-			elseif v.lineType == ALTO_MAIN_LINE then
-				if expandedHeaders[v.name] then
+			elseif lineType == HEADER_LINE then
+				if expandedHeaders[member] then
 					_G[ entry..i.."Collapse" ]:SetNormalTexture("Interface\\Buttons\\UI-MinusButton-Up"); 
 					DrawAlts = true
 				else
 					_G[ entry..i.."Collapse" ]:SetNormalTexture("Interface\\Buttons\\UI-PlusButton-Up");
 					DrawAlts = false
 				end
+				
+				if member == L["Offline Members"] then
+					level = ""
+					version = ""
+					classText = ""
+				end
+				
 				_G[entry..i.."Collapse"]:Show()
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 25, 0)
 				_G[entry..i.."NameNormalText"]:SetText(YELLOW..member)
 				_G[entry..i.."Level"]:SetText(GREEN .. level)
-				_G[entry..i.."AvgILevelNormalText"]:SetText(YELLOW..format("%.1f", averageItemLvl))
+				if member == L["Offline Members"] then
+					_G[entry..i.."AvgILevelNormalText"]:SetText("")
+				else
+					_G[entry..i.."AvgILevelNormalText"]:SetText(YELLOW..format("%.1f", averageItemLvl))
+				end
+				
 				_G[entry..i.."Version"]:SetText(WHITE..version)
 				_G[entry..i.."Class"]:SetText(classText)
 				
@@ -339,7 +388,11 @@ function Altoholic.Guild.Members:Update()
 			
 				_G[entry..i.."Collapse"]:Hide()
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 15, 0)
-				_G[entry..i.."NameNormalText"]:SetText(LIGHTBLUE..member)
+				if v.lineType == ALTO_ALT_LINE then
+					_G[entry..i.."NameNormalText"]:SetText(LIGHTBLUE..member)
+				else
+					_G[entry..i.."NameNormalText"]:SetText(GRAY..member)
+				end
 				_G[entry..i.."Level"]:SetText(GREEN .. level)
 				_G[entry..i.."AvgILevelNormalText"]:SetText(YELLOW..format("%.1f", averageItemLvl))
 				_G[entry..i.."Version"]:SetText(WHITE..version)
@@ -363,14 +416,14 @@ function Altoholic.Guild.Members:Update()
 	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleCount, VisibleLines, 18);
 end
 
-function Altoholic.Guild.Members:Sort(self, field)
+function ns:Sort(self, field)
 	viewSortField = field
 	viewSortOrder = self.ascendingSort
 	
-	Altoholic.Guild.Members:InvalidateView()
+	ns:InvalidateView()
 end
 
-function Altoholic.Guild.Members:Name_OnEnter(self)
+function ns:Name_OnEnter(self)
 	local member = self:GetParent().CharName
 	if not member then return end
 
@@ -379,7 +432,7 @@ function Altoholic.Guild.Members:Name_OnEnter(self)
   
 	AltoTooltip:ClearLines();
 	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
-	AltoTooltip:AddLine(Altoholic:GetClassColor(englishClass) .. member,1,1,1);
+	AltoTooltip:AddLine(addon:GetClassColor(englishClass) .. member,1,1,1);
 	AltoTooltip:AddLine(WHITE .. RANK_COLON .. "|r " .. rank .. GREEN .. " (".. rankIndex .. ")");
 	if zone then
 		AltoTooltip:AddLine(WHITE .. ZONE_COLON .. "|r " .. zone);
@@ -400,7 +453,7 @@ function Altoholic.Guild.Members:Name_OnEnter(self)
 	AltoTooltip:Show();
 end
 
-function Altoholic.Guild.Members:Level_OnClick(self, button)
+function ns:Level_OnClick(self, button)
 	if button ~= "LeftButton" then return end
 
 	local id = self:GetParent():GetID()
@@ -414,7 +467,7 @@ function Altoholic.Guild.Members:Level_OnClick(self, button)
 	end
 end
 
-function Altoholic.Guild.Members:Level_OnEnter(self)
+function ns:Level_OnEnter(self)
 	local id = self:GetParent():GetID()
 	if id == 0 then return end
 	
@@ -426,16 +479,16 @@ function Altoholic.Guild.Members:Level_OnEnter(self)
 	
 	AltoTooltip:ClearLines();
 	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
-	AltoTooltip:AddLine(Altoholic:GetClassColor(englishClass) .. member,1,1,1);
+	AltoTooltip:AddLine(addon:GetClassColor(englishClass) .. member,1,1,1);
 	AltoTooltip:AddLine(WHITE .. L["Average Item Level"] ..": " .. GREEN.. format("%.1f", averageItemLvl),1,1,1);
 
-	Altoholic:AiLTooltip()
+	addon:AiLTooltip()
 	AltoTooltip:AddLine(" ",1,1,1);
 	AltoTooltip:AddLine(GREEN .. L["Left-click to see this character's equipment"],1,1,1);
 	AltoTooltip:Show();
 end
 
-function Altoholic.Guild.Members:Collapse_OnClick(self)
+function ns:Collapse_OnClick(self)
 	local id = self:GetParent():GetID()
 	if id == 0 then return end
 	
@@ -445,38 +498,38 @@ function Altoholic.Guild.Members:Collapse_OnClick(self)
 	else
 		expandedHeaders[line.name] = true
 	end
-	Altoholic.Guild.Members:Update()
+	ns:Update()
 end
 
-function Altoholic.Guild.Members:ToggleView(self)
+function ns:ToggleView(self)
 	if self.isCollapsed then	-- collapse all headers
 		wipe(expandedHeaders)
 	else								-- expand all headers
 		for _, line in pairs(view) do
-			if line.lineType == ALTO_MAIN_LINE then
+			if mod(line.lineType, 2) == HEADER_LINE then
 				expandedHeaders[line.name] = true
 			end
 		end
 	end
-	Altoholic.Guild.Members:Update()
+	ns:Update()
 end
 
-function Altoholic.Guild.Members:InvalidateView()
+function ns:InvalidateView()
 	isViewValid = nil
 	if AltoholicFrameGuildMembers:IsVisible() then
-		self:Update()
+		ns:Update()
 	end
 end
 	
-function Altoholic.Guild.Members:OnRosterUpdate()
+function ns:OnRosterUpdate()
 	AltoholicTabSummaryMenuItem5:SetText(format("%s %s(%d)", L["Guild Members"], GREEN, GetNumGuildMembers()))
 	
-	Altoholic.Guild.Members:InvalidateView()
-	Altoholic.Guild.Professions:InvalidateView()
-	Altoholic.Guild.BankTabs:InvalidateView()
---	Altoholic.Tabs.Summary:Refresh()
+	ns:InvalidateView()
+	addon.Guild.Professions:InvalidateView()
+	addon.Guild.BankTabs:InvalidateView()
+--	addon.Tabs.Summary:Refresh()
 end
 
-function Altoholic:DATASTORE_PLAYER_EQUIPMENT_RECEIVED(event, sender, character)
+function addon:DATASTORE_PLAYER_EQUIPMENT_RECEIVED(event, sender, character)
 	UpdateEquipment(character)
 end

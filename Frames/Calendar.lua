@@ -241,8 +241,10 @@ local CalendarEventTypes = {
 				local c = Altoholic:GetCharacterTable(event.char, event.realm)
 				local _, _, title, eventType, inviteStatus = strsplit("|", c.Calendar[event.parentID])
 
+				inviteStatus = tonumber(inviteStatus)
+				
 				local desc
-				if inviteStatus then
+				if type(inviteStatus) == "number" and (inviteStatus > 1) and (inviteStatus < 8) then
 					local StatusText = {
 						CALENDAR_STATUS_INVITED,		-- CALENDAR_INVITESTATUS_INVITED   = 1
 						CALENDAR_STATUS_ACCEPTED,		-- CALENDAR_INVITESTATUS_ACCEPTED  = 2
@@ -254,7 +256,7 @@ local CalendarEventTypes = {
 						CALENDAR_STATUS_NOT_SIGNEDUP	-- CALENDAR_INVITESTATUS_NOT_SIGNEDUP = 8
 					}
 				
-					desc = format("%s: %s", STATUS, WHITE..StatusText[tonumber(inviteStatus)]) 
+					desc = format("%s: %s", STATUS, WHITE..StatusText[inviteStatus]) 
 				else 
 					desc = format("%s", STATUS) 
 				end
@@ -345,7 +347,8 @@ local function ShowExpiryWarning(index, minutes)
 	end
 	if not warning then return end
 	
-	if Altoholic.Options:Get("WarningDialogBox") == 1 then
+	-- print instead of dialog box if player is in combat
+	if Altoholic.Options:Get("WarningDialogBox") == 1 and not UnitAffectingCombat("player") then
 		AltoMsgBox.ButtonHandler = Altoholic.Calendar.WarningButtonHandler
 		AltoMsgBox_Text:SetText(format("%s\n%s", WHITE..warning, L["Do you want to open Altoholic's calendar for details ?"]))
 		AltoMsgBox:Show()

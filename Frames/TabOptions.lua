@@ -1,4 +1,7 @@
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+local addonName = "Altoholic"
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
@@ -180,7 +183,6 @@ Altoholic.Options = {}
 
 function Altoholic.Options:Init()
 	-- create categories in Blizzard's options panel
-	local addonName = "Altoholic"
 	
 	DataStore:AddOptionCategory(AltoholicGeneralOptions, addonName)
 	LibStub("LibAboutPanel").new(addonName, addonName);
@@ -205,7 +207,7 @@ function Altoholic.Options:Init()
 	local value
 	
 	-- ** General **
-	AltoholicGeneralOptions_Title:SetText(TEAL..format("Altoholic %s", Altoholic.Version))
+	AltoholicGeneralOptions_Title:SetText(TEAL..format("%s %s", addonName, addon.Version))
 	AltoholicGeneralOptions_RestXPModeText:SetText(L["Max rest XP displayed as 150%"])
 	AltoholicGeneralOptions_GuildBankAutoUpdateText:SetText(L["Automatically authorize guild bank updates"])
 	AltoholicGeneralOptions_GuildBankAutoUpdate.tooltip = format("%s%s%s",
@@ -309,7 +311,8 @@ function Altoholic.Options:Init()
 	AltoholicTooltipOptionsSourceText:SetText(L["Show item source"])
 	AltoholicTooltipOptionsCountText:SetText(L["Show item count per character"])
 	AltoholicTooltipOptionsTotalText:SetText(L["Show total item count"])
-	AltoholicTooltipOptionsRecipeInfoText:SetText(L["Show already known/learnable by"])
+	AltoholicTooltipOptionsRecipeInfoText:SetText(L["Show recipes already known/learnable by"])
+	AltoholicTooltipOptionsPetInfoText:SetText(L["Show pets already known/learnable by"])
 	AltoholicTooltipOptionsItemIDText:SetText(L["Show item ID and item level"])
 	AltoholicTooltipOptionsGatheringNodeText:SetText(L["Show counters on gathering nodes"])
 	AltoholicTooltipOptionsCrossFactionText:SetText(L["Show counters for both factions"])
@@ -322,6 +325,8 @@ function Altoholic.Options:Init()
 	L["Show total item count"] = nil
 	L["Show guild bank count"] = nil
 	L["Show already known/learnable by"] = nil
+	L["Show recipes already known/learnable by"] = nil
+	L["Show pets already known/learnable by"] = nil
 	L["Show item ID and item level"] = nil
 	L["Show counters on gathering nodes"] = nil
 	L["Show counters for both factions"] = nil
@@ -387,6 +392,7 @@ function Altoholic.Options:RestoreToUI()
 	AltoholicTooltipOptionsGuildBankCount:SetChecked(O.TooltipGuildBankCount)
 	AltoholicTooltipOptionsGuildBankCountPerTab:SetChecked(O.TooltipGuildBankCountPerTab)
 	AltoholicTooltipOptionsRecipeInfo:SetChecked(O.TooltipRecipeInfo)
+	AltoholicTooltipOptionsPetInfo:SetChecked(O.TooltipPetInfo)
 	AltoholicTooltipOptionsItemID:SetChecked(O.TooltipItemID)
 	AltoholicTooltipOptionsGatheringNode:SetChecked(O.TooltipGatheringNode)
 	AltoholicTooltipOptionsCrossFaction:SetChecked(O.TooltipCrossFaction)

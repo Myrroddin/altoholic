@@ -303,20 +303,7 @@
 		</Frames>
 		<Scripts>
 			<OnShow>
-				if AltoholicFrameReputations:IsVisible() or 
-					AltoholicFrameEquipment:IsVisible() or 
-					AltoholicFrameCurrencies:IsVisible() or 
-					AltoholicFramePetsAllInOne:IsVisible() then
-					AltoholicFrameClasses:Show()
-				end
-				
-				local tc = Altoholic.Tabs.Characters
-				if not tc.InfoType then
-					tc:StartAutoCastShine(AltoholicTabCharacters_Bags)
-					tc:ViewCharInfo(1)
-				end
-				
-				tc:UpdateViewIcons()
+				Altoholic.Tabs.Characters:OnShow()
 			</OnShow>
 			<OnHide>
 				AltoholicFrameClasses:Hide()

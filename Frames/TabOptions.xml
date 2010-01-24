@@ -1,21 +1,5 @@
 ﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="TabOptions.lua"></Script>
-
-	<Button name="AltoOptionMenuItemTemplate" inherits="AltoMenuItemTemplate" hidden="false" virtual="true">
-		<Size>
-			<AbsDimension x="156" y="20"/>
-		</Size>
-		<Scripts>
-			<OnClick>
-				for i=1, 6 do 
-					_G[ "AltoholicTabOptionsMenuItem"..i ]:UnlockHighlight();
-					_G[ "AltoholicTabOptionsFrame"..i ]:Hide();
-				end
-				_G[ "AltoholicTabOptionsMenuItem"..self:GetID() ]:LockHighlight();
-				_G[ "AltoholicTabOptionsFrame"..self:GetID() ]:Show();
-			</OnClick>
-		</Scripts>
-	</Button>
 	
 	<Frame name="AltoWarningTypeTemplate" inherits="UIDropDownMenuTemplate" virtual="true">
 		<Scripts>
@@ -504,12 +488,29 @@
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parentItemID" inherits="InterfaceOptionsSmallCheckButtonTemplate">
+			<CheckButton name="$parentPetInfo" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
 				<Anchors> 
 					<Anchor point="TOPLEFT" relativeTo="$parentRecipeInfo" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension  x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic.Options:Toggle(self, "TooltipPetInfo")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parentItemID" inherits="InterfaceOptionsSmallCheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT" relativeTo="$parentPetInfo" relativePoint="BOTTOMLEFT">
 						<Offset>
 							<AbsDimension  x="0" y="-10"/>
 						</Offset>

@@ -1,4 +1,7 @@
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+local addonName = "Altoholic"
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local WHITE		= "|cFFFFFFFF"
 --local GRAY		= "|cFFBBBBBB"
@@ -60,9 +63,11 @@ local function DisplayServerTime(frame, serverHour, serverMinute)
 	end
 end
 
-Altoholic.Guild.BankTabs = {}
+addon.Guild.BankTabs = {}
 
-function Altoholic.Guild.BankTabs:Update()
+local ns = addon.Guild.BankTabs		-- ns = namespace
+
+function ns:Update()
 	if not isViewValid then
 		BuildView()
 	end
@@ -72,7 +77,7 @@ function Altoholic.Guild.BankTabs:Update()
 	local entry = frame.."Entry"
 	
 	if #view == 0 then
-		Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
+		addon:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
 		return
 	end
 	
@@ -165,7 +170,7 @@ function Altoholic.Guild.BankTabs:Update()
 	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleCount, VisibleLines, 18);
 end	
 
-function Altoholic.Guild.BankTabs:OnClick(self, button)
+function ns:OnClick(self, button)
 	if button ~= "LeftButton" then return end
 
 	local id = self:GetParent():GetID()
@@ -177,11 +182,11 @@ function Altoholic.Guild.BankTabs:OnClick(self, button)
 
 	if member == UnitName("player") then return end		-- do nothing if clicking on own alts
 
-	Altoholic:Print(format(L["Requesting %s information from %s"], tabName, member ))
+	addon:Print(format(L["Requesting %s information from %s"], tabName, member ))
 	DataStore:RequestGuildMemberBankTab(member, tabName)
 end
 
-function Altoholic.Guild.BankTabs:OnEnter(self)
+function ns:OnEnter(self)
 	local id = self:GetParent():GetID()
 	if id == 0 then return end
 	
@@ -197,7 +202,7 @@ function Altoholic.Guild.BankTabs:OnEnter(self)
 	AltoTooltip:Show();
 end
 
-function Altoholic.Guild.BankTabs:Collapse_OnClick(self)
+function ns:Collapse_OnClick(self)
 	local id = self:GetParent():GetID()
 	if id == 0 then return end
 	
@@ -207,10 +212,10 @@ function Altoholic.Guild.BankTabs:Collapse_OnClick(self)
 	else
 		expandedHeaders[line.id] = true
 	end
-	Altoholic.Guild.BankTabs:Update()
+	ns:Update()
 end
 
-function Altoholic.Guild.BankTabs:ToggleView(self)
+function ns:ToggleView(self)
 	if self.isCollapsed then	-- collapse all headers
 		wipe(expandedHeaders)
 	else								-- expand all headers
@@ -220,12 +225,12 @@ function Altoholic.Guild.BankTabs:ToggleView(self)
 			end
 		end
 	end
-	Altoholic.Guild.BankTabs:Update()
+	ns:Update()
 end
 
-function Altoholic.Guild.BankTabs:InvalidateView()
+function ns:InvalidateView()
 	isViewValid = nil
 	if AltoholicFrameGuildBankTabs:IsVisible() then
-		self:Update()
+		ns:Update()
 	end
 end

@@ -1,4 +1,7 @@
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+local addonName = "Altoholic"
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local INFO_REALM_LINE = 0
 local INFO_CHARACTER_LINE = 1
@@ -14,9 +17,11 @@ local RED		= "|cFFFF0000"
 local ICON_FACTION_HORDE = "Interface\\Icons\\INV_BannerPVP_01"
 local ICON_FACTION_ALLIANCE = "Interface\\Icons\\INV_BannerPVP_02"
 
-Altoholic.Activity = {}
+addon.Activity = {}
 
-function Altoholic.Activity:Update()
+local ns = addon.Activity		-- ns = namespace
+
+function ns:Update()
 	local VisibleLines = 14
 	local frame = "AltoholicFrameActivity"
 	local entry = frame.."Entry"
@@ -167,7 +172,7 @@ function Altoholic.Activity:Update()
 	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleCount, VisibleLines, 18);
 end	
 
-function Altoholic.Activity:OnEnter(self)
+function ns:OnEnter(self)
 	local line = self:GetParent():GetID()
 	local s = Altoholic.Characters:Get(line)
 	
@@ -223,7 +228,7 @@ local VIEW_MAILS = 3
 local VIEW_AUCTIONS = 5
 local VIEW_BIDS = 6
 
-function Altoholic.Activity:OnClick(self)
+function ns:OnClick(self)
 	local line = self:GetParent():GetID()
 	local s = Altoholic.Characters:Get(line)
 	
