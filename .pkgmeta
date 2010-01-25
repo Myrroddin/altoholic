@@ -6,7 +6,7 @@ enable-nolib-creation: yes
 
 required-dependencies:
     - datastore
-    - datastore_achievments
+    - datastore_achievements
     - datastore_auctions
     - datastore_characters
     - datastore_containers
