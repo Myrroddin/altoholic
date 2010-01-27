@@ -141,7 +141,8 @@ function Altoholic.Quests:ListCharsOnQuest(questName, player, tooltip)
 	local CharsOnQuest = {}
 	for characterName, character in pairs(DS:GetCharacters(realm)) do
 		if characterName ~= player then
-			for i = 1, DS:GetQuestLogSize(character) do
+			local questLogSize = DS:GetQuestLogSize(character) or 0
+			for i = 1, questLogSize do
 				local isHeader, link = DS:GetQuestLogInfo(character, i)
 				if not isHeader then
 					local altQuestName = DS:GetQuestInfo(link)

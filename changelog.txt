@@ -16,7 +16,9 @@ Join the #altoholic IRC channel on Freenode : irc://irc.freenode.net:6667/
 - Added an option to show/hide pets already known/could be learned by xx. (Thanks bsmorgan !)
 - Pets/mounts can now be shift-clicked and linked.
 - Expiries that are supposed to be shown in a dialog box will now be printed to the chat frame instead if player is in combat.
-- Changed dependencies in the .toc file, to help the curse client with DataStore & its modules.
+- Changed dependencies in the .toc file, to help the Curse Client with DataStore & its modules.
+- Updated the recipe DB.
+- Updated loot tables (ICC).
 
 
 3.3.001b (26/12/2009)

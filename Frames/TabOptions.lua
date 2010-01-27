@@ -120,6 +120,23 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "3.3.001c Changes",
+		bulletedList = {
+			"Added back 'text' field in LDB (conditional, for Broker2FuBar)",
+			"Fixed LinkWrangler hook.",
+			"Added support for faction specific achievements. They are now displayed on the same line if a given realm contains characters of the two factions. This used to be a bug/limitation of the system in earlier versions.",
+			"Guild bank counters from other realms are no longer displayed in the tooltip.",
+			"Fixed a Lua error in the 'Guild Skills' pane.",
+			"Added Offline Members to the 'Guild Members' pane. The AiL of an offline member can still be clicked, and if a players' equipment has been checked earlier, it will be displayed.",
+			"Fixed a few Lua errors.",
+			"Added an option to show/hide pets already known/could be learned by xx. (Thanks bsmorgan !)",
+			"Pets/mounts can now be shift-clicked and linked.",
+			"Expiries that are supposed to be shown in a dialog box will now be printed to the chat frame instead if player is in combat.",
+			"Changed dependencies in the .toc file, to help the Curse Client with DataStore & its modules.",
+			"Updated the recipe DB.",
+			"Updated loot tables (ICC).",
+		},
+	},
 	{	name = "3.3.001b Changes - The 'Two Year Anniversary Edition'",
 		bulletedList = {
 			"Fixed a Lua error in DataStore_Auctions.",
@@ -149,27 +166,6 @@ local whatsnew = {
 			"Added a 'What's new' topic in the options panel.",
 			"Fixed a few Lua errors.",
 			"Added an option to turn off the broadcast of profession links to the guild channel into DataStore_Crafts. This is what consumes the most bandwidth, so disable it if you/your guild considers this as critical.",
-		},
-	},
-	{	name = "3.2.003 Changes",
-		bulletedList = {
-			"Fixed a compatibility issue with MrTrader (DataStore_Crafts).",
-			"Added the character skill level in the recipe tooltip.",
-			"Fixed a Lua error in when trying to get the item count of a missing character.",
-			"Fixed invalid reporting of the number of free bank slots.",
-			"Added a counter in the achievements tooltip to show the amount of completed criterias.",
-			"Some achievement categories are now sorted in a custom fashion, rather than alphabetically, in order to show progressive achievements side by side.",
-			"Achievements can now be linked into chat frames. You will need to relog your alts at least once for this to work.",
-			"Moved the option that manages the mail expiry threshold to DataStore_Mails. It is thus reset to 5 days for everyone, make sure to change it back to whatever you like in the options pane.",
-			"Guild communication has been entirely rewritten.", 
-			"Brought a few improvements to the Guild Bank Tabs pane.",
-			"Improved return mail support. If a guildmate returns a mail to one of your alts, you will be notified immediately.",
-			"Mail expiries are now checked 5 seconds after login.",
-			"Your alts' professions are now sent 5 seconds after login at a pace of 1 per 0.5 seconds.",
-			"Guild member professions will now automatically be cleaned after a patch, to make sure your database only contains usable links.",
-			"Most money amounts are now displayed using money icons.",
-			"DataStore_Talents now scans talent tree reference only once per game patch.",
-			"Fixed several Lua errors in various places.",
 		},
 	},
 	{	name = "Earlier changes",
@@ -460,14 +456,6 @@ local OnSizeUpdate = {	-- custom resize functions
 	AltoholicHelp = ResizeScrollFrame,
 	AltoholicSupport = ResizeScrollFrame,
 	AltoholicWhatsNew = ResizeScrollFrame,
-
-	-- AltoholicWhatsNew = function(self, width, height)
-			-- AltoholicWhatsNew:SetWidth(width-45)
-			-- AltoholicWhatsNew_ScrollFrame:SetWidth(width-45)
-			-- AltoholicWhatsNew:SetHeight(height-30)
-			-- AltoholicWhatsNew_ScrollFrame:SetHeight(height-30)
-			-- AltoholicWhatsNew_Text:SetWidth(width-80)
-		-- end,
 }
 
 local OptionsPanelWidth, OptionsPanelHeight
