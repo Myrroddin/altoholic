@@ -5,17 +5,17 @@ license-output: LICENSE.txt
 enable-nolib-creation: yes
 
 required-dependencies:
-    - datastore
-    - datastore_achievements
-    - datastore_auctions
-    - datastore_characters
-    - datastore_containers
+	- datastore
+	- datastore_achievements
+	- datastore_auctions
+	- datastore_characters
+	- datastore_containers
 	- datastore_crafts
-    - datastore_currencies
-    - datastore_inventory
+	- datastore_currencies
+	- datastore_inventory
 	- datastore_mails
-    - datastore_pets
-    - datastore_quests
+	- datastore_pets
+	- datastore_quests
 	- datastore_reputations
 	- datastore_skills
 	- datastore_spells
