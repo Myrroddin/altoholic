@@ -153,7 +153,6 @@ function Altoholic:OnEnable()
 	self:RegisterEvent("UPDATE_INSTANCE_INFO", "UpdateRaidTimers")
 	self:RegisterEvent("RAID_INSTANCE_WELCOME", "RequestUpdateRaidInfo")
 
-	self:RegisterEvent("GUILDBANKFRAME_OPENED", Altoholic.GuildBank.OnOpen)
 	self:RegisterEvent("AUCTION_HOUSE_SHOW", Altoholic.AuctionHouse.OnShow)
 	self:RegisterEvent("PLAYER_TALENT_UPDATE", Altoholic.Talents.OnUpdate);
 	
@@ -642,11 +641,6 @@ function Altoholic:GetGuild(name, realm, account)
 	return Altoholic.db.global.Guilds[key]
 end
 
-function Altoholic:GetGuildFaction(guild)
-	assert(type(guild) == "table")
-	return guild.faction
-end
-
 function Altoholic:GetGuildMembers(guild)
 	assert(type(guild) == "table")
 	return guild.members
@@ -696,10 +690,10 @@ function Altoholic:ClearScrollFrame(name, entry, lines, height)
 	FauxScrollFrame_Update( name, lines, lines, height);
 end
 
-function addon:Print(message, color)
-	color = color or WHITE
-	print(format("%s%s: %s%s", TEAL, addonName, color, message))
-end
+-- function addon:Print(message, color)
+	-- color = color or WHITE
+	-- print(format("%s%s: %s%s", TEAL, addonName, color, message))
+-- end
 
 function Altoholic:Item_OnEnter(frame)
 	if not frame.id then return end

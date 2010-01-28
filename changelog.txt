@@ -3,8 +3,14 @@ Altoholic Changelog (dates in dd/mm/yyyy)
 
 Join the #altoholic IRC channel on Freenode : irc://irc.freenode.net:6667/
 
+3.3.002
 
-3.3.001c
+- Fixed several issues with the guild bank tab: deleting a guild, guilds that still appeared in the drop down, etc.. 
+Note: guild bank money is reset to zero in the process, please visit your guild bank to update it.
+- Improved the source's description when searching for items located in the guild bank.
+- Fixed an error when changing alt in the 'Characters' tab.
+
+3.3.001c (27/01/2010)
 
 - Added back 'text' field in LDB (conditional, for Broker2FuBar)
 - Fixed LinkWrangler hook.

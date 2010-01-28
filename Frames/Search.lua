@@ -156,9 +156,9 @@ local RealmScrollFrame_Desc = {
 				end,
 			GetRealm = function(self, result)
 					local account, realm, name = strsplit(".", result.source)
-					local guild = Altoholic:GetGuild(name, realm, account)
+					local guild = DS:GetGuild(name, realm, account)
 					
-					return realm, account, Altoholic:GetGuildFaction(guild)
+					return realm, account, DS:GetGuildBankFaction(guild)
 				end,
 			GetItemID = function(self, result)
 					return result.id
@@ -647,19 +647,18 @@ function Altoholic.Search:BrowseRealm(realm, account, bothFactions)
 	end
 	
 	if Altoholic.Options:Get("IncludeGuildBank") == 1 then	-- Check guild bank(s) ?
-		self.SearchLocation = GUILD_BANK
+		-- self.SearchLocation = GUILD_BANK
 		self.SearchLineType = GUILD_ITEM_LINE
 
 		for guildName, guild in pairs(DS:GetGuilds(realm, account)) do
-			local altoGuild = Altoholic:GetGuild(guildName, realm, account)
-			
-			if bothFactions or Altoholic:GetGuildFaction(altoGuild) == UnitFactionGroup("player") then
+			if bothFactions or DS:GetGuildBankFaction(guild) == UnitFactionGroup("player") then
 				self.SearchCharacterIndex = format("%s.%s.%s", account, realm, guildName)
 				
 				for tabID = 1, 6 do
 					local tab = DS:GetGuildBankTab(guild, tabID)
 					if tab.name then
 						for slotID = 1, 98 do
+							self.SearchLocation = format("%s (%s - slot %d)", GUILD_BANK, tab.name, slotID)
 							local id, link, count = DS:GetSlotInfo(tab, slotID)
 							if id then
 								link = link or id

@@ -1,6 +1,9 @@
+local addonName = "Altoholic"
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local BF = LibStub("LibBabble-Faction-3.0"):GetLookupTable()
 local BZ = LibStub("LibBabble-Zone-3.0"):GetLookupTable()
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
@@ -151,6 +154,10 @@ local VertexColors = {
 local currentXPack = 1					-- default to wow classic
 local currentFactionGroup = (UnitFactionGroup("player") == "Alliance") and 1 or 2	-- default to alliance or horde
 
+addon.Reputations = {}
+
+local ns = addon.Reputations		-- ns = namespace
+
 local function DDM_AddTitle(text)
 	-- tiny wrapper
 	local info = UIDropDownMenu_CreateInfo(); 
@@ -194,7 +201,7 @@ local function DDM_OnClick(self, xpackIndex, factionGroupIndex)
 	local factionGroup = Factions[currentXPack][currentFactionGroup]
 	UIDropDownMenu_SetText(AltoholicFrameReputations_SelectFaction, factionGroup.name)
 	
-	Altoholic.Reputations:Update()
+	ns:Update()
 end
 
 local function Reputations_UpdateEx(self, offset, entry, desc)
@@ -202,7 +209,7 @@ local function Reputations_UpdateEx(self, offset, entry, desc)
 	local size = desc:GetSize()
 	
 	local DS = DataStore
-	local realm, account = Altoholic:GetCurrentRealm()
+	local realm, account = addon:GetCurrentRealm()
 	local character
 	local factionGroup = Factions[currentXPack][currentFactionGroup]
 	
@@ -273,9 +280,7 @@ local ReputationsScrollFrame_Desc = {
 	Update = Reputations_UpdateEx,
 }
 
-Altoholic.Reputations = {}
-
-function Altoholic.Reputations:DropDownFaction_Initialize()
+function ns:DropDownFaction_Initialize()
 	for xpackIndex, xpack in ipairs(Factions) do
 		DDM_AddTitle(xpack.name)
 		
@@ -286,24 +291,24 @@ function Altoholic.Reputations:DropDownFaction_Initialize()
 	DDM_AddCloseMenu()
 end
 
-function Altoholic.Reputations:Update()
-	Altoholic:ScrollFrameUpdate(ReputationsScrollFrame_Desc)
+function ns:Update()
+	addon:ScrollFrameUpdate(ReputationsScrollFrame_Desc)
 end
 
-function Altoholic.Reputations:OnEnter(self)
-	local charName = self.CharName
+function ns:OnEnter(frame)
+	local charName = frame.CharName
 	if not charName then return end
 	
 	local DS = DataStore
-	local realm, account = Altoholic:GetCurrentRealm()
+	local realm, account = addon:GetCurrentRealm()
 	local character = DS:GetCharacter(charName, realm, account)
 	local factionGroup = Factions[currentXPack][currentFactionGroup]
-	local faction = factionGroup[ self:GetParent():GetID() ].name
+	local faction = factionGroup[ frame:GetParent():GetID() ].name
 	
 	local status, currentLevel, maxLevel, rate = DS:GetReputationInfo(character, faction)
 	if not status then return end
 	
-	AltoTooltip:SetOwner(self, "ANCHOR_LEFT");
+	AltoTooltip:SetOwner(frame, "ANCHOR_LEFT");
 	AltoTooltip:ClearLines();
 	AltoTooltip:AddLine(DS:GetColoredCharacterName(character) .. WHITE .. " @ " ..	TEAL .. faction,1,1,1);
 
@@ -311,7 +316,7 @@ function Altoholic.Reputations:OnEnter(self)
 	AltoTooltip:AddLine(format("%s: %d/%d (%s)", status, currentLevel, maxLevel, rate),1,1,1 )
 				
 	local bottom = DS:GetRawReputationInfo(character, faction)
-	local suggestion = Altoholic:GetSuggestion(faction, bottom)
+	local suggestion = addon:GetSuggestion(faction, bottom)
 	if suggestion then
 		AltoTooltip:AddLine(" ",1,1,1);
 		AltoTooltip:AddLine("Suggestion: ",1,1,1);
@@ -334,15 +339,15 @@ function Altoholic.Reputations:OnEnter(self)
 	AltoTooltip:Show();
 end
 
-function Altoholic.Reputations:OnClick(self, button)
-	local charName = self.CharName
+function ns:OnClick(frame, button)
+	local charName = frame.CharName
 	if not charName then return end
 	
 	local DS = DataStore
-	local realm, account = Altoholic:GetCurrentRealm()
+	local realm, account = addon:GetCurrentRealm()
 	local character = DS:GetCharacter(charName, realm, account)
 	local factionGroup = Factions[currentXPack][currentFactionGroup]
-	local faction = factionGroup[ self:GetParent():GetID() ].name
+	local faction = factionGroup[ frame:GetParent():GetID() ].name
 	
 	local status, currentLevel, maxLevel, rate = DS:GetReputationInfo(character, faction)
 	if not status then return end

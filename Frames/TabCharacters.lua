@@ -246,7 +246,7 @@ function ns:MenuItem_OnClick(frame, button)
 end
 
 -- ** realm selection **
-local function OnRealmChange(account, realm)
+local function OnRealmChange(self, account, realm)
 	local OldAccount = addon:GetCurrentAccount()
 	local OldRealm = addon:GetCurrentRealm()
 
@@ -303,7 +303,7 @@ function ns:DropDownRealm_Initialize()
 end
 
 -- ** alt selection **
-local function OnAltChange()
+local function OnAltChange(self)
 	local OldAlt = addon:GetCurrentCharacter()
 	local _, _, NewAlt = strsplit(".", self.value)
 	

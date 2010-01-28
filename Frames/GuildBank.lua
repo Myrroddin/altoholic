@@ -1,12 +1,17 @@
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+local addonName = "Altoholic"
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
 local YELLOW	= "|cFFFFFF00"
 
-Altoholic.GuildBank = {}
+addon.GuildBank = {}
 
-function Altoholic.GuildBank:DrawTab(tabID)
+local ns = addon.GuildBank		-- ns = namespace
+
+function ns:DrawTab(tabID)
 	local selectedGuild = UIDropDownMenu_GetSelectedValue(AltoholicTabGuildBank_SelectGuild)
 	if not selectedGuild then return end		-- not defined yet ? exit.
 
@@ -84,12 +89,4 @@ function Altoholic.GuildBank:DrawTab(tabID)
 		end
 		_G[ entry..i ]:Show()
 	end
-end
-
--- *** EVENT HANDLERS ***
-
-function Altoholic.GuildBank:OnOpen()
-	local guild = Altoholic:GetGuild()
-	guild.bankmoney = GetGuildBankMoney()
-	guild.faction = UnitFactionGroup("player")
 end

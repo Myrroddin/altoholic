@@ -84,7 +84,6 @@
 					<OnLoad>
 						UIDropDownMenu_SetWidth(self, 160) 
 						UIDropDownMenu_SetButtonWidth(self, 20)
-						UIDropDownMenu_Initialize(self, Altoholic.Tabs.GuildBank.DropDownGuild_Initialize)
 					</OnLoad>
 				</Scripts>
 			</Frame>
@@ -178,9 +177,6 @@
 			</Button>
 		</Frames>
 		<Scripts>
-			<OnLoad>
-				Altoholic.Tabs.GuildBank.initRequired = true
-			</OnLoad>
 			<OnShow>
 				Altoholic.Tabs.GuildBank:OnShow()
 			</OnShow>
