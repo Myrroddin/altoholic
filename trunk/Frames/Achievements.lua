@@ -1,5 +1,8 @@
+local addonName = "Altoholic"
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local BF = LibStub("LibBabble-Faction-3.0"):GetLookupTable()
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
@@ -211,9 +214,11 @@ local function GetAchievementFactionInfo(categoryID, index)
 	end
 end
 
-Altoholic.Achievements = {}
+addon.Achievements = {}
 
-function Altoholic.Achievements:Init()
+local ns = addon.Achievements		-- ns = namespace
+
+function ns:Init()
 	BuildReferenceTable()
 	SortedAchievements = nil
 	UnsortedAchievements = nil
@@ -221,20 +226,19 @@ end
 
 local currentCategoryID
 
-function Altoholic.Achievements:SetCategory(categoryID)
+function ns:SetCategory(categoryID)
 	currentCategoryID = categoryID
 end
 
-function Altoholic.Achievements:Update()
+function ns:Update()
 	local VisibleLines = 8
 	local frame = "AltoholicFrameAchievements"
 	local entry = frame.."Entry"
 	
-	local self = Altoholic.Achievements
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
 	local categorySize = GetCategorySize(currentCategoryID)
 	
-	local realm, account = Altoholic:GetCurrentRealm()
+	local realm, account = addon:GetCurrentRealm()
 	local character
 	
 	AltoholicTabAchievementsStatus:SetText(format("%s: %s", ACHIEVEMENTS, GREEN..categorySize ))
@@ -303,17 +307,17 @@ end
 
 local CRITERIA_COMPLETE_ICON = "\124TInterface\\AchievementFrame\\UI-Achievement-Criteria-Check:14\124t"
 
-function Altoholic.Achievements:OnEnter(self)
-	if not self.CharName then return end
+function ns:OnEnter(frame)
+	if not frame.CharName then return end
 	
 	local DS = DataStore
-	local realm, account = Altoholic:GetCurrentRealm()
-	local character = DS:GetCharacter(self.CharName, realm, account)
+	local realm, account = addon:GetCurrentRealm()
+	local character = DS:GetCharacter(frame.CharName, realm, account)
 	
-	local achievementID = self.id
+	local achievementID = frame.id
 	local _, achName, points, _, _, _, _, description, _, _, rewardText = GetAchievementInfo(achievementID);
 	
-	AltoTooltip:SetOwner(self, "ANCHOR_LEFT");
+	AltoTooltip:SetOwner(frame, "ANCHOR_LEFT");
 	AltoTooltip:ClearLines();
 	AltoTooltip:AddDoubleLine(DS:GetColoredCharacterName(character), achName)
 	AltoTooltip:AddLine(WHITE .. description, 1, 1, 1, 1, 1);
@@ -349,8 +353,8 @@ function Altoholic.Achievements:OnEnter(self)
 				end
 				
 				if criteriaType == 62 or criteriaType == 67 then		-- this type is an amount of gold, format it as such, make something more generic later on if necessary
-					quantity = Altoholic:GetMoneyString(tonumber(quantity))
-					reqQuantity = Altoholic:GetMoneyString(tonumber(reqQuantity))
+					quantity = addon:GetMoneyString(tonumber(quantity))
+					reqQuantity = addon:GetMoneyString(tonumber(reqQuantity))
 					criteriaString = format(" - %s (%s/%s)", criteriaString, quantity..WHITE, reqQuantity..WHITE)
 				else
 					criteriaString = format(" - %s (%s/%s)", criteriaString, quantity, reqQuantity)
@@ -391,14 +395,14 @@ function Altoholic.Achievements:OnEnter(self)
 	AltoTooltip:Show();
 end
 
-function Altoholic.Achievements:OnClick(self, button)
-	if not self.CharName then return end
+function ns:OnClick(frame, button)
+	if not frame.CharName then return end
 	
 	if ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
 		if ( ChatFrameEditBox:IsShown() ) then
-			local realm, account = Altoholic:GetCurrentRealm()
-			local character = DataStore:GetCharacter(self.CharName, realm, account)
-			local achievementID = self.id
+			local realm, account = addon:GetCurrentRealm()
+			local character = DataStore:GetCharacter(frame.CharName, realm, account)
+			local achievementID = frame.id
 
 			local link = DataStore:GetAchievementLink(character, achievementID)
 			if link then 

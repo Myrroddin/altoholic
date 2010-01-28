@@ -1,9 +1,16 @@
+local addonName = "Altoholic"
+local addon = _G[addonName]
+
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
 
 local currentTokenType
 local usedTokens
 local tokenTextures = {}
+
+addon.Currencies = {}
+
+local ns = addon.Currencies		-- ns = namespace
 
 local function HashToSortedArray(hash)
 	local array = {}		-- order them
@@ -15,7 +22,7 @@ local function HashToSortedArray(hash)
 end
 
 local function GetUsedHeaders()
-	local realm, account = Altoholic:GetCurrentRealm()
+	local realm, account = addon:GetCurrentRealm()
 	local DS = DataStore
 	
 	local usedHeaders = {}
@@ -36,7 +43,7 @@ end
 local function GetUsedTokens(header)
 	-- get the list of tokens found under a specific header, across all alts
 
-	local realm, account = Altoholic:GetCurrentRealm()
+	local realm, account = addon:GetCurrentRealm()
 	local DS = DataStore
 	
 	local tokens = {}
@@ -92,7 +99,7 @@ local function DDM_OnClick(self, header)
 	currentTokenType = header
 	UIDropDownMenu_SetText(AltoholicFrameCurrencies_SelectCurrencies, currentTokenType)
 	usedTokens = GetUsedTokens(currentTokenType)
-	Altoholic.Currencies:Update()
+	ns:Update()
 end
 
 local function Currencies_UpdateEx(self, offset, entry, desc)
@@ -100,7 +107,7 @@ local function Currencies_UpdateEx(self, offset, entry, desc)
 	local size = desc:GetSize()
 	
 	local DS = DataStore
-	local realm, account = Altoholic:GetCurrentRealm()
+	local realm, account = addon:GetCurrentRealm()
 	local character
 	
 	for i=1, desc.NumLines do
@@ -161,42 +168,40 @@ local CurrenciesScrollFrame_Desc = {
 	Update = Currencies_UpdateEx,
 }
 
-Altoholic.Currencies = {}
-
-function Altoholic.Currencies:Init()
-	local headers = GetUsedHeaders()
-	currentTokenType = headers[1]
-
-	local f = AltoholicFrameCurrencies_SelectCurrencies
-	UIDropDownMenu_SetText(f, currentTokenType)
-	UIDropDownMenu_Initialize(f, self.DropDown_Initialize)
-	
-	usedTokens = GetUsedTokens(currentTokenType)
-end
-
-function Altoholic.Currencies:DropDown_Initialize()
+local function DropDown_Initialize()
 	for _, header in ipairs(GetUsedHeaders()) do		-- and add them to the DDM
 		DDM_Add(header, DDM_OnClick, header)
 	end
 	DDM_AddCloseMenu()
 end
 
-function Altoholic.Currencies:Update()
-	Altoholic:ScrollFrameUpdate(CurrenciesScrollFrame_Desc)
+function ns:Init()
+	local headers = GetUsedHeaders()
+	currentTokenType = headers[1]
+
+	local f = AltoholicFrameCurrencies_SelectCurrencies
+	UIDropDownMenu_SetText(f, currentTokenType)
+	UIDropDownMenu_Initialize(f, DropDown_Initialize)
+	
+	usedTokens = GetUsedTokens(currentTokenType)
 end
 
-function Altoholic.Currencies:OnEnter(self)
-	local charName = self.CharName
+function ns:Update()
+	addon:ScrollFrameUpdate(CurrenciesScrollFrame_Desc)
+end
+
+function ns:OnEnter(frame)
+	local charName = frame.CharName
 	if not charName then return end
 	
 	local DS = DataStore
-	local realm, account = Altoholic:GetCurrentRealm()
+	local realm, account = addon:GetCurrentRealm()
 	local character = DS:GetCharacter(charName, realm, account)
 	
-	AltoTooltip:SetOwner(self, "ANCHOR_LEFT");
+	AltoTooltip:SetOwner(frame, "ANCHOR_LEFT");
 	AltoTooltip:ClearLines();
 	AltoTooltip:AddLine(DS:GetColoredCharacterName(character));
-	AltoTooltip:AddLine(usedTokens[self:GetParent():GetID()], 1, 1, 1);
-	AltoTooltip:AddLine(GREEN..self.count);
+	AltoTooltip:AddLine(usedTokens[frame:GetParent():GetID()], 1, 1, 1);
+	AltoTooltip:AddLine(GREEN..frame.count);
 	AltoTooltip:Show();
 end

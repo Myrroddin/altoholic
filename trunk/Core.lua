@@ -4,7 +4,7 @@ _G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "A
 
 local addon = _G[addonName]
 
-addon.Version = "v3.3.001c"
+addon.Version = "v3.3.001d"
 addon.VersionNum = 303001
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
@@ -50,15 +50,6 @@ local AltoholicDB_Defaults = {
 		Guilds = {
 			['*'] = {			-- ["Account.Realm.Name"] 
 				hideInTooltip = nil,		-- true if this guild should not be shown in the tooltip counters
-				bankmoney = 0,
-				faction = nil,
-				members = {
-					['*'] = {		-- player name
-						prof1link = nil,
-						prof2link = nil,
-						cookinglink = nil,
-					}
-				},
 			},
 		},
 		Characters = {

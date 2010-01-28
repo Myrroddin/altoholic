@@ -120,6 +120,13 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "3.3.001d Changes",
+		bulletedList = {
+			"Fixed several issues with the guild bank tab: deleting a guild, guilds that still appeared in the drop down, etc..",
+			"Improved the source's description when searching for items located in the guild bank.",
+			"Fixed an error when changing alt in the 'Characters' tab.",
+		},
+	},
 	{	name = "3.3.001c Changes",
 		bulletedList = {
 			"Added back 'text' field in LDB (conditional, for Broker2FuBar)",
@@ -157,15 +164,6 @@ local whatsnew = {
 			"Added 4 missing pets.",
 			"Added mandatory dependencies on DataStore_Characters & DataStore_Containers.",
 			"Manually updated the loot tables of Onyxia's Lair & ToC.",
-		},
-	},
-	{	name = "3.2.003b Changes",
-		bulletedList = {
-			"The options tab has been removed, all options are now available in the Blizzard Options panel. A button has been added at the top of the summary tab, for faster access.",
-			"Added an help topic in the options panel.",
-			"Added a 'What's new' topic in the options panel.",
-			"Fixed a few Lua errors.",
-			"Added an option to turn off the broadcast of profession links to the guild channel into DataStore_Crafts. This is what consumes the most bandwidth, so disable it if you/your guild considers this as critical.",
 		},
 	},
 	{	name = "Earlier changes",

@@ -1,5 +1,8 @@
-﻿-- local LibComp = LibStub:GetLibrary("LibCompress")
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+﻿local addonName = "Altoholic"
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
+-- local LibComp = LibStub:GetLibrary("LibCompress")
 
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
@@ -484,8 +487,8 @@ end
 
 
 -- *** DataStore Event Handlers ***
-function Altoholic:DATASTORE_BANKTAB_REQUESTED(event, sender, tabName)
-	if Altoholic.Options:Get("GuildBankAutoUpdate") == 1 then
+function addon:DATASTORE_BANKTAB_REQUESTED(event, sender, tabName)
+	if addon.Options:Get("GuildBankAutoUpdate") == 1 then
 		DataStore:SendBankTabToGuildMember(sender, tabName)
 		return
 	end
@@ -493,7 +496,7 @@ function Altoholic:DATASTORE_BANKTAB_REQUESTED(event, sender, tabName)
 	AltoMsgBox:SetHeight(130)
 	AltoMsgBox_Text:SetHeight(60)
 	
-	Altoholic:SetMsgBoxHandler(function(self, button, sender, tabName)
+	addon:SetMsgBoxHandler(function(self, button, sender, tabName)
 			if not button then 
 				DataStore:RejectBankTabRequest(sender)
 			else
@@ -506,40 +509,40 @@ function Altoholic:DATASTORE_BANKTAB_REQUESTED(event, sender, tabName)
 	AltoMsgBox:Show()
 end
 
-function Altoholic:DATASTORE_BANKTAB_REQUEST_ACK(event, sender)
-	Altoholic:Print(format(L["Waiting for %s to accept .."], sender))
+function addon:DATASTORE_BANKTAB_REQUEST_ACK(event, sender)
+	addon:Print(format(L["Waiting for %s to accept .."], sender))
 end
 
-function Altoholic:DATASTORE_BANKTAB_REQUEST_REJECTED(event, sender)
-	Altoholic:Print(format(L["Request rejected by %s"], sender))
+function addon:DATASTORE_BANKTAB_REQUEST_REJECTED(event, sender)
+	addon:Print(format(L["Request rejected by %s"], sender))
 end
 
-function Altoholic:DATASTORE_BANKTAB_UPDATE_SUCCESS(event, sender, guildName, tabName, tabID)
-	Altoholic.Tabs.GuildBank:LoadGuild("Default", GetRealmName(), guildName)
-	Altoholic:Print(format(L["Guild bank tab %s successfully updated !"], tabName ))
-	Altoholic.Guild.BankTabs:InvalidateView()
+function addon:DATASTORE_BANKTAB_UPDATE_SUCCESS(event, sender, guildName, tabName, tabID)
+	addon.Tabs.GuildBank:LoadGuild("Default", GetRealmName(), guildName)
+	addon:Print(format(L["Guild bank tab %s successfully updated !"], tabName ))
+	addon.Guild.BankTabs:InvalidateView()
 end
 
-function Altoholic:DATASTORE_GUILD_ALTS_RECEIVED(event, sender, alts)
-	Altoholic.Guild.Members:InvalidateView()
-	Altoholic.Guild.Professions:InvalidateView()
+function addon:DATASTORE_GUILD_ALTS_RECEIVED(event, sender, alts)
+	addon.Guild.Members:InvalidateView()
+	addon.Guild.Professions:InvalidateView()
 end
 
-function Altoholic:DATASTORE_GUILD_BANKTABS_UPDATED(event, sender)
-	Altoholic.Guild.BankTabs:InvalidateView()
+function addon:DATASTORE_GUILD_BANKTABS_UPDATED(event, sender)
+	addon.Guild.BankTabs:InvalidateView()
 end
 
-function Altoholic:DATASTORE_GUILD_PROFESSION_RECEIVED(event, sender, alt, data, index)
-	Altoholic.Guild.Professions:InvalidateView()
+function addon:DATASTORE_GUILD_PROFESSION_RECEIVED(event, sender, alt, data, index)
+	addon.Guild.Professions:InvalidateView()
 end
 
-function Altoholic:DATASTORE_GUILD_MEMBER_OFFLINE(event, member)
-	Altoholic.Guild.Members:InvalidateView()
-	Altoholic.Guild.Professions:InvalidateView()
+function addon:DATASTORE_GUILD_MEMBER_OFFLINE(event, member)
+	addon.Guild.Members:InvalidateView()
+	addon.Guild.Professions:InvalidateView()
 end
 
-function Altoholic:DATASTORE_GUILD_MAIL_RECEIVED(event, sender, recipient)
-	if Altoholic.Options:Get("GuildMailWarning") == 1 then
-		Altoholic:Print(format(L["%s|r has received a mail from %s"], GREEN..recipient, GREEN..sender))
+function addon:DATASTORE_GUILD_MAIL_RECEIVED(event, sender, recipient)
+	if addon.Options:Get("GuildMailWarning") == 1 then
+		addon:Print(format(L["%s|r has received a mail from %s"], GREEN..recipient, GREEN..sender))
 	end
 end
