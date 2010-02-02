@@ -48,6 +48,33 @@ Altoholic.ClassInfo = {
 	["DEATHKNIGHT"] = "|cFFC41F3B"
 }
 
+
+-- *** Utility functions ***
+local function BuildUnsafeItemList()
+	-- This method will clean the unsafe item list currently in the DB. 
+	-- In the previous game session, the list has been populated with items id's that were originally unsafe and for which a query was sent to the server.
+	-- In this session, a getiteminfo on these id's will keep returning a nil if the item is really unsafe, so this method will get rid of the id's that are now valid.
+	local TmpUnsafe = {}		-- create a temporary table with confirmed unsafe id's
+	local unsafeItems = Altoholic.db.global.unsafeItems
+	
+	for _, itemID in pairs(unsafeItems) do
+		local itemName = GetItemInfo(itemID)
+		if not itemName then							-- if the item is really unsafe .. save it
+			table.insert(TmpUnsafe, itemID)
+		end
+	end
+	
+	wipe(unsafeItems)	-- clear the DB table
+	
+	for _, itemID in pairs(TmpUnsafe) do
+		table.insert(unsafeItems, itemID)	-- save the confirmed unsafe ids back in the db
+	end
+end
+
+
+
+
+
 local THIS_ACCOUNT = "Default"
 local INFO_REALM_LINE = 0
 local INFO_CHARACTER_LINE = 1
@@ -167,7 +194,6 @@ function Altoholic:OnEnable()
 
 	self.Tabs.Summary:Init()
 	self.Containers:Init()
-	self.BagUsage:Init()
 	self.TradeSkills.Recipes:Init()
 	self.Search:Init()
 	self.Currencies:Init()
@@ -199,7 +225,7 @@ function Altoholic:OnEnable()
 		self:RegisterEvent("GUILD_ROSTER_UPDATE", self.Guild.Members.OnRosterUpdate);
 	end
 	
-	self.UnsafeItems:BuildList()
+	BuildUnsafeItemList()
 	
 	-- create an empty frame to manage the timer via its Onupdate
 	self.TimerFrame = CreateFrame("Frame", "AltoholicTimerFrame", UIParent)
@@ -1041,6 +1067,25 @@ function Altoholic:MsgBox_OnClick(button)
 	AltoMsgBox:Hide();
 	AltoMsgBox:SetHeight(100)
 	AltoMsgBox_Text:SetHeight(28)
+end
+
+-- ** Unsafe Items **
+function addon:SaveUnsafeItem(itemID)
+	if addon:IsItemUnsafe(itemID) then			-- if the unsafe item has already been saved .. exit
+		return
+	end
+	
+	-- if not, save it
+	table.insert(Altoholic.db.global.unsafeItems, itemID)
+end
+
+function addon:IsItemUnsafe(itemID)
+	for k, v in pairs(Altoholic.db.global.unsafeItems) do 	-- browse current realm's unsafe item list
+		if v == itemID then		-- if the itemID passed as parameter is a known unsafe item .. return true to skip it
+			return true
+		end
+	end
+	return false			-- false if unknown
 end
 
 

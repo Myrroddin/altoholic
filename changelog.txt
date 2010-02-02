@@ -5,6 +5,12 @@ Join the #altoholic IRC channel on Freenode : irc://irc.freenode.net:6667/
 
 3.3.002
 
+- Added an information tooltip when mousing over the number of mails in the Activity pane.
+- Search is now cancelled if there is no value in the search edit box, except if you're using the categories in the search tab.
+
+
+3.3.001d (28/01/2010)
+
 - Fixed several issues with the guild bank tab: deleting a guild, guilds that still appeared in the drop down, etc.. 
 Note: guild bank money is reset to zero in the process, please visit your guild bank to update it.
 - Improved the source's description when searching for items located in the guild bank.

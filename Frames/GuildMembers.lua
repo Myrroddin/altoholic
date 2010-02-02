@@ -27,6 +27,9 @@ local PrimaryLevelSort = {	-- sort functions for the mains
 			local levelA = select(4, DataStore:GetGuildMemberInfo(a.name))
 			local levelB = select(4, DataStore:GetGuildMemberInfo(b.name))
 			
+			levelA = levelA or 0
+			levelB = levelB or 0
+			
 			if viewSortOrder then
 				return levelA < levelB
 			else

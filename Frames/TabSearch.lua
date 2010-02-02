@@ -1,49 +1,86 @@
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+local addonName = "Altoholic"
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
 local RED		= "|cFFFF0000"
 
-Altoholic.Tabs.Search = {}
+local view
+local highlightIndex
 
-function Altoholic.Tabs.Search:BuildView()
-	
-	self.view = self.view or {}
-	wipe(self.view)
+addon.Tabs.Search = {}
+
+local ns = addon.Tabs.Search		-- ns = namespace
+
+local function BuildView()
+	view = view or {}
+	wipe(view)
 	
 	local itemClasses =  { GetAuctionItemClasses() };
 	local classNum = 1
 	for _, itemClass in pairs(itemClasses) do
-		table.insert(self.view, { name = itemClass, isCollapsed = true } )
-		table.insert(self.view, L["Any"] )
+		table.insert(view, { name = itemClass, isCollapsed = true } )
+		table.insert(view, L["Any"] )
 		
 		local itemSubClasses =  { GetAuctionItemSubClasses(classNum) };
 		for _, itemSubClass in pairs(itemSubClasses) do
-			table.insert(self.view, itemSubClass )
+			table.insert(view, itemSubClass )
 		end
 		
 		classNum = classNum + 1
 	end
 end
 
-function Altoholic.Tabs.Search:Update()
-	local self = Altoholic.Tabs.Search
+local function Header_OnClick(frame)
+	local header = view[frame.itemTypeIndex]
+	header.isCollapsed = not header.isCollapsed
+	
+	-- if header.isCollapsed == true then
+		-- header.isCollapsed = false
+	-- else
+		-- header.isCollapsed = true
+	-- end
+	ns:Update()
+end
+
+local function Item_OnClick(frame)
+	local itemType = frame.itemTypeIndex
+	local itemSubType = frame.itemSubTypeIndex
+
+	highlightIndex = itemSubType
+	ns:Update()
+	
+	-- around 5-7 ms on the current realm, 25-40 ms in the loot tables
+	if view[itemSubType] == L["Any"] then
+		addon.Search:FindItem(view[itemType].name)
+	else
+		addon.Search:FindItem(view[itemType].name, view[itemSubType])
+	end
+end
+
+function ns:Update()
+	if not view then
+		BuildView()
+	end
+	
 	local VisibleLines = 15
 
 	local itemTypeIndex				-- index of the item type in the menu table
 	local itemTypeCacheIndex		-- index of the item type in the cache table
 	local MenuCache = {}
 	
-	for k, v in pairs (self.view) do		-- rebuild the cache
+	for k, v in pairs (view) do		-- rebuild the cache
 		if type(v) == "table" then		-- header
 			itemTypeIndex = k
 			table.insert(MenuCache, { linetype=1, nameIndex=k } )
 			itemTypeCacheIndex = #MenuCache
 		else
-			if self.view[itemTypeIndex].isCollapsed == false then
+			if view[itemTypeIndex].isCollapsed == false then
 				table.insert(MenuCache, { linetype=2, nameIndex=k, parentIndex=itemTypeIndex } )
 				
-				if (self.highlightIndex) and (self.highlightIndex == k) then
+				if (highlightIndex) and (highlightIndex == k) then
 					MenuCache[#MenuCache].needsHighlight = true
 					MenuCache[itemTypeCacheIndex].needsHighlight = true
 				end
@@ -75,12 +112,12 @@ function Altoholic.Tabs.Search:Update()
 			end			
 			
 			if p.linetype == 1 then
-				_G[itemButtom..i.."NormalText"]:SetText(WHITE .. self.view[p.nameIndex].name)
-				_G[itemButtom..i]:SetScript("OnClick", Altoholic.Tabs.Search.Header_OnClick)
+				_G[itemButtom..i.."NormalText"]:SetText(WHITE .. view[p.nameIndex].name)
+				_G[itemButtom..i]:SetScript("OnClick", Header_OnClick)
 				_G[itemButtom..i].itemTypeIndex = p.nameIndex
 			elseif p.linetype == 2 then
-				_G[itemButtom..i.."NormalText"]:SetText("|cFFBBFFBB   " .. self.view[p.nameIndex])
-				_G[itemButtom..i]:SetScript("OnClick", Altoholic.Tabs.Search.Item_OnClick)
+				_G[itemButtom..i.."NormalText"]:SetText("|cFFBBFFBB   " .. view[p.nameIndex])
+				_G[itemButtom..i]:SetScript("OnClick", Item_OnClick)
 				_G[itemButtom..i].itemTypeIndex = p.parentIndex
 				_G[itemButtom..i].itemSubTypeIndex = p.nameIndex
 			end
@@ -92,59 +129,32 @@ function Altoholic.Tabs.Search:Update()
 	FauxScrollFrame_Update( _G[ "AltoholicSearchMenuScrollFrame" ], #MenuCache, VisibleLines, 20);
 end
 
-function Altoholic.Tabs.Search:Header_OnClick()
-	local i = self.itemTypeIndex
-	local self = Altoholic.Tabs.Search
-	local h = self.view[i]
-	
-	if h.isCollapsed == true then
-		h.isCollapsed = false
-	else
-		h.isCollapsed = true
-	end
-	self:Update()
-end
-
-function Altoholic.Tabs.Search:Item_OnClick()
-	local itemType = self.itemTypeIndex
-	local itemSubType = self.itemSubTypeIndex
-	local self = Altoholic.Tabs.Search
-
-	self.highlightIndex = itemSubType
-	self:Update()
-	
-	-- around 5-7 ms on the current realm, 25-40 ms in the loot tables
-	if self.view[itemSubType] == L["Any"] then
-		Altoholic.Search:FindItem(self.view[itemType].name)
-	else
-		Altoholic.Search:FindItem(self.view[itemType].name, self.view[itemSubType])
-	end
-end
-
-function Altoholic.Tabs.Search:Reset()
+function ns:Reset()
 	AltoholicFrame_SearchEditBox:SetText("")
 	AltoholicTabSearch_MinLevel:SetText("")
 	AltoholicTabSearch_MaxLevel:SetText("")
 	AltoholicTabSearchStatus:SetText("")				-- .. the search results
 	AltoholicFrameSearch:Hide()
-	Altoholic.Search.Results:Clear()
+	addon.Search:ClearResults()
 	collectgarbage()
 	
-	for k, v in pairs (self.view) do		-- rebuild the cache
-		if type(v) == "table" then		-- header
-			v.isCollapsed = true
+	if view then
+		for k, v in pairs(view) do			-- rebuild the cache
+			if type(v) == "table" then		-- header
+				v.isCollapsed = true
+			end
 		end
 	end
-	self.highlightIndex = nil
+	highlightIndex = nil
 	
 	for i = 1, 8 do 
 		_G[ "AltoholicTabSearch_Sort"..i ]:Hide()
 		_G[ "AltoholicTabSearch_Sort"..i ].ascendingSort = nil
 	end
-	self:Update()
+	ns:Update()
 end
 
-function Altoholic.Tabs.Search:DropDownRarity_Initialize()
+function ns:DropDownRarity_Initialize()
 	local info = UIDropDownMenu_CreateInfo(); 
 
 	for i = 0, 6 do		-- Quality: 0 = poor .. 5 = legendary
@@ -159,7 +169,7 @@ function Altoholic.Tabs.Search:DropDownRarity_Initialize()
 	end
 end 
 
-function Altoholic.Tabs.Search:DropDownSlot_Initialize()
+function ns:DropDownSlot_Initialize()
 	local function SetSearchSlot(self) 
 		UIDropDownMenu_SetSelectedValue(AltoholicTabSearch_SelectSlot, self.value);
 	end
@@ -173,7 +183,7 @@ function Altoholic.Tabs.Search:DropDownSlot_Initialize()
 	UIDropDownMenu_AddButton(info, 1); 	
 	
 	for i = 1, 18 do
-		info.text = Altoholic.Equipment.Slots[i]
+		info.text = addon.Equipment.Slots[i]
 		info.value = i
 		info.func = SetSearchSlot
 		info.checked = nil; 
@@ -182,7 +192,7 @@ function Altoholic.Tabs.Search:DropDownSlot_Initialize()
 	end
 end 
 
-function Altoholic.Tabs.Search:DropDownLocation_Initialize()
+function ns:DropDownLocation_Initialize()
 	local info = UIDropDownMenu_CreateInfo();
 	local text = {
 		L["This character"],
@@ -205,18 +215,18 @@ function Altoholic.Tabs.Search:DropDownLocation_Initialize()
 	end
 end
 
-function Altoholic.Tabs.Search:SetMode(mode)
+function ns:SetMode(mode)
 
-	local Columns = Altoholic.Tabs.Columns
+	local Columns = addon.Tabs.Columns
 	Columns:Init()
 	
 	-- sets the search mode, and prepares the frame accordingly (search update callback, column sizes, headers, etc..)
 	if mode == "realm" then
-		Altoholic.Search:SetUpdateHandler("Realm_Update")
+		addon.Search:SetUpdateHandler("Realm_Update")
 		
-		Columns:Add(L["Item / Location"], 240, function(self) Altoholic.Search.Results:Sort(self, "name") end)
-		Columns:Add(L["Character"], 160, function(self) Altoholic.Search.Results:Sort(self, "char") end)
-		Columns:Add(L["Realm"], 150, function(self) Altoholic.Search.Results:Sort(self, "realm") end)
+		Columns:Add(L["Item / Location"], 240, function(self) addon.Search:SortResults(self, "name") end)
+		Columns:Add(L["Character"], 160, function(self) addon.Search:SortResults(self, "char") end)
+		Columns:Add(L["Realm"], 150, function(self) addon.Search:SortResults(self, "realm") end)
 
 		AltoholicTabSearch_Sort2:SetPoint("LEFT", AltoholicTabSearch_Sort1, "RIGHT", 5, 0)
 		AltoholicTabSearch_Sort3:SetPoint("LEFT", AltoholicTabSearch_Sort2, "RIGHT", 5, 0)
@@ -238,11 +248,11 @@ function Altoholic.Tabs.Search:SetMode(mode)
 		end
 				
 	elseif mode == "loots" then
-		Altoholic.Search:SetUpdateHandler("Loots_Update")
+		addon.Search:SetUpdateHandler("Loots_Update")
 		
-		Columns:Add(L["Item / Location"], 240, function(self) Altoholic.Search.Results:Sort(self, "item") end)
-		Columns:Add(L["Source"], 160, function(self) Altoholic.Search.Results:Sort(self, "bossName") end)
-		Columns:Add(L["Item Level"], 150, function(self) Altoholic.Search.Results:Sort(self, "iLvl") end)
+		Columns:Add(L["Item / Location"], 240, function(self) addon.Search:SortResults(self, "item") end)
+		Columns:Add(L["Source"], 160, function(self) addon.Search:SortResults(self, "bossName") end)
+		Columns:Add(L["Item Level"], 150, function(self) addon.Search:SortResults(self, "iLvl") end)
 		
 		AltoholicTabSearch_Sort2:SetPoint("LEFT", AltoholicTabSearch_Sort1, "RIGHT", 5, 0)
 		AltoholicTabSearch_Sort3:SetPoint("LEFT", AltoholicTabSearch_Sort2, "RIGHT", 5, 0)
@@ -264,16 +274,16 @@ function Altoholic.Tabs.Search:SetMode(mode)
 		end
 		
 	elseif mode == "upgrade" then
-		Altoholic.Search:SetUpdateHandler("Upgrade_Update")
+		addon.Search:SetUpdateHandler("Upgrade_Update")
 
-		Columns:Add(L["Item / Location"], 200, function(self) Altoholic.Search.Results:Sort(self, "item") end)
+		Columns:Add(L["Item / Location"], 200, function(self) addon.Search:SortResults(self, "item") end)
 		
 		for i=1, 6 do 
-			local text = select(i, strsplit("|", Altoholic.Equipment.FormatStats[Altoholic.Search:GetClass()]))
+			local text = select(i, strsplit("|", addon.Equipment.FormatStats[addon.Search:GetClass()]))
 			
 			if text then
 				Columns:Add(string.sub(text, 1, 3), 50, function(self)
-					Altoholic.Search.Results:Sort(self, "stat") -- use a getID to know which stat
+					addon.Search:SortResults(self, "stat") -- use a getID to know which stat
 				end)
 			else
 				Columns:Add(nil)
@@ -283,7 +293,7 @@ function Altoholic.Tabs.Search:SetMode(mode)
 		AltoholicTabSearch_Sort2:SetPoint("LEFT", AltoholicTabSearch_Sort1, "RIGHT", 0, 0)
 		AltoholicTabSearch_Sort3:SetPoint("LEFT", AltoholicTabSearch_Sort2, "RIGHT", 0, 0)
 
-		Columns:Add("iLvl", 50, function(self) Altoholic.Search.Results:Sort(self, "iLvl") end)
+		Columns:Add("iLvl", 50, function(self) addon.Search:SortResults(self, "iLvl") end)
 		
 		for i=1, 7 do
 			_G[ "AltoholicFrameSearchEntry"..i.."Name" ]:SetWidth(190)
@@ -293,7 +303,7 @@ function Altoholic.Tabs.Search:SetMode(mode)
 			_G[ "AltoholicFrameSearchEntry"..i.."Stat2" ]:SetPoint("LEFT", _G[ "AltoholicFrameSearchEntry"..i.."Stat1" ], "RIGHT", 0, 0)
 			
 			_G[ "AltoholicFrameSearchEntry"..i ]:SetScript("OnEnter", function(self) 
-				Altoholic.Tabs.Search:TooltipStats(self) 
+				ns:TooltipStats(self) 
 			end)
 			_G[ "AltoholicFrameSearchEntry"..i ]:SetScript("OnLeave", function(self) 
 				AltoTooltip:Hide()
@@ -302,28 +312,31 @@ function Altoholic.Tabs.Search:SetMode(mode)
 	end
 end
 
-function Altoholic.Tabs.Search:TooltipStats(self)
+function ns:TooltipStats(frame)
 	AltoTooltip:ClearLines();
-	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
+	AltoTooltip:SetOwner(frame, "ANCHOR_RIGHT");
 	
 	AltoTooltip:AddLine(STATS_LABEL)
 	AltoTooltip:AddLine(" ");
 	
-	local s = Altoholic.Search.Results:Get(self:GetID())
+	local s = addon.Search:GetResult(frame:GetID())
 
 	for i=1, 6 do
-		local text = select(i, strsplit("|", Altoholic.Equipment.FormatStats[Altoholic.Search:GetClass()]))
+		local text = select(i, strsplit("|", addon.Equipment.FormatStats[addon.Search:GetClass()]))
 		if text then 
+			local color
 			local diff = select(2, strsplit("|", s["stat"..i]))
 			diff = tonumber(diff)
 
 			if diff < 0 then
-				AltoTooltip:AddLine(RED .. diff .. " " .. text)
+				color = RED
 			elseif diff > 0 then 
-				AltoTooltip:AddLine(GREEN .. "+" .. diff .. " " .. text)
+				color = GREEN
+				diff = "+" .. diff
 			else
-				AltoTooltip:AddLine(WHITE .. diff .. " " .. text)
+				color = WHITE
 			end
+			AltoTooltip:AddLine(format("%s%s %s", color, diff, text))
 		end
 	end
 	AltoTooltip:Show()

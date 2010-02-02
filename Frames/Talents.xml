@@ -68,26 +68,13 @@
 		</Layers>
 		<Scripts>
 			<OnEnter>
-				local link = Altoholic.Talents:GetLink(self)
-				if not link then return	end
-			
-				AltoTooltip:ClearLines();
-				AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
-				AltoTooltip:SetHyperlink(link);
-				AltoTooltip:Show();
+				Altoholic.Talents:Button_OnEnter(self)
 			</OnEnter>
 			<OnLeave>
 				AltoTooltip:Hide();
 			</OnLeave>
 			<OnClick>
-				if ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
-					if ( ChatFrameEditBox:IsShown() ) then
-						local link = Altoholic.Talents:GetLink(self)
-						if link then
-							ChatFrameEditBox:Insert(link);
-						end
-					end
-				end
+				Altoholic.Talents:Button_OnClick(self, button);
 			</OnClick>
 		</Scripts>
 		<PushedTexture file="Interface\Buttons\UI-Quickslot-Depress"/>
@@ -165,16 +152,16 @@
 		
 		<Scripts>
 			<OnLoad>
-				Altoholic.Glyphs.Buttons:OnLoad(self:GetID())
+				Altoholic.Glyphs:Button_OnLoad(self)
 			</OnLoad>
 			<OnEnter>
-				Altoholic.Glyphs.Buttons:OnEnter(self)
+				Altoholic.Glyphs:Button_OnEnter(self)
 			</OnEnter>
 			<OnLeave>
 				AltoTooltip:Hide();
 			</OnLeave>
 			<OnClick>
-				Altoholic.Glyphs.Buttons:OnClick(self, button);
+				Altoholic.Glyphs:Button_OnClick(self, button);
 			</OnClick>
 		</Scripts>
 	</Button>

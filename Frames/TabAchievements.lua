@@ -1,55 +1,82 @@
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+local addonName = "Altoholic"
+local addon = _G[addonName]
 
 local WHITE		= "|cFFFFFFFF"
-local GREEN		= "|cFF00FF00"
-local RED		= "|cFFFF0000"
 
-Altoholic.Tabs.Achievements = {}
+local view
+local highlightIndex
 
-function Altoholic.Tabs.Achievements:BuildView()
+addon.Tabs.Achievements = {}
 
-	self.view = self.view or {}
-	wipe(self.view)
+local ns = addon.Tabs.Achievements		-- ns = namespace
+
+local function BuildView()
+	view = view or {}
+	wipe(view)
 	
 	local cats = GetCategoryList()
 	for _, categoryID in ipairs(cats) do
 		local _, parentID = GetCategoryInfo(categoryID)
 		
 		if parentID == -1 then		-- add categories, followed by their respective sub-categories
-			table.insert(self.view, { id = categoryID, isCollapsed = true } )
+			table.insert(view, { id = categoryID, isCollapsed = true } )
 			
 			for _, subCatID in ipairs(cats) do
 				local _, subCatParentID = GetCategoryInfo(subCatID)
 				if subCatParentID == categoryID then
-					table.insert(self.view, subCatID )
+					table.insert(view, subCatID )
 				end
 			end
 		end
 	end
 end
 
-function Altoholic.Tabs.Achievements:Update()
-	local self = Altoholic.Tabs.Achievements
+local function Header_OnClick(frame)
+	highlightIndex = frame.categoryIndex
+	local header = view[highlightIndex]
+	header.isCollapsed = not header.isCollapsed
+
+	ns:Update();
+	AltoholicFrameAchievements:Show()
+	Altoholic.Achievements:SetCategory(header.id)
+	Altoholic.Achievements:Update()
+end
+
+local function Item_OnClick(frame)
+	highlightIndex = frame.subCategoryIndex
+	local item = view[highlightIndex]
+	
+	ns:Update();
+	AltoholicFrameAchievements:Show()
+	Altoholic.Achievements:SetCategory(item)
+	Altoholic.Achievements:Update()
+end
+
+function ns:Update()
+	if not view then
+		BuildView()
+	end
+
 	local VisibleLines = 15
 
 	local categoryIndex				-- index of the category in the menu table
 	local categoryCacheIndex		-- index of the category in the cache table
 	local MenuCache = {}
 	
-	for k, v in pairs (self.view) do		-- rebuild the cache
+	for k, v in pairs (view) do		-- rebuild the cache
 		if type(v) == "table" then		-- header
 			categoryIndex = k
 			table.insert(MenuCache, { linetype=1, nameIndex=k } )
 			categoryCacheIndex = #MenuCache
 			
-			if (self.highlightIndex) and (self.highlightIndex == k) then
+			if (highlightIndex) and (highlightIndex == k) then
 				MenuCache[#MenuCache].needsHighlight = true
 			end
 		else
-			if self.view[categoryIndex].isCollapsed == false then
+			if view[categoryIndex].isCollapsed == false then
 				table.insert(MenuCache, { linetype=2, nameIndex=k, parentIndex=categoryIndex } )
 				
-				if (self.highlightIndex) and (self.highlightIndex == k) then
+				if (highlightIndex) and (highlightIndex == k) then
 					MenuCache[#MenuCache].needsHighlight = true
 					MenuCache[categoryCacheIndex].needsHighlight = true
 				end
@@ -81,16 +108,16 @@ function Altoholic.Tabs.Achievements:Update()
 			end			
 			
 			if p.linetype == 1 then
-				local catName = GetCategoryInfo(self.view[p.nameIndex].id)
+				local catName = GetCategoryInfo(view[p.nameIndex].id)
 				
 				_G[itemButtom..i.."NormalText"]:SetText(WHITE .. catName)
-				_G[itemButtom..i]:SetScript("OnClick", Altoholic.Tabs.Achievements.Header_OnClick)
+				_G[itemButtom..i]:SetScript("OnClick", Header_OnClick)
 				_G[itemButtom..i].categoryIndex = p.nameIndex
 			elseif p.linetype == 2 then
-				local catName = GetCategoryInfo(self.view[p.nameIndex])
+				local catName = GetCategoryInfo(view[p.nameIndex])
 				
 				_G[itemButtom..i.."NormalText"]:SetText("|cFFBBFFBB   " .. catName)
-				_G[itemButtom..i]:SetScript("OnClick", Altoholic.Tabs.Achievements.Item_OnClick)
+				_G[itemButtom..i]:SetScript("OnClick", Item_OnClick)
 				_G[itemButtom..i].categoryIndex = p.parentIndex
 				_G[itemButtom..i].subCategoryIndex = p.nameIndex
 			end
@@ -100,33 +127,4 @@ function Altoholic.Tabs.Achievements:Update()
 	end
 	
 	FauxScrollFrame_Update( _G[ "AltoholicAchievementsMenuScrollFrame" ], #MenuCache, VisibleLines, 20);
-end
-
-function Altoholic.Tabs.Achievements:Header_OnClick()
-	local i = self.categoryIndex
-	local self = Altoholic.Tabs.Achievements
-	self.highlightIndex = i
-
-	local h = self.view[i]
-	if h.isCollapsed == true then
-		h.isCollapsed = false
-	else
-		h.isCollapsed = true
-	end
-
-	self:Update();
-	AltoholicFrameAchievements:Show()
-	Altoholic.Achievements:SetCategory(self.view[i].id)
-	Altoholic.Achievements:Update()
-end
-
-function Altoholic.Tabs.Achievements:Item_OnClick()
-	local i = self.subCategoryIndex
-	local self = Altoholic.Tabs.Achievements
-	self.highlightIndex = i
-	
-	self:Update();
-	AltoholicFrameAchievements:Show()
-	Altoholic.Achievements:SetCategory(self.view[i])
-	Altoholic.Achievements:Update()
 end

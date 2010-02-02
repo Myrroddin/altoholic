@@ -299,8 +299,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								local p = Altoholic.Pets
-								p:SetPage( p.CurrentPage - 1)
+								Altoholic.Pets:GoToPreviousPage()
 							</OnClick>
 						</Scripts>
 						<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Up"/>
@@ -321,8 +320,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								local p = Altoholic.Pets
-								p:SetPage( p.CurrentPage + 1)
+								Altoholic.Pets:GoToNextPage()
 							</OnClick>
 						</Scripts>
 						<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Up"/>

@@ -236,9 +236,6 @@
 			</ScrollFrame>
 		</Frames>
 		<Scripts>
-			<OnLoad>
-				Altoholic.Tabs.Achievements:BuildView()
-			</OnLoad>
 			<OnShow>
 				AltoholicFrameClasses:Show()
 				Altoholic.Tabs.Achievements:Update()

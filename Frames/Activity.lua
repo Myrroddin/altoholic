@@ -271,3 +271,68 @@ function ns:OnClick(self)
 		Altoholic.Tabs.Characters:ViewCharInfo(action)	
 	end
 end
+
+function ns:Mails_OnEnter(self)
+	local line = self:GetParent():GetID()
+	local s = Altoholic.Characters:Get(line)
+	
+	if mod(s.linetype, 3) ~= INFO_CHARACTER_LINE then		
+		return
+	end
+	
+	local DS = DataStore
+	local character = DS:GetCharacter(Altoholic.Characters:GetInfo(line))
+	local num = DS:GetNumMails(character)
+	if not num or num == 0 then return end
+	
+	AltoTooltip:ClearLines();
+	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
+	
+	AltoTooltip:AddDoubleLine(DS:GetColoredCharacterName(character), format("%sMails found: %s%d", WHITE, GREEN, num))
+	
+	local numReturned, numDeleted = 0, 0
+	local closestReturn
+	local closestDelete
+	
+	for index = 1, num do
+		local _, _, _, _, _, isReturned = DS:GetMailInfo(character, index)
+		local _, seconds = DS:GetMailExpiry(character, index)
+		
+		if isReturned then
+			numDeleted = numDeleted + 1
+			
+			if not closestDelete then
+				closestDelete = seconds
+			else
+				if seconds < closestDelete then
+					closestDelete = seconds
+				end
+			end
+		else
+			numReturned = numReturned + 1
+			
+			if not closestReturn then
+				closestReturn = seconds
+			else
+				if seconds < closestReturn then
+					closestReturn = seconds
+				end
+			end
+
+		end
+	end
+
+	AltoTooltip:AddLine(" ");
+	AltoTooltip:AddLine(format("%s%d %swill be returned upon expiry", GREEN, numReturned, WHITE))
+	AltoTooltip:AddLine(format("%sClosest return in %s%s", WHITE, GREEN, SecondsToTime(closestReturn)))
+	
+	if numDeleted > 0 then
+		AltoTooltip:AddLine(" ");
+		AltoTooltip:AddLine(format("%s%d %swill be %sdeleted%s upon expiry", GREEN, numDeleted, WHITE, RED, WHITE))
+		if closestDelete then
+			AltoTooltip:AddLine(format("%sClosest deletion in %s%s", WHITE, GREEN, SecondsToTime(closestDelete)))
+		end
+	end
+	
+	AltoTooltip:Show();
+end

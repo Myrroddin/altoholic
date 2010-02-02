@@ -1,183 +1,40 @@
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+local addonName = "Altoholic"
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
 
+addon.Talents = {}
+addon.Glyphs = {}
+
+local tns = addon.Talents		-- tns = talents namespace
+local gns = addon.Glyphs		-- gns = glyphs namespace
+
+local currentTalentGroup
+
+-- ** Arrows **
 local INITIAL_OFFSET_X = 25				-- constants used for positioning talents
 local INITIAL_OFFSET_Y = 15
 local TALENT_OFFSET_X = 62
 local TALENT_OFFSET_Y = 55
 
-Altoholic.Talents = {}
-Altoholic.Talents.Buttons = {}
-Altoholic.Talents.Arrows = {}
-Altoholic.Talents.Branches = {}
-Altoholic.Glyphs = {}
-Altoholic.Glyphs.Buttons = {}
+local numArrows
 
-function Altoholic.Talents:Update(treeIndex)
-	Altoholic.Glyphs:Update()
-	treeIndex = treeIndex or 1
-	AltoholicFrameTalents_ScrollFrameScrollBar:SetMinMaxValues(0, 330);
-	
-	-- stop all autocast
-	for i = 1, 3 do
-		AutoCastShine_AutoCastStop(_G[ "AltoholicFrameTalents_SpecIcon" .. i .. "Shine" ]);
-	end
-	AltoholicFrameTalents:Hide()
-	
-	local character = Altoholic.Tabs.Characters:GetCurrent()
-	if not character then return end
-
-	if character.ActiveTalents == 1 then
-		AltoholicFrameTalents_PrimaryText:SetText(format("%s (%s)",WHITE..TALENT_SPEC_PRIMARY..GREEN, TALENT_ACTIVE_SPEC_STATUS ))
-		AltoholicFrameTalents_SecondaryText:SetText(WHITE..TALENT_SPEC_SECONDARY)
-	else
-		AltoholicFrameTalents_PrimaryText:SetText(WHITE..TALENT_SPEC_PRIMARY)
-		AltoholicFrameTalents_SecondaryText:SetText(format("%s (%s)",WHITE..TALENT_SPEC_SECONDARY..GREEN, TALENT_ACTIVE_SPEC_STATUS ))
-	end
-	
-	local DS = DataStore
-	local _, class = DS:GetCharacterClass(character)
-	if not DS:IsClassKnown(class) then return end
-	
-	local level = DS:GetCharacterLevel(character)
-	if not level or level < 10 then return end
-	
-	local treeName = DS:GetTreeNameByID(class, treeIndex)
-	
-	self.Parent = _G["AltoholicFrameTalents_ScrollFrameTalent1"]:GetParent()
-
-	local index = 1
-	for tree in DS:GetClassTrees(class) do						-- draw spec icons
-		local itemName = "AltoholicFrameTalents_SpecIcon"..index
-		local itemButton = _G[itemName]
-		local itemCount = _G[itemName .."Count"]
-		local icon = DS:GetTreeInfo(class, tree)
-		
-		Altoholic:SetItemButtonTexture(itemName, icon, 30, 30)
-		itemCount:SetText(WHITE .. DS:GetNumPointsSpent(character, tree, self.group))
-		itemCount:Show()
-		itemButton:Show()
-		index = index + 1
-	end
-	
-	local isActiveTalentGroup = self.group == character.ActiveTalents
-
-	-- textures are 90.625% of the original size
-	local _, bg = DS:GetTreeInfo(class, treeName)
-	AltoholicFrameTalents_bgTopLeft:SetTexture(bg.."-TopLeft")
-	AltoholicFrameTalents_bgTopRight:SetTexture(bg.."-TopRight")
-	AltoholicFrameTalents_bgBottomLeft:SetTexture(bg.."-BottomLeft")
-	AltoholicFrameTalents_bgBottomRight:SetTexture(bg.."-BottomRight")
-	
-	SetDesaturation(AltoholicFrameTalents_bgTopLeft, not isActiveTalentGroup)
-	SetDesaturation(AltoholicFrameTalents_bgTopRight, not isActiveTalentGroup)
-	SetDesaturation(AltoholicFrameTalents_bgBottomLeft, not isActiveTalentGroup)
-	SetDesaturation(AltoholicFrameTalents_bgBottomRight, not isActiveTalentGroup)
-
-	AutoCastShine_AutoCastStart(_G[ "AltoholicFrameTalents_SpecIcon" .. treeIndex .. "Shine" ]);
-	AltoholicFrameTalents_ScrollFrame:SetID(treeIndex)
-
-	self.Buttons:ResetCount()
-	self.Arrows:ResetCount()
-	self.Branches:ResetCount()
-	self.Branches:InitializeArray()
-	
-	-- draw all icons in their respective slot
-	for i = 1, DS:GetNumTalents(class, treeName) do
-		local _, _, texture, tier, column = DS:GetTalentInfo(class, treeName, i)
-		local rank = DS:GetTalentRank(character, treeName, self.group, i)
-		
-		self.Buttons:Draw(texture, tier, column, rank, i)
-		self.Branches.Array[tier][column].node = true;
-				
-		-- Draw arrows & branches where applicable
-		local prereqTier, prereqColumn = DS:GetTalentPrereqs(class, treeName, i)
-		if prereqTier and prereqColumn then
-			local left = min(column, prereqColumn);
-			local right = max(column, prereqColumn);
-
-			if ( left == prereqColumn ) then		-- Don't check the location of the current button
-				left = left + 1;
-			else
-				right = right - 1;
-			end
-			
-			local blocked								-- Check for blocking talents
-			for j = 1, DS:GetNumTalents(class, treeName) do
-				local _, _, _, searchedTier, searchedColumn = DS:GetTalentInfo(class, treeName, j)
-			
-				if searchedTier == prereqTier then				-- do nothing if lower tier, process if same tier, exit if higher tier
-					if (searchedColumn >= left) and (searchedColumn <= right) then
-						blocked = true
-						break
-					end
-				elseif searchedTier > prereqTier then
-					break
-				end
-			end
-			
-			self.Arrows:Draw(tier, column, prereqTier, prereqColumn, blocked)
-			self.Branches:Init(tier, column, prereqTier, prereqColumn, blocked)
-		end
-	end
-	self.Branches:Draw()
-	
-	self.Buttons:HideUnused()
-	self.Arrows:HideUnused()
-	self.Branches:HideUnused()
-	self.Branches:ClearArray()
-	AltoholicFrameTalents:Show()
+local function ResetArrowCount()
+	numArrows = 1
 end
 
-function Altoholic.Talents.Buttons:ResetCount()
-	self.count = 1
-end
-
-function Altoholic.Talents.Buttons:Draw(texture, tier, column, count, id)
-	local itemName = "AltoholicFrameTalents_ScrollFrameTalent" .. self.count
-	local itemButton = _G[itemName]
-
-	itemButton:SetPoint("TOPLEFT", itemButton:GetParent(), "TOPLEFT", 
-		INITIAL_OFFSET_X + ((column-1) * TALENT_OFFSET_X), 
-		-(INITIAL_OFFSET_Y + ((tier-1) * TALENT_OFFSET_Y)))
-	itemButton:SetID(id)
-
-	if texture then
-		Altoholic:SetItemButtonTexture(itemName, texture, 37, 37)
+local function HideUnusedArrows()
+	while numArrows <= 30 do
+		_G["AltoholicFrameTalents_Arrow" .. numArrows]:Hide()
+		numArrows = numArrows + 1
 	end
-	
-	local itemCount = _G[itemName .. "Count"]
-	local itemTexture = _G[itemName .. "IconTexture"]
-	
-	if count and count > 0 then
-		itemCount:SetText(GREEN .. count)
-		itemCount:Show()
-		itemTexture:SetDesaturated(0)
-	else
-		itemTexture:SetDesaturated(1)
-		itemCount:Hide()
-	end
-	itemButton:Show()
-
-	self.count = self.count + 1
+	numArrows = nil
 end
 
-function Altoholic.Talents.Buttons:HideUnused()
-	while self.count <= 40 do
-		_G["AltoholicFrameTalents_ScrollFrameTalent" .. self.count]:Hide()
-		_G["AltoholicFrameTalents_ScrollFrameTalent" .. self.count]:SetID(0)	
-		self.count = self.count + 1
-	end
-	self.count = nil
-end
-
-function Altoholic.Talents.Arrows:ResetCount()
-	self.count = 1
-end
-
-function Altoholic.Talents.Arrows:Draw(tier, column, prereqTier, prereqColumn, blocked)
+local function DrawArrow(tier, column, prereqTier, prereqColumn, blocked)
 	local arrowType					-- algorithm taken from TalentFrameBase.lua, adjusted for my needs
 	
 	if (column == prereqColumn) then			-- Same column ? ==> TOP
@@ -219,46 +76,87 @@ function Altoholic.Talents.Arrows:Draw(tier, column, prereqTier, prereqColumn, b
 	x = x + INITIAL_OFFSET_X + ((column-1) * TALENT_OFFSET_X)
 	y = y - (INITIAL_OFFSET_Y + ((tier-1) * TALENT_OFFSET_Y))
 	
-	local arrow = _G["AltoholicFrameTalents_Arrow" .. self.count]
+	local arrow = _G["AltoholicFrameTalents_Arrow" .. numArrows]
 	local tc = TALENT_ARROW_TEXTURECOORDS[arrowType][1]
 	
 	arrow:SetTexCoord(tc[1], tc[2], tc[3], tc[4]);
-	arrow:SetPoint("TOPLEFT",	Altoholic.Talents.Parent, "TOPLEFT", x, y)
+	arrow:SetPoint("TOPLEFT",	tns.Parent, "TOPLEFT", x, y)
 	arrow:Show()
 	
-	self.count = self.count + 1
+	numArrows = numArrows + 1
 end
 
-function Altoholic.Talents.Arrows:HideUnused()
-	while self.count <= 30 do
-		_G["AltoholicFrameTalents_Arrow" .. self.count]:Hide()
-		self.count = self.count + 1
+-- ** Buttons **
+local numButtons
+
+local function ResetButtonCount()
+	numButtons = 1
+end
+
+local function HideUnusedButtons()
+	while numButtons <= 40 do
+		_G["AltoholicFrameTalents_ScrollFrameTalent" .. numButtons]:Hide()
+		_G["AltoholicFrameTalents_ScrollFrameTalent" .. numButtons]:SetID(0)	
+		numButtons = numButtons + 1
 	end
-	self.count = nil
+	numButtons = nil
 end
 
-function Altoholic.Talents.Branches:ResetCount()
-	self.count = 1
+local function DrawTalent(texture, tier, column, count, id)
+	local itemName = "AltoholicFrameTalents_ScrollFrameTalent" .. numButtons
+	local itemButton = _G[itemName]
+
+	itemButton:SetPoint("TOPLEFT", itemButton:GetParent(), "TOPLEFT", 
+		INITIAL_OFFSET_X + ((column-1) * TALENT_OFFSET_X), 
+		-(INITIAL_OFFSET_Y + ((tier-1) * TALENT_OFFSET_Y)))
+	itemButton:SetID(id)
+
+	if texture then
+		Altoholic:SetItemButtonTexture(itemName, texture, 37, 37)
+	end
+	
+	local itemCount = _G[itemName .. "Count"]
+	local itemTexture = _G[itemName .. "IconTexture"]
+	
+	if count and count > 0 then
+		itemCount:SetText(GREEN .. count)
+		itemCount:Show()
+		itemTexture:SetDesaturated(0)
+	else
+		itemTexture:SetDesaturated(1)
+		itemCount:Hide()
+	end
+	itemButton:Show()
+
+	numButtons = numButtons + 1
 end
 
-function Altoholic.Talents.Branches:InitializeArray()
-	self.Array = self.Array or {};		-- branch array
-	wipe(self.Array)
+-- ** Branches **
+local numBranches
+local branchArray		-- a 2-dimensional array to hold branches
+
+local function ResetBranchCount()
+	numBranches = 1
+end
+
+local function InitializeBranchArray()
+	branchArray = branchArray or {}
+	wipe(branchArray)
 	
 	for i = 1, MAX_NUM_TALENT_TIERS do
-		self.Array[i] = {};
+		branchArray[i] = {};
 		for j = 1, NUM_TALENT_COLUMNS do
-			self.Array[i][j] = {};
+			branchArray[i][j] = {};
 		end
 	end
 end
 
-function Altoholic.Talents.Branches:ClearArray()
-	wipe(self.Array)
-	self.Array = nil
+local function ClearBranchArray()
+	wipe(branchArray)
+	branchArray = nil
 end
 
-function Altoholic.Talents.Branches:Init(tier, column, prereqTier, prereqColumn, blocked)
+local function InitBranch(tier, column, prereqTier, prereqColumn, blocked)
 
 	-- algorithm taken from TalentFrameBase.lua, adjusted for my needs
 	local left = min(column, prereqColumn);
@@ -266,9 +164,9 @@ function Altoholic.Talents.Branches:Init(tier, column, prereqTier, prereqColumn,
 	
 	if (column == prereqColumn) then			-- Same column ? ==> TOP
 		for i = prereqTier, tier - 1 do
-			self.Array[i][column].down = true;
+			branchArray[i][column].down = true;
 			if ( (i + 1) <= (tier - 1) ) then
-				self.Array[i+1][column].up = true;
+				branchArray[i+1][column].up = true;
 			end
 		end
 		return
@@ -276,41 +174,52 @@ function Altoholic.Talents.Branches:Init(tier, column, prereqTier, prereqColumn,
 		
 	if (tier == prereqTier) then			-- Same tier ? ==> LEFT or RIGHT
 		for i = left, right-1 do
-			self.Array[prereqTier][i].right = true;
-			self.Array[prereqTier][i+1].left = true;
+			branchArray[prereqTier][i].right = true;
+			branchArray[prereqTier][i+1].left = true;
 		end
 		return
 	end
 
 	-- None of these ? ==> diagonal
 	if not blocked then
-		self.Array[prereqTier][column].down = true;
-		self.Array[tier][column].up = true;
+		branchArray[prereqTier][column].down = true;
+		branchArray[tier][column].up = true;
 		
 		for i = prereqTier, tier - 1 do
-			self.Array[i][column].down = true;
-			self.Array[i + 1][column].up = true;
+			branchArray[i][column].down = true;
+			branchArray[i + 1][column].up = true;
 		end
 
 		for i = left, right - 1 do
-			self.Array[prereqTier][i].right = true;
-			self.Array[prereqTier][i+1].left = true;
+			branchArray[prereqTier][i].right = true;
+			branchArray[prereqTier][i+1].left = true;
 		end
 	else
 		for i=prereqTier, tier-1 do
-			self.Array[i][column].up = true;
-			self.Array[i + 1][column].down = true;
+			branchArray[i][column].up = true;
+			branchArray[i + 1][column].down = true;
 		end
 	end
 end
 
-function Altoholic.Talents.Branches:Draw()
+local function SetBranchTexture(branchType, x, y)
+	local branch = _G["AltoholicFrameTalents_Branch" .. numBranches]
+	local tc = TALENT_BRANCH_TEXTURECOORDS[branchType][1]
+	
+	branch:SetTexCoord(tc[1], tc[2], tc[3], tc[4]);
+	branch:SetPoint("TOPLEFT",	tns.Parent, "TOPLEFT", x, y)
+	branch:Show()
+	
+	numBranches = numBranches + 1
+end
+
+local function DrawBranches()
 	local x, y
 	local ignoreUp
 	
 	for i = 1, MAX_NUM_TALENT_TIERS do
 		for j = 1, NUM_TALENT_COLUMNS do
-			local p = self.Array[i][j]
+			local p = branchArray[i][j]
 			
 			x = INITIAL_OFFSET_X + ((j-1) * TALENT_OFFSET_X) + 2
 			y = -(INITIAL_OFFSET_Y + ((i-1) * TALENT_OFFSET_Y)) - 2
@@ -318,41 +227,41 @@ function Altoholic.Talents.Branches:Draw()
 			if p.node then			-- there's a talent there
 				if p.up then
 					if not ignoreUp then
-						self:SetTexture("up", x, y + TALENT_BUTTON_SIZE)
+						SetBranchTexture("up", x, y + TALENT_BUTTON_SIZE)
 					else
 						ignoreUp = nil
 					end
 				end
 				if p.down then
-					self:SetTexture("down", x, y - TALENT_BUTTON_SIZE + 1)
+					SetBranchTexture("down", x, y - TALENT_BUTTON_SIZE + 1)
 				end
 				if p.left then
-					self:SetTexture("left", x - TALENT_BUTTON_SIZE, y)
+					SetBranchTexture("left", x - TALENT_BUTTON_SIZE, y)
 				end
 				if p.right then
-					self:SetTexture("right", x + TALENT_BUTTON_SIZE, y)
+					SetBranchTexture("right", x + TALENT_BUTTON_SIZE, y)
 				end			
 			else
 				if p.up and p.left and p.right then
-					self:SetTexture("tup", x, y)
+					SetBranchTexture("tup", x, y)
 				elseif p.down and p.left and p.right then
-					self:SetTexture("tdown", x, y)
+					SetBranchTexture("tdown", x, y)
 				elseif p.left and p.down then
-					self:SetTexture("topright", x, y)
-					self:SetTexture("down", x, y-32)
+					SetBranchTexture("topright", x, y)
+					SetBranchTexture("down", x, y-32)
 				elseif p.left and p.up then
-					self:SetTexture("bottomright", x, y)
+					SetBranchTexture("bottomright", x, y)
 				elseif p.left and p.right then
-					self:SetTexture("right", x + TALENT_BUTTON_SIZE, y)
-					self:SetTexture("left", x+1, y)
+					SetBranchTexture("right", x + TALENT_BUTTON_SIZE, y)
+					SetBranchTexture("left", x+1, y)
 				elseif p.right and p.down then
-					self:SetTexture("topleft", x, y)
-					self:SetTexture("down", x, y-32)
+					SetBranchTexture("topleft", x, y)
+					SetBranchTexture("down", x, y-32)
 				elseif p.right and p.up then
-					self:SetTexture("bottomleft", x, y)
+					SetBranchTexture("bottomleft", x, y)
 				elseif p.up and p.down then
-					self:SetTexture("up", x, y)
-					self:SetTexture("down", x, y-32)
+					SetBranchTexture("up", x, y)
+					SetBranchTexture("down", x, y-32)
 					ignoreUp = true
 				end
 			end
@@ -366,65 +275,197 @@ function Altoholic.Talents.Branches:Draw()
 	end
 end
 
-function Altoholic.Talents.Branches:SetTexture(branchType, x, y)
-	local branch = _G["AltoholicFrameTalents_Branch" .. self.count]
-	local tc = TALENT_BRANCH_TEXTURECOORDS[branchType][1]
-	
-	branch:SetTexCoord(tc[1], tc[2], tc[3], tc[4]);
-	branch:SetPoint("TOPLEFT",	Altoholic.Talents.Parent, "TOPLEFT", x, y)
-	branch:Show()
-	
-	self.count = self.count + 1
-end
-
-function Altoholic.Talents.Branches:HideUnused()
-	while self.count <= 30 do
-		_G["AltoholicFrameTalents_Branch" .. self.count]:Hide()
-		self.count = self.count + 1
+local function HideUnusedBranches()
+	while numBranches <= 30 do
+		_G["AltoholicFrameTalents_Branch" .. numBranches]:Hide()
+		numBranches = numBranches + 1
 	end
-	self.count = nil
+	numBranches = nil
 end
 
-function Altoholic.Talents:Icon_OnEnter(self)
+
+-- *** TALENTS ***
+
+function tns:Update(treeIndex)
+	gns:Update()
+	treeIndex = treeIndex or 1
+	AltoholicFrameTalents_ScrollFrameScrollBar:SetMinMaxValues(0, 330);
+	
+	-- stop all autocast
+	for i = 1, 3 do
+		AutoCastShine_AutoCastStop(_G[ "AltoholicFrameTalents_SpecIcon" .. i .. "Shine" ]);
+	end
+	AltoholicFrameTalents:Hide()
+	
+	local character = Altoholic.Tabs.Characters:GetCurrent()
+	if not character then return end
+
+	if character.ActiveTalents == 1 then
+		AltoholicFrameTalents_PrimaryText:SetText(format("%s (%s)",WHITE..TALENT_SPEC_PRIMARY..GREEN, TALENT_ACTIVE_SPEC_STATUS ))
+		AltoholicFrameTalents_SecondaryText:SetText(WHITE..TALENT_SPEC_SECONDARY)
+	else
+		AltoholicFrameTalents_PrimaryText:SetText(WHITE..TALENT_SPEC_PRIMARY)
+		AltoholicFrameTalents_SecondaryText:SetText(format("%s (%s)",WHITE..TALENT_SPEC_SECONDARY..GREEN, TALENT_ACTIVE_SPEC_STATUS ))
+	end
+	
+	local DS = DataStore
+	local _, class = DS:GetCharacterClass(character)
+	if not DS:IsClassKnown(class) then return end
+	
+	local level = DS:GetCharacterLevel(character)
+	if not level or level < 10 then return end
+	
+	local treeName = DS:GetTreeNameByID(class, treeIndex)
+	
+	tns.Parent = _G["AltoholicFrameTalents_ScrollFrameTalent1"]:GetParent()
+
+	local index = 1
+	for tree in DS:GetClassTrees(class) do						-- draw spec icons
+		local itemName = "AltoholicFrameTalents_SpecIcon"..index
+		local itemButton = _G[itemName]
+		local itemCount = _G[itemName .."Count"]
+		local icon = DS:GetTreeInfo(class, tree)
+		
+		Altoholic:SetItemButtonTexture(itemName, icon, 30, 30)
+		itemCount:SetText(WHITE .. DS:GetNumPointsSpent(character, tree, currentTalentGroup))
+		itemCount:Show()
+		itemButton:Show()
+		index = index + 1
+	end
+	
+	local isActiveTalentGroup = currentTalentGroup == character.ActiveTalents
+
+	-- textures are 90.625% of the original size
+	local _, bg = DS:GetTreeInfo(class, treeName)
+	AltoholicFrameTalents_bgTopLeft:SetTexture(bg.."-TopLeft")
+	AltoholicFrameTalents_bgTopRight:SetTexture(bg.."-TopRight")
+	AltoholicFrameTalents_bgBottomLeft:SetTexture(bg.."-BottomLeft")
+	AltoholicFrameTalents_bgBottomRight:SetTexture(bg.."-BottomRight")
+	
+	SetDesaturation(AltoholicFrameTalents_bgTopLeft, not isActiveTalentGroup)
+	SetDesaturation(AltoholicFrameTalents_bgTopRight, not isActiveTalentGroup)
+	SetDesaturation(AltoholicFrameTalents_bgBottomLeft, not isActiveTalentGroup)
+	SetDesaturation(AltoholicFrameTalents_bgBottomRight, not isActiveTalentGroup)
+
+	AutoCastShine_AutoCastStart(_G[ "AltoholicFrameTalents_SpecIcon" .. treeIndex .. "Shine" ]);
+	AltoholicFrameTalents_ScrollFrame:SetID(treeIndex)
+
+	ResetButtonCount()
+	ResetArrowCount()
+	ResetBranchCount()
+	InitializeBranchArray()
+	
+	-- draw all icons in their respective slot
+	for i = 1, DS:GetNumTalents(class, treeName) do
+		local _, _, texture, tier, column = DS:GetTalentInfo(class, treeName, i)
+		local rank = DS:GetTalentRank(character, treeName, currentTalentGroup, i)
+		
+		DrawTalent(texture, tier, column, rank, i)
+		branchArray[tier][column].node = true;
+				
+		-- Draw arrows & branches where applicable
+		local prereqTier, prereqColumn = DS:GetTalentPrereqs(class, treeName, i)
+		if prereqTier and prereqColumn then
+			local left = min(column, prereqColumn);
+			local right = max(column, prereqColumn);
+
+			if ( left == prereqColumn ) then		-- Don't check the location of the current button
+				left = left + 1;
+			else
+				right = right - 1;
+			end
+			
+			local blocked								-- Check for blocking talents
+			for j = 1, DS:GetNumTalents(class, treeName) do
+				local _, _, _, searchedTier, searchedColumn = DS:GetTalentInfo(class, treeName, j)
+			
+				if searchedTier == prereqTier then				-- do nothing if lower tier, process if same tier, exit if higher tier
+					if (searchedColumn >= left) and (searchedColumn <= right) then
+						blocked = true
+						break
+					end
+				elseif searchedTier > prereqTier then
+					break
+				end
+			end
+			
+			DrawArrow(tier, column, prereqTier, prereqColumn, blocked)
+			InitBranch(tier, column, prereqTier, prereqColumn, blocked)
+		end
+	end
+	DrawBranches()
+	
+	HideUnusedButtons()
+	HideUnusedArrows()
+	HideUnusedBranches()
+	ClearBranchArray()
+	AltoholicFrameTalents:Show()
+end
+
+function tns:Icon_OnEnter(frame)
 	local DS = DataStore
 	local character = Altoholic.Tabs.Characters:GetCurrent()
 	local _, class = DS:GetCharacterClass(character)
-	local treeName = DS:GetTreeNameByID(class, self:GetID())
+	local treeName = DS:GetTreeNameByID(class, frame:GetID())
 	
 	if treeName then
 		AltoTooltip:ClearLines();
-		AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
+		AltoTooltip:SetOwner(frame, "ANCHOR_RIGHT");
 		AltoTooltip:AddLine(treeName,1,1,1);
 		AltoTooltip:Show();
 	end
 end
 
-function Altoholic.Talents:GetLink(self)
+local function GetTalentLink(frame)
 	local DS = DataStore
-	local treeIndex = self:GetParent():GetParent():GetID()
+	local treeIndex = frame:GetParent():GetParent():GetID()
 	local character = Altoholic.Tabs.Characters:GetCurrent()
 	local _, class = DS:GetCharacterClass(character)
 	local treeName = DS:GetTreeNameByID(class, treeIndex)
 	
-	local spellNumber = self:GetID()
+	local spellNumber = frame:GetID()
 	local id, name = DS:GetTalentInfo(class, treeName, spellNumber)
-	local rank = DS:GetTalentRank(character, treeName, Altoholic.Talents.group, spellNumber)
+	local rank = DS:GetTalentRank(character, treeName, currentTalentGroup, spellNumber)
 	
 	return DS:GetTalentLink(id, rank, name)
 end
 
-function Altoholic.Talents:SetCurrentGroup(group)
-	self.group = group
+function tns:Button_OnEnter(frame)
+	local link = GetTalentLink(frame)
+	if not link then return	end
+
+	AltoTooltip:ClearLines();
+	AltoTooltip:SetOwner(frame, "ANCHOR_RIGHT");
+	AltoTooltip:SetHyperlink(link);
+	AltoTooltip:Show();
 end
 
-function Altoholic.Talents:OnUpdate()
+function tns:Button_OnClick(frame, button)
+	if ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
+		if ( ChatFrameEditBox:IsShown() ) then
+			local link = GetTalentLink(frame)
+			if link then
+				ChatFrameEditBox:Insert(link);
+			end
+		end
+	end
+end
+
+function tns:SetCurrentGroup(group)
+	currentTalentGroup = group
+end
+
+function tns:OnUpdate()
 	if AltoholicFrameTalents:IsVisible() then
-		Altoholic.Talents:Update()
+		tns:Update()
 	end
 end	
 
--- copied from Blizzard_GlyphUI.lua, no idea why they're not visible from here .. :/
-Altoholic.Glyphs.Buttons.SlotsTC = {
+
+-- *** GLYPHS ***
+
+local glyphSlotTexCoord = {
+	-- copied from Blizzard_GlyphUI.lua, no idea why they're not visible from here .. :/
 
 	-- Empty Texture
 	[0] = { left = 0.78125, right = 0.91015625, top = 0.69921875, bottom = 0.828125 },
@@ -436,27 +477,13 @@ Altoholic.Glyphs.Buttons.SlotsTC = {
 	[6] = { left = 0.654296875, right = 0.783203125, top = 0.87109375, bottom = 1 }
 }
 
-function Altoholic.Glyphs:Update()
-	-- GLYPHTYPE_MAJOR = 1;
-	-- GLYPHTYPE_MINOR = 2;
-
-	--		1
-	--	3		5
-	--	6		4
-	--		2
-
-	for i = 1, 6 do
-		self.Buttons:Draw(i)
-	end
-end
-
-function Altoholic.Glyphs.Buttons:Draw(id)
+local function DrawGlyph(id)
 	local name = "AltoholicFrameTalentsGlyph" .. id
 	local glyph = _G[name]
 	
 	local DS = DataStore
-	local character = Altoholic.Tabs.Characters:GetCurrent()
-	local enabled, glyphType, spell, icon = DS:GetGlyphInfo(character, Altoholic.Talents.group, id)
+	local character = addon.Tabs.Characters:GetCurrent()
+	local enabled, glyphType, spell, icon = DS:GetGlyphInfo(character, currentTalentGroup, id)
 	
 	if glyphType == 1 then
 		glyph.glyph:SetVertexColor(1, 0.25, 0);
@@ -472,7 +499,7 @@ function Altoholic.Glyphs.Buttons:Draw(id)
 		glyph.setting:SetTexture("Interface\\Spellbook\\UI-GlyphFrame-Locked");
 		glyph.setting:SetTexCoord(.1, .9, .1, .9);
 	elseif not spell then
-		local tc = self.SlotsTC[0]
+		local tc = glyphSlotTexCoord[0]
 		
 		glyph.shine:Show();
 		glyph.background:Show();
@@ -482,7 +509,7 @@ function Altoholic.Glyphs.Buttons:Draw(id)
 		glyph.setting:SetTexture("Interface\\Spellbook\\UI-GlyphFrame");
 		glyph.setting:SetTexCoord(0.740234375, 0.953125, 0.484375, 0.697265625);
 	else
-		local tc = self.SlotsTC[id]
+		local tc = glyphSlotTexCoord[id]
 		
 		glyph.shine:Show();
 		glyph.background:Show();
@@ -496,8 +523,23 @@ function Altoholic.Glyphs.Buttons:Draw(id)
 	end
 end
 
-function Altoholic.Glyphs.Buttons:OnLoad(id)
-	local name = "AltoholicFrameTalentsGlyph" .. id
+function gns:Update()
+	-- GLYPHTYPE_MAJOR = 1;
+	-- GLYPHTYPE_MINOR = 2;
+
+	--		1
+	--	3		5
+	--	6		4
+	--		2
+
+	for i = 1, 6 do
+		DrawGlyph(i)
+	end
+end
+
+function gns:Button_OnLoad(frame)
+	local name = frame:GetName()
+	local id = frame:GetID()
 	local glyph = _G[name]
 	
 	glyph.glyph = _G[name .. "Glyph"]
@@ -508,7 +550,6 @@ function Altoholic.Glyphs.Buttons:OnLoad(id)
 	glyph.shine = _G[name .. "Shine"]
 	
 	local ratio
-	
 	if (id == 1) or (id == 4) or (id == 6) then		-- major
 		ratio = 0.85
 	else
@@ -534,11 +575,11 @@ function Altoholic.Glyphs.Buttons:OnLoad(id)
 	glyph.background:SetHeight(70 * ratio);
 end
 
-function Altoholic.Glyphs.Buttons:OnEnter(self)
-	local id = self:GetID()
+function gns:Button_OnEnter(frame)
+	local id = frame:GetID()
 	local DS = DataStore
-	local character = Altoholic.Tabs.Characters:GetCurrent()
-	local enabled, glyphType, spell, _, glyphID = DS:GetGlyphInfo(character, Altoholic.Talents.group, id)
+	local character = addon.Tabs.Characters:GetCurrent()
+	local enabled, glyphType, spell, _, glyphID = DS:GetGlyphInfo(character, currentTalentGroup, id)
 	
 	local glyphTypeText
 	if tonumber(glyphType) == 1 then
@@ -547,7 +588,7 @@ function Altoholic.Glyphs.Buttons:OnEnter(self)
 		glyphTypeText = "|cFF69CCF0" .. MINOR_GLYPH
 	end	
 	
-	AltoTooltip:SetOwner(self, "ANCHOR_LEFT");
+	AltoTooltip:SetOwner(frame, "ANCHOR_LEFT");
 	AltoTooltip:ClearLines();
 	if enabled == 0 then
 		AltoTooltip:AddLine("|cFFFF0000" .. GLYPH_LOCKED);
@@ -570,11 +611,11 @@ function Altoholic.Glyphs.Buttons:OnEnter(self)
 	AltoTooltip:Show();
 end
 
-function Altoholic.Glyphs.Buttons:OnClick(self, button)
-	local id = self:GetID()
+function gns:Button_OnClick(frame, button)
+	local id = frame:GetID()
 	local DS = DataStore
 	local character = Altoholic.Tabs.Characters:GetCurrent()
-	local enabled, glyphType, spell, _, glyphID = DS:GetGlyphInfo(character, Altoholic.Talents.group, id)
+	local enabled, glyphType, spell, _, glyphID = DS:GetGlyphInfo(character, currentTalentGroup, id)
 
 	if not spell then return end
 	
