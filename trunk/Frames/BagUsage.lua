@@ -1,5 +1,7 @@
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
-local DS
+local addonName = "Altoholic"
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local INFO_REALM_LINE = 0
 local INFO_CHARACTER_LINE = 1
@@ -14,18 +16,17 @@ local CYAN		= "|cFF1CFAFE"
 local ICON_FACTION_HORDE = "Interface\\Icons\\INV_BannerPVP_01"
 local ICON_FACTION_ALLIANCE = "Interface\\Icons\\INV_BannerPVP_02"
 
-Altoholic.BagUsage = {}
+addon.BagUsage = {}
 
-function Altoholic.BagUsage:Init()
-	DS = DataStore
-end
+local ns = addon.BagUsage		-- ns = namespace
 
-function Altoholic.BagUsage:Update()
+function ns:Update()
 	local VisibleLines = 14
 	local frame = "AltoholicFrameBagUsage"
 	local entry = frame.."Entry"
 	
-	local Characters = Altoholic.Characters
+	local DS = DataStore
+	local Characters = addon.Characters
 	
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
 	local DisplayedCount = 0
@@ -71,7 +72,7 @@ function Altoholic.BagUsage:Update()
 				if s.account == "Default" then	-- saved as default, display as localized.
 					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", s.realm, WHITE, GREEN, L["Default"]))
 				else
-					local last = Altoholic:GetLastAccountSharingInfo(CurrentRealm, CurrentAccount)
+					local last = addon:GetLastAccountSharingInfo(CurrentRealm, CurrentAccount)
 					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", s.realm, WHITE, GREEN, s.account, YELLOW, last or ""))
 				end
 				_G[entry..i.."Level"]:SetText("")
@@ -90,9 +91,9 @@ function Altoholic.BagUsage:Update()
 				
 					local icon
 					if DS:GetCharacterFaction(character) == "Alliance" then
-						icon = Altoholic:TextureToFontstring(ICON_FACTION_ALLIANCE, 18, 18) .. " "
+						icon = addon:TextureToFontstring(ICON_FACTION_ALLIANCE, 18, 18) .. " "
 					else
-						icon = Altoholic:TextureToFontstring(ICON_FACTION_HORDE, 18, 18) .. " "
+						icon = addon:TextureToFontstring(ICON_FACTION_HORDE, 18, 18) .. " "
 					end
 					
 					_G[entry..i.."Collapse"]:Hide()
@@ -172,16 +173,17 @@ local function WriteLine(size, free, link, bagtype)
 		(bagtype and strlen(bagtype) > 0) and (YELLOW .. "(" .. bagtype .. ")") or "") ,1,1,1);
 end
 
-function Altoholic.BagUsage:OnEnter(self)
+function ns:OnEnter(self)
 	local line = self:GetParent():GetID()
-	local s = Altoholic.Characters:Get(line)
+	local s = addon.Characters:Get(line)
 	
 	if mod(s.linetype, 3) ~= INFO_CHARACTER_LINE then		
 		return
 	end
 	
-	local c = Altoholic:GetCharacterTableByLine(line)
-	local character = DS:GetCharacter(Altoholic.Characters:GetInfo(line))
+	local c = addon:GetCharacterTableByLine(line)
+	local DS = DataStore
+	local character = DS:GetCharacter(addon.Characters:GetInfo(line))
 	
 	AltoTooltip:ClearLines();
 	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");

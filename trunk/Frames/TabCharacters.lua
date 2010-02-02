@@ -404,21 +404,13 @@ function ns:ShowCharInfo(infoType)
 		Altoholic.Quests:InvalidateView()
 		Altoholic.Quests:Update();
 	elseif infoType == VIEW_AUCTIONS then
-		local ah = Altoholic.AuctionHouse
-		local ahType = "Auctions"
-		ah.AuctionType = ahType
-		ah.Update = ah.UpdateAuctions
+		Altoholic.AuctionHouse:SetListType("Auctions")
 		AltoholicFrameAuctions:Show()
-		ah:BuildView(ahType)
-		ah:Update();
+		Altoholic.AuctionHouse:Update();
 	elseif infoType == VIEW_BIDS then
-		local ah = Altoholic.AuctionHouse
-		local ahType = "Bids"
-		ah.AuctionType = ahType
-		ah.Update = ah.UpdateBids
+		Altoholic.AuctionHouse:SetListType("Bids")
 		AltoholicFrameAuctions:Show()
-		ah:BuildView(ahType)
-		ah:Update();
+		Altoholic.AuctionHouse:Update();
 	elseif infoType == VIEW_COMPANIONS then
 		UIDropDownMenu_SetSelectedValue(AltoholicFramePets_SelectPetView, 1);
 		UIDropDownMenu_SetText(AltoholicFramePets_SelectPetView, COMPANIONS)
@@ -449,24 +441,24 @@ function ns:ShowCharInfo(infoType)
 end
 
 function ns:SetMode(mode)
-	local Columns = Altoholic.Tabs.Columns
+	local Columns = addon.Tabs.Columns
 	Columns:Init()
 	
 	if not mode then return end		-- called without parameter for professions
 
 	if mode == VIEW_MAILS then
-		Columns:Add(MAIL_SUBJECT_LABEL, 220, function(self) Altoholic.Mail:Sort(self, "name") end)
-		Columns:Add(FROM, 140, function(self) Altoholic.Mail:Sort(self, "from") end)
-		Columns:Add(L["Expiry:"], 130, function(self) Altoholic.Mail:Sort(self, "expiry") end)
+		Columns:Add(MAIL_SUBJECT_LABEL, 220, function(self) addon.Mail:Sort(self, "name") end)
+		Columns:Add(FROM, 140, function(self) addon.Mail:Sort(self, "from") end)
+		Columns:Add(L["Expiry:"], 130, function(self) addon.Mail:Sort(self, "expiry") end)
 
 	elseif mode == VIEW_AUCTIONS then
-		Columns:Add(HELPFRAME_ITEM_TITLE, 220, function(self) Altoholic.AuctionHouse:Sort(self, "name", "Auctions") end)
-		Columns:Add(HIGH_BIDDER, 160, function(self) Altoholic.AuctionHouse:Sort(self, "highBidder", "Auctions") end)
-		Columns:Add(CURRENT_BID, 170, function(self) Altoholic.AuctionHouse:Sort(self, "buyoutPrice", "Auctions") end)
+		Columns:Add(HELPFRAME_ITEM_TITLE, 220, function(self) addon.AuctionHouse:Sort(self, "name", "Auctions") end)
+		Columns:Add(HIGH_BIDDER, 160, function(self) addon.AuctionHouse:Sort(self, "highBidder", "Auctions") end)
+		Columns:Add(CURRENT_BID, 170, function(self) addon.AuctionHouse:Sort(self, "buyoutPrice", "Auctions") end)
 	
 	elseif mode == VIEW_BIDS then
-		Columns:Add(HELPFRAME_ITEM_TITLE, 220, function(self) Altoholic.AuctionHouse:Sort(self, "name", "Bids") end)
-		Columns:Add(NAME, 160, function(self) Altoholic.AuctionHouse:Sort(self, "owner", "Bids") end)
-		Columns:Add(CURRENT_BID, 170, function(self) Altoholic.AuctionHouse:Sort(self, "buyoutPrice", "Bids") end)
+		Columns:Add(HELPFRAME_ITEM_TITLE, 220, function(self) addon.AuctionHouse:Sort(self, "name", "Bids") end)
+		Columns:Add(NAME, 160, function(self) addon.AuctionHouse:Sort(self, "owner", "Bids") end)
+		Columns:Add(CURRENT_BID, 170, function(self) addon.AuctionHouse:Sort(self, "buyoutPrice", "Bids") end)
 	end
 end

@@ -1,4 +1,7 @@
-﻿local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+﻿local addonName = "Altoholic"
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local BB = LibStub("LibBabble-Boss-3.0"):GetLookupTable()
 local BZ = LibStub("LibBabble-Zone-3.0"):GetLookupTable()
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
@@ -1066,7 +1069,7 @@ end
 local allowedQueries, unknownCount
 
 local function OnMatch(domain, subdomain)
-	Altoholic.Search.Results:Add( {
+	Altoholic.Search:AddResult( {
 		id = GetSearchedItemInfo("itemID"),
 		iLvl = GetSearchedItemInfo("itemLevel"),
 		dropLocation = domain,
@@ -1075,7 +1078,7 @@ local function OnMatch(domain, subdomain)
 end
 
 local function Currency_OnMatch(domain, subdomain)
-	Altoholic.Search.Results:Add( {
+	Altoholic.Search:AddResult( {
 		id = GetSearchedItemInfo("itemID"),
 		iLvl = GetSearchedItemInfo("itemLevel"),
 		dropLocation = domain,
@@ -1090,13 +1093,13 @@ local function OnNoMatch()
 	if allowedQueries > 0 then
 		if Altoholic.Options:Get("SearchAutoQuery") == 1 then		-- if autoquery is enabled
 			local itemID = GetSearchedItemInfo("itemID")
-			if not Altoholic.UnsafeItems:IsItemKnown(itemID) then		-- if the item is not known to be unsafe
+			if not addon:IsItemUnsafe(itemID) then		-- if the item is not known to be unsafe
 				GameTooltip:SetHyperlink("item:"..itemID..":0:0:0:0:0:0:0")	-- this line queries the server for an unknown id
 				GameTooltip:ClearLines(); -- don't leave residual info in the tooltip after the server query
 
 				-- save ALL tested id's, clean the list in OnEnable during the next session.
 				-- the unsafe list will be cleaned in OnEnable, by parsing all ids and testing if getiteminfo returns a nil or not, if so, it's a definite unsafe link
-				Altoholic.UnsafeItems:Save(itemID)			-- save id to unsafe list
+				addon:SaveUnsafeItem(itemID)			-- save id to unsafe list
 			end
 		end
 		allowedQueries = allowedQueries - 1
@@ -1147,7 +1150,7 @@ function Altoholic.Loots:FindUpgrade(itemLevel, itemType, itemSubType, itemSlot)
 	EnableFilter(FilterBySlot)
 	
 	local function OnMatch(domain, subdomain)
-		Altoholic.Search.Results:Add( {
+		Altoholic.Search:AddResult( {
 			id = GetSearchedItemInfo("itemID"),
 			iLvl = GetSearchedItemInfo("itemLevel"),
 			dropLocation = domain,
@@ -1183,7 +1186,7 @@ function Altoholic.Loots:FindUpgradeByStats(currentID, class, Search_iLvl, Searc
 				local matches, itemLevel = self:MatchUpgradeByStats(itemID, Search_iLvl, SearchType, SearchSubType, SearchEquipLoc)
 				
 				if matches then
-					Altoholic.Search.Results:Add( {
+					Altoholic.Search:AddResult( {
 						id = itemID,
 						iLvl = itemLevel,
 						dropLocation = Instance .. ", " .. GREEN .. Boss,
@@ -1309,7 +1312,7 @@ function Altoholic.Loots:AddCurrentlyEquippedItem(itemID, class)
 	AltoTooltip:ClearLines();
 	
 	-- Save currently equipped item to the results table
-	Altoholic.Search.Results:Add( {
+	Altoholic.Search:AddResult( {
 		id = itemID,
 		iLvl = itemLevel,
 		dropLocation = "Currently equipped",

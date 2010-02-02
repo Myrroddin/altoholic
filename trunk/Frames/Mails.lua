@@ -1,4 +1,7 @@
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+local addonName = "Altoholic"
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
@@ -6,7 +9,9 @@ local YELLOW	= "|cFFFFFF00"
 local RED		= "|cFFFF0000"
 local TEAL		= "|cFF00FF9A"
 
-Altoholic.Mail = {}
+addon.Mail = {}
+
+local ns = addon.Mail		-- ns = namespace
 
 local function SortByName(a, b, ascending)
 	local DS = DataStore
@@ -64,7 +69,7 @@ local function FormatExpiry(character, index)
 	return colour .. SecondsToTime(seconds)
 end
 
-function Altoholic.Mail:BuildView(field, ascending)
+function ns:BuildView(field, ascending)
 	
 	field = field or "expiry"
 
@@ -89,7 +94,7 @@ function Altoholic.Mail:BuildView(field, ascending)
 	end
 end
 
-function Altoholic.Mail:Update()
+function ns:Update()
 	local VisibleLines = 7
 	local frame = "AltoholicFrameMail"
 	local entry = frame.."Entry"
@@ -100,7 +105,6 @@ function Altoholic.Mail:Update()
 
 	
 	local player = Altoholic:GetCurrentCharacter()
-	local self = Altoholic.Mail
 	
 	local DS = DataStore
 	local character = Altoholic.Tabs.Characters:GetCurrent()
@@ -130,7 +134,7 @@ function Altoholic.Mail:Update()
 	for i=1, VisibleLines do
 		local line = i + offset
 		if line <= numMails then
-			local index = self.view[line]
+			local index = ns.view[line]
 			
 			local icon, count, link, _, _, wasReturned = DS:GetMailInfo(character, index)
 			
@@ -166,12 +170,12 @@ function Altoholic.Mail:Update()
 	end
 end
 
-function Altoholic.Mail:Sort(self, field)
-	Altoholic.Mail:BuildView(field, self.ascendingSort)
-	Altoholic.Mail:Update()
+function ns:Sort(self, field)
+	ns:BuildView(field, self.ascendingSort)
+	ns:Update()
 end
 
-function Altoholic.Mail:OnEnter(self)
+function ns:OnEnter(self)
 	local DS = DataStore
 	local character = Altoholic.Tabs.Characters:GetCurrent()
 	local index = self:GetID()
@@ -199,7 +203,7 @@ function Altoholic.Mail:OnEnter(self)
 	end
 end
 
-function Altoholic.Mail:OnClick(self, button)
+function ns:OnClick(self, button)
 	local DS = DataStore
 	local character = Altoholic.Tabs.Characters:GetCurrent()
 	local index = self:GetID()
@@ -214,15 +218,15 @@ function Altoholic.Mail:OnClick(self, button)
 	end
 end
 
-function Altoholic:DATASTORE_GLOBAL_MAIL_EXPIRY(event, threshold)
+function addon:DATASTORE_GLOBAL_MAIL_EXPIRY(event, threshold)
 	-- at least one mail has expired
 
 	AltoMsgBox:SetHeight(130)
 	AltoMsgBox_Text:SetHeight(60)
-	Altoholic:SetMsgBoxHandler(function(self, button)
+	addon:SetMsgBoxHandler(function(self, button)
 			if button then
-				Altoholic:ToggleUI()
-				Altoholic.Tabs.Summary:MenuItem_OnClick(4)
+				addon:ToggleUI()
+				addon.Tabs.Summary:MenuItem_OnClick(4)
 			end
 		end)
 	
@@ -231,6 +235,13 @@ function Altoholic:DATASTORE_GLOBAL_MAIL_EXPIRY(event, threshold)
 		.. L["Refer to the activity pane for more details."].. "\n\n")
 		.. L["Do you want to view it now ?"])
 	AltoMsgBox:Show()
+end
+
+function addon:DATASTORE_MAIL_EXPIRY(event, character, key, threshold, numExpiredMails)
+	-- if option then
+		-- local _, _, name = strsplit(".", key)
+		-- addon:Print(format("%d mails will expire in less than %d days on %s", numExpiredMails, threshold, name)
+ 	-- end
 end
 
 -- *** Hooks ***

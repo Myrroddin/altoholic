@@ -1,4 +1,7 @@
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+local addonName = "Altoholic"
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local LTL = LibStub("LibTradeLinks-1.0")
 
 local THIS_ACCOUNT = "Default"
@@ -10,10 +13,11 @@ local YELLOW	= "|cFFFFFF00"
 
 local DS
 
-Altoholic.Search = {}
-Altoholic.Search.Results = {}
+addon.Search = {}
 
-function Altoholic.Search:Init()
+local ns = addon.Search		-- ns = namespace
+
+function ns:Init()
 	DS = DataStore
 	
 	local _, build = GetBuildInfo()			-- ex: "10314"	string
@@ -24,13 +28,14 @@ function Altoholic.Search:Init()
 	end
 end
 
-function Altoholic.Search:Update()
-	local self = Altoholic.Search
-	self[self.updateHandler](self)
+local updateHandler
+
+function ns:Update()
+	ns[updateHandler](ns)
 end
 
-function Altoholic.Search:SetUpdateHandler(h)
-	self.updateHandler = h
+function ns:SetUpdateHandler(h)
+	updateHandler = h
 end
 
 local PLAYER_ITEM_LINE = 1
@@ -43,7 +48,7 @@ local function Realm_UpdateEx(self, offset, entry, desc)
 
 	for i=1, desc.NumLines do
 		line = i + offset
-		local result = Altoholic.Search.Results:Get(line)
+		local result = ns:GetResult(line)
 		if result then
 			LineDesc = desc.Lines[result.linetype]
 			
@@ -118,7 +123,7 @@ local RealmScrollFrame_Desc = {
 	NumLines = 7,
 	LineHeight = 41,
 	Frame = "AltoholicFrameSearch",
-	GetSize = function() return Altoholic.Search.Results:GetNumber() end,
+	GetSize = function() return ns:GetNumResults() end,
 	Update = Realm_UpdateEx,
 	Lines = {
 		[PLAYER_ITEM_LINE] = {
@@ -229,16 +234,16 @@ local RealmScrollFrame_Desc = {
 	}
 }
 
-function Altoholic.Search:Realm_Update()
-	Altoholic:ScrollFrameUpdate(RealmScrollFrame_Desc)
+function ns:Realm_Update()
+	addon:ScrollFrameUpdate(RealmScrollFrame_Desc)
 end
 
-function Altoholic.Search:Loots_Update()
+function ns:Loots_Update()
 	local VisibleLines = 7
 	local frame = "AltoholicFrameSearch"
 	local entry = frame.."Entry"
 	
-	local numResults = self.Results:GetNumber()
+	local numResults = ns:GetNumResults()
 	
 	if numResults == 0 then
 		Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
@@ -249,9 +254,9 @@ function Altoholic.Search:Loots_Update()
 	
 	for i=1, VisibleLines do
 		local line = i + offset
-		local s = self.Results:Get(line)
-		if s then
-			local itemID = s.id
+		local result = ns:GetResult(line)
+		if result then
+			local itemID = result.id
 			
 			local itemButton = _G[ entry..i.."Item" ]
 			Altoholic:CreateButtonBorder(itemButton)
@@ -269,13 +274,13 @@ function Altoholic.Search:Loots_Update()
 
 			_G[ entry..i.."Stat2" ]:SetText(YELLOW .. itemLevel)
 			_G[ entry..i.."Name" ]:SetText(hex .. itemName)
-			_G[ entry..i.."Source" ]:SetText(TEAL .. s.dropLocation)
+			_G[ entry..i.."Source" ]:SetText(TEAL .. result.dropLocation)
 			_G[ entry..i.."Source" ]:SetID(0)
 			
-			_G[ entry..i.."Stat1" ]:SetText(GREEN .. s.bossName)
+			_G[ entry..i.."Stat1" ]:SetText(GREEN .. result.bossName)
 			
-			if (s.count ~= nil) and (s.count > 1) then
-				_G[ entry..i.."ItemCount" ]:SetText(s.count)
+			if (result.count ~= nil) and (result.count > 1) then
+				_G[ entry..i.."ItemCount" ]:SetText(result.count)
 				_G[ entry..i.."ItemCount" ]:Show()
 			else
 				_G[ entry..i.."ItemCount" ]:Hide()
@@ -305,12 +310,12 @@ function Altoholic.Search:Loots_Update()
 	end
 end
 
-function Altoholic.Search:Upgrade_Update()
+function ns:Upgrade_Update()
 	local VisibleLines = 7
 	local frame = "AltoholicFrameSearch"
 	local entry = frame.."Entry"
 	
-	local numResults = self.Results:GetNumber()
+	local numResults = ns:GetNumResults()
 	
 	if numResults == 0 then
 		Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
@@ -321,9 +326,9 @@ function Altoholic.Search:Upgrade_Update()
 	
 	for i=1, VisibleLines do
 		local line = i + offset
-		local s = self.Results:Get(line)
-		if s then
-			local itemID = s.id
+		local result = ns:GetResult(line)
+		if result then
+			local itemID = result.id
 			
 			local itemButton = _G[ entry..i.."Item" ]
 			Altoholic:CreateButtonBorder(itemButton)
@@ -340,12 +345,12 @@ function Altoholic.Search:Upgrade_Update()
 			_G[ entry..i.."ItemIconTexture" ]:SetTexture(GetItemIcon(itemID));
 
 			_G[ entry..i.."Name" ]:SetText(hex .. itemName)
-			_G[ entry..i.."Source" ]:SetText(TEAL .. s.dropLocation)
+			_G[ entry..i.."Source" ]:SetText(TEAL .. result.dropLocation)
 			_G[ entry..i.."Source" ]:SetID(0)
 		
 			for j=1, 6 do
-				if s["stat"..j] ~= nil then
-					local statValue, diff = strsplit("|", s["stat"..j])
+				if result["stat"..j] ~= nil then
+					local statValue, diff = strsplit("|", result["stat"..j])
 					local color
 					diff = tonumber(diff)
 					
@@ -367,8 +372,8 @@ function Altoholic.Search:Upgrade_Update()
 			_G[ entry..i.."ILvl" ]:SetText(YELLOW .. itemLevel)
 			_G[ entry..i.."ILvl" ]:Show()
 			
-			if (s.count ~= nil) and (s.count > 1) then
-				_G[ entry..i.."ItemCount" ]:SetText(s.count)
+			if (result.count ~= nil) and (result.count > 1) then
+				_G[ entry..i.."ItemCount" ]:SetText(result.count)
 				_G[ entry..i.."ItemCount" ]:Show()
 			else
 				_G[ entry..i.."ItemCount" ]:Hide()
@@ -399,27 +404,7 @@ function Altoholic.Search:Upgrade_Update()
 	end
 end
 
-function Altoholic.Search.Results:Clear()
-	self.List = self.List or {}
-	wipe(self.List)
-end
-
-function Altoholic.Search.Results:Add(t)
-	table.insert(self.List, t)	
-end
-
-function Altoholic.Search.Results:GetNumber()
-	return #self.List or 0
-end
-
-function Altoholic.Search.Results:Get(n)
-	if n then						-- if n is specified ..
-		return self.List[n]		-- .. return that entry
-	else
-		return self.List			-- .. otherwise a reference to the whole list
-	end
-end
-
+-- ** Sort functions **
 local function GetCraftName(char, profession, num)
 	-- this is a helper function to quickly retrieve the name of a craft based on a character, profession and line number
 	
@@ -520,29 +505,49 @@ local function SortByField(a, b, field, ascending)
 	end
 end
 
-function Altoholic.Search.Results:Sort(self, field)
-	
-	local id = self:GetID()
-	local ascending = self.ascendingSort
-	local self = Altoholic.Search.Results
-	
-	if self:GetNumber() == 0 then return end
+-- ** Results **
+local results
+
+function ns:ClearResults()
+	results = results or {}
+	wipe(results)
+end
+
+function ns:AddResult(t)
+	table.insert(results, t)
+end
+
+function ns:GetNumResults()
+	return #results or 0
+end
+
+function ns:GetResult(n)
+	if n then
+		return results[n]
+	end
+end
+
+function ns:SortResults(frame, field)
+	if ns:GetNumResults() == 0 then return end
+
+	local id = frame:GetID()
+	local ascending = frame.ascendingSort
 		
 	if field == "name" then
-		table.sort(self.List, function(a, b) return SortByName(a, b, ascending) end)
+		table.sort(results, function(a, b) return SortByName(a, b, ascending) end)
 	elseif field == "item" then
-		table.sort(self.List, function(a, b) return SortByItemName(a, b, ascending) end)
+		table.sort(results, function(a, b) return SortByItemName(a, b, ascending) end)
 	elseif field == "char" then
-		table.sort(self.List, function(a, b) return SortByChar(a, b, ascending) end)
+		table.sort(results, function(a, b) return SortByChar(a, b, ascending) end)
 	elseif field == "realm" then
-		table.sort(self.List, function(a, b) return SortByRealm(a, b, ascending) end)
+		table.sort(results, function(a, b) return SortByRealm(a, b, ascending) end)
 	elseif field == "stat" then
-		table.sort(self.List, function(a, b) return SortByStat(a, b, "stat" .. id-1, ascending) end)
+		table.sort(results, function(a, b) return SortByStat(a, b, "stat" .. id-1, ascending) end)
 	else
-		table.sort(self.List, function(a, b) return SortByField(a, b, field, ascending) end)
+		table.sort(results, function(a, b) return SortByField(a, b, field, ascending) end)
 	end
 	
-	Altoholic.Search:Update()
+	ns:Update()
 end
 
 local SEARCH_THISCHAR = 1
@@ -552,152 +557,315 @@ local SEARCH_ALLREALMS = 4
 local SEARCH_ALLACCOUNTS = 5
 local SEARCH_LOOTS = 6
 
-function Altoholic.Search:FindItem(searchType, searchSubType)
-	if self.ongoingsearch then
+-- ** Search attributes **
+local currentValue				-- the value being searched (entered in the edit box)
+local currentType					-- the type of item being searched (armor, weapon, etc..)
+local currentSubType				-- the sub type .. (cloth, plate, etc...)
+local currentMinLevel			-- the item's minimum level
+local currentMaxLevel			-- the item's maximum level
+local currentRarity				-- the item's minimum rarity (eg: minimum blue)
+local currentSlot					-- the item slot
+
+local currentResultType			-- type of result currently being searched (eg: PLAYER_ITEM_LINE or GUILD_ITEM_LINE)
+local currentResultKey			-- key defining who is being searched (eg: a datastore character or guild key)
+local currentResultLocation	-- what is actually being searched (bags, bank, equipment, mail, etc..)
+
+local function VerifyItem(item, itemCount)
+	local itemName, _, itemRarity, _, itemMinLevel, itemType, itemSubType, _, itemEquipLoc = GetItemInfo(item)
+	
+	if not itemName and not itemRarity then
+		-- with these 2 being nil, the item isn't in the item cache, so its link would be invalid: don't list it
+		-- This should never happen here, since this function deals only with alts inventories, therefore all items are supposed to be known
+		return
+	end
+	
+	if currentType and currentType ~= itemType then
+		return		-- if there's a type and it's invalid .. Exit
+	end
+
+	if currentSubType and currentSubType ~= itemSubType then
+		return		-- if there's a subtype and it's invalid .. Exit
+	end	
+
+	if (itemRarity < currentRarity) then
+		return		-- if rarity is too low .. exit
+	end
+	
+	if (itemMinLevel == 0) then
+		if (addon.Options:Get("IncludeNoMinLevel") == 0) then
+			return		-- no minimum requireement & should not be included ? .. exit
+		end
+	else
+		if (itemMinLevel < currentMinLevel) or (itemMinLevel > currentMaxLevel) then
+			return		-- not within the right level boundaries ? .. exit
+		end
+	end
+	
+	if currentSlot ~= 0 then	-- if a specific equipment slot is specified ..
+		if addon.Equipment:GetInventoryTypeIndex(itemEquipLoc) ~= currentSlot then
+			return		-- not the right slot ? .. exit
+		end
+	end
+
+	if string.find(strlower(itemName), currentValue, 1, true) == nil then
+		return		-- item name does not match search value ? .. exit
+	end
+
+	if type(item) == "string" then		-- convert a link to its item id, only data saved
+		item = tonumber(item:match("item:(%d+)"))
+	end
+	
+	-- All conditions ok ? save it
+	ns:AddResult( {
+		linetype = currentResultType,			-- PLAYER_ITEM_LINE or GUILD_ITEM_LINE 
+		id = item,
+		source = currentResultKey,				-- character or guild key in DataStore
+		count = itemCount,
+		location = currentResultLocation
+	} )
+end
+
+local function CraftMatchFound(spellID, value)
+	local name = GetSpellInfo(spellID)
+	if name and string.find(strlower(name), value, 1, true) then
+		return true
+	end
+end
+
+local function BrowseCharacter(character)
+
+	currentResultType = PLAYER_ITEM_LINE	
+	currentResultKey = character
+	
+	local itemID, itemLink, itemCount
+	for containerName, container in pairs(DS:GetContainers(character)) do
+		if (containerName == "Bag100") then
+			currentResultLocation = L["Bank"]
+		elseif (containerName == "Bag-2") then
+			currentResultLocation = KEYRING
+		else
+			local bagNum = tonumber(string.sub(containerName, 4))
+			if (bagNum >= 0) and (bagNum <= 4) then
+				currentResultLocation = L["Bags"]
+			else
+				currentResultLocation = L["Bank"]
+			end			
+		end
+	
+		for slotID = 1, container.size do
+			itemID, itemLink, itemCount = DS:GetSlotInfo(container, slotID)
+			
+			-- use the link before the id if there's one
+			if itemID then
+				VerifyItem(itemLink or itemID, itemCount)
+			end
+		end
+	end
+	
+	currentResultLocation = L["Equipped"]
+
+	for _, v in pairs(DS:GetInventory(character)) do
+		VerifyItem(v, 1)
+	end
+	
+	if addon.Options:Get("IncludeMailbox") == 1 then			-- check mail ?
+		currentResultLocation = L["Mail"]
+		local num = DS:GetNumMails(character) or 0
+		for i = 1, num do
+			local _, count, link = DS:GetMailInfo(character, i)
+			if link then
+				VerifyItem(link, count)
+			end
+		end
+	end
+	
+	if addon.Options:Get("IncludeRecipes") == 1						-- check known recipes ?
+		and (currentType == nil) 
+		and (currentRarity == 0)
+		and (currentSlot == 0) then
+		
+		local isHeader, spellID, itemID
+		local professions = DS:GetProfessions(character)
+		if professions then
+			for professionName, profession in pairs(professions) do
+				for index = 1, DS:GetNumCraftLines(profession) do
+					isHeader, _, spellID = DS:GetCraftLineInfo(profession, index)
+					
+					if not isHeader then
+						if CraftMatchFound(spellID, currentValue) then
+							ns:AddResult(	{
+								linetype = PLAYER_CRAFT_LINE,
+								char = currentResultKey,
+								professionName = professionName,
+								profession = profession,
+								craftIndex = index,
+							} )
+						end
+					end
+				end
+			end
+		end
+	end
+	
+	currentResultType = nil
+	currentResultKey = nil
+	currentResultLocation = nil
+end
+
+local function BrowseRealm(realm, account, bothFactions)
+	for characterName, character in pairs(DS:GetCharacters(realm, account)) do
+		if bothFactions or DS:GetCharacterFaction(character) == UnitFactionGroup("player") then
+			BrowseCharacter(character)
+		end
+	end
+	
+	if Altoholic.Options:Get("IncludeGuildBank") == 1 then	-- Check guild bank(s) ?
+		currentResultType = GUILD_ITEM_LINE
+
+		for guildName, guild in pairs(DS:GetGuilds(realm, account)) do
+			if bothFactions or DS:GetGuildBankFaction(guild) == UnitFactionGroup("player") then
+				currentResultKey = format("%s.%s.%s", account, realm, guildName)
+				
+				for tabID = 1, 6 do
+					local tab = DS:GetGuildBankTab(guild, tabID)
+					if tab.name then
+						for slotID = 1, 98 do
+							currentResultLocation = format("%s (%s - slot %d)", GUILD_BANK, tab.name, slotID)
+							local id, link, count = DS:GetSlotInfo(tab, slotID)
+							if id then
+								link = link or id
+								VerifyItem(link, count)
+							end
+						end
+					end
+				end
+				
+				currentResultKey = nil
+			end
+		end	-- end guild
+		currentResultType = nil
+		currentResultLocation = nil
+	end
+	
+	if Altoholic.Options:Get("IncludeGuildSkills") == 1 and string.len(currentValue) > 1 then	-- Check guild professions ?
+		local guild = Altoholic:GetGuild()
+		if guild and LTL then	-- LTL won't be valid if there's a version mismatch (see :Init() )
+			ns.GuildMembers = {}
+			
+			for member, _ in pairs(Altoholic:GetGuildMembers(guild)) do			-- add all known members into a table
+				table.insert(ns.GuildMembers, member)
+			end
+			Altoholic.Tasks:Add("BrowseGuildProfessions", 0, ns.BrowseGuildProfessions, ns)
+		end
+	end
+end
+
+local ongoingSearch
+
+function ns:FindItem(searchType, searchSubType)
+	if ongoingSearch then
 		return		-- if a search is already happening .. then exit
 	end
-	self.ongoingsearch = true
 	
-	self.SearchType = searchType
-	self.SearchSubType = searchSubType
+	currentType = searchType
+	currentSubType = searchSubType
 	
 	local value = AltoholicFrame_SearchEditBox:GetText()
-	self.SearchValue = strlower(value)
 	
-	self.MinLevel = AltoholicTabSearch_MinLevel:GetNumber()
-	self.MaxLevel = AltoholicTabSearch_MaxLevel:GetNumber()
-	if self.MaxLevel == 0 then
-		self.MaxLevel = MAX_PLAYER_LEVEL
+	if not searchType and not searchSubType then		-- if no type & subtype, it's not a menu search, so value may not be empty
+		if not value or strlen(value) == 0 then		-- .. if empty, exit
+			return
+		end
 	end
 	
-	self.SearchRarity = UIDropDownMenu_GetSelectedValue(AltoholicTabSearch_SelectRarity)
-	self.SearchSlot = UIDropDownMenu_GetSelectedValue(AltoholicTabSearch_SelectSlot)
+	ongoingSearch = true
+	currentValue = strlower(value)
+	
+	currentMinLevel = AltoholicTabSearch_MinLevel:GetNumber()
+	currentMaxLevel = AltoholicTabSearch_MaxLevel:GetNumber()
+	if currentMaxLevel == 0 then
+		currentMaxLevel = MAX_PLAYER_LEVEL
+	end
+	
+	currentRarity = UIDropDownMenu_GetSelectedValue(AltoholicTabSearch_SelectRarity)
+	currentSlot = UIDropDownMenu_GetSelectedValue(AltoholicTabSearch_SelectSlot)
 	local searchLocation = UIDropDownMenu_GetSelectedValue(AltoholicTabSearch_SelectLocation)
 	
-	self.Results:Clear()
+	ns:ClearResults()
 	
 	local SearchLoots
 	if searchLocation == SEARCH_THISCHAR then
-		self:BrowseCharacter(DS:GetCharacter())
+		BrowseCharacter(DS:GetCharacter())
 	elseif searchLocation == SEARCH_THISREALM_THISFACTION or	searchLocation == SEARCH_THISREALM_BOTHFACTIONS then
-		self:BrowseRealm(GetRealmName(), THIS_ACCOUNT, (searchLocation == SEARCH_THISREALM_BOTHFACTIONS))
+		BrowseRealm(GetRealmName(), THIS_ACCOUNT, (searchLocation == SEARCH_THISREALM_BOTHFACTIONS))
 	elseif searchLocation == SEARCH_ALLREALMS then
 		for realm in pairs(DS:GetRealms()) do
-			self:BrowseRealm(realm, THIS_ACCOUNT, true)
+			BrowseRealm(realm, THIS_ACCOUNT, true)
 		end
 	elseif searchLocation == SEARCH_ALLACCOUNTS then
 		-- this account first ..
 		for realm in pairs(DS:GetRealms()) do
-			self:BrowseRealm(realm, THIS_ACCOUNT, true)
+			BrowseRealm(realm, THIS_ACCOUNT, true)
 		end
 		
 		-- .. then all other accounts
 		for account in pairs(DS:GetAccounts()) do
 			if account ~= THIS_ACCOUNT then
 				for realm in pairs(DS:GetRealms(account)) do
-					self:BrowseRealm(realm, account, true)
+					BrowseRealm(realm, account, true)
 				end
 			end
 		end
 	else	-- search loot tables
-		SearchLoots = true -- this value will be tested in Altoholic.Search:Update() to resize columns properly
-		Altoholic.Loots:Find(self.SearchValue, self.SearchType, self.SearchSubType, 
-				self.SearchRarity, self.MinLevel, self.MaxLevel, self.SearchSlot)
+		SearchLoots = true -- this value will be tested in ns:Update() to resize columns properly
+		Altoholic.Loots:Find(currentValue, currentType, currentSubType, 
+				currentRarity, currentMinLevel, currentMaxLevel, currentSlot)
 	end
 	
 	if not AltoholicTabSearch:IsVisible() then
 		Altoholic.Tabs:OnClick(3)
 	end
 	
-	if self.Results:GetNumber() == 0 then
-		if self.SearchValue == "" then 
+	if ns:GetNumResults() == 0 then
+		if currentValue == "" then 
 			AltoholicTabSearchStatus:SetText(L["No match found!"])
 		else
 			AltoholicTabSearchStatus:SetText(value .. L[" not found!"])
 		end
 	end
-	self.ongoingsearch = nil 	-- search done
+	ongoingSearch = nil 	-- search done
 	
-	-- self.SearchValue = nil				-- don't nil it, it may be required by the task checking guild professions
-	self.SearchType = nil
-	self.SearchSubType = nil
+	-- currentValue = nil				-- don't nil it, it may be required by the task checking guild professions
+	currentType = nil
+	currentSubType = nil
 	
 	if SearchLoots then
 		Altoholic.Tabs.Search:SetMode("loots")
 		if Altoholic.Options:Get("SortDescending") == 1 then 		-- descending sort ?
 			AltoholicTabSearch_Sort3.ascendingSort = true		-- say it's ascending now, it will be toggled
-			self.Results:Sort(AltoholicTabSearch_Sort3, "iLvl")
+			ns:SortResults(AltoholicTabSearch_Sort3, "iLvl")
 		else
 			AltoholicTabSearch_Sort3.ascendingSort = nil
-			self.Results:Sort(AltoholicTabSearch_Sort3, "iLvl")
+			ns:SortResults(AltoholicTabSearch_Sort3, "iLvl")
 		end
 	else
 		Altoholic.Tabs.Search:SetMode("realm")
 	end
 
-	self:Update()
+	ns:Update()
 	collectgarbage()
 end
 
-function Altoholic.Search:BrowseRealm(realm, account, bothFactions)
-	for characterName, character in pairs(DS:GetCharacters(realm, account)) do
-		if bothFactions or DS:GetCharacterFaction(character) == UnitFactionGroup("player") then
-			self:BrowseCharacter(character)
-		end
-	end
-	
-	if Altoholic.Options:Get("IncludeGuildBank") == 1 then	-- Check guild bank(s) ?
-		-- self.SearchLocation = GUILD_BANK
-		self.SearchLineType = GUILD_ITEM_LINE
-
-		for guildName, guild in pairs(DS:GetGuilds(realm, account)) do
-			if bothFactions or DS:GetGuildBankFaction(guild) == UnitFactionGroup("player") then
-				self.SearchCharacterIndex = format("%s.%s.%s", account, realm, guildName)
-				
-				for tabID = 1, 6 do
-					local tab = DS:GetGuildBankTab(guild, tabID)
-					if tab.name then
-						for slotID = 1, 98 do
-							self.SearchLocation = format("%s (%s - slot %d)", GUILD_BANK, tab.name, slotID)
-							local id, link, count = DS:GetSlotInfo(tab, slotID)
-							if id then
-								link = link or id
-								self:VerifyItem(link, count)
-							end
-						end
-					end
-				end
-				
-				self.SearchCharacterIndex = nil
-			end
-		end	-- end guild
-		self.SearchLineType = nil
-		self.SearchLocation = nil
-	end
-	
-	if Altoholic.Options:Get("IncludeGuildSkills") == 1 and string.len(self.SearchValue) > 1 then	-- Check guild professions ?
-		local guild = Altoholic:GetGuild()
-		if guild and LTL then	-- LTL won't be valid if there's a version mismatch (see :Init() )
-			self.GuildMembers = {}
-			
-			for member, _ in pairs(Altoholic:GetGuildMembers(guild)) do			-- add all known members into a table
-				table.insert(self.GuildMembers, member)
-			end
-			Altoholic.Tasks:Add("BrowseGuildProfessions", 0, Altoholic.Search.BrowseGuildProfessions, Altoholic.Search)
-		end
-	end
-end
-
-function Altoholic.Search:BrowseGuildProfessions()
-	if #self.GuildMembers == 0 then	-- no more members ? kill the task
-		self.GuildMembers = nil
-		self:Update()
+function ns:BrowseGuildProfessions()
+	if #ns.GuildMembers == 0 then	-- no more members ? kill the task
+		ns.GuildMembers = nil
+		ns:Update()
 		return
 	end
 	
 	-- The professions of 1 guild member will be scanned in each pass
 	local guild = Altoholic:GetGuild()
-	local member = self.GuildMembers[#self.GuildMembers]	-- get the last item in the table
+	local member = ns.GuildMembers[#ns.GuildMembers]	-- get the last item in the table
 	local t = {}
 	local skillID
 	
@@ -707,8 +875,8 @@ function Altoholic.Search:BrowseGuildProfessions()
 			if t then
 				for spellID, _ in pairs(t) do
 					local name = GetSpellInfo(spellID)
-					if string.find(strlower(name), self.SearchValue, 1, true) then
-						self.Results:Add(	{
+					if string.find(strlower(name), currentValue, 1, true) then
+						ns:AddResult(	{
 							linetype = GUILD_CRAFT_LINE,
 							spellID = spellID,
 							char = member,
@@ -721,259 +889,73 @@ function Altoholic.Search:BrowseGuildProfessions()
 		end
 	end
 	
-	table.remove(self.GuildMembers)	-- kill the last item
+	table.remove(ns.GuildMembers)	-- kill the last item
 	Altoholic.Tasks:Reschedule("BrowseGuildProfessions", 0.005)
 	return true
 end
 
-local function CraftMatchFound(spellID, value)
-	local name = GetSpellInfo(spellID)
-	if name and string.find(strlower(name), value, 1, true) then
-		return true
-	end
+local currentClass				-- the current character class
+local currentItemID				-- itemID of the item for which we're searching for an upgrade
+
+function ns:SetClass(class)
+	currentClass = class
 end
 
-function Altoholic.Search:BrowseCharacter(character)
-
-	self.SearchLineType = PLAYER_ITEM_LINE	
-	self.SearchCharacterIndex = character
-	
-	local itemID, itemLink, itemCount
-	for containerName, container in pairs(DS:GetContainers(character)) do
-		if (containerName == "Bag100") then
-			self.SearchLocation = L["Bank"]
-		elseif (containerName == "Bag-2") then
-			self.SearchLocation = KEYRING
-		else
-			local bagNum = tonumber(string.sub(containerName, 4))
-			if (bagNum >= 0) and (bagNum <= 4) then
-				self.SearchLocation = L["Bags"]
-			else
-				self.SearchLocation = L["Bank"]
-			end			
-		end
-	
-		for slotID = 1, container.size do
-			itemID, itemLink, itemCount = DS:GetSlotInfo(container, slotID)
-			
-			-- use the link before the id if there's one
-			if itemID then
-				self:VerifyItem(itemLink or itemID, itemCount)
-			end
-		end
-	end
-	
-	self.SearchLocation = L["Equipped"]
-
-	for _, v in pairs(DS:GetInventory(character)) do
-		self:VerifyItem(v, 1)
-	end
-	
-	if Altoholic.Options:Get("IncludeMailbox") == 1 then			-- check mail ?
-		self.SearchLocation = L["Mail"]
-		local num = DS:GetNumMails(character) or 0
-		for i = 1, num do
-			local _, count, link = DS:GetMailInfo(character, i)
-			if link then
-				self:VerifyItem(link, count)
-			end
-		end
-	end
-	
-	if Altoholic.Options:Get("IncludeRecipes") == 1						-- check known recipes ?
-		and (self.SearchType == nil) 
-		and (self.SearchRarity == 0)
-		and (self.SearchSlot == 0) then
-		
-		local isHeader, spellID, itemID
-		local professions = DS:GetProfessions(character)
-		if professions then
-			for professionName, profession in pairs(professions) do
-				for index = 1, DS:GetNumCraftLines(profession) do
-					isHeader, _, spellID = DS:GetCraftLineInfo(profession, index)
-					
-					if not isHeader then
-						if CraftMatchFound(spellID, self.SearchValue) then
-							self.Results:Add(	{
-								linetype = PLAYER_CRAFT_LINE,
-								char = self.SearchCharacterIndex,
-								professionName = professionName,
-								profession = profession,
-								craftIndex = index,
-							} )
-						end
-					end
-				end
-			end
-		end
-	end
-	
-	self.SearchLineType = nil
-	self.SearchCharacterIndex = nil
-	self.SearchLocation = nil
+function ns:GetClass()
+	return currentClass
 end
 
-function Altoholic.Search:VerifyItem(item, itemCount)
-
-	local itemName, _, itemRarity, _, itemMinLevel, itemType, itemSubType, _, itemEquipLoc = GetItemInfo(item)
-	
-	if (itemName == nil) and (itemRarity == nil) then
-		-- with these 2 being nil, the item isn't in the item cache, so its link would be invalid: don't list it
-		-- This should never happen here, since this function deals only with alts inventories, therefore all items are supposed to be known
-		return
-	end
-	
-	if (self.SearchType ~= nil) and (self.SearchType ~= itemType) then
-		return		-- if there's a type and it's invalid .. Exit
-	end
-
-	if (self.SearchSubType ~= nil) and (self.SearchSubType ~= itemSubType) then
-		return		-- if there's a subtype and it's invalid .. Exit
-	end	
-
-	if (itemRarity < self.SearchRarity) then
-		return		-- if rarity is too low .. exit
-	end
-	
-	if (itemMinLevel == 0) then
-		if (Altoholic.Options:Get("IncludeNoMinLevel") == 0) then
-			return		-- no minimum requireement & should not be included ? .. exit
-		end
-	else
-		if (itemMinLevel < self.MinLevel) or (itemMinLevel > self.MaxLevel) then
-			return		-- not within the right level boundaries ? .. exit
-		end
-	end
-	
-	if self.SearchSlot ~= 0 then	-- if a specific equipment slot is specified ..
-		if Altoholic.Equipment:GetInventoryTypeIndex(itemEquipLoc) ~= self.SearchSlot then
-			return		-- not the right slot ? .. exit
-		end
-	end
-
-	if string.find(strlower(itemName), self.SearchValue, 1, true) == nil then
-		return		-- item name does not match search value ? .. exit
-	end
-
-	if type(item) == "string" then		-- convert a link to its item id, only data saved
-		item = tonumber(item:match("item:(%d+)"))
-	end
-	
-	-- All conditions ok ? save it
-	self.Results:Add( {
-		linetype = self.SearchLineType,			-- PLAYER_ITEM_LINE or GUILD_ITEM_LINE 
-		id = item,
-		source = self.SearchCharacterIndex,		-- character or guild key in DataStore
-		count = itemCount,
-		location = self.SearchLocation
-	} )
+function ns:SetCurrentItem(itemID)
+	currentItemID = itemID
 end
 
-function Altoholic.Search:SetClass(class)
-	self.CharacterClass = class
-end
-
-function Altoholic.Search:GetClass()
-	return self.CharacterClass
-end
-
-function Altoholic.Search:GetRealmsLineDesc(line)
+function ns:GetRealmsLineDesc(line)
 	return RealmScrollFrame_Desc.Lines[line]
 end
 
-function Altoholic.Search:FindEquipmentUpgrade()
-	
+function ns:FindEquipmentUpgrade()
 	local upgradeType = self.value
-	local self = Altoholic.Search
 	
 	-- debugprofilestart()
-	-- Altoholic.Profiler:Begin("FindEquipmentUpgrade")
+	-- addon.Profiler:Begin("FindEquipmentUpgrade")
 	
-	local _, itemLink, _, itemLevel, _, itemType, itemSubType, _, itemEquipLoc = GetItemInfo(self.UpgradeItemID)
+	local _, itemLink, _, itemLevel, _, itemType, itemSubType, _, itemEquipLoc = GetItemInfo(currentItemID)
 
-	self.Results:Clear()
+	ns:ClearResults()
 	
 	if upgradeType ~= -1 then	-- not an item level upgrade
-		self:SetClass(upgradeType)
-		Altoholic.Loots:FindUpgradeByStats( 
-			self.UpgradeItemID, upgradeType, itemLevel, itemType, itemSubType, 
-			Altoholic.Equipment:GetInventoryTypeIndex(itemEquipLoc))
+		ns:SetClass(upgradeType)
+		addon.Loots:FindUpgradeByStats( currentItemID, upgradeType, itemLevel, itemType, itemSubType, addon.Equipment:GetInventoryTypeIndex(itemEquipLoc))
 
 	else	-- simple search, point to simple VerifyUpgrade method
-		Altoholic.Loots:FindUpgrade( itemLevel, itemType, itemSubType,
-			Altoholic.Equipment:GetInventoryTypeIndex(itemEquipLoc))
-		AltoholicSearchOptionsLootInfo:SetText(
-				GREEN .. Altoholic.Options:Get("TotalLoots") .. "|r " .. L["Loots"] .. " / "
-				.. GREEN .. Altoholic.Options:Get("UnknownLoots") .. "|r " .. L["Unknown"])
+		addon.Loots:FindUpgrade( itemLevel, itemType, itemSubType,	addon.Equipment:GetInventoryTypeIndex(itemEquipLoc))
+		AltoholicSearchOptionsLootInfo:SetText( GREEN .. addon.Options:Get("TotalLoots") .. "|r " .. L["Loots"] .. " / "
+				.. GREEN .. addon.Options:Get("UnknownLoots") .. "|r " .. L["Unknown"])
 	end
-	self.UpgradeItemID = nil
+	currentItemID = nil
 
 	AltoTooltip:Hide();	-- mandatory hide after processing	
 	
 	if not AltoholicTabSearch:IsVisible() then
-		Altoholic.Tabs:OnClick(3)
+		addon.Tabs:OnClick(3)
 	end
 	
 	if upgradeType ~= -1 then	-- not an item level upgrade
-		Altoholic.Tabs.Search:SetMode("upgrade")
+		addon.Tabs.Search:SetMode("upgrade")
 	else
-		Altoholic.Tabs.Search:SetMode("loots")
+		addon.Tabs.Search:SetMode("loots")
 	end
 	
-	if Altoholic.Options:Get("SortDescending") == 1 then 		-- descending sort ?
+	if addon.Options:Get("SortDescending") == 1 then 		-- descending sort ?
 		AltoholicTabSearch_Sort8.ascendingSort = true		-- say it's ascending now, it will be toggled
-		Altoholic.Search.Results:Sort(AltoholicTabSearch_Sort8, "iLvl")
+		ns:SortResults(AltoholicTabSearch_Sort8, "iLvl")
 	else
 		AltoholicTabSearch_Sort8.ascendingSort = nil
-		Altoholic.Search.Results:Sort(AltoholicTabSearch_Sort8, "iLvl")
+		ns:SortResults(AltoholicTabSearch_Sort8, "iLvl")
 	end
-	
-
 	
 	-- DEFAULT_CHAT_FRAME:AddMessage(debugprofilestop())
-	-- Altoholic.Profiler:End("FindEquipmentUpgrade") 
-	-- DEFAULT_CHAT_FRAME:AddMessage(Altoholic.Profiler:GetSampleDuration("FindEquipmentUpgrade"))
-	self:Update()
+	-- addon.Profiler:End("FindEquipmentUpgrade") 
+	-- DEFAULT_CHAT_FRAME:AddMessage(addon.Profiler:GetSampleDuration("FindEquipmentUpgrade"))
+	ns:Update()
 end
-
-Altoholic.UnsafeItems = {}
-
-function Altoholic.UnsafeItems:Save(itemID)
-	if self:IsItemKnown(itemID) then			-- if the unsafe item has already been saved .. exit
-		return
-	end
-	
-	-- if not, save it
-	table.insert(Altoholic.db.global.unsafeItems, itemID)
-end
-
-function Altoholic.UnsafeItems:IsItemKnown(itemID)
-	for k, v in pairs(Altoholic.db.global.unsafeItems) do 	-- browse current realm's unsafe item list
-		if v == itemID then		-- if the itemID passed as parameter is a known unsafe item .. return true to skip it
-			return true
-		end
-	end
-	return false			-- false if unknown
-end
-
-function Altoholic.UnsafeItems:BuildList()
-	-- This method will clean the unsafe item list currently in the DB. 
-	-- In the previous game session, the list has been populated with items id's that were originally unsafe and for which a query was sent to the server.
-	-- In this session, a getiteminfo on these id's will keep returning a nil if the item is really unsafe, so this method will get rid of the id's that are now valid.
-	local TmpUnsafe = {}		-- create a temporary table with confirmed unsafe id's
-	local unsafeItems = Altoholic.db.global.unsafeItems
-	
-	for k, v in pairs(unsafeItems) do
-		local itemName = GetItemInfo(v)
-		if not itemName then							-- if the item is really unsafe .. save it
-			table.insert(TmpUnsafe, v)
-		end
-	end
-	
-	wipe(unsafeItems)	-- clear the DB table
-	
-	for k, v in pairs(TmpUnsafe) do
-		table.insert(unsafeItems, v)	-- save the confirmed unsafe ids back in the db
-	end
-end
-

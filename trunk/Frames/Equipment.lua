@@ -529,7 +529,7 @@ function ns:OnClick(button)
 	if not link then return end
 	
 	if button == "RightButton" then
-		Altoholic.Search.UpgradeItemID = Altoholic:GetIDFromLink(link)		-- item ID of the item to find an upgrade for
+		Altoholic.Search:SetCurrentItem( Altoholic:GetIDFromLink(link) ) 		-- item ID of the item to find an upgrade for
 		local _, class = DS:GetCharacterClass(character)
 		Altoholic.Search:SetClass(class)
 		

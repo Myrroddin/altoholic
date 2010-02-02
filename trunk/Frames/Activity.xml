@@ -121,6 +121,14 @@
 						</Offset>
 					</Anchor>
 				</Anchors>
+				<Scripts>
+					<OnEnter>
+						Altoholic.Activity:Mails_OnEnter(self)
+					</OnEnter>
+					<OnLeave>
+						AltoTooltip:Hide();
+					</OnLeave>
+				</Scripts>
 			</Button>
 			<Button name="$parentLastMailCheck" inherits="AltoActivityButtonTemplate" id="2">
 				<Anchors>

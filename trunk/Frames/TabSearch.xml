@@ -428,9 +428,6 @@
 			
 		</Frames>
 		<Scripts>
-			<OnLoad>
-				Altoholic.Tabs.Search:BuildView()
-			</OnLoad>
 			<OnShow>
 				Altoholic.Tabs.Search:Update()
 			</OnShow>

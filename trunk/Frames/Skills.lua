@@ -1,5 +1,8 @@
+local addonName = "Altoholic"
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
 
 local INFO_REALM_LINE = 0
 local INFO_CHARACTER_LINE = 1
@@ -19,13 +22,14 @@ local RECIPE_ORANGE	= "|cFFFF8040"
 local ICON_FACTION_HORDE = "Interface\\Icons\\INV_BannerPVP_01"
 local ICON_FACTION_ALLIANCE = "Interface\\Icons\\INV_BannerPVP_02"
 
-function Altoholic.TradeSkills:Update()
+local ns = addon.TradeSkills		-- ns = namespace
+
+function ns:Update()
 	local VisibleLines = 14
 	local frame = "AltoholicFrameSkills"
 	local entry = frame.."Entry"
 	
-	local self = Altoholic.TradeSkills
-	local Characters = Altoholic.Characters
+	local Characters = addon.Characters
 	local DS = DataStore
 	
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
@@ -72,7 +76,7 @@ function Altoholic.TradeSkills:Update()
 				if s.account == "Default" then	-- saved as default, display as localized.
 					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", s.realm, WHITE, GREEN, L["Default"]))
 				else
-					local last = Altoholic:GetLastAccountSharingInfo(CurrentRealm, CurrentAccount)
+					local last = addon:GetLastAccountSharingInfo(CurrentRealm, CurrentAccount)
 					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", s.realm, WHITE, GREEN, s.account, YELLOW, last or ""))
 				end
 				_G[entry..i.."Level"]:SetText("")
@@ -94,9 +98,9 @@ function Altoholic.TradeSkills:Update()
 					
 					local icon
 					if DS:GetCharacterFaction(character) == "Alliance" then
-						icon = Altoholic:TextureToFontstring(ICON_FACTION_ALLIANCE, 18, 18) .. " "
+						icon = addon:TextureToFontstring(ICON_FACTION_ALLIANCE, 18, 18) .. " "
 					else
-						icon = Altoholic:TextureToFontstring(ICON_FACTION_HORDE, 18, 18) .. " "
+						icon = addon:TextureToFontstring(ICON_FACTION_HORDE, 18, 18) .. " "
 					end
 					
 					_G[entry..i.."Collapse"]:Hide()
@@ -107,36 +111,36 @@ function Altoholic.TradeSkills:Update()
 					_G[entry..i.."Level"]:SetText(GREEN .. DS:GetCharacterLevel(character))
 					
 					if s.spellID1 then
-						icon = Altoholic:TextureToFontstring(Altoholic:GetSpellIcon(s.spellID1), 18, 18) .. " "
+						icon = addon:TextureToFontstring(addon:GetSpellIcon(s.spellID1), 18, 18) .. " "
 					else
 						icon = ""
 					end
-					_G[entry..i.."Skill1NormalText"]:SetText(icon .. self:GetColor(s.skillRank1) .. s.skillRank1)
+					_G[entry..i.."Skill1NormalText"]:SetText(icon .. ns:GetColor(s.skillRank1) .. s.skillRank1)
 					
 					if s.spellID2 then
-						icon = Altoholic:TextureToFontstring(Altoholic:GetSpellIcon(s.spellID2), 18, 18) .. " "
+						icon = addon:TextureToFontstring(addon:GetSpellIcon(s.spellID2), 18, 18) .. " "
 					else
 						icon = ""
 					end
-					_G[entry..i.."Skill2NormalText"]:SetText(icon .. self:GetColor(s.skillRank2) .. s.skillRank2)
+					_G[entry..i.."Skill2NormalText"]:SetText(icon .. ns:GetColor(s.skillRank2) .. s.skillRank2)
 						
-					icon = Altoholic:TextureToFontstring(Altoholic:GetSpellIcon(2550), 18, 18) .. " "
-					_G[entry..i.."CookingNormalText"]:SetText(icon .. self:GetColor(s.cooking) .. s.cooking)
-					icon = Altoholic:TextureToFontstring(Altoholic:GetSpellIcon(3273), 18, 18) .. " "
-					_G[entry..i.."FirstAidNormalText"]:SetText(icon .. self:GetColor(s.firstaid) .. s.firstaid)
-					icon = Altoholic:TextureToFontstring(Altoholic:GetSpellIcon(7733), 18, 18) .. " "
-					_G[entry..i.."FishingNormalText"]:SetText(icon .. self:GetColor(s.fishing) .. s.fishing)
+					icon = addon:TextureToFontstring(addon:GetSpellIcon(2550), 18, 18) .. " "
+					_G[entry..i.."CookingNormalText"]:SetText(icon .. ns:GetColor(s.cooking) .. s.cooking)
+					icon = addon:TextureToFontstring(addon:GetSpellIcon(3273), 18, 18) .. " "
+					_G[entry..i.."FirstAidNormalText"]:SetText(icon .. ns:GetColor(s.firstaid) .. s.firstaid)
+					icon = addon:TextureToFontstring(addon:GetSpellIcon(7733), 18, 18) .. " "
+					_G[entry..i.."FishingNormalText"]:SetText(icon .. ns:GetColor(s.fishing) .. s.fishing)
 					
 					local character = DS:GetCharacter(s.name, CurrentRealm, CurrentAccount)
 					
 					if DS:IsSpellKnown(character, 54197) then
-						icon = Altoholic:TextureToFontstring(Altoholic:GetSpellIcon(54197), 18, 18) .. " "
+						icon = addon:TextureToFontstring(addon:GetSpellIcon(54197), 18, 18) .. " "
 					elseif s.riding >= 225 then
-						icon = Altoholic:TextureToFontstring("Interface\\Icons\\Ability_Mount_Gryphon_01", 18, 18) .. " "
+						icon = addon:TextureToFontstring("Interface\\Icons\\Ability_Mount_Gryphon_01", 18, 18) .. " "
 					else
-						icon = Altoholic:TextureToFontstring("Interface\\Icons\\Ability_Mount_RidingHorse", 18, 18) .. " "
+						icon = addon:TextureToFontstring("Interface\\Icons\\Ability_Mount_RidingHorse", 18, 18) .. " "
 					end
-					_G[entry..i.."RidingNormalText"]:SetText(icon .. self:GetColor(s.riding, 300) .. s.riding)
+					_G[entry..i.."RidingNormalText"]:SetText(icon .. ns:GetColor(s.riding, 300) .. s.riding)
 				elseif (lineType == INFO_TOTAL_LINE) then
 					_G[entry..i.."Collapse"]:Hide()
 					_G[entry..i.."Name"]:SetWidth(200)
@@ -169,14 +173,14 @@ function Altoholic.TradeSkills:Update()
 	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleCount, VisibleLines, 18);
 end	
 
-function Altoholic.TradeSkills:OnEnter(self)
-	local line = self:GetParent():GetID()
-	local s = Altoholic.Characters:Get(line)
+function ns:OnEnter(frame)
+	local line = frame:GetParent():GetID()
+	local s = addon.Characters:Get(line)
 	
 	if mod(s.linetype, 3) ~= INFO_CHARACTER_LINE then		
 		return
 	end
-	local id = self:GetID()
+	local id = frame:GetID()
 	local skillName, rank, suggestion
 	
 	if id == 1 then
@@ -193,19 +197,18 @@ function Altoholic.TradeSkills:OnEnter(self)
 		skillName = L["Riding"]
 	end
 
-	local ts = Altoholic.TradeSkills
 	local DS = DataStore
-	local character = DS:GetCharacter(Altoholic.Characters:GetInfo(line))
+	local character = DS:GetCharacter(addon.Characters:GetInfo(line))
 	local curRank, maxRank = DS:GetSkillInfo(character, skillName)
 	local profession = DS:GetProfession(character, skillName)
 	
 	if (id >= 1) and (id <= 6) then
 		if id == 6 then	-- riding
-			rank = ts:GetColor(curRank, 300) .. curRank .. "/" .. maxRank
+			rank = ns:GetColor(curRank, 300) .. curRank .. "/" .. maxRank
 		else
-			rank = ts:GetColor(curRank) .. curRank .. "/" .. maxRank
+			rank = ns:GetColor(curRank) .. curRank .. "/" .. maxRank
 		end
-		suggestion = Altoholic:GetSuggestion(skillName, curRank)
+		suggestion = addon:GetSuggestion(skillName, curRank)
 	elseif id == 7 then	-- class
 		local _, class = DS:GetCharacterClass(character)
 		if class ~= "ROGUE" then
@@ -215,11 +218,11 @@ function Altoholic.TradeSkills:OnEnter(self)
 		
 		local curLock, maxLock = DS:GetSkillInfo(character, L["Lockpicking"])
 		rank = TEAL .. L["Lockpicking"] .. " " .. curLock .. "/" .. maxLock
-		suggestion = Altoholic:GetSuggestion(L["Lockpicking"], curLock)
+		suggestion = addon:GetSuggestion(L["Lockpicking"], curLock)
 	end
 	
 	AltoTooltip:ClearLines();
-	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
+	AltoTooltip:SetOwner(frame, "ANCHOR_RIGHT");
 	AltoTooltip:AddLine(skillName,1,1,1);
 	AltoTooltip:AddLine(GREEN..rank,1,1,1);
 	
@@ -275,7 +278,7 @@ function Altoholic.TradeSkills:OnEnter(self)
 			AltoTooltip:AddLine(" ",1,1,1);
 			for i = 1, numCooldows do
 				local craftName, expiresIn = DS:GetCraftCooldownInfo(profession, i)
-				AltoTooltip:AddDoubleLine(craftName, Altoholic:GetTimeString(expiresIn));
+				AltoTooltip:AddDoubleLine(craftName, addon:GetTimeString(expiresIn));
 			end
 		end
 	end
@@ -285,18 +288,18 @@ end
 
 local VIEW_MOUNTS = 8
 
-function Altoholic.TradeSkills:OnClick(self, button)
-	local line = self:GetParent():GetID()
-	local s = Altoholic.Characters:Get(line)
+function ns:OnClick(frame, button)
+	local line = frame:GetParent():GetID()
+	local s = addon.Characters:Get(line)
 	
 	if mod(s.linetype, 3) ~= INFO_CHARACTER_LINE then		
 		return
 	end
-	local id = self:GetID()
+	local id = frame:GetID()
 	
 	if id == 5 then return end		-- fishing ? do nothing
 	
-	Altoholic:SetCurrentCharacter( Altoholic.Characters:GetInfo(line) )
+	addon:SetCurrentCharacter( addon.Characters:GetInfo(line) )
 	
 	local skillName
 	if id == 1 then
@@ -310,7 +313,7 @@ function Altoholic.TradeSkills:OnClick(self, button)
 	end
 
 	local DS = DataStore
-	local character = DS:GetCharacter(Altoholic.Characters:GetInfo(line))
+	local character = DS:GetCharacter(addon.Characters:GetInfo(line))
 	local profession = DS:GetProfession(character, skillName)
 	
 	if skillName then
@@ -319,7 +322,7 @@ function Altoholic.TradeSkills:OnClick(self, button)
 		end
 	end
 	
-	local charName, realm, account = Altoholic:GetCurrentCharacter()
+	local charName, realm, account = addon:GetCurrentCharacter()
 	
 	if ChatFrameEditBox:IsShown() and IsShiftKeyDown() and realm == GetRealmName() and id ~= 6 then
 		-- if shift-click, then display the profession link and exit
@@ -330,19 +333,19 @@ function Altoholic.TradeSkills:OnClick(self, button)
 		return
 	end
 
-	Altoholic.Tabs.Characters:SetCurrent(charName, realm, account)
-	Altoholic.Tabs:OnClick(2)
+	addon.Tabs.Characters:SetCurrent(charName, realm, account)
+	addon.Tabs:OnClick(2)
 
 	if id == 6 then
-		Altoholic.Tabs.Characters:ViewCharInfo(VIEW_MOUNTS)
+		addon.Tabs.Characters:ViewCharInfo(VIEW_MOUNTS)
 	else
-		Altoholic.Tabs.Characters:ViewRecipes(skillName)
+		addon.Tabs.Characters:ViewRecipes(skillName)
 	end
 end
 
 local skillColors = { RECIPE_GREY, RED, ORANGE, YELLOW, GREEN }
 
-function Altoholic.TradeSkills:GetColor(rank, skillCap)
+function ns:GetColor(rank, skillCap)
 	skillCap = skillCap or 450
 	return skillColors[ floor(rank / (skillCap/4)) + 1 ]
 end

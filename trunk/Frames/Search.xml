@@ -174,7 +174,7 @@
 						if id == 0 then return end
 						
 						local link
-						local result = Altoholic.Search.Results:Get(id)
+						local result = Altoholic.Search:GetResult(id)
 						
 						if result.linetype == 3 then
 							local _, _, spellID = DataStore:GetCraftLineInfo(result.profession, result.craftIndex)
@@ -202,7 +202,7 @@
 								if id == 0 then return end
 								
 								local link
-								local result = Altoholic.Search.Results:Get(id)
+								local result = Altoholic.Search:GetResult(id)
 								
 								if result.linetype == 3 then
 									local _, _, spellID = DataStore:GetCraftLineInfo(result.profession, result.craftIndex)
