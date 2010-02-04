@@ -112,7 +112,7 @@ local function DrawTalent(texture, tier, column, count, id)
 	itemButton:SetID(id)
 
 	if texture then
-		Altoholic:SetItemButtonTexture(itemName, texture, 37, 37)
+		addon:SetItemButtonTexture(itemName, texture, 37, 37)
 	end
 	
 	local itemCount = _G[itemName .. "Count"]
@@ -297,7 +297,7 @@ function tns:Update(treeIndex)
 	end
 	AltoholicFrameTalents:Hide()
 	
-	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetCurrent()
 	if not character then return end
 
 	if character.ActiveTalents == 1 then
@@ -326,7 +326,7 @@ function tns:Update(treeIndex)
 		local itemCount = _G[itemName .."Count"]
 		local icon = DS:GetTreeInfo(class, tree)
 		
-		Altoholic:SetItemButtonTexture(itemName, icon, 30, 30)
+		addon:SetItemButtonTexture(itemName, icon, 30, 30)
 		itemCount:SetText(WHITE .. DS:GetNumPointsSpent(character, tree, currentTalentGroup))
 		itemCount:Show()
 		itemButton:Show()
@@ -404,7 +404,7 @@ end
 
 function tns:Icon_OnEnter(frame)
 	local DS = DataStore
-	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetCurrent()
 	local _, class = DS:GetCharacterClass(character)
 	local treeName = DS:GetTreeNameByID(class, frame:GetID())
 	
@@ -419,7 +419,7 @@ end
 local function GetTalentLink(frame)
 	local DS = DataStore
 	local treeIndex = frame:GetParent():GetParent():GetID()
-	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetCurrent()
 	local _, class = DS:GetCharacterClass(character)
 	local treeName = DS:GetTreeNameByID(class, treeIndex)
 	
@@ -614,7 +614,7 @@ end
 function gns:Button_OnClick(frame, button)
 	local id = frame:GetID()
 	local DS = DataStore
-	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetCurrent()
 	local enabled, glyphType, spell, _, glyphID = DS:GetGlyphInfo(character, currentTalentGroup, id)
 
 	if not spell then return end

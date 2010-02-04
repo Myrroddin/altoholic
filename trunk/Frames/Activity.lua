@@ -26,7 +26,7 @@ function ns:Update()
 	local frame = "AltoholicFrameActivity"
 	local entry = frame.."Entry"
 	
-	local Characters = Altoholic.Characters
+	local Characters = addon.Characters
 	
 	local DS = DataStore
 	
@@ -74,7 +74,7 @@ function ns:Update()
 				if s.account == "Default" then	-- saved as default, display as localized.
 					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", s.realm, WHITE, GREEN, L["Default"]))
 				else
-					local last = Altoholic:GetLastAccountSharingInfo(CurrentRealm, CurrentAccount)
+					local last = addon:GetLastAccountSharingInfo(CurrentRealm, CurrentAccount)
 					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", s.realm, WHITE, GREEN, s.account, YELLOW, last or ""))
 				end				
 				_G[entry..i.."Level"]:SetText("")
@@ -96,9 +96,9 @@ function ns:Update()
 					
 					local icon
 					if DS:GetCharacterFaction(character) == "Alliance" then
-						icon = Altoholic:TextureToFontstring(ICON_FACTION_ALLIANCE, 18, 18) .. " "
+						icon = addon:TextureToFontstring(ICON_FACTION_ALLIANCE, 18, 18) .. " "
 					else
-						icon = Altoholic:TextureToFontstring(ICON_FACTION_HORDE, 18, 18) .. " "
+						icon = addon:TextureToFontstring(ICON_FACTION_HORDE, 18, 18) .. " "
 					end
 					
 					_G[entry..i.."Collapse"]:Hide()
@@ -124,7 +124,7 @@ function ns:Update()
 					_G[entry..i.."MailsNormalText"]:SetText(color .. num)
 					
 					local lastVisit = DS:GetMailboxLastVisit(character)
-					_G[entry..i.."LastMailCheckNormalText"]:SetText(WHITE .. Altoholic:FormatDelay(lastVisit))
+					_G[entry..i.."LastMailCheckNormalText"]:SetText(WHITE .. addon:FormatDelay(lastVisit))
 					
 					num = DS:GetNumAuctions(character) or 0
 					_G[entry..i.."AuctionsNormalText"]:SetText(((num == 0) and GREY or GREEN) .. num)
@@ -133,12 +133,12 @@ function ns:Update()
 					_G[entry..i.."BidsNormalText"]:SetText(((num == 0) and GREY or GREEN) .. num)
 					
 					lastVisit = DS:GetAuctionHouseLastVisit(character)
-					_G[entry..i.."LastAHCheckNormalText"]:SetText(WHITE .. Altoholic:FormatDelay(lastVisit))
+					_G[entry..i.."LastAHCheckNormalText"]:SetText(WHITE .. addon:FormatDelay(lastVisit))
 
 					if (s.name == UnitName("player")) and (CurrentRealm == GetRealmName()) and (CurrentAccount == "Default") then
 						_G[entry..i.."LastLogoutNormalText"]:SetText(GREEN .. GUILD_ONLINE_LABEL)
 					else
-						_G[entry..i.."LastLogoutNormalText"]:SetText(WHITE .. Altoholic:FormatDelay(DS:GetLastLogout(character)))
+						_G[entry..i.."LastLogoutNormalText"]:SetText(WHITE .. addon:FormatDelay(DS:GetLastLogout(character)))
 					end
 				elseif (lineType == INFO_TOTAL_LINE) then
 					_G[entry..i.."Collapse"]:Hide()
@@ -174,14 +174,14 @@ end
 
 function ns:OnEnter(self)
 	local line = self:GetParent():GetID()
-	local s = Altoholic.Characters:Get(line)
+	local s = addon.Characters:Get(line)
 	
 	if mod(s.linetype, 3) ~= INFO_CHARACTER_LINE then		
 		return
 	end
 	
 	local DS = DataStore
-	local character = DS:GetCharacter(Altoholic.Characters:GetInfo(line))
+	local character = DS:GetCharacter(addon.Characters:GetInfo(line))
 	
 	AltoTooltip:ClearLines();
 	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
@@ -230,7 +230,7 @@ local VIEW_BIDS = 6
 
 function ns:OnClick(self)
 	local line = self:GetParent():GetID()
-	local s = Altoholic.Characters:Get(line)
+	local s = addon.Characters:Get(line)
 	
 	if mod(s.linetype, 3) ~= INFO_CHARACTER_LINE then		
 		return
@@ -241,10 +241,10 @@ function ns:OnClick(self)
 		return
 	end
 	
-	Altoholic:SetCurrentCharacter( Altoholic.Characters:GetInfo(line) )
+	addon:SetCurrentCharacter( addon.Characters:GetInfo(line) )
 	
 	local DS = DataStore
-	local character = DS:GetCharacter(Altoholic.Characters:GetInfo(line))
+	local character = DS:GetCharacter(addon.Characters:GetInfo(line))
 	
 	local action, num
 	
@@ -266,22 +266,22 @@ function ns:OnClick(self)
 	end
 	
 	if action then
-		Altoholic.Tabs.Characters:SetCurrent( Altoholic:GetCurrentCharacter() )
-		Altoholic.Tabs:OnClick(2)
-		Altoholic.Tabs.Characters:ViewCharInfo(action)	
+		addon.Tabs.Characters:SetCurrent( addon:GetCurrentCharacter() )
+		addon.Tabs:OnClick(2)
+		addon.Tabs.Characters:ViewCharInfo(action)	
 	end
 end
 
 function ns:Mails_OnEnter(self)
 	local line = self:GetParent():GetID()
-	local s = Altoholic.Characters:Get(line)
+	local s = addon.Characters:Get(line)
 	
 	if mod(s.linetype, 3) ~= INFO_CHARACTER_LINE then		
 		return
 	end
 	
 	local DS = DataStore
-	local character = DS:GetCharacter(Altoholic.Characters:GetInfo(line))
+	local character = DS:GetCharacter(addon.Characters:GetInfo(line))
 	local num = DS:GetNumMails(character)
 	if not num or num == 0 then return end
 	
@@ -290,7 +290,7 @@ function ns:Mails_OnEnter(self)
 	
 	AltoTooltip:AddDoubleLine(DS:GetColoredCharacterName(character), format("%sMails found: %s%d", WHITE, GREEN, num))
 	
-	local numReturned, numDeleted = 0, 0
+	local numReturned, numDeleted, numExpired = 0, 0, 0
 	local closestReturn
 	local closestDelete
 	
@@ -298,27 +298,30 @@ function ns:Mails_OnEnter(self)
 		local _, _, _, _, _, isReturned = DS:GetMailInfo(character, index)
 		local _, seconds = DS:GetMailExpiry(character, index)
 		
-		if isReturned then
-			numDeleted = numDeleted + 1
-			
-			if not closestDelete then
-				closestDelete = seconds
-			else
-				if seconds < closestDelete then
-					closestDelete = seconds
-				end
-			end
+		if seconds < 0 then		-- mail has already expired
+			numExpired = numExpired + 1
 		else
-			numReturned = numReturned + 1
-			
-			if not closestReturn then
-				closestReturn = seconds
+			if isReturned then
+				numDeleted = numDeleted + 1
+				
+				if not closestDelete then
+					closestDelete = seconds
+				else
+					if seconds < closestDelete then
+						closestDelete = seconds
+					end
+				end
 			else
-				if seconds < closestReturn then
+				numReturned = numReturned + 1
+				
+				if not closestReturn then
 					closestReturn = seconds
+				else
+					if seconds < closestReturn then
+						closestReturn = seconds
+					end
 				end
 			end
-
 		end
 	end
 
@@ -332,6 +335,11 @@ function ns:Mails_OnEnter(self)
 		if closestDelete then
 			AltoTooltip:AddLine(format("%sClosest deletion in %s%s", WHITE, GREEN, SecondsToTime(closestDelete)))
 		end
+	end
+	
+	if numExpired > 0 then
+		AltoTooltip:AddLine(" ");
+		AltoTooltip:AddLine(format("%s%d %shave expired !", RED, numDeleted, WHITE))
 	end
 	
 	AltoTooltip:Show();

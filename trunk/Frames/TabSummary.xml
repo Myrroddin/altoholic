@@ -271,18 +271,59 @@
 					</OnClick>
 				</Scripts>
 			</Button>
-			<Button name="$parent_Options" inherits="UIPanelButtonTemplate" text="GAMEOPTIONS_MENU">
+			
+			<Button name="$parent_OptionsDataStore">
 				<Size>
-					<AbsDimension x="100" y="24"/>
+					<AbsDimension x="36" y="36"/>
 				</Size>
 				<Anchors>
-					<Anchor point="LEFT" relativeTo="$parent_RequestSharing" relativePoint="RIGHT" >
+					<Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" >
 						<Offset>
-							<AbsDimension x="30" y="0"/>
+							<AbsDimension x="25" y="-40"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
+				<Layers>
+					<Layer level="BORDER">
+						<Texture name="$parentIconTexture" file="Interface\Icons\INV_Misc_Book_11" />
+					</Layer>
+				</Layers>
 				<Scripts>
+					<OnEnter>
+						Altoholic:ShowWidgetTooltip(self)
+					</OnEnter>
+					<OnLeave>
+						AltoTooltip:Hide();
+					</OnLeave>
+					<OnClick>
+						Altoholic:ToggleUI()
+						InterfaceOptionsFrame_OpenToCategory("DataStore")
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="$parent_Options">
+				<Size>
+					<AbsDimension x="36" y="36"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeTo="$parent_OptionsDataStore" relativePoint="TOPLEFT" >
+						<Offset>
+							<AbsDimension x="-5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="BORDER">
+						<Texture name="$parentIconTexture" file="Interface\Icons\Trade_Engineering" />
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnEnter>
+						Altoholic:ShowWidgetTooltip(self)
+					</OnEnter>
+					<OnLeave>
+						AltoTooltip:Hide();
+					</OnLeave>
 					<OnClick>
 						Altoholic:ToggleUI()
 						InterfaceOptionsFrame_OpenToCategory("Altoholic")

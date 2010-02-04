@@ -117,24 +117,24 @@ function ns:UpdateViewIcons()
 	local size = 30
 	
 	-- ** Bags / Equipment / Quests **
-	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Bags", ICON_VIEW_BAGS, size, size)
+	addon:SetItemButtonTexture("AltoholicTabCharacters_Bags", ICON_VIEW_BAGS, size, size)
 	AltoholicTabCharacters_Bags.text = L["Containers"]
 	AltoholicTabCharacters_Bags:Show()
 	
-	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Equipment", ICON_VIEW_EQUIP, size, size)
+	addon:SetItemButtonTexture("AltoholicTabCharacters_Equipment", ICON_VIEW_EQUIP, size, size)
 	AltoholicTabCharacters_Equipment.text = L["Equipment"]
 	AltoholicTabCharacters_Equipment:Show()
 	
-	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Quests", ICON_VIEW_QUESTS, size, size)
+	addon:SetItemButtonTexture("AltoholicTabCharacters_Quests", ICON_VIEW_QUESTS, size, size)
 	AltoholicTabCharacters_Quests.text = L["Quests"]
 	AltoholicTabCharacters_Quests:Show()
 	
-	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Talents", ICON_VIEW_TALENTS, size, size)
+	addon:SetItemButtonTexture("AltoholicTabCharacters_Talents", ICON_VIEW_TALENTS, size, size)
 	AltoholicTabCharacters_Talents.text = TALENTS .. " & " .. GLYPHS
 	AltoholicTabCharacters_Talents:Show()
 	
 	-- ** Auctions / Bids / Mails **
-	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Auctions", ICON_VIEW_AUCTIONS, size, size)
+	addon:SetItemButtonTexture("AltoholicTabCharacters_Auctions", ICON_VIEW_AUCTIONS, size, size)
 	local num = DS:GetNumAuctions(character) or 0
 	if num > 0 then
 		AltoholicTabCharacters_AuctionsCount:SetText(num)
@@ -145,7 +145,7 @@ function ns:UpdateViewIcons()
 	AltoholicTabCharacters_Auctions.text = format(L["Auctions %s(%d)"], GREEN, num)
 	AltoholicTabCharacters_Auctions:Show()
 	
-	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Bids", ICON_VIEW_BIDS, size, size)
+	addon:SetItemButtonTexture("AltoholicTabCharacters_Bids", ICON_VIEW_BIDS, size, size)
 	num = DS:GetNumBids(character) or 0
 	if num > 0 then
 		AltoholicTabCharacters_BidsCount:SetText(num)
@@ -156,7 +156,7 @@ function ns:UpdateViewIcons()
 	AltoholicTabCharacters_Bids.text = format(L["Bids %s(%d)"], GREEN, num)
 	AltoholicTabCharacters_Bids:Show()
 	
-	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Mails", ICON_VIEW_MAILS, size, size)
+	addon:SetItemButtonTexture("AltoholicTabCharacters_Mails", ICON_VIEW_MAILS, size, size)
 	num = DS:GetNumMails(character) or 0
 	if num > 0 then
 		AltoholicTabCharacters_MailsCount:SetText(num)
@@ -171,7 +171,7 @@ function ns:UpdateViewIcons()
 	local pets = DS:GetPets(character, "CRITTER")
 	num = DS:GetNumPets(pets) or 0
 
-	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Pets", ICON_VIEW_COMPANIONS, size, size)
+	addon:SetItemButtonTexture("AltoholicTabCharacters_Pets", ICON_VIEW_COMPANIONS, size, size)
 	if num > 0 then
 		AltoholicTabCharacters_PetsCount:SetText(num)
 		AltoholicTabCharacters_PetsCount:Show()
@@ -184,7 +184,7 @@ function ns:UpdateViewIcons()
 	pets = DS:GetPets(character, "MOUNT")
 	num = DS:GetNumPets(pets) or 0
 
-	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Mounts", ICON_VIEW_MOUNTS, size, size)
+	addon:SetItemButtonTexture("AltoholicTabCharacters_Mounts", ICON_VIEW_MOUNTS, size, size)
 	if num > 0 then
 		AltoholicTabCharacters_MountsCount:SetText(num)
 		AltoholicTabCharacters_MountsCount:Show()
@@ -194,22 +194,22 @@ function ns:UpdateViewIcons()
 	AltoholicTabCharacters_Mounts.text = format(MOUNTS .. " %s(%d)", GREEN, num)
 	AltoholicTabCharacters_Mounts:Show()
 	
-	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Factions", ICON_VIEW_REP, size, size)
+	addon:SetItemButtonTexture("AltoholicTabCharacters_Factions", ICON_VIEW_REP, size, size)
 	AltoholicTabCharacters_Factions.text = L["Reputations"]
 	AltoholicTabCharacters_Factions:Show()
 	
-	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Tokens", ICON_VIEW_TOKENS, size, size)
+	addon:SetItemButtonTexture("AltoholicTabCharacters_Tokens", ICON_VIEW_TOKENS, size, size)
 	AltoholicTabCharacters_Tokens.text = CURRENCY
 	AltoholicTabCharacters_Tokens:Show()	
 	
 	-- ** Professions **
 	local professionName = GetSpellInfo(2550)		-- cooking
-	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_Cooking", Altoholic:GetSpellIcon(Altoholic.ProfessionSpellID[professionName]), size, size)
+	addon:SetItemButtonTexture("AltoholicTabCharacters_Cooking", addon:GetSpellIcon(addon.ProfessionSpellID[professionName]), size, size)
 	AltoholicTabCharacters_Cooking.text = professionName
 	AltoholicTabCharacters_Cooking:Show()
 	
 	professionName = GetSpellInfo(3273)		-- First Aid
-	Altoholic:SetItemButtonTexture("AltoholicTabCharacters_FirstAid", Altoholic:GetSpellIcon(Altoholic.ProfessionSpellID[professionName]), size, size)
+	addon:SetItemButtonTexture("AltoholicTabCharacters_FirstAid", addon:GetSpellIcon(addon.ProfessionSpellID[professionName]), size, size)
 	AltoholicTabCharacters_FirstAid.text = professionName
 	AltoholicTabCharacters_FirstAid:Show()
 	
@@ -218,8 +218,8 @@ function ns:UpdateViewIcons()
 		local itemName = "AltoholicTabCharacters_Prof" .. i
 		local item = _G[itemName]
 	
-		if Altoholic.ProfessionSpellID[skillName] then
-			Altoholic:SetItemButtonTexture(itemName, Altoholic:GetSpellIcon(Altoholic.ProfessionSpellID[skillName]), size, size)
+		if addon.ProfessionSpellID[skillName] then
+			addon:SetItemButtonTexture(itemName, addon:GetSpellIcon(addon.ProfessionSpellID[skillName]), size, size)
 			item.text = skillName
 			item:Show()
 		else
@@ -370,7 +370,7 @@ function ns:ViewCharInfo(index, autoCastDone)
 end
 
 function ns:ViewRecipes(profession)
-	local ts = Altoholic.TradeSkills
+	local ts = addon.TradeSkills
 	ts.CurrentProfession = profession
 	
 	ns.InfoType = profession
@@ -385,58 +385,58 @@ end
 
 function ns:ShowCharInfo(infoType)
 	if infoType == VIEW_BAGS then
-		Altoholic:ClearScrollFrame(_G[ "AltoholicFrameContainersScrollFrame" ], "AltoholicFrameContainersEntry", 7, 41)
+		addon:ClearScrollFrame(_G[ "AltoholicFrameContainersScrollFrame" ], "AltoholicFrameContainersEntry", 7, 41)
 		
-		Altoholic.Containers:SetView(Altoholic.Options:Get("lastContainerView"))
+		addon.Containers:SetView(addon.Options:Get("lastContainerView"))
 		AltoholicFrameContainers:Show()
-		Altoholic.Containers:Update()
+		addon.Containers:Update()
 		
 	elseif infoType == VIEW_TALENTS then
 		AltoholicFrameTalents:Show()
-		Altoholic.Talents:Update();
+		addon.Talents:Update();
 		
 	elseif infoType == VIEW_MAILS then
 		AltoholicFrameMail:Show()
-		Altoholic.Mail:BuildView()
-		Altoholic.Mail:Update()
+		addon.Mail:BuildView()
+		addon.Mail:Update()
 	elseif infoType == VIEW_QUESTS then
 		AltoholicFrameQuests:Show()
-		Altoholic.Quests:InvalidateView()
-		Altoholic.Quests:Update();
+		addon.Quests:InvalidateView()
+		addon.Quests:Update();
 	elseif infoType == VIEW_AUCTIONS then
-		Altoholic.AuctionHouse:SetListType("Auctions")
+		addon.AuctionHouse:SetListType("Auctions")
 		AltoholicFrameAuctions:Show()
-		Altoholic.AuctionHouse:Update();
+		addon.AuctionHouse:Update();
 	elseif infoType == VIEW_BIDS then
-		Altoholic.AuctionHouse:SetListType("Bids")
+		addon.AuctionHouse:SetListType("Bids")
 		AltoholicFrameAuctions:Show()
-		Altoholic.AuctionHouse:Update();
+		addon.AuctionHouse:Update();
 	elseif infoType == VIEW_COMPANIONS then
 		UIDropDownMenu_SetSelectedValue(AltoholicFramePets_SelectPetView, 1);
 		UIDropDownMenu_SetText(AltoholicFramePets_SelectPetView, COMPANIONS)
-		Altoholic.Pets:SetType("CRITTER")
+		addon.Pets:SetType("CRITTER")
 		AltoholicFramePetsNormal:Show()
 		AltoholicFramePetsAllInOne:Hide()
 		AltoholicFramePets:Show()
 	elseif infoType == VIEW_MOUNTS then
 		UIDropDownMenu_SetSelectedValue(AltoholicFramePets_SelectPetView, 3);
 		UIDropDownMenu_SetText(AltoholicFramePets_SelectPetView, MOUNTS)
-		Altoholic.Pets:SetType("MOUNT")
+		addon.Pets:SetType("MOUNT")
 		AltoholicFramePetsNormal:Show()
 		AltoholicFramePetsAllInOne:Hide()
 		AltoholicFramePets:Show()
 	elseif infoType == VIEW_REP then
 		AltoholicFrameClasses:Show()
 		AltoholicFrameReputations:Show()
-		Altoholic.Reputations:Update();	
+		addon.Reputations:Update();	
 	elseif infoType == VIEW_EQUIP then
 		AltoholicFrameClasses:Show()
 		AltoholicFrameEquipment:Show()
-		Altoholic.Equipment:Update()	
+		addon.Equipment:Update()	
 	elseif infoType == VIEW_TOKENS then
 		AltoholicFrameClasses:Show()
 		AltoholicFrameCurrencies:Show()
-		Altoholic.Currencies:Update()	
+		addon.Currencies:Update()	
 	end
 end
 

@@ -55,8 +55,8 @@ function ns:OnShow()
 		
 		-- if the player is not in a guild, set the drop down to the first available guild on this realm, if any.
 		if not currentGuild then
-			for guildName, guild in pairs(DS:GetGuilds(currentRealm, THIS_ACCOUNT)) do
-				local money = DS:GetGuildBankMoney(guild)
+			for guildName, guild in pairs(DataStore:GetGuilds(currentRealm, THIS_ACCOUNT)) do
+				local money = DataStore:GetGuildBankMoney(guild)
 				if money then		-- if money is not nil, the guild bank has been populated
 					currentGuild = guildName
 					break	-- if there's at least one guild, let's set the right value and break immediately

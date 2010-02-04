@@ -378,12 +378,12 @@ function ns:OnShow()
 	-- do not activate now, requires a few changes, and certainly the implementation of DataStore_Crafts
 	-- if not self.Orig_AuctionFrameBrowse_Update then
 		-- self.Orig_AuctionFrameBrowse_Update = AuctionFrameBrowse_Update
-		-- AuctionFrameBrowse_Update = Altoholic.AuctionHouse.BrowseUpdateHook
+		-- AuctionFrameBrowse_Update = addon.AuctionHouse.BrowseUpdateHook
 	-- end
 end
 
--- function Altoholic.AuctionHouse.BrowseUpdateHook()
-	-- local self = Altoholic.AuctionHouse
+-- function addon.AuctionHouse.BrowseUpdateHook()
+	-- local self = addon.AuctionHouse
 	-- self.Orig_AuctionFrameBrowse_Update()		-- Let default stuff happen first ..
 	
 	-- local offset = FauxScrollFrame_GetOffset(BrowseScrollFrame)
@@ -391,7 +391,7 @@ end
 	-- for i = 1, NUM_BROWSE_TO_DISPLAY do			-- NUM_BROWSE_TO_DISPLAY = 8;
 		-- link = GetAuctionItemLink("list", i+offset)
 		-- if link then		-- if there's a valid item link in this slot ..
-			-- local itemID = Altoholic:GetIDFromLink(link)
+			-- local itemID = addon:GetIDFromLink(link)
 			-- local _, _, _, _, _, itemType = GetItemInfo(itemID)
 			-- if itemType == BI["Recipe"] then		-- is it a recipe ?
 				-- local tex = _G["BrowseButton" .. i .. "ItemIconTexture"]
