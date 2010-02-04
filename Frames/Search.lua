@@ -56,7 +56,7 @@ local function Realm_UpdateEx(self, offset, entry, desc)
 			_G[ entry..i.."Stat1" ]:SetText(color .. owner)
 			
 			local realm, account, faction = LineDesc:GetRealm(result)
-			local location = Altoholic:GetFactionColour(faction) .. realm
+			local location = addon:GetFactionColour(faction) .. realm
 			if account ~= THIS_ACCOUNT then
 				location = location .. "\n" ..WHITE.. L["Account"] .. ": " ..GREEN.. account
 			end
@@ -66,7 +66,7 @@ local function Realm_UpdateEx(self, offset, entry, desc)
 			local hex = WHITE
 			local itemButton = _G[ entry..i.."Item" ]
 			
-			Altoholic:CreateButtonBorder(itemButton)
+			addon:CreateButtonBorder(itemButton)
 			itemButton.border:Hide()
 			
 			if result.id then
@@ -173,7 +173,7 @@ local RealmScrollFrame_Desc = {
 			GetItemData = function(self, result, line)
 					-- return name, source, sourceID
 					local _, _, spellID = DS:GetCraftLineInfo(result.profession, result.craftIndex)
-					local source = Altoholic.TradeSkills.Recipes:GetLink(spellID, result.professionName)
+					local source = addon.TradeSkills.Recipes:GetLink(spellID, result.professionName)
 					
 					return GetSpellInfo(spellID), source, line
 				end,
@@ -207,7 +207,7 @@ local RealmScrollFrame_Desc = {
 			GetItemData = function(self, result, line)
 					-- return name, source, sourceID
 					local profession = LTL:GetSkillName(result.skillID)
-					local source = Altoholic.TradeSkills.Recipes:GetLink(result.spellID, profession)
+					local source = addon.TradeSkills.Recipes:GetLink(result.spellID, profession)
 					
 					return GetSpellInfo(result.spellID), source, line
 				end,
@@ -218,11 +218,11 @@ local RealmScrollFrame_Desc = {
 					end
 			
 					local profession = LTL:GetSkillName(result.skillID)
-					return Altoholic:GetSpellIcon(Altoholic.ProfessionSpellID[profession])
+					return addon:GetSpellIcon(addon.ProfessionSpellID[profession])
 				end,
 			GetCharacter = function(self, result)
 					local _, _, _, _, _, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(result.char)
-					return result.char, Altoholic:GetClassColor(englishClass)
+					return result.char, addon:GetClassColor(englishClass)
 				end,
 			GetRealm = function(self, result)
 					return GetRealmName(), THIS_ACCOUNT, UnitFactionGroup("player")
@@ -246,7 +246,7 @@ function ns:Loots_Update()
 	local numResults = ns:GetNumResults()
 	
 	if numResults == 0 then
-		Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
+		addon:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
 		return
 	end
 
@@ -259,7 +259,7 @@ function ns:Loots_Update()
 			local itemID = result.id
 			
 			local itemButton = _G[ entry..i.."Item" ]
-			Altoholic:CreateButtonBorder(itemButton)
+			addon:CreateButtonBorder(itemButton)
 			itemButton.border:Hide()
 			
 			local itemName, _, itemRarity, itemLevel = GetItemInfo(itemID)
@@ -318,7 +318,7 @@ function ns:Upgrade_Update()
 	local numResults = ns:GetNumResults()
 	
 	if numResults == 0 then
-		Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
+		addon:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
 		return
 	end
 
@@ -331,7 +331,7 @@ function ns:Upgrade_Update()
 			local itemID = result.id
 			
 			local itemButton = _G[ entry..i.."Item" ]
-			Altoholic:CreateButtonBorder(itemButton)
+			addon:CreateButtonBorder(itemButton)
 			itemButton.border:Hide()
 			
 			local itemName, _, itemRarity, itemLevel = GetItemInfo(itemID)
@@ -408,7 +408,7 @@ end
 local function GetCraftName(char, profession, num)
 	-- this is a helper function to quickly retrieve the name of a craft based on a character, profession and line number
 	
-	local c = Altoholic:GetCharacterTableByLine(char)
+	local c = addon:GetCharacterTableByLine(char)
 	local _, _, spellID = strsplit("^", c.recipes[profession].list[num])
 	return GetSpellInfo(tonumber(spellID))
 end
@@ -719,7 +719,7 @@ local function BrowseRealm(realm, account, bothFactions)
 		end
 	end
 	
-	if Altoholic.Options:Get("IncludeGuildBank") == 1 then	-- Check guild bank(s) ?
+	if addon.Options:Get("IncludeGuildBank") == 1 then	-- Check guild bank(s) ?
 		currentResultType = GUILD_ITEM_LINE
 
 		for guildName, guild in pairs(DS:GetGuilds(realm, account)) do
@@ -747,15 +747,15 @@ local function BrowseRealm(realm, account, bothFactions)
 		currentResultLocation = nil
 	end
 	
-	if Altoholic.Options:Get("IncludeGuildSkills") == 1 and string.len(currentValue) > 1 then	-- Check guild professions ?
-		local guild = Altoholic:GetGuild()
+	if addon.Options:Get("IncludeGuildSkills") == 1 and string.len(currentValue) > 1 then	-- Check guild professions ?
+		local guild = addon:GetGuild()
 		if guild and LTL then	-- LTL won't be valid if there's a version mismatch (see :Init() )
 			ns.GuildMembers = {}
 			
-			for member, _ in pairs(Altoholic:GetGuildMembers(guild)) do			-- add all known members into a table
+			for member, _ in pairs(addon:GetGuildMembers(guild)) do			-- add all known members into a table
 				table.insert(ns.GuildMembers, member)
 			end
-			Altoholic.Tasks:Add("BrowseGuildProfessions", 0, ns.BrowseGuildProfessions, ns)
+			addon.Tasks:Add("BrowseGuildProfessions", 0, ns.BrowseGuildProfessions, ns)
 		end
 	end
 end
@@ -818,12 +818,12 @@ function ns:FindItem(searchType, searchSubType)
 		end
 	else	-- search loot tables
 		SearchLoots = true -- this value will be tested in ns:Update() to resize columns properly
-		Altoholic.Loots:Find(currentValue, currentType, currentSubType, 
+		addon.Loots:Find(currentValue, currentType, currentSubType, 
 				currentRarity, currentMinLevel, currentMaxLevel, currentSlot)
 	end
 	
 	if not AltoholicTabSearch:IsVisible() then
-		Altoholic.Tabs:OnClick(3)
+		addon.Tabs:OnClick(3)
 	end
 	
 	if ns:GetNumResults() == 0 then
@@ -840,8 +840,8 @@ function ns:FindItem(searchType, searchSubType)
 	currentSubType = nil
 	
 	if SearchLoots then
-		Altoholic.Tabs.Search:SetMode("loots")
-		if Altoholic.Options:Get("SortDescending") == 1 then 		-- descending sort ?
+		addon.Tabs.Search:SetMode("loots")
+		if addon.Options:Get("SortDescending") == 1 then 		-- descending sort ?
 			AltoholicTabSearch_Sort3.ascendingSort = true		-- say it's ascending now, it will be toggled
 			ns:SortResults(AltoholicTabSearch_Sort3, "iLvl")
 		else
@@ -849,7 +849,7 @@ function ns:FindItem(searchType, searchSubType)
 			ns:SortResults(AltoholicTabSearch_Sort3, "iLvl")
 		end
 	else
-		Altoholic.Tabs.Search:SetMode("realm")
+		addon.Tabs.Search:SetMode("realm")
 	end
 
 	ns:Update()
@@ -864,7 +864,7 @@ function ns:BrowseGuildProfessions()
 	end
 	
 	-- The professions of 1 guild member will be scanned in each pass
-	local guild = Altoholic:GetGuild()
+	local guild = addon:GetGuild()
 	local member = ns.GuildMembers[#ns.GuildMembers]	-- get the last item in the table
 	local t = {}
 	local skillID
@@ -890,7 +890,7 @@ function ns:BrowseGuildProfessions()
 	end
 	
 	table.remove(ns.GuildMembers)	-- kill the last item
-	Altoholic.Tasks:Reschedule("BrowseGuildProfessions", 0.005)
+	addon.Tasks:Reschedule("BrowseGuildProfessions", 0.005)
 	return true
 end
 

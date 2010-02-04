@@ -116,6 +116,7 @@ function ns:SetMode(mode)
 	AltoholicTabSummary_SelectLocation:Show()
 	AltoholicTabSummary_RequestSharing:Show()
 	AltoholicTabSummary_Options:Show()
+	AltoholicTabSummary_OptionsDataStore:Show()
 	
 	local Columns = addon.Tabs.Columns
 	Columns:Init()
@@ -187,6 +188,7 @@ function ns:SetMode(mode)
 		AltoholicTabSummary_SelectLocation:Hide()
 		AltoholicTabSummary_RequestSharing:Hide()
 		AltoholicTabSummary_Options:Hide()
+		AltoholicTabSummary_OptionsDataStore:Hide()
 	end
 end
 

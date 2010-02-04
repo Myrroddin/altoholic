@@ -15,7 +15,7 @@ local ns = addon.Mail		-- ns = namespace
 
 local function SortByName(a, b, ascending)
 	local DS = DataStore
-	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetCurrent()
 	
 	local textA = DS:GetMailSubject(character, a) or ""
 	local textB = DS:GetMailSubject(character, b) or ""
@@ -29,7 +29,7 @@ end
 
 local function SortBySender(a, b, ascending)
 	local DS = DataStore
-	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetCurrent()
 	
 	local senderA = DS:GetMailSender(character, a)
 	local senderB = DS:GetMailSender(character, b)
@@ -43,7 +43,7 @@ end
 
 local function SortByExpiry(a, b, ascending)
 	local DS = DataStore
-	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetCurrent()
 	
 	local _, expiryA = DS:GetMailExpiry(character, a)
 	local _, expiryB = DS:GetMailExpiry(character, b)
@@ -77,7 +77,7 @@ function ns:BuildView(field, ascending)
 	wipe(self.view)
 	
 	local DS = DataStore
-	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetCurrent()
 	if not character then return end
 	
 	local numMails = DS:GetNumMails(character) or 0
@@ -104,10 +104,10 @@ function ns:Update()
 -- TIME_UNTIL_RETURNED = "Time until message is returned"; -- Tooltip for items marked returnable
 
 	
-	local player = Altoholic:GetCurrentCharacter()
+	local player = addon:GetCurrentCharacter()
 	
 	local DS = DataStore
-	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetCurrent()
 	local lastVisit = DS:GetMailboxLastVisit(character)
 	
 	if lastVisit ~= 0 then
@@ -123,7 +123,7 @@ function ns:Update()
 	if numMails == 0 then
 		AltoholicTabCharactersStatus:SetText(format(L["%s has no mail"], player))
 		-- make sure the scroll frame is cleared !
-		Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
+		addon:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
 		return
 	else
 		AltoholicTabCharactersStatus:SetText("")
@@ -177,7 +177,7 @@ end
 
 function ns:OnEnter(self)
 	local DS = DataStore
-	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetCurrent()
 	local index = self:GetID()
 	local _, _, link, money, text = DS:GetMailInfo(character, index)
 						
@@ -197,7 +197,7 @@ function ns:OnEnter(self)
 			GameTooltip:AddLine("|cFFFFD700" .. text, 1, 1, 1, 1, 1);
 		end
 		if money > 0 then
-			GameTooltip:AddLine("|rAttached Money: " .. Altoholic:GetMoneyString(money),1,1,1);
+			GameTooltip:AddLine("|rAttached Money: " .. addon:GetMoneyString(money),1,1,1);
 		end
 		GameTooltip:Show();
 	end
@@ -205,7 +205,7 @@ end
 
 function ns:OnClick(self, button)
 	local DS = DataStore
-	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetCurrent()
 	local index = self:GetID()
 	local _, _, link = DS:GetMailInfo(character, index)
 
@@ -230,7 +230,7 @@ function addon:DATASTORE_GLOBAL_MAIL_EXPIRY(event, threshold)
 			end
 		end)
 	
-	AltoMsgBox_Text:SetText(format("%sAltoholic: %s%s", TEAL, WHITE, 
+	AltoMsgBox_Text:SetText(format("%saddon: %s%s", TEAL, WHITE, 
 		"\n" .. L["Mail is about to expire on at least one character."] .. "\n" 
 		.. L["Refer to the activity pane for more details."].. "\n\n")
 		.. L["Do you want to view it now ?"])
@@ -248,7 +248,7 @@ end
 local Orig_SendMailNameEditBox_OnChar = SendMailNameEditBox:GetScript("OnChar")
 
 SendMailNameEditBox:SetScript("OnChar", function(...)
-	if Altoholic.Options:Get("NameAutoComplete") == 1 then
+	if addon.Options:Get("NameAutoComplete") == 1 then
 		local text = this:GetText(); 
 		local textlen = strlen(text); 
 		local DS = DataStore

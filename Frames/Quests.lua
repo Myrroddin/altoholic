@@ -181,8 +181,8 @@ function Altoholic.Quests:GetTypeString(tag, size)
 	end
 end
 
-function Altoholic.Quests:Link_OnEnter(self)
-	local id = self:GetID()
+function Altoholic.Quests:Link_OnEnter(frame)
+	local id = frame:GetID()
 	if id == 0 then return end
 
 	local DS = DataStore
@@ -190,12 +190,17 @@ function Altoholic.Quests:Link_OnEnter(self)
 	local _, link = DS:GetQuestLogInfo(character, id)
 	if not link then return end
 
+	local questName, questID, level = DS:GetQuestInfo(link)
+	if IsAddOnLoaded("Odyssey") and IsAddOnLoaded("OdysseyQuests") then
+		Odyssey:ShowQuestTooltip(frame, questID)
+		return
+	end
+	
 	GameTooltip:ClearLines();
-	GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+	GameTooltip:SetOwner(frame, "ANCHOR_RIGHT");
 	GameTooltip:SetHyperlink(link);
 	GameTooltip:AddLine(" ",1,1,1);
 	
-	local questName, questID, level = DS:GetQuestInfo(link)
 	GameTooltip:AddDoubleLine(LEVEL .. ": |cFF00FF9A" .. level, L["QuestID"] .. ": |cFF00FF9A" .. questID);
 	
 	local player = Altoholic:GetCurrentCharacter()

@@ -418,7 +418,7 @@ function ns:Update()
 	AltoholicTabCharactersStatus:SetText("")
 	
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
-	local realm, account = Altoholic:GetCurrentRealm()
+	local realm, account = addon:GetCurrentRealm()
 	local character
 	local DS = DataStore
 	
@@ -437,7 +437,7 @@ function ns:Update()
 			local itemCount = _G[itemName .. "Count"]
 			itemCount:Hide();
 			
-			Altoholic:CreateButtonBorder(itemButton)
+			addon:CreateButtonBorder(itemButton)
 			itemButton.border:Hide()
 			
 			local classButton = _G["AltoholicFrameClassesItem" .. j]
@@ -447,7 +447,7 @@ function ns:Update()
 				local item = DS:GetInventoryItem(character, line)
 				if item then
 					itemButton.CharName = classButton.CharName
-					Altoholic:SetItemButtonTexture(itemName, GetItemIcon(item));
+					addon:SetItemButtonTexture(itemName, GetItemIcon(item));
 					
 					-- display the coloured border
 					local _, _, itemRarity, itemLevel = GetItemInfo(item)
@@ -461,7 +461,7 @@ function ns:Update()
 					itemCount:Show();
 				else
 					itemButton.CharName = nil
-					Altoholic:SetItemButtonTexture(itemName, e.icon);
+					addon:SetItemButtonTexture(itemName, e.icon);
 				end
 				
 				itemButton:Show()
@@ -482,7 +482,7 @@ function ns:OnEnter()
 	if not self.CharName then return end
 	
 	local DS = DataStore
-	local realm, account = Altoholic:GetCurrentRealm()
+	local realm, account = addon:GetCurrentRealm()
 	local character = DS:GetCharacter(self.CharName, realm, account)
 	local item = DS:GetInventoryItem(character, self:GetParent():GetID())
 	if not item then return end
@@ -514,7 +514,7 @@ function ns:OnClick(button)
 	if slotID == 0 then return end		-- class icon
 
 	local DS = DataStore
-	local realm, account = Altoholic:GetCurrentRealm()
+	local realm, account = addon:GetCurrentRealm()
 	local character = DS:GetCharacter(self.CharName, realm, account)
 	local item = DS:GetInventoryItem(character, slotID)
 	if not item then return end
@@ -529,7 +529,7 @@ function ns:OnClick(button)
 	if not link then return end
 	
 	if button == "RightButton" then
-		Altoholic.Search:SetCurrentItem( Altoholic:GetIDFromLink(link) ) 		-- item ID of the item to find an upgrade for
+		Altoholic.Search:SetCurrentItem( addon:GetIDFromLink(link) ) 		-- item ID of the item to find an upgrade for
 		local _, class = DS:GetCharacterClass(character)
 		Altoholic.Search:SetClass(class)
 		

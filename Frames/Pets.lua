@@ -229,7 +229,7 @@ function ns:UpdatePetsAllInOne()
 		petType = "MOUNT"
 	end
 	
-	local realm, account = Altoholic:GetCurrentRealm()
+	local realm, account = addon:GetCurrentRealm()
 	local character
 
 	for i=1, VisibleLines do

@@ -66,15 +66,15 @@ function ns:DrawTab(tabID)
 			local itemID, itemLink, itemCount = DS:GetSlotInfo(tab, itemIndex)
 			
 			if itemID then
-				Altoholic:SetItemButtonTexture(itemName, GetItemIcon(itemID));
+				addon:SetItemButtonTexture(itemName, GetItemIcon(itemID));
 			else
-				Altoholic:SetItemButtonTexture(itemName, "Interface\\PaperDoll\\UI-Backpack-EmptySlot");
+				addon:SetItemButtonTexture(itemName, "Interface\\PaperDoll\\UI-Backpack-EmptySlot");
 			end
 			
 			itemButton.id = itemID
 			itemButton.link = itemLink
 				itemButton:SetScript("OnEnter", function(self) 
-						Altoholic:Item_OnEnter(self)
+						addon:Item_OnEnter(self)
 					end)
 			
 			local countWidget = _G[itemName .. "Count"]
