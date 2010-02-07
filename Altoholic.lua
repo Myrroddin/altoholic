@@ -94,6 +94,9 @@ function Altoholic:InitLocalization()
 		L["This name can be anything you like,\nit does |cFF00FF00NOT|r have to be the real account name."],
 		L["This field |cFF00FF00cannot|r be left empty."])
 	
+	AltoholicTabSummary_Options.tooltip = format("%s:|r %s", WHITE..GAMEOPTIONS_MENU, addonName)
+	AltoholicTabSummary_OptionsDataStore.tooltip = format("%s:|r %s", WHITE..GAMEOPTIONS_MENU, "DataStore")
+	
 	AltoholicFrameTab1:SetText(L["Summary"])
 	AltoholicFrameTab2:SetText(L["Characters"])
 	AltoholicTabSummaryMenuItem1:SetText(L["Account Summary"])
@@ -954,11 +957,12 @@ function Altoholic:ShowWidgetTooltip(frame)
 end
 
 function Altoholic:ShowClassIcons()
+	local entry = "AltoholicFrameClassesItem"
 	local i = 1
 	
 	local realm, account = Altoholic:GetCurrentRealm()
 	for characterName, character in pairs(DS:GetCharacters(realm, account)) do
-		local itemName = "AltoholicFrameClassesItem" .. i;
+		local itemName = entry .. i;
 		local itemButton = _G[itemName];
 		itemButton:SetScript("OnEnter", function(self) 
 				Altoholic:DrawCharacterTooltip(self, self.CharName)
@@ -966,7 +970,6 @@ function Altoholic:ShowClassIcons()
 		itemButton:SetScript("OnLeave", function(self) 
 				AltoTooltip:Hide()
 			end)
-		itemButton:SetScript("OnClick", Altoholic_Equipment_OnClick)
 		
 		local _, class = DS:GetCharacterClass(character)
 		local tc = CLASS_ICON_TCOORDS[class]
@@ -996,8 +999,8 @@ function Altoholic:ShowClassIcons()
 	end
 	
 	while i <= 10 do
-		_G[ "AltoholicFrameClassesItem" .. i ]:Hide()
-		_G[ "AltoholicFrameClassesItem" .. i ].CharName = nil
+		_G[ entry .. i ]:Hide()
+		_G[ entry .. i ].CharName = nil
 		i = i + 1
 	end
 end
