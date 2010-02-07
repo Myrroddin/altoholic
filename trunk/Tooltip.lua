@@ -163,7 +163,7 @@ end
 local function WriteCounterLines(tooltip)
 	if #counterLines == 0 then return end
 
-	if (Altoholic.Options:Get("TooltipCount") == 1) then			-- add count per character/guild
+	if (addon.Options:Get("TooltipCount") == 1) then			-- add count per character/guild
 		tooltip:AddLine(" ",1,1,1);
 		for _, line in ipairs (counterLines) do
 			tooltip:AddDoubleLine(line.owner,  TEAL .. line.info);
@@ -172,7 +172,7 @@ local function WriteCounterLines(tooltip)
 end
 
 local function WriteTotal(tooltip)
-	if (Altoholic.Options:Get("TooltipTotal") == 1) and cachedTotal then
+	if (addon.Options:Get("TooltipTotal") == 1) and cachedTotal then
 		tooltip:AddLine(cachedTotal,1,1,1);
 	end
 end
@@ -215,7 +215,7 @@ local function GetAccountItemCount(account, searchedID)
 	local count = 0
 
 	for _, character in pairs(DataStore:GetCharacters(realm, account)) do
-		if Altoholic.Options:Get("TooltipCrossFaction") == 1 then
+		if addon.Options:Get("TooltipCrossFaction") == 1 then
 			count = count + GetCharacterItemCount(character, searchedID)
 		else
 			if	DataStore:GetCharacterFaction(character) == UnitFactionGroup("player") then
@@ -231,7 +231,7 @@ local function GetItemCount(searchedID)
 	wipe(counterLines)
 
 	local count = 0
-	if Altoholic.Options:Get("TooltipMultiAccount") == 1 and not Altoholic.Comm.Sharing.SharingInProgress then
+	if addon.Options:Get("TooltipMultiAccount") == 1 and not addon.Comm.Sharing.SharingInProgress then
 		for account in pairs(DataStore:GetAccounts()) do
 			count = count + GetAccountItemCount(account, searchedID)
 		end
@@ -239,13 +239,13 @@ local function GetItemCount(searchedID)
 		count = GetAccountItemCount(THIS_ACCOUNT, searchedID)
 	end
 		
-	if Altoholic.Options:Get("TooltipGuildBank") == 1 then
+	if addon.Options:Get("TooltipGuildBank") == 1 then
 		for guildName, guildKey in pairs(DataStore:GetGuilds(GetRealmName())) do				-- this realm only
 			local altoGuild = addon:GetGuild(guildName)
 			if not altoGuild or (altoGuild and not altoGuild.hideInTooltip) then
 				local guildCount = 0
 				
-				if Altoholic.Options:Get("TooltipGuildBankCountPerTab") == 1 then
+				if addon.Options:Get("TooltipGuildBankCountPerTab") == 1 then
 					local tabCounters = {}
 					
 					for tabID = 1, 6 do 
@@ -266,7 +266,7 @@ local function GetItemCount(searchedID)
 					end
 				end
 					
-				if Altoholic.Options:Get("TooltipGuildBankCount") == 1 then
+				if addon.Options:Get("TooltipGuildBankCount") == 1 then
 					count = count + guildCount
 				end
 			end
@@ -278,7 +278,7 @@ end
 
 local function GetRecipeOwners(professionName, link, recipeLevel)
 	local craftName
-	local spellID = Altoholic:GetSpellIDFromRecipeLink(link)
+	local spellID = addon:GetSpellIDFromRecipeLink(link)
 
 	if not spellID then		-- spell id unknown ? let's parse the tooltip
 		craftName = GetCraftNameFromRecipeLink(link)
@@ -367,7 +367,7 @@ end
 
 local function ShowGatheringNodeCounters()
 	-- exit if player does not want counters for known gathering nodes
-	if Altoholic.Options:Get("TooltipGatheringNode") == 0 then return end
+	if addon.Options:Get("TooltipGatheringNode") == 0 then return end
 
 	local itemID = IsGatheringNode( _G["GameTooltipTextLeft1"]:GetText() )
 	if not itemID or (itemID == cachedItemID) then return end					-- is the item in the tooltip a known type of gathering node ?
@@ -377,7 +377,7 @@ local function ShowGatheringNodeCounters()
 	end
 
 	-- check player bags to see how many times he owns this item, and where
-	if Altoholic.Options:Get("TooltipCount") == 1 or Altoholic.Options:Get("TooltipTotal") == 1 then
+	if addon.Options:Get("TooltipCount") == 1 or addon.Options:Get("TooltipTotal") == 1 then
 		cachedCount = GetItemCount(itemID) -- if one of the 2 options is active, do the count
 		cachedTotal = (cachedCount > 0) and format("%s: %s", GOLD..L["Total owned"], TEAL..cachedCount) or nil
 	end
@@ -391,7 +391,7 @@ local function ProcessTooltip(tooltip, name, link)
 		return
 	end
 	
-	local itemID = Altoholic:GetIDFromLink(link)
+	local itemID = addon:GetIDFromLink(link)
 	
 	-- if there's no cached item id OR if it's different from the previous one ..
 	if (not cachedItemID) or 
@@ -401,8 +401,8 @@ local function ProcessTooltip(tooltip, name, link)
 		
 		-- these are the cpu intensive parts of the update .. so do them only if necessary
 		cachedSource = nil
-		if Altoholic.Options:Get("TooltipSource") == 1 then
-			local Instance, Boss = Altoholic.Loots:GetSource(itemID)
+		if addon.Options:Get("TooltipSource") == 1 then
+			local Instance, Boss = addon.Loots:GetSource(itemID)
 			
 			cachedItemID = itemID			-- we have searched this ID ..
 			if Instance then
@@ -411,7 +411,7 @@ local function ProcessTooltip(tooltip, name, link)
 		end
 		
 		-- .. then check player bags to see how many times he owns this item, and where
-		if Altoholic.Options:Get("TooltipCount") == 1 or Altoholic.Options:Get("TooltipTotal") == 1 then
+		if addon.Options:Get("TooltipCount") == 1 or addon.Options:Get("TooltipTotal") == 1 then
 			cachedCount = GetItemCount(itemID) -- if one of the 2 options is active, do the count
 			cachedTotal = (cachedCount > 0) and format("%s: %s", GOLD..L["Total owned"], TEAL..cachedCount) or nil
 		end
@@ -431,9 +431,9 @@ local function ProcessTooltip(tooltip, name, link)
 		tooltip:AddLine(cachedSource,1,1,1);
 	end
 	
-	-- Altoholic:CheckMaterialUtility(itemID)
+	-- addon:CheckMaterialUtility(itemID)
 	
-	if Altoholic.Options:Get("TooltipItemID") == 1 then
+	if addon.Options:Get("TooltipItemID") == 1 then
 		local iLevel = select(4, GetItemInfo(itemID))
 		
 		if iLevel then
@@ -443,7 +443,7 @@ local function ProcessTooltip(tooltip, name, link)
 		end
 	end
 	
-	if DataStore:IsModuleEnabled("DataStore_Pets") and Altoholic.Options:Get("TooltipPetInfo") == 1 then
+	if DataStore:IsModuleEnabled("DataStore_Pets") and addon.Options:Get("TooltipPetInfo") == 1 then
 		local companionID = DataStore:GetCompanionSpellID(itemID)
 		if companionID then
 			tooltip:AddLine(" ",1,1,1);	
@@ -459,7 +459,7 @@ local function ProcessTooltip(tooltip, name, link)
 		end
 	end
 	
-	if Altoholic.Options:Get("TooltipRecipeInfo") == 0 then return end -- exit if recipe information is not wanted
+	if addon.Options:Get("TooltipRecipeInfo") == 0 then return end -- exit if recipe information is not wanted
 	
 	local _, _, _, _, _, itemType, itemSubType = GetItemInfo(itemID)
 	if itemType ~= BI["Recipe"] then return end		-- exit if not a recipe
@@ -591,8 +591,8 @@ function addon:GetItemCount(searchedID)
 end
 
 -- not yet implemented, still needs testing, basic stuff works, but far from being optimized.
--- function Altoholic.Tooltip.OnGameTooltipSetSpell(tooltip, ...)
-	-- local self = Altoholic.Tooltip
+-- function addon.Tooltip.OnGameTooltipSetSpell(tooltip, ...)
+	-- local self = addon.Tooltip
 
 	-- if self.Orig_GameTooltip_SetSpell then
 		-- self.Orig_GameTooltip_SetSpell(tooltip, ...)
@@ -613,8 +613,8 @@ end
 	-- end
 -- end
 
--- function Altoholic.Tooltip.OnItemRefTooltipSetSpell(tooltip, ...)
-	-- local self = Altoholic.Tooltip
+-- function addon.Tooltip.OnItemRefTooltipSetSpell(tooltip, ...)
+	-- local self = addon.Tooltip
 
 	-- if self.Orig_ItemRefTooltip_SetSpell then
 		-- self.Orig_ItemRefTooltip_SetSpell(tooltip, ...)

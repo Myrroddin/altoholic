@@ -40,12 +40,12 @@ local options = {
 			type = "execute",
 			name = L['toggle'],
 			desc = L["Toggles the UI"],
-			func = function() Altoholic:ToggleUI() end
+			func = function() addon:ToggleUI() end
 		},
 	},
 }
  
-local AltoholicDB_Defaults = {
+local AddonDB_Defaults = {
 	global = {
 		Guilds = {
 			['*'] = {			-- ["Account.Realm.Name"] 
@@ -139,7 +139,7 @@ LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject(addonName, {
 	type = "launcher",
 	icon = "Interface\\Icons\\INV_Drink_13",
 	OnClick = function(clickedframe, button)
-		Altoholic:ToggleUI()
+		addon:ToggleUI()
 	end,
 	text = (Broker2FuBar) and addonName or nil,		-- only for fubar,  not for ldb
 	label = addonName,
@@ -191,7 +191,7 @@ local GuildCommCallbacks = {
 }
 
 function addon:OnInitialize()
-	Altoholic.db = LibStub("AceDB-3.0"):New("AltoholicDB", AltoholicDB_Defaults)
+	addon.db = LibStub("AceDB-3.0"):New(addonName .. "DB", AddonDB_Defaults)
 	LibStub("AceConfig-3.0"):RegisterOptionsTable(addonName, options)
 
 	addon:RegisterChatCommand("Altoholic", "ChatCommand")
@@ -229,19 +229,21 @@ function addon:GetGuildMemberVersion(member)
 	end
 end
 
-function Altoholic:ChatCommand(input)
+function addon:ChatCommand(input)
 	if not input then
 		LibStub("AceConfigDialog-3.0"):Open(addonName)
 	else
-		LibStub("AceConfigCmd-3.0").HandleCommand(Altoholic, "Alto", "Altoholic", input)
+		LibStub("AceConfigCmd-3.0").HandleCommand(addon, "Alto", "Altoholic", input)
 	end
 end
 
-Altoholic.Guild = {}
-Altoholic.TradeSkills = {}
-Altoholic.TradeSkills.Recipes = {}
-Altoholic.Tabs = {}
-Altoholic.Tabs.List = {
+addon.Guild = {}
+addon.TradeSkills = {}
+addon.TradeSkills.Recipes = {}
+
+
+-- ** Tabs **
+local tabList = {
 	"Summary",
 	"Characters",
 	"Search",
@@ -249,23 +251,25 @@ Altoholic.Tabs.List = {
 	"Achievements",
 }
 
-function Altoholic.Tabs:HideAll()
-	for _, v in pairs(self.List) do
-		_G["AltoholicTab" .. v]:Hide();
+addon.Tabs = {}
+
+function addon.Tabs:HideAll()
+	for _, tabName in pairs(tabList) do
+		_G[addonName.."Tab" .. tabName]:Hide();
 	end
 end
 
-function Altoholic.Tabs:OnClick(index)
-	PanelTemplates_SetTab(AltoholicFrame, index);
+function addon.Tabs:OnClick(index)
+	PanelTemplates_SetTab(_G[addonName.."Frame"], index);
 	self:HideAll()
 	self.current = index
-	self.Columns.prefix = "AltoholicTab"..self.List[index].."_Sort"
-	_G["AltoholicTab" .. self.List[index]]:Show()
+	self.Columns.prefix = addonName.."Tab"..tabList[index].."_Sort"
+	_G[addonName.."Tab" .. tabList[index]]:Show()
 end
 
-Altoholic.Tabs.Columns = {}
+addon.Tabs.Columns = {}
 
-function Altoholic.Tabs.Columns:Init()
+function addon.Tabs.Columns:Init()
 	local i = 1
 	local prefix = self.prefix or "AltoholicTabSummary_Sort"
 	local button = _G[ prefix .. i ]
@@ -284,7 +288,7 @@ function Altoholic.Tabs.Columns:Init()
 	self.prefix = prefix
 end
 
-function Altoholic.Tabs.Columns:Add(title, width, func)
+function addon.Tabs.Columns:Add(title, width, func)
 	local prefix = self.prefix
 	self.count = self.count + 1
 	local button = _G[ prefix..self.count ]
@@ -330,7 +334,7 @@ end
 tinsert(UISpecialFrames, "AltoholicFrame");
 tinsert(UISpecialFrames, "AltoMsgBox");
 
-function Altoholic:CmdSearchBags(arg1, arg2)
+function addon:CmdSearchBags(arg1, arg2)
 	-- arg 1 is a table, no idea of what it does, investigate later, only  arg2 matters at this point
 	
 	if string.len(arg2) == 0 then
@@ -342,5 +346,5 @@ function Altoholic:CmdSearchBags(arg1, arg2)
 		AltoholicFrame:Show();
 	end
 	AltoholicFrame_SearchEditBox:SetText(strlower(arg2))
-	Altoholic.Search:FindItem();
+	addon.Search:FindItem();
 end	
