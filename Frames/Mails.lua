@@ -230,7 +230,7 @@ function addon:DATASTORE_GLOBAL_MAIL_EXPIRY(event, threshold)
 			end
 		end)
 	
-	AltoMsgBox_Text:SetText(format("%saddon: %s%s", TEAL, WHITE, 
+	AltoMsgBox_Text:SetText(format("%sAltoholic: %s%s", TEAL, WHITE, 
 		"\n" .. L["Mail is about to expire on at least one character."] .. "\n" 
 		.. L["Refer to the activity pane for more details."].. "\n\n")
 		.. L["Do you want to view it now ?"])
