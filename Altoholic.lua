@@ -733,7 +733,9 @@ function Altoholic:Item_OnEnter(frame)
 	if frame.link then
 		GameTooltip:SetHyperlink(frame.link);
 	else
-		GameTooltip:AddLine(L["Unknown link, please relog this character"],1,1,1);
+		-- GameTooltip:AddLine(L["Unknown link, please relog this character"],1,1,1);
+		GameTooltip:SetHyperlink("item:"..frame.id..":0:0:0:0:0:0:0")	-- this line queries the server for an unknown id
+		GameTooltip:ClearLines(); -- don't leave residual info in the tooltip after the server query
 	end
 	GameTooltip:Show();
 end
