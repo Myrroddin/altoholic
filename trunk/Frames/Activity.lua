@@ -339,7 +339,7 @@ function ns:Mails_OnEnter(self)
 	
 	if numExpired > 0 then
 		AltoTooltip:AddLine(" ");
-		AltoTooltip:AddLine(format("%s%d %shave expired !", RED, numDeleted, WHITE))
+		AltoTooltip:AddLine(format("%s%d %shave expired !", RED, numExpired, WHITE))
 	end
 	
 	AltoTooltip:Show();
