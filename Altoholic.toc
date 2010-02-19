@@ -29,7 +29,7 @@ embeds.xml
 # Hard-Embedded libraries from other sites
 embedded.xml
 
-local.xml
+locale.xml
 
 AltoholicTemplates.xml
 Altoholic.xml
