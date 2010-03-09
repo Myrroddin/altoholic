@@ -1,11 +1,11 @@
-﻿local addonName = "Altoholic"
+﻿local addonName = ...
 
 _G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0")
 
 local addon = _G[addonName]
 
-addon.Version = "v3.3.001d"
-addon.VersionNum = 303001
+addon.Version = "v3.3.002"
+addon.VersionNum = 303002
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local commPrefix = addonName
@@ -87,6 +87,7 @@ local AddonDB_Defaults = {
 			GuildHandlerEnabled = 1,		-- guild communication handler is enabled by default
 			UIScale = 1.0,
 			UITransparency = 1.0,
+			ClampWindowToScreen = 0,
 			
 			-- ** Search options **
 			TotalLoots = 0,					-- make at least one search in the loot tables to initialize these values
@@ -251,11 +252,31 @@ local tabList = {
 	"Achievements",
 }
 
+local function SafeLoadAddOn(name)
+	if not IsAddOnLoaded(name) then
+		LoadAddOn(name)
+	end
+end
+
+local function ShowTab(name)
+	local tab = _G[addonName.."Tab" .. name]
+	if tab then
+		tab:Show()
+	end
+end
+
+local function HideTab(name)
+	local tab = _G[addonName.."Tab" .. name]
+	if tab then
+		tab:Hide()
+	end
+end
+
 addon.Tabs = {}
 
 function addon.Tabs:HideAll()
 	for _, tabName in pairs(tabList) do
-		_G[addonName.."Tab" .. tabName]:Hide();
+		HideTab(tabName)
 	end
 end
 
@@ -264,7 +285,12 @@ function addon.Tabs:OnClick(index)
 	self:HideAll()
 	self.current = index
 	self.Columns.prefix = addonName.."Tab"..tabList[index].."_Sort"
-	_G[addonName.."Tab" .. tabList[index]]:Show()
+	
+	if index == 5 then
+		SafeLoadAddOn(format("%s_%s", addonName, tabList[index]))		-- make this part a bit more generic once we'll have more LoD parts
+	end
+	
+	ShowTab(tabList[index])
 end
 
 addon.Tabs.Columns = {}

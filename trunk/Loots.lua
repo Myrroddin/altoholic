@@ -1,4 +1,4 @@
-﻿local addonName = "Altoholic"
+﻿local addonName = ...
 local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
@@ -9,10 +9,8 @@ local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
 
-Altoholic.Loots = {}
-
 -- Simplified loot table containing item ID's only, based on AtlasLoot v5.09.00
-Altoholic.Loots.List = {
+local lootTable = {
 			
 	-- to do: HardModeArena & HardModeArena2 from sets_en.lua
 	-- to do : wotlk crafts
@@ -868,7 +866,11 @@ Altoholic.Loots.List = {
 
 local DataProviders
 
-function Altoholic.Loots:GetSource(searchedID)
+addon.Loots = {}
+
+local ns = addon.Loots		-- ns = namespace
+
+function ns:GetSource(searchedID)
 	DataProviders = DataProviders or {			-- list of sources that have a :GetSource() method
 		DataStore_Reputations,
 		DataStore_Crafts,
@@ -884,7 +886,7 @@ function Altoholic.Loots:GetSource(searchedID)
 	end
 	
 	-- extremely fast: takes from 0.3 to 3 ms max, depends on the location of the item in the table (obviously longer if the item is at the end)
-	for Instance, BossList in pairs(self.List) do
+	for Instance, BossList in pairs(lootTable) do
 		for Boss, LootList in pairs(BossList) do
 			for itemID, _ in pairs(LootList) do
 				if LootList[itemID] == searchedID then
@@ -896,125 +898,19 @@ function Altoholic.Loots:GetSource(searchedID)
 	return nil
 end
 
-
-local searchedItem = {}		-- this table holds the return values of GetItemInfo for the currently iterated item
-
-local function SetSearchedItem(itemID)
-	local s = searchedItem
-	
-	s.itemID = itemID
-	s.itemName, s.itemLink, s.itemRarity, s.itemLevel,
-		s.itemMinLevel, s.itemType, s.itemSubType, _, s.itemEquipLoc = GetItemInfo(itemID)
-end
-
-local function ClearSearchedItem()
-	wipe(searchedItem)
-end
-
-local function GetSearchedItemInfo(field)
-	return searchedItem[field]
-end
-
-local filters = {}
-
-local function SetFilterValue(field, value)
-	filters[field] = value
-end
-
-local function ClearFilters()
-	wipe(filters)
-end
-
--- filter functions, return true if a searched value matches a filter value
-local function FilterByExistence()
-	if searchedItem.itemName and searchedItem.itemRarity then
-		return true	-- if both values are valid, the item exists in the game's item cache
-	end
-end
-
-local function FilterByItemLevel()
-	if searchedItem.itemLevel <= filters.itemLevel then
-		return false
-	end
-	return true
-end
-
-local function FilterByType()
-	if filters.itemType and filters.itemType ~= searchedItem.itemType then
-		return false
-	end
-	return true
-end
-
-local function FilterBySubType()
-	if filters.itemSubType and filters.itemSubType ~= searchedItem.itemSubType then
-		return false
-	end
-	return true
-end
-
-local function FilterByRarity()
-	if filters.itemRarity and filters.itemRarity >= searchedItem.itemRarity then
-		return false
-	end
-	return true
-end
-
-local function FilterByLevel()
-	local minLevel = searchedItem.itemMinLevel
-	if minLevel == 0 then
-		if (Altoholic.Options:Get("IncludeNoMinLevel") == 1) then
-			return true		-- include items with no minimum requireement
-		end
-	else
-		if (minLevel >= filters.itemMinLevel) and (minLevel <= filters.itemMaxLevel) then
-			return true		--  include if within the right level boundaries
-		end
-	end
-end
-
-local function FilterBySlot()
-	if filters.itemSlot == 0 then			-- slot 0 = all, return true
-		return true
-	else			-- if a specific equipment slot is specified ..
-		if Altoholic.Equipment:GetInventoryTypeIndex(searchedItem.itemEquipLoc) == filters.itemSlot then
-			return true
-		end
-	end
-end
-
-local function FilterByName()
-	if string.find(strlower(searchedItem.itemName), filters.itemName, 1, true) then
-		return true
-	end
-end
-
-local function EnableFilter(func)
-	filters.list = filters.list or {}
-	table.insert(filters.list, func)
-end
-
-local function ItemPassesAllFilters()
-	-- return true if all filters have returned true
-	for _, func in pairs(filters.list) do
-		if not func() then		-- if any of the filters returns false/nil, exit
-			return
-		end
-	end
-	return true
-end
+local filters = addon.ItemFilters
 
 local function ParseAltoholicLoots(OnMatch, OnNoMatch)
 	assert(type(OnMatch) == "function")
 	local count = 0
 	
-	for Instance, BossList in pairs(Altoholic.Loots.List) do
+	for Instance, BossList in pairs(lootTable) do
 		for Boss, LootList in pairs(BossList) do
 			for _, itemID in pairs(LootList) do
 				count = count + 1
-				SetSearchedItem(itemID)
+				filters:SetSearchedItem(itemID)
 				
-				if ItemPassesAllFilters() then
+				if filters:ItemPassesFilters() then
 					OnMatch(Instance, Boss)
 				else
 					if OnNoMatch then
@@ -1025,7 +921,7 @@ local function ParseAltoholicLoots(OnMatch, OnNoMatch)
 		end
 	end
 	
-	ClearSearchedItem()
+	filters:ClearSearchedItem()
 	return count
 end
 
@@ -1047,9 +943,9 @@ local function ParseLPTSet(set, OnMatch, OnNoMatch)
 			for itemID, value in pairs(list) do
 				if tostring(itemID) ~= "set" then
 					count = count + 1
-					SetSearchedItem(itemID)
+					filters:SetSearchedItem(itemID)
 					
-					if ItemPassesAllFilters() then
+					if filters:ItemPassesFilters() then
 						OnMatch(domain, subdomain or value)		-- pass the value in case "subdomain" is nil
 					else
 						if OnNoMatch then
@@ -1062,7 +958,7 @@ local function ParseLPTSet(set, OnMatch, OnNoMatch)
 		doneSets[list.set] = true
 	end
 	
-	ClearSearchedItem()
+	filters:ClearSearchedItem()
 	return count
 end
 
@@ -1070,8 +966,8 @@ local allowedQueries, unknownCount
 
 local function OnMatch(domain, subdomain)
 	Altoholic.Search:AddResult( {
-		id = GetSearchedItemInfo("itemID"),
-		iLvl = GetSearchedItemInfo("itemLevel"),
+		id = filters:GetSearchedItemInfo("itemID"),
+		iLvl = filters:GetSearchedItemInfo("itemLevel"),
 		dropLocation = domain,
 		bossName = subdomain,
 	} )
@@ -1079,20 +975,21 @@ end
 
 local function Currency_OnMatch(domain, subdomain)
 	Altoholic.Search:AddResult( {
-		id = GetSearchedItemInfo("itemID"),
-		iLvl = GetSearchedItemInfo("itemLevel"),
+		id = filters:GetSearchedItemInfo("itemID"),
+		iLvl = filters:GetSearchedItemInfo("itemLevel"),
 		dropLocation = domain,
 		bossName = subdomain.."x",
 	} )
 end
 
 local function OnNoMatch()
-	if FilterByExistence() then return end 	-- if the item exists, do nothing
+--	if FilterByExistence() then return end 	-- if the item exists, do nothing
+	if filters:TryFilter("Existence") then return end 	-- if the item exists, do nothing
 	unknownCount = unknownCount + 1
 	
 	if allowedQueries > 0 then
 		if Altoholic.Options:Get("SearchAutoQuery") == 1 then		-- if autoquery is enabled
-			local itemID = GetSearchedItemInfo("itemID")
+			local itemID = filters:GetSearchedItemInfo("itemID")
 			if not addon:IsItemUnsafe(itemID) then		-- if the item is not known to be unsafe
 				GameTooltip:SetHyperlink("item:"..itemID..":0:0:0:0:0:0:0")	-- this line queries the server for an unknown id
 				GameTooltip:ClearLines(); -- don't leave residual info in the tooltip after the server query
@@ -1106,24 +1003,7 @@ local function OnNoMatch()
 	end
 end
 
-
-function Altoholic.Loots:Find(itemName, itemType, itemSubType, itemRarity, itemMinLevel, itemMaxLevel, itemSlot)
-	SetFilterValue("itemName", itemName)
-	SetFilterValue("itemType", itemType)
-	SetFilterValue("itemSubType", itemSubType)
-	SetFilterValue("itemRarity", itemRarity)
-	SetFilterValue("itemMinLevel", itemMinLevel)
-	SetFilterValue("itemMaxLevel", itemMaxLevel)
-	SetFilterValue("itemSlot", itemSlot)
-
-	EnableFilter(FilterByExistence)
-	EnableFilter(FilterByType)
-	EnableFilter(FilterBySubType)
-	EnableFilter(FilterByRarity)
-	EnableFilter(FilterByLevel)
-	EnableFilter(FilterBySlot)
-	EnableFilter(FilterByName)
-	
+function ns:Find()
 	unknownCount = 0
 	allowedQueries = 5
 	local count = ParseAltoholicLoots(OnMatch, OnNoMatch)
@@ -1131,28 +1011,15 @@ function Altoholic.Loots:Find(itemName, itemType, itemSubType, itemRarity, itemM
 	count = count + ParseLPTSet("InstanceLootHeroic", OnMatch, OnNoMatch)
 	count = count + ParseLPTSet("CurrencyItems", Currency_OnMatch, OnNoMatch)
 
-	Altoholic.Options:Set("TotalLoots", count)
-	Altoholic.Options:Set("UnknownLoots", unknownCount)
-	
-	ClearFilters()
+	addon.Options:Set("TotalLoots", count)
+	addon.Options:Set("UnknownLoots", unknownCount)
 end
 
-function Altoholic.Loots:FindUpgrade(itemLevel, itemType, itemSubType, itemSlot)
-	SetFilterValue("itemLevel", itemLevel)
-	SetFilterValue("itemType", itemType)
-	SetFilterValue("itemSubType", itemSubType)
-	SetFilterValue("itemSlot", itemSlot)
-
-	EnableFilter(FilterByExistence)
-	EnableFilter(FilterByItemLevel)
-	EnableFilter(FilterByType)
-	EnableFilter(FilterBySubType)
-	EnableFilter(FilterBySlot)
-	
+function ns:FindUpgrade()
 	local function OnMatch(domain, subdomain)
-		Altoholic.Search:AddResult( {
-			id = GetSearchedItemInfo("itemID"),
-			iLvl = GetSearchedItemInfo("itemLevel"),
+		addon.Search:AddResult( {
+			id = filters:GetSearchedItemInfo("itemID"),
+			iLvl = filters:GetSearchedItemInfo("itemLevel"),
 			dropLocation = domain,
 			bossName = subdomain,
 		} )
@@ -1162,149 +1029,42 @@ function Altoholic.Loots:FindUpgrade(itemLevel, itemType, itemSubType, itemSlot)
 	ParseLPTSet("InstanceLoot", OnMatch)
 	ParseLPTSet("InstanceLootHeroic", OnMatch)
 	ParseLPTSet("CurrencyItems", Currency_OnMatch)
-	
-	ClearFilters()
 end
 
+local tooltipLines			-- cache containing the text lines of the tooltip "+15 stamina, etc.."
+local rawItemStats			-- contains the raw stats of the item currently being searched, placed here to avoid creating/deleting the table during the search
+local currentItemStats		-- contains the stats of the item for which we'll try to find upgrades
 
--- modify this one after 3.2, to use GetItemStats
-function Altoholic.Loots:FindUpgradeByStats(currentID, class, Search_iLvl, SearchType, SearchSubType, SearchEquipLoc)
-	
-	self.Exclude = Altoholic.Equipment.ExcludeStats[class]
-	self.Base = Altoholic.Equipment.BaseStats[class]
-	
-	self.RawItemStats = {}	-- contains the raw stats of the item currently being searched, placed here to avoid creating/deleting the table during the search
-	self.SearchItemStats = {}	-- contains the stats of the item for which we'll try to find upgrades
-	self.TooltipLines = {}	-- cache containing the text lines of the tooltip "+15 stamina, etc.."
-	
-	self:AddCurrentlyEquippedItem(currentID, class)
-	
-	for Instance, BossList in pairs(self.List) do		-- parse the loot table to find an upgrade
-		for Boss, LootList in pairs(BossList) do
-			for _, itemID in pairs(LootList) do
-			
-				local matches, itemLevel = self:MatchUpgradeByStats(itemID, Search_iLvl, SearchType, SearchSubType, SearchEquipLoc)
-				
-				if matches then
-					Altoholic.Search:AddResult( {
-						id = itemID,
-						iLvl = itemLevel,
-						dropLocation = Instance .. ", " .. GREEN .. Boss,
-						stat1 = self.RawItemStats[1],
-						stat2 = self.RawItemStats[2],
-						stat3 = self.RawItemStats[3],
-						stat4 = self.RawItemStats[4],
-						stat5 = self.RawItemStats[5],
-						stat6 = self.RawItemStats[6]
-					} )
-				end
-			end
-		end
-	end
-	
-	self.Exclude = nil
-	self.Base = nil
-	
-	wipe(self.SearchItemStats)
-	self.SearchItemStats = nil
-	wipe(self.TooltipLines)
-	self.TooltipLines = nil
-	wipe(self.RawItemStats)
-	self.RawItemStats = nil
-end
+local classExcludedStats
+local classBaseStats
 
-function Altoholic.Loots:MatchUpgradeByStats(itemID, Search_iLvl, SearchType, SearchSubType, SearchEquipLoc)
-
-	local itemName, itemLink, itemRarity, itemLevel, _, itemType, itemSubType, _, itemEquipLoc = GetItemInfo(itemID)
-
-	if not itemName and not itemRarity then
-		return			-- with these 2 being nil, the item isn't in the item cache, so its link would be invalid: don't list it
-	end
-
-	if (itemLevel <= Search_iLvl) or (SearchType ~= itemType) or 
-		(SearchSubType ~= itemSubType) then
-		return		-- not within the right level boundaries ? invalid type or subtype ? .. exit
-	end
-
-	if Altoholic.Equipment:GetInventoryTypeIndex(itemEquipLoc) ~= SearchEquipLoc then
-		return		-- not the right slot ? .. exit
-	end
-
-	AltoTooltip:ClearLines();	
-	AltoTooltip:SetOwner(AltoholicFrame, "ANCHOR_LEFT");
-	AltoTooltip:SetHyperlink(itemLink)
-	
-	-- save some time by trying to find out if the item could be excluded
-	wipe(self.TooltipLines)
-	for i = 4, AltoTooltip:NumLines() do	-- parse all tooltip lines, one by one, start at 4 since 1= item name, 2 = binds on.., 3 = type/slot/unique ..etc
-		-- in this first pass, save the lines into a cache, reused below
-		local tooltipLine = _G[ "AltoTooltipTextLeft" .. i]:GetText()
-		if tooltipLine then
-			if string.find(tooltipLine, L["Socket"]) == nil then
-				for _, v in pairs(self.Exclude) do
-					--if string.find(tooltipLine, v, 1, true) ~= nil then return end
-					if string.find(tooltipLine, v) ~= nil then return end
-				end
-				self.TooltipLines[i] = tooltipLine
-			end
-		end
-	end
-	
-	local statFound
-	local j=1
-	for _, BaseStat in pairs(self.Base) do
-
-		statFound = nil
-		for i, tooltipText in pairs(self.TooltipLines) do
-			--if string.find(tooltipText, BaseStat, 1, true) ~= nil then
-			if string.find(tooltipText, BaseStat) ~= nil then
-				--local stat = tonumber(string.sub(tooltipText, string.find(tooltipText, "%d+")))
-				local stat = tonumber(string.match(tooltipText, "%d+"))
-				
-				self.RawItemStats[j] = stat .. "|" .. (stat - self.SearchItemStats[BaseStat])
-				table.remove(self.TooltipLines, i)	-- remove the current entry, so it won't be parsed in the next loop cycle
-				statFound = true
-				break
-			end
-		end
-		
-		if not statFound then
-			self.RawItemStats[j] = "0|" .. (0 - self.SearchItemStats[BaseStat])
-		end
-		j = j + 1
-	end
-		
-	-- All conditions ok ? save it
-	return true, itemLevel
-end
-
-function Altoholic.Loots:AddCurrentlyEquippedItem(itemID, class)
+local function AddCurrentlyEquippedItem(itemID, class)
 
 	AltoTooltip:SetOwner(AltoholicFrame, "ANCHOR_LEFT")
 	local _, itemLink, _, itemLevel = GetItemInfo(itemID)
 	AltoTooltip:SetHyperlink(itemLink)
 	
-	local statLine = Altoholic.Equipment.FormatStats[class]
+	local statLine = addon.Equipment.FormatStats[class]
 	local numLines = AltoTooltip:NumLines()
 	
 	local j=1
-	for _, BaseStat in pairs(self.Base) do
+	for _, BaseStat in pairs(classBaseStats) do
 		for i = 4, numLines do
 			local tooltipText = _G[ "AltoTooltipTextLeft" .. i]:GetText()
 			if tooltipText then
 				if string.find(tooltipText, BaseStat) ~= nil then
-					self.SearchItemStats[BaseStat] = tonumber(string.sub(tooltipText, string.find(tooltipText, "%d+")))
-					statLine = string.gsub(statLine, "-s", WHITE .. self.SearchItemStats[BaseStat], 1)
+					currentItemStats[BaseStat] = tonumber(string.sub(tooltipText, string.find(tooltipText, "%d+")))
+					statLine = string.gsub(statLine, "-s", WHITE .. currentItemStats[BaseStat], 1)
 					
-					self.RawItemStats[j] = self.SearchItemStats[BaseStat] .. "|0"
+					rawItemStats[j] = currentItemStats[BaseStat] .. "|0"
 					break
 				end
 			end
 		end
-		if not self.SearchItemStats[BaseStat] then
-			self.RawItemStats[j] = "0|0"
+		if not currentItemStats[BaseStat] then
+			rawItemStats[j] = "0|0"
 		
-			self.SearchItemStats[BaseStat] = 0 -- Set the current stat to zero if it was not found on the item
+			currentItemStats[BaseStat] = 0 -- Set the current stat to zero if it was not found on the item
 			statLine = string.gsub(statLine, "-s", WHITE .. "0", 1)
 		end
 		j = j + 1
@@ -1312,15 +1072,114 @@ function Altoholic.Loots:AddCurrentlyEquippedItem(itemID, class)
 	AltoTooltip:ClearLines();
 	
 	-- Save currently equipped item to the results table
-	Altoholic.Search:AddResult( {
+	addon.Search:AddResult( {
 		id = itemID,
 		iLvl = itemLevel,
 		dropLocation = "Currently equipped",
-		stat1 = self.RawItemStats[1],
-		stat2 = self.RawItemStats[2],
-		stat3 = self.RawItemStats[3],
-		stat4 = self.RawItemStats[4],
-		stat5 = self.RawItemStats[5],
-		stat6 = self.RawItemStats[6]
+		stat1 = rawItemStats[1],
+		stat2 = rawItemStats[2],
+		stat3 = rawItemStats[3],
+		stat4 = rawItemStats[4],
+		stat5 = rawItemStats[5],
+		stat6 = rawItemStats[6]
 	} )
+end
+
+local function MatchUpgradeByStats(itemID)
+	filters:SetSearchedItem(itemID)
+	if not filters:ItemPassesFilters() then 
+		filters:ClearSearchedItem()
+		return
+	end
+
+	AltoTooltip:ClearLines();	
+	AltoTooltip:SetOwner(AltoholicFrame, "ANCHOR_LEFT");
+	AltoTooltip:SetHyperlink(filters:GetSearchedItemInfo("itemLink"))
+	
+	-- save some time by trying to find out if the item could be excluded
+	wipe(tooltipLines)
+	for i = 4, AltoTooltip:NumLines() do	-- parse all tooltip lines, one by one, start at 4 since 1= item name, 2 = binds on.., 3 = type/slot/unique ..etc
+		-- in this first pass, save the lines into a cache, reused below
+		local tooltipLine = _G[ "AltoTooltipTextLeft" .. i]:GetText()
+		if tooltipLine then
+			if string.find(tooltipLine, L["Socket"]) == nil then
+				for _, v in pairs(classExcludedStats) do
+					--if string.find(tooltipLine, v, 1, true) ~= nil then return end
+					if string.find(tooltipLine, v) ~= nil then return end
+				end
+				tooltipLines[i] = tooltipLine
+			end
+		end
+	end
+	
+	local statFound
+	local j=1
+	for _, BaseStat in pairs(classBaseStats) do
+
+		statFound = nil
+		for i, tooltipText in pairs(tooltipLines) do
+			--if string.find(tooltipText, BaseStat, 1, true) ~= nil then
+			if string.find(tooltipText, BaseStat) ~= nil then
+				--local stat = tonumber(string.sub(tooltipText, string.find(tooltipText, "%d+")))
+				local stat = tonumber(string.match(tooltipText, "%d+"))
+				
+				rawItemStats[j] = stat .. "|" .. (stat - currentItemStats[BaseStat])
+				table.remove(tooltipLines, i)	-- remove the current entry, so it won't be parsed in the next loop cycle
+				statFound = true
+				break
+			end
+		end
+		
+		if not statFound then
+			rawItemStats[j] = "0|" .. (0 - currentItemStats[BaseStat])
+		end
+		j = j + 1
+	end
+	
+	local iLvl = filters:GetSearchedItemInfo("itemLevel")
+	filters:ClearSearchedItem()
+		
+	-- All conditions ok ? save it
+	return true, iLvl
+end
+
+-- modify this one after 3.2, to use GetItemStats
+function ns:FindUpgradeByStats(currentID, class)
+	classExcludedStats = addon.Equipment.ExcludeStats[class]
+	classBaseStats = addon.Equipment.BaseStats[class]
+	
+	rawItemStats = {}
+	currentItemStats = {}
+	tooltipLines = {}
+	
+	AddCurrentlyEquippedItem(currentID, class)
+	
+	for Instance, BossList in pairs(lootTable) do		-- parse the loot table to find an upgrade
+		for Boss, LootList in pairs(BossList) do
+			for _, itemID in pairs(LootList) do
+			
+				local matches, itemLevel = MatchUpgradeByStats(itemID)
+				
+				if matches then
+					addon.Search:AddResult( {
+						id = itemID,
+						iLvl = itemLevel,
+						dropLocation = Instance .. ", " .. GREEN .. Boss,
+						stat1 = rawItemStats[1],
+						stat2 = rawItemStats[2],
+						stat3 = rawItemStats[3],
+						stat4 = rawItemStats[4],
+						stat5 = rawItemStats[5],
+						stat6 = rawItemStats[6]
+					} )
+				end
+			end
+		end
+	end
+	
+	classExcludedStats = nil
+	classBaseStats = nil
+	currentItemStats = nil
+	tooltipLines = nil
+	rawItemStats = nil
 end

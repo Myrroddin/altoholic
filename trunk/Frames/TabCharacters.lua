@@ -1,4 +1,4 @@
-local addonName = "Altoholic"
+local addonName = ...
 local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
@@ -204,12 +204,12 @@ function ns:UpdateViewIcons()
 	
 	-- ** Professions **
 	local professionName = GetSpellInfo(2550)		-- cooking
-	addon:SetItemButtonTexture("AltoholicTabCharacters_Cooking", addon:GetSpellIcon(addon.ProfessionSpellID[professionName]), size, size)
+	addon:SetItemButtonTexture("AltoholicTabCharacters_Cooking", addon:GetSpellIcon(DataStore:GetProfessionSpellID(professionName)), size, size)
 	AltoholicTabCharacters_Cooking.text = professionName
 	AltoholicTabCharacters_Cooking:Show()
 	
 	professionName = GetSpellInfo(3273)		-- First Aid
-	addon:SetItemButtonTexture("AltoholicTabCharacters_FirstAid", addon:GetSpellIcon(addon.ProfessionSpellID[professionName]), size, size)
+	addon:SetItemButtonTexture("AltoholicTabCharacters_FirstAid", addon:GetSpellIcon(DataStore:GetProfessionSpellID(professionName)), size, size)
 	AltoholicTabCharacters_FirstAid.text = professionName
 	AltoholicTabCharacters_FirstAid:Show()
 	
@@ -217,9 +217,10 @@ function ns:UpdateViewIcons()
 	for skillName, skill in pairs(DS:GetPrimaryProfessions(character)) do
 		local itemName = "AltoholicTabCharacters_Prof" .. i
 		local item = _G[itemName]
+		local spellID = DataStore:GetProfessionSpellID(skillName)
 	
-		if addon.ProfessionSpellID[skillName] then
-			addon:SetItemButtonTexture(itemName, addon:GetSpellIcon(addon.ProfessionSpellID[skillName]), size, size)
+		if spellID then
+			addon:SetItemButtonTexture(itemName, addon:GetSpellIcon(spellID), size, size)
 			item.text = skillName
 			item:Show()
 		else

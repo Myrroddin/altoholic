@@ -72,12 +72,41 @@
 					</OnLeave>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parent_ShowMinimap" inherits="InterfaceOptionsSmallCheckButtonTemplate">
+			<CheckButton name="$parent_ClampWindowToScreen" inherits="InterfaceOptionsSmallCheckButtonTemplate" >
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
 				<Anchors> 
 					<Anchor point="TOPLEFT" relativeTo="$parent_GuildBankAutoUpdate" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension  x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						AltoholicFrame:SetClampedToScreen(self:GetChecked())
+						if self:GetChecked() then 
+							Altoholic.Options:Set("ClampWindowToScreen", 1)
+						else
+							Altoholic.Options:Set("ClampWindowToScreen", 0)
+						end
+					</OnClick>
+					<OnEnter>
+						Altoholic:ShowWidgetTooltip(self)
+					</OnEnter>
+					<OnLeave>
+						AltoTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</CheckButton>
+			
+			<CheckButton name="$parent_ShowMinimap" inherits="InterfaceOptionsSmallCheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT" relativeTo="$parent_ClampWindowToScreen" relativePoint="BOTTOMLEFT">
 						<Offset>
 							<AbsDimension  x="0" y="-10"/>
 						</Offset>

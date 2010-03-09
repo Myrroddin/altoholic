@@ -7,6 +7,22 @@ Join the #altoholic IRC channel on Freenode : irc://irc.freenode.net:6667/
 
 - Added an information tooltip when mousing over the number of mails in the Activity pane.
 - Search is now cancelled if there is no value in the search edit box, except if you're using the categories in the search tab.
+- Reworked item filtering during searches. All types of searches now use the same code path. Also fixed a few filters that were not working properly.
+- Changed the location drop down in the Summary tab, you can now select more combinations of realms/accounts.
+- Added an option to clamp the addon's window to the screen.
+- Fixed skill tooltip displaying "no data" when mousing over skinning or herbalism.
+- The achievement UI is now a module on its own and is loaded-on-demand. This slightly decreases resource usage if you don't use that part of the UI. 
+- You can now fully disable DataStore_Achievements and Altoholic_Achievements if you do not wish to track achievements at all.
+- Winter code cleanup is almost over, almost everything has been reviewed. Next reviews: Calendar & Account Sharing (too big/touchy to review in this pass).
+
+Note: I have released an alpha version of my new addon on CurseForge. It's definitely not final, but it's stable and fully usable.
+Those of you who like to hunt quests you may have missed should like it, it's called Odyssey, and you can find it here:
+
+http://wow.curseforge.com/addons/odyssey/
+
+The quest database is still WIP, so don't bash if there are a few mistakes here & there. I will also be looking for people who can help me maintaining the list of quests & filters.
+
+No "official" support will be given at this point, please use the email thaoky.altoholic@yahoo.com if you have questions or if you are willing to help. I can also be reached on IRC.
 
 
 3.3.001d (28/01/2010)

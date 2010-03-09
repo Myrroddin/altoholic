@@ -1,4 +1,7 @@
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+local addonName = ...
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local GREEN		= "|cFF00FF00"
 
@@ -9,76 +12,52 @@ local BAGSONLY_ALLINONE		= 4
 local BANKONLY					= 5
 local BANKONLY_ALLINONE		= 6
 
-Altoholic.Containers = {}
+addon.Containers = {}
 
-local ContainerViewLabels = {
-	L["Bags"] .. " & " .. L["Bank"],
-	L["Bags"] .. " & " .. L["Bank"] .. GREEN .. " (" .. L["All-in-one"] .. ")",
+local ns = addon.Containers		-- ns = namespace
+
+local containerViewLabels = {
+	format("%s & %s", L["Bags"], L["Bank"]),
+	format("%s & %s %s(%s)", L["Bags"], L["Bank"], GREEN, L["All-in-one"]),
 	L["Bags"],
-	L["Bags"] .. GREEN .. " (" .. L["All-in-one"] .. ")",
+	format("%s %s(%s)", L["Bags"], GREEN, L["All-in-one"]),
 	L["Bank"],
-	L["Bank"] .. GREEN .. " (" .. L["All-in-one"] .. ")"
+	format("%s %s(%s)", L["Bank"], GREEN, L["All-in-one"]),
 }
 
-function Altoholic.Containers:Init()
-	local mode = Altoholic.Options:Get("lastContainerView")
-	mode = mode or 1
+local function OnContainerViewChange(self)
+	local value = self.value
 	
-	local f = AltoholicFrameContainers_SelectContainerView
-	UIDropDownMenu_SetSelectedValue(f, mode);
-	UIDropDownMenu_SetText(f, ContainerViewLabels[mode])
-	UIDropDownMenu_Initialize(f, self.DropDownContainerView_Initialize)
-	
-	f = AltoholicFrameContainers_SelectRarity
-	UIDropDownMenu_SetSelectedValue(f, 0);
-	UIDropDownMenu_SetText(f, L["Any"])
-	UIDropDownMenu_Initialize(f, self.DropDownRarity_Initialize)
-	
---	self:SetView(mode)
+	UIDropDownMenu_SetSelectedValue(AltoholicFrameContainers_SelectContainerView, value);
+	addon.Options:Set("lastContainerView", value)
+	ns:SetView(value)
+	ns:Update();
 end
 
-function Altoholic.Containers:DropDownContainerView_Initialize() 
-	local self = Altoholic.Containers
+local function DropDownContainerView_Initialize() 
 	local info = UIDropDownMenu_CreateInfo(); 
 	
-	for i = 1, #ContainerViewLabels do
-		info.text = ContainerViewLabels[i]
+	for i = 1, #containerViewLabels do
+		info.text = containerViewLabels[i]
 		info.value = i
-		info.func = self.ChangeContainerView
+		info.func = OnContainerViewChange
 		info.checked = nil; 
 		info.icon = nil; 
 		UIDropDownMenu_AddButton(info, 1); 
 	end
 end
 
-function Altoholic.Containers:ChangeContainerView()
-	local value = self.value
-	local self = Altoholic.Containers
-	
-	UIDropDownMenu_SetSelectedValue(AltoholicFrameContainers_SelectContainerView, value);
-	Altoholic.Options:Set("lastContainerView", value)
-	self:SetView(value)
-	self:Update();
+local function OnRarityChange(self)
+	UIDropDownMenu_SetSelectedValue(AltoholicFrameContainers_SelectRarity, self.value);
+	ns:Update();
 end
 
-function Altoholic.Containers:SetView(view)
-	view = view or 1
-	if mod(view, 2) ~= 0 then	-- not an all-in-one view
-		self.Update = self.UpdateSpread
-		self:UpdateCache()
-		FauxScrollFrame_SetOffset( AltoholicFrameContainersScrollFrame, 0)
-	else
-		self.Update = self.UpdateAllInOne
-	end
-end
-
-function Altoholic.Containers:DropDownRarity_Initialize() 
-	local self = Altoholic.Containers
+local function DropDownRarity_Initialize() 
 	local info = UIDropDownMenu_CreateInfo(); 
 	
 	info.text =  L["Any"]
 	info.value = 0
-	info.func = self.ChangeRarity
+	info.func = OnRarityChange
 	info.checked = nil; 
 	info.icon = nil; 
 	UIDropDownMenu_AddButton(info, 1); 
@@ -86,57 +65,16 @@ function Altoholic.Containers:DropDownRarity_Initialize()
 	for i = 2, 6 do		-- Quality: 0 = poor .. 5 = legendary
 		info.text = ITEM_QUALITY_COLORS[i].hex .. _G["ITEM_QUALITY"..i.."_DESC"]
 		info.value = i
-		info.func = self.ChangeRarity
+		info.func = OnRarityChange
 		info.checked = nil; 
 		info.icon = nil; 
 		UIDropDownMenu_AddButton(info, 1); 
 	end
 end
 
-function Altoholic.Containers:ChangeRarity()
-	UIDropDownMenu_SetSelectedValue(AltoholicFrameContainers_SelectRarity, self.value);
-	Altoholic.Containers:Update();
-end
+local bagIndices
 
-function Altoholic.Containers:UpdateCache()
-	local mode = UIDropDownMenu_GetSelectedValue(AltoholicFrameContainers_SelectContainerView)
-	local character = Altoholic.Tabs.Characters:GetCurrent()
-	
-	self.BagIndices = self.BagIndices or {}
-
-	wipe(self.BagIndices)
-	
-	local bagMin = 0
-	local bagMax = 11
-	
-	-- bags : -2 (keyring) and 0 to 4
-	-- bank: 5 to 11 and 100
-	if mode == BAGSONLY then
-		bagMax = 4			-- 0 to 4
-	elseif mode == BANKONLY then
-		bagMin = 5			-- 5 to 11
-	end
-	
-	local DS = DataStore
-	for bagID = bagMin, bagMax do
-		if DS:GetContainer(character, bagID) then
-			local _, _, size = DS:GetContainerInfo(character, bagID)
-			self:UpdateBagIndices(bagID, size)
-		end
-	end
-	
-	if mode ~= BANKONLY then
-		self:UpdateBagIndices(-2, 32)		-- KeyRing
-	end
-	
-	if mode ~= BAGSONLY then
-		if DS:GetContainer(character, 100) then 	-- if bank hasn't been visited yet, exit
-			self:UpdateBagIndices(100, 28)
-		end
-	end
-end
-
-function Altoholic.Containers:UpdateBagIndices(bag, size)
+local function UpdateBagIndices(bag, size)
 	-- the BagIndices table will be used by self:Containers_Update to determine which part of a bag should be displayed on a given line
 	-- ex: [1] = bagID = 0, from 1, to 12
 	-- ex: [2] = bagID = 0, from 13, to 16
@@ -144,7 +82,7 @@ function Altoholic.Containers:UpdateBagIndices(bag, size)
 	local lowerLimit = 1
 
 	while size > 0 do					-- as long as there are slots to process ..
-		table.insert(self.BagIndices, { bagID=bag, from=lowerLimit} )
+		table.insert(bagIndices, { bagID=bag, from=lowerLimit} )
 	
 		if size <= 12 then			-- no more lines ? leave
 			return
@@ -155,17 +93,15 @@ function Altoholic.Containers:UpdateBagIndices(bag, size)
 	end
 end
 
-function Altoholic.Containers:UpdateSpread()
+local function UpdateSpread()
 	local mode = UIDropDownMenu_GetSelectedValue(AltoholicFrameContainers_SelectContainerView)
 	local rarity = UIDropDownMenu_GetSelectedValue(AltoholicFrameContainers_SelectRarity)
 	local VisibleLines = 7
 	local frame = "AltoholicFrameContainers"
 	local entry = frame.."Entry"
 	
-	local self = Altoholic.Containers
-	
-	if #self.BagIndices == 0 then
-		self:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
+	if #bagIndices == 0 then
+		addon:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
 		return
 	end
 
@@ -178,15 +114,15 @@ function Altoholic.Containers:UpdateSpread()
 	for i=1, VisibleLines do
 		local line = i + offset
 		
-		if line <= #self.BagIndices then
+		if line <= #bagIndices then
 		
-			local containerID = self.BagIndices[line].bagID
+			local containerID = bagIndices[line].bagID
 			local container = DS:GetContainer(character, containerID)
 			local containerIcon, _, containerSize = DS:GetContainerInfo(character, containerID)
 			
 			local itemName = entry..i .. "Item1";
 			
-			if self.BagIndices[line].from == 1 then		-- if this is the first line for this bag .. draw bag icon
+			if bagIndices[line].from == 1 then		-- if this is the first line for this bag .. draw bag icon
 				local itemButton = _G[itemName];	
 				if containerIcon then
 					Altoholic:SetItemButtonTexture(itemName, containerIcon);
@@ -239,7 +175,7 @@ function Altoholic.Containers:UpdateSpread()
 				itemButton.border:Hide()
 				itemTexture:SetDesaturated(0)
 				
-				local slotID = self.BagIndices[line].from - 3 + j
+				local slotID = bagIndices[line].from - 3 + j
 				local itemID, itemLink, itemCount = DS:GetSlotInfo(container, slotID)
 				
 				if (slotID <= containerSize) then 
@@ -296,15 +232,14 @@ function Altoholic.Containers:UpdateSpread()
 		end
 	end
 	
-	if #self.BagIndices < VisibleLines then
+	if #bagIndices < VisibleLines then
 		FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleLines, VisibleLines, 41);
 	else
-		FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], #self.BagIndices, VisibleLines, 41);
+		FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], #bagIndices, VisibleLines, 41);
 	end	
 end	
 
-function Altoholic.Containers:UpdateAllInOne()
-
+local function UpdateAllInOne()
 	local mode = UIDropDownMenu_GetSelectedValue(AltoholicFrameContainers_SelectContainerView)
 	local rarity = UIDropDownMenu_GetSelectedValue(AltoholicFrameContainers_SelectRarity)
 	local VisibleLines = 7
@@ -337,7 +272,7 @@ function Altoholic.Containers:UpdateAllInOne()
 		end
 		table.insert(containerList, 100)
 	end
-	
+
 	local DS = DataStore
 	for _, containerID in pairs(containerList) do
 		local container = DS:GetContainer(character, containerID)
@@ -423,13 +358,76 @@ function Altoholic.Containers:UpdateAllInOne()
 	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], ceil(currentSlotIndex / 14), VisibleLines, 41);
 end
 
+function ns:Init()
+	local mode = addon.Options:Get("lastContainerView")
+	mode = mode or 1
+	
+	local f = AltoholicFrameContainers_SelectContainerView
+	UIDropDownMenu_SetSelectedValue(f, mode);
+	UIDropDownMenu_SetText(f, containerViewLabels[mode])
+	UIDropDownMenu_Initialize(f, DropDownContainerView_Initialize)
+	
+	f = AltoholicFrameContainers_SelectRarity
+	UIDropDownMenu_SetSelectedValue(f, 0);
+	UIDropDownMenu_SetText(f, L["Any"])
+	UIDropDownMenu_Initialize(f, DropDownRarity_Initialize)
+end
+
+function ns:SetView(view)
+	view = view or 1
+	if mod(view, 2) ~= 0 then	-- not an all-in-one view
+		ns.Update = UpdateSpread
+		ns:UpdateCache()
+		FauxScrollFrame_SetOffset( AltoholicFrameContainersScrollFrame, 0)
+	else
+		ns.Update = UpdateAllInOne
+	end
+end
+
+function ns:UpdateCache()
+	local mode = UIDropDownMenu_GetSelectedValue(AltoholicFrameContainers_SelectContainerView)
+	local character = addon.Tabs.Characters:GetCurrent()
+	
+	bagIndices = bagIndices or {}
+	wipe(bagIndices)
+	
+	local bagMin = 0
+	local bagMax = 11
+	
+	-- bags : -2 (keyring) and 0 to 4
+	-- bank: 5 to 11 and 100
+	if mode == BAGSONLY then
+		bagMax = 4			-- 0 to 4
+	elseif mode == BANKONLY then
+		bagMin = 5			-- 5 to 11
+	end
+	
+	local DS = DataStore
+	for bagID = bagMin, bagMax do
+		if DS:GetContainer(character, bagID) then
+			local _, _, size = DS:GetContainerInfo(character, bagID)
+			UpdateBagIndices(bagID, size)
+		end
+	end
+	
+	if mode ~= BANKONLY then
+		UpdateBagIndices(-2, 32)		-- KeyRing
+	end
+	
+	if mode ~= BAGSONLY then
+		if DS:GetContainer(character, 100) then 	-- if bank hasn't been visited yet, exit
+			UpdateBagIndices(100, 28)
+		end
+	end
+end
+
 -- *** EVENT HANDLERS ***
-function Altoholic.Containers:OnBagUpdate(bag)
-	Altoholic:RefreshTooltip()
+function ns:OnBagUpdate(bag)
+	addon:RefreshTooltip()
 
 	if DataStore:IsMailBoxOpen() and AltoholicFrameMail:IsVisible() then	
 		-- if a bag is updated while the mailbox is opened, this means an attachment has been taken.
-		Altoholic.Mail:BuildView()
-		Altoholic.Mail:Update()
+		addon.Mail:BuildView()
+		addon.Mail:Update()
 	end
 end

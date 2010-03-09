@@ -1,4 +1,7 @@
-﻿local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+﻿local addonName = ...
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local BZ = LibStub("LibBabble-Zone-3.0"):GetLookupTable()
 local BF = LibStub("LibBabble-Faction-3.0"):GetLookupTable()
@@ -10,7 +13,7 @@ local GREEN		= "|cFF00FF00"
 local YELLOW	= "|cFFFFFF00"
 
 -- This table contains a list of suggestions to get to the next level of reputation, craft or skill
-Altoholic.Suggestions = {
+addon.Suggestions = {
 	[L["Riding"]] = {
 		{ 75, "수습 탈것 타기 기술 (30 레벨): |cFFFFFFFF35골\n|cFFFFD700수도 도시 안이나 근처에 있는 기본 탈것: |cFFFFFFFF10골" },
 		{ 150, "중급 탈것 타기 기술 (60 레벨): |cFFFFFFFF600골\n|cFFFFD700수도 도시 안이나 근처에 있는 에픽 탈것: |cFFFFFFFF100골" },

@@ -1,4 +1,4 @@
-local addonName = "Altoholic"
+local addonName = ...
 local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
@@ -23,31 +23,28 @@ local ICON_FACTION_HORDE = "Interface\\Icons\\INV_BannerPVP_01"
 local ICON_FACTION_ALLIANCE = "Interface\\Icons\\INV_BannerPVP_02"
 
 local ns = addon.TradeSkills		-- ns = namespace
+local Characters = addon.Characters
 
 function ns:Update()
 	local VisibleLines = 14
 	local frame = "AltoholicFrameSkills"
 	local entry = frame.."Entry"
 	
-	local Characters = addon.Characters
+	
 	local DS = DataStore
 	
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
 	local DisplayedCount = 0
 	local VisibleCount = 0
 	local DrawRealm
-	local CurrentAccount, CurrentRealm
 	local i=1
 	
 	for _, line in pairs(Characters:GetView()) do
-		local s = Characters:Get(line)
-		local lineType = mod(s.linetype, 3)
+		local lineType = Characters:GetLineType(line)
 		
 		if (offset > 0) or (DisplayedCount >= VisibleLines) then		-- if the line will not be visible
 			if lineType == INFO_REALM_LINE then								-- then keep track of counters
-				CurrentAccount = s.account
-				CurrentRealm = s.realm
-				if s.isCollapsed == false then
+				if Characters:GetField(line, "isCollapsed") == false then
 					DrawRealm = true
 				else
 					DrawRealm = false
@@ -59,10 +56,10 @@ function ns:Update()
 				offset = offset - 1		-- no further control, nevermind if it goes negative
 			end
 		else		-- line will be displayed
-			if lineType== INFO_REALM_LINE then
-				CurrentAccount = s.account
-				CurrentRealm = s.realm
-				if s.isCollapsed == false then
+			if lineType == INFO_REALM_LINE then
+				local _, realm, account = Characters:GetInfo(line)
+				
+				if Characters:GetField(line, "isCollapsed") == false then
 					_G[ entry..i.."Collapse" ]:SetNormalTexture("Interface\\Buttons\\UI-MinusButton-Up"); 
 					DrawRealm = true
 				else
@@ -73,11 +70,11 @@ function ns:Update()
 				_G[entry..i.."Name"]:SetWidth(300)
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 25, 0)
 				_G[entry..i.."NameNormalText"]:SetWidth(300)
-				if s.account == "Default" then	-- saved as default, display as localized.
-					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", s.realm, WHITE, GREEN, L["Default"]))
+				if account == "Default" then	-- saved as default, display as localized.
+					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", realm, WHITE, GREEN, L["Default"]))
 				else
-					local last = addon:GetLastAccountSharingInfo(CurrentRealm, CurrentAccount)
-					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", s.realm, WHITE, GREEN, s.account, YELLOW, last or ""))
+					local last = addon:GetLastAccountSharingInfo(realm, account)
+					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", realm, WHITE, GREEN, account, YELLOW, last or ""))
 				end
 				_G[entry..i.."Level"]:SetText("")
 				_G[entry..i.."Skill1NormalText"]:SetText("")
@@ -94,7 +91,7 @@ function ns:Update()
 				DisplayedCount = DisplayedCount + 1
 			elseif DrawRealm then
 				if (lineType == INFO_CHARACTER_LINE) then
-					local character = DS:GetCharacter(s.name, CurrentRealm, CurrentAccount)
+					local character = DS:GetCharacter( Characters:GetInfo(line) )
 					
 					local icon
 					if DS:GetCharacterFaction(character) == "Alliance" then
@@ -109,45 +106,59 @@ function ns:Update()
 					_G[entry..i.."NameNormalText"]:SetWidth(170)
 					_G[entry..i.."NameNormalText"]:SetText(icon .. format("%s (%s)", DS:GetColoredCharacterName(character), DS:GetCharacterClass(character)))
 					_G[entry..i.."Level"]:SetText(GREEN .. DS:GetCharacterLevel(character))
-					
-					if s.spellID1 then
-						icon = addon:TextureToFontstring(addon:GetSpellIcon(s.spellID1), 18, 18) .. " "
+
+					-- profession 1
+					local field = Characters:GetField(line, "spellID1")
+					if field then
+						icon = addon:TextureToFontstring(addon:GetSpellIcon(field), 18, 18) .. " "
 					else
 						icon = ""
 					end
-					_G[entry..i.."Skill1NormalText"]:SetText(icon .. ns:GetColor(s.skillRank1) .. s.skillRank1)
+					field = Characters:GetField(line, "skillRank1")
+					_G[entry..i.."Skill1NormalText"]:SetText(icon .. ns:GetColor(field) .. field)
 					
-					if s.spellID2 then
-						icon = addon:TextureToFontstring(addon:GetSpellIcon(s.spellID2), 18, 18) .. " "
+					-- profession 2
+					field = Characters:GetField(line, "spellID2")
+					if field then
+						icon = addon:TextureToFontstring(addon:GetSpellIcon(field), 18, 18) .. " "
 					else
 						icon = ""
 					end
-					_G[entry..i.."Skill2NormalText"]:SetText(icon .. ns:GetColor(s.skillRank2) .. s.skillRank2)
-						
+					field = Characters:GetField(line, "skillRank2")
+					_G[entry..i.."Skill2NormalText"]:SetText(icon .. ns:GetColor(field) .. field)
+					
+					-- cooking
 					icon = addon:TextureToFontstring(addon:GetSpellIcon(2550), 18, 18) .. " "
-					_G[entry..i.."CookingNormalText"]:SetText(icon .. ns:GetColor(s.cooking) .. s.cooking)
+					field = Characters:GetField(line, "cooking")
+					_G[entry..i.."CookingNormalText"]:SetText(icon .. ns:GetColor(field) .. field)
+					
+					-- first aid
 					icon = addon:TextureToFontstring(addon:GetSpellIcon(3273), 18, 18) .. " "
-					_G[entry..i.."FirstAidNormalText"]:SetText(icon .. ns:GetColor(s.firstaid) .. s.firstaid)
+					field = Characters:GetField(line, "firstaid")
+					_G[entry..i.."FirstAidNormalText"]:SetText(icon .. ns:GetColor(field) .. field)
+					
+					-- fishing
 					icon = addon:TextureToFontstring(addon:GetSpellIcon(7733), 18, 18) .. " "
-					_G[entry..i.."FishingNormalText"]:SetText(icon .. ns:GetColor(s.fishing) .. s.fishing)
+					field = Characters:GetField(line, "fishing")
+					_G[entry..i.."FishingNormalText"]:SetText(icon .. ns:GetColor(field) .. field)
 					
-					local character = DS:GetCharacter(s.name, CurrentRealm, CurrentAccount)
-					
+					-- riding
+					field = Characters:GetField(line, "riding")
 					if DS:IsSpellKnown(character, 54197) then
 						icon = addon:TextureToFontstring(addon:GetSpellIcon(54197), 18, 18) .. " "
-					elseif s.riding >= 225 then
+					elseif field >= 225 then
 						icon = addon:TextureToFontstring("Interface\\Icons\\Ability_Mount_Gryphon_01", 18, 18) .. " "
 					else
 						icon = addon:TextureToFontstring("Interface\\Icons\\Ability_Mount_RidingHorse", 18, 18) .. " "
 					end
-					_G[entry..i.."RidingNormalText"]:SetText(icon .. ns:GetColor(s.riding, 300) .. s.riding)
+					_G[entry..i.."RidingNormalText"]:SetText(icon .. ns:GetColor(field, 300) .. field)
 				elseif (lineType == INFO_TOTAL_LINE) then
 					_G[entry..i.."Collapse"]:Hide()
 					_G[entry..i.."Name"]:SetWidth(200)
 					_G[entry..i.."Name"]:SetPoint("TOPLEFT", 15, 0)
 					_G[entry..i.."NameNormalText"]:SetWidth(200)
 					_G[entry..i.."NameNormalText"]:SetText(L["Totals"])
-					_G[entry..i.."Level"]:SetText(s.level)
+					_G[entry..i.."Level"]:SetText(Characters:GetField(line, "level"))
 					_G[entry..i.."Skill1NormalText"]:SetText("")
 					_G[entry..i.."Skill2NormalText"]:SetText("")
 					_G[entry..i.."CookingNormalText"]:SetText("")
@@ -175,18 +186,18 @@ end
 
 function ns:OnEnter(frame)
 	local line = frame:GetParent():GetID()
-	local s = addon.Characters:Get(line)
-	
-	if mod(s.linetype, 3) ~= INFO_CHARACTER_LINE then		
+	local lineType = Characters:GetLineType(line)
+	if lineType ~= INFO_CHARACTER_LINE then		
 		return
 	end
+	
 	local id = frame:GetID()
 	local skillName, rank, suggestion
 	
 	if id == 1 then
-		skillName = s.skillName1
+		skillName = Characters:GetField(line, "skillName1")
 	elseif id == 2 then
-		skillName = s.skillName2
+		skillName = Characters:GetField(line, "skillName2")
 	elseif id == 3 then
 		skillName = GetSpellInfo(2550)		-- cooking
 	elseif id == 4 then
@@ -198,7 +209,7 @@ function ns:OnEnter(frame)
 	end
 
 	local DS = DataStore
-	local character = DS:GetCharacter(addon.Characters:GetInfo(line))
+	local character = DS:GetCharacter(Characters:GetInfo(line))
 	local curRank, maxRank = DS:GetSkillInfo(character, skillName)
 	local profession = DS:GetProfession(character, skillName)
 	
@@ -227,24 +238,26 @@ function ns:OnEnter(frame)
 	AltoTooltip:AddLine(GREEN..rank,1,1,1);
 	
 	if id <= 4 then	-- all skills except fishing & riding
-		AltoTooltip:AddLine(" ");
-		
-		if not profession then
-			AltoTooltip:AddLine(L["No data"]);
-			AltoTooltip:Show();
-			return
-		end
-		
-		if DS:GetNumCraftLines(profession) == 0 then
-			AltoTooltip:AddLine(L["No data"].. ": 0 " .. TRADESKILL_SERVICE_LEARN,1,1,1);
-		else
-			local orange, yellow, green, grey = DS:GetNumRecipesByColor(profession)
+		if skillName ~= GetSpellInfo(13614) and skillName ~= GetSpellInfo(8613) then		-- no display for herbalism & skinning
+			AltoTooltip:AddLine(" ");
 			
-			AltoTooltip:AddLine(orange+yellow+green+grey .. " " .. TRADESKILL_SERVICE_LEARN,1,1,1);
-			AltoTooltip:AddLine(format(WHITE .. "%d " .. RECIPE_GREEN .. "Green|r /" 
-				..	WHITE .. " %d " .. YELLOW .. "Yellow|r /" 
-				..	WHITE .. " %d " .. RECIPE_ORANGE .. "Orange", 
-				green, yellow, orange))
+			if not profession then
+				AltoTooltip:AddLine(L["No data"]);
+				AltoTooltip:Show();
+				return
+			end
+		
+			if DS:GetNumCraftLines(profession) == 0 then
+				AltoTooltip:AddLine(L["No data"].. ": 0 " .. TRADESKILL_SERVICE_LEARN,1,1,1);
+			else
+				local orange, yellow, green, grey = DS:GetNumRecipesByColor(profession)
+				
+				AltoTooltip:AddLine(orange+yellow+green+grey .. " " .. TRADESKILL_SERVICE_LEARN,1,1,1);
+				AltoTooltip:AddLine(format(WHITE .. "%d " .. RECIPE_GREEN .. "Green|r /" 
+					..	WHITE .. " %d " .. YELLOW .. "Yellow|r /" 
+					..	WHITE .. " %d " .. RECIPE_ORANGE .. "Orange", 
+					green, yellow, orange))
+			end
 		end
 	end
 	
@@ -290,22 +303,21 @@ local VIEW_MOUNTS = 8
 
 function ns:OnClick(frame, button)
 	local line = frame:GetParent():GetID()
-	local s = addon.Characters:Get(line)
-	
-	if mod(s.linetype, 3) ~= INFO_CHARACTER_LINE then		
+	local lineType = Characters:GetLineType(line)
+	if lineType ~= INFO_CHARACTER_LINE then		
 		return
 	end
-	local id = frame:GetID()
 	
+	local id = frame:GetID()
 	if id == 5 then return end		-- fishing ? do nothing
 	
-	addon:SetCurrentCharacter( addon.Characters:GetInfo(line) )
+	addon:SetCurrentCharacter( Characters:GetInfo(line) )
 	
 	local skillName
 	if id == 1 then
-		skillName = s.skillName1
+		skillName = Characters:GetField(line, "skillName1")
 	elseif id == 2 then
-		skillName = s.skillName2
+		skillName = Characters:GetField(line, "skillName2")
 	elseif id == 3 then
 		skillName = GetSpellInfo(2550)		-- cooking
 	elseif id == 4 then
@@ -313,7 +325,7 @@ function ns:OnClick(frame, button)
 	end
 
 	local DS = DataStore
-	local character = DS:GetCharacter(addon.Characters:GetInfo(line))
+	local character = DS:GetCharacter(Characters:GetInfo(line))
 	local profession = DS:GetProfession(character, skillName)
 	
 	if skillName then

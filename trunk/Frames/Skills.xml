@@ -66,17 +66,7 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						local id = self:GetParent():GetID()
-						if id ~= 0 then
-							local s = Altoholic.Characters:Get(id)
-							if s.isCollapsed ~= nil then
-								if s.isCollapsed == true then
-									s.isCollapsed = false
-								else
-									s.isCollapsed = true
-								end
-							end
-						end
+						Altoholic.Characters:ToggleHeader(self)
 						Altoholic.TradeSkills:Update()
 					</OnClick>
 				</Scripts>

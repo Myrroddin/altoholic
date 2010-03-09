@@ -76,7 +76,7 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						Altoholic.Guild.Members:Collapse_OnClick(self)
+						Altoholic.Guild.Members:Collapse_OnClick(self, button)
 					</OnClick>
 				</Scripts>
 				<NormalTexture name="$parentIcon" file="Interface\Buttons\UI-MinusButton-UP" />

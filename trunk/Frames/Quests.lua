@@ -1,26 +1,48 @@
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+local addonName = ...
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local WHITE		= "|cFFFFFFFF"
 local RED		= "|cFFFF0000"
 local GREEN		= "|cFF00FF00"
 local TEAL		= "|cFF00FF9A"
 
-Altoholic.Quests = {}
+local isViewValid
+local collapsedHeaders
 
-function Altoholic.Quests:Update()
-	local character = Altoholic.Tabs.Characters:GetCurrent()
+local questSizeColors = {
+	[2] = GREEN,
+	[3] = YELLOW,
+	[4] = ORANGE,
+	[5] = RED,
+}
+
+local function FormatQuestType(tag, size)
+	if questSizeColors[size] then
+		return format("%s%s%s (%d)", WHITE, tag, questSizeColors[size], size)
+	else
+		return format("%s%s", WHITE, tag)
+	end
+end
+
+addon.Quests = {}
+
+local ns = addon.Quests		-- ns = namespace
+
+function ns:Update()
+	local character = addon.Tabs.Characters:GetCurrent()
 
 	
 	local VisibleLines = 14
 	local frame = "AltoholicFrameQuests"
 	local entry = frame.."Entry"
 	
-	local self = Altoholic.Quests
 	local DS = DataStore
 	
 	if DS:GetQuestLogSize(character) == 0 then
-		AltoholicTabCharactersStatus:SetText(L["No quest found for "] .. Altoholic:GetCurrentCharacter())
-		Altoholic:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
+		AltoholicTabCharactersStatus:SetText(L["No quest found for "] .. addon:GetCurrentCharacter())
+		addon:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
 		return
 	end
 	AltoholicTabCharactersStatus:SetText("")
@@ -30,10 +52,10 @@ function Altoholic.Quests:Update()
 	local VisibleCount = 0
 	local DrawGroup
 
-	self.CollapsedHeaders = self.CollapsedHeaders or {}
-	if self.isInvalid then
-		wipe(self.CollapsedHeaders)
-		self.isInvalid = nil
+	collapsedHeaders = collapsedHeaders or {}
+	if not isViewValid then
+		wipe(collapsedHeaders)
+		isViewValid = true
 	end
 
 	local i=1
@@ -44,7 +66,7 @@ function Altoholic.Quests:Update()
 		if (offset > 0) or (DisplayedCount >= VisibleLines) then		-- if the line will not be visible
 			if isHeader then													-- then keep track of counters
 				
-				if not self.CollapsedHeaders[line] then
+				if not collapsedHeaders[line] then
 					DrawGroup = true
 				else
 					DrawGroup = false
@@ -57,7 +79,7 @@ function Altoholic.Quests:Update()
 			end
 		else		-- line will be displayed
 			if isHeader then
-				if not self.CollapsedHeaders[line] then
+				if not collapsedHeaders[line] then
 					_G[ entry..i.."Collapse" ]:SetNormalTexture("Interface\\Buttons\\UI-MinusButton-Up"); 
 					DrawGroup = true
 				else
@@ -90,7 +112,7 @@ function Altoholic.Quests:Update()
 				_G[entry..i.."QuestLink"]:SetID(line)
 				_G[entry..i.."QuestLink"]:SetPoint("TOPLEFT", 15, 0)
 				if questTag then 
-					_G[entry..i.."Tag"]:SetText(self:GetTypeString(questTag, groupSize))
+					_G[entry..i.."Tag"]:SetText(FormatQuestType(questTag, groupSize))
 					_G[entry..i.."Tag"]:Show()
 				else
 					_G[entry..i.."Tag"]:Hide()
@@ -106,7 +128,7 @@ function Altoholic.Quests:Update()
 				end
 				
 				if money then
-					_G[entry..i.."Money"]:SetText(Altoholic:GetMoneyString(money))
+					_G[entry..i.."Money"]:SetText(addon:GetMoneyString(money))
 					_G[entry..i.."Money"]:Show()
 				else
 					_G[entry..i.."Money"]:Hide()
@@ -130,11 +152,11 @@ function Altoholic.Quests:Update()
 	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleCount, VisibleLines, 18);
 end
 
-function Altoholic.Quests:InvalidateView()
-	self.isInvalid = true
+function ns:InvalidateView()
+	isViewValid = nil
 end
 
-function Altoholic.Quests:ListCharsOnQuest(questName, player, tooltip)
+function ns:ListCharsOnQuest(questName, player, tooltip)
 	if not questName then return nil end
 	
 	local DS = DataStore
@@ -161,32 +183,20 @@ function Altoholic.Quests:ListCharsOnQuest(questName, player, tooltip)
 	end
 end
 
-function Altoholic.Quests:GetTypeString(tag, size)
-	local color
-
-	if size == 2 then
-		color = GREEN
-	elseif size == 3 then
-		color = YELLOW
-	elseif size == 4 then
-		color = ORANGE
-	elseif size == 5 then
-		color = RED
-	end
-
-	if color then
-		return format("%s%s%s (%d)", WHITE, tag, color, size)
-	else
-		return format("%s%s", WHITE, tag)
+function ns:Collapse_OnClick(frame, button)
+	local id = frame:GetParent():GetID()
+	if id ~= 0 then
+		collapsedHeaders[id] = not collapsedHeaders[id]
+		ns:Update()
 	end
 end
 
-function Altoholic.Quests:Link_OnEnter(frame)
+function ns:Link_OnEnter(frame)
 	local id = frame:GetID()
 	if id == 0 then return end
 
 	local DS = DataStore
-	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetCurrent()
 	local _, link = DS:GetQuestLogInfo(character, id)
 	if not link then return end
 
@@ -203,22 +213,22 @@ function Altoholic.Quests:Link_OnEnter(frame)
 	
 	GameTooltip:AddDoubleLine(LEVEL .. ": |cFF00FF9A" .. level, L["QuestID"] .. ": |cFF00FF9A" .. questID);
 	
-	local player = Altoholic:GetCurrentCharacter()
-	Altoholic.Quests:ListCharsOnQuest(questName, player, GameTooltip)
+	local player = addon:GetCurrentCharacter()
+	addon.Quests:ListCharsOnQuest(questName, player, GameTooltip)
 	GameTooltip:Show();
 end
 
-function Altoholic.Quests:Link_OnClick(self, button)
-	if ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
-		if ( ChatFrameEditBox:IsShown() ) then
-			local id = self:GetID()
+function ns:Link_OnClick(frame, button)
+	if button == "LeftButton" and IsShiftKeyDown() then
+		if ChatFrameEditBox:IsShown() then
+			local id = frame:GetID()
 			if id == 0 then return end
 			
-			local character = Altoholic.Tabs.Characters:GetCurrent()
+			local character = addon.Tabs.Characters:GetCurrent()
 			local _, link = DataStore:GetQuestLogInfo(character, id)
-	
-			if not link then return end
-			ChatFrameEditBox:Insert(link);
+			if link then
+				ChatFrameEditBox:Insert(link);
+			end
 		end
 	end
 end

@@ -1,4 +1,4 @@
-local addonName = "Altoholic"
+local addonName = ...
 local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
@@ -183,7 +183,7 @@ function ns:DropDownSlot_Initialize()
 	UIDropDownMenu_AddButton(info, 1); 	
 	
 	for i = 1, 18 do
-		info.text = addon.Equipment.Slots[i]
+		info.text = addon.Equipment:GetSlotName(i)
 		info.value = i
 		info.func = SetSearchSlot
 		info.checked = nil; 

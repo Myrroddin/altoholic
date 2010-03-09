@@ -1,11 +1,14 @@
-local addonName = "Altoholic"
+local addonName = ...
 local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
-local SUMMARY_THISREALM = 1
-local SUMMARY_ALLREALMS = 2
-local SUMMARY_ALLACCOUNTS = 3
+local GREEN		= "|cFF00FF00"
+
+local THISREALM_THISACCOUNT = 1
+local THISREALM_ALLACCOUNTS = 2
+local ALLREALMS_THISACCOUNT = 3
+local ALLREALMS_ALLACCOUNTS = 4
 
 local currentMode
 
@@ -26,6 +29,54 @@ addon.Tabs.Summary = {}
 
 local ns = addon.Tabs.Summary		-- ns = namespace
 
+local locationLabels = {
+	[THISREALM_THISACCOUNT] = format("%s %s(%s)", L["This realm"], GREEN, L["This account"]),
+	[THISREALM_ALLACCOUNTS] = format("%s %s(%s)", L["This realm"], GREEN, L["All accounts"]),
+	[ALLREALMS_THISACCOUNT] = format("%s %s(%s)", L["All realms"], GREEN, L["This account"]),
+	[ALLREALMS_ALLACCOUNTS] = format("%s %s(%s)", L["All realms"], GREEN, L["All accounts"]),
+}
+
+local function OnRealmFilterChange(self)
+	UIDropDownMenu_SetSelectedValue(AltoholicTabSummary_SelectLocation, self.value);
+	
+	addon.Options:Set("TabSummaryMode", self.value)
+	addon.Characters:BuildList()
+	addon.Characters:BuildView()
+	ns:Refresh()
+end
+
+local function DropDownLocation_Initialize()
+	local info = UIDropDownMenu_CreateInfo();
+	
+	info.text = locationLabels[THISREALM_THISACCOUNT]
+	info.value = THISREALM_THISACCOUNT
+	info.func = OnRealmFilterChange
+	info.checked = nil; 
+	info.icon = nil; 
+	UIDropDownMenu_AddButton(info, 1); 	
+	
+	info.text = locationLabels[THISREALM_ALLACCOUNTS]
+	info.value = THISREALM_ALLACCOUNTS
+	info.func = OnRealmFilterChange
+	info.checked = nil; 
+	info.icon = nil; 
+	UIDropDownMenu_AddButton(info, 1); 	
+	
+	info.text = locationLabels[ALLREALMS_THISACCOUNT]
+	info.value = ALLREALMS_THISACCOUNT
+	info.func = OnRealmFilterChange
+	info.checked = nil; 
+	info.icon = nil; 
+	UIDropDownMenu_AddButton(info, 1); 	
+
+	info.text = locationLabels[ALLREALMS_ALLACCOUNTS]
+	info.value = ALLREALMS_ALLACCOUNTS
+	info.func = OnRealmFilterChange
+	info.checked = nil; 
+	info.icon = nil; 
+	UIDropDownMenu_AddButton(info, 1); 	
+end
+
 function ns:Init()
 	childrenObjects = {
 		addon.Summary,
@@ -40,44 +91,10 @@ function ns:Init()
 	
 	local f = AltoholicTabSummary_SelectLocation
 	UIDropDownMenu_SetSelectedValue(f, addon.Options:Get("TabSummaryMode"))
-	UIDropDownMenu_SetText(f, select(addon.Options:Get("TabSummaryMode"), L["This realm"], L["All realms"], L["All accounts"]))
-	UIDropDownMenu_Initialize(f, ns.DropDownLocation_Initialize)
+	UIDropDownMenu_SetText(f, select(addon.Options:Get("TabSummaryMode"), locationLabels[THISREALM_THISACCOUNT], locationLabels[THISREALM_ALLACCOUNTS], locationLabels[ALLREALMS_THISACCOUNT], locationLabels[ALLREALMS_ALLACCOUNTS]))
+	UIDropDownMenu_Initialize(f, DropDownLocation_Initialize)
 	
 	addon.Calendar:Init()
-end
-
-local function OnRealmFilterChange(self)
-	UIDropDownMenu_SetSelectedValue(AltoholicTabSummary_SelectLocation, self.value);
-	
-	addon.Options:Set("TabSummaryMode", self.value)
-	addon.Characters:BuildList()
-	addon.Characters:BuildView()
-	ns:Refresh()
-end
-
-function ns:DropDownLocation_Initialize()
-	local info = UIDropDownMenu_CreateInfo();
-	
-	info.text = L["This realm"]
-	info.value = SUMMARY_THISREALM
-	info.func = OnRealmFilterChange
-	info.checked = nil; 
-	info.icon = nil; 
-	UIDropDownMenu_AddButton(info, 1); 	
-	
-	info.text = L["All realms"]
-	info.value = SUMMARY_ALLREALMS
-	info.func = OnRealmFilterChange
-	info.checked = nil; 
-	info.icon = nil; 
-	UIDropDownMenu_AddButton(info, 1); 	
-
-	info.text = L["All accounts"]
-	info.value = SUMMARY_ALLACCOUNTS
-	info.func = OnRealmFilterChange
-	info.checked = nil; 
-	info.icon = nil; 
-	UIDropDownMenu_AddButton(info, 1); 	
 end
 
 function ns:MenuItem_OnClick(id)
@@ -213,30 +230,24 @@ function ns:Refresh()
 	end
 end
 
-local INFO_REALM_LINE = 0
-
-function ns:ToggleView(self)
-	if not self.isCollapsed then
-		self.isCollapsed = true
+function ns:ToggleView(frame)
+	if not frame.isCollapsed then
+		frame.isCollapsed = true
 		AltoholicTabSummaryToggleView:SetNormalTexture("Interface\\Buttons\\UI-PlusButton-Up");
 	else
-		self.isCollapsed = nil
+		frame.isCollapsed = nil
 		AltoholicTabSummaryToggleView:SetNormalTexture("Interface\\Buttons\\UI-MinusButton-Up"); 
 	end
 
 	if (currentMode >= 1) and (currentMode <= 4) then
-		for line, s in pairs(addon.Characters.List) do
-			if mod(s.linetype, 3) == INFO_REALM_LINE then
-				s.isCollapsed = (self.isCollapsed) or false
-			end
-		end
+		addon.Characters:ToggleView(frame)
 		ns:Refresh()
 	elseif currentMode == 5 then
-		addon.Guild.Members:ToggleView(self)
+		addon.Guild.Members:ToggleView(frame)
 	elseif currentMode == 6 then
-		addon.Guild.Professions:ToggleView(self)
+		addon.Guild.Professions:ToggleView(frame)
 	elseif currentMode == 7 then
-		addon.Guild.BankTabs:ToggleView(self)
+		addon.Guild.BankTabs:ToggleView(frame)
 	end
 end
 

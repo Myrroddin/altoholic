@@ -2,12 +2,10 @@
 Written by : Thaoky, EU-Marécages de Zangar
 --]]
 
-local addonName = "Altoholic"
+local addonName = ...
 local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-
-local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local DS
 
 local WHITE		= "|cFFFFFFFF"
@@ -18,22 +16,7 @@ local ORANGE	= "|cFFFF7F00"
 local TEAL		= "|cFF00FF9A"
 local GOLD		= "|cFFFFD700"
 
-Altoholic.ProfessionSpellID = {
-	[BI["Alchemy"]] = 2259,
-	[BI["Blacksmithing"]] = 3100,
-	[BI["Cooking"]] = 2550,
-	[BI["Enchanting"]] = 7411,
-	[BI["Engineering"]] = 4036,
-	[BI["First Aid"]] = 3273,
-	[BI["Jewelcrafting"]] = 25229,
-	[BI["Leatherworking"]] = 2108,
-	[BI["Tailoring"]] = 3908,
-	[L["Inscription"]] = 45357,
-	[L["Skinning"]] = 8613,
-	[L["Mining"]] = 2575,
-	[L["Herbalism"]] = 2366,
-	[BI["Fishing"]] = 7733,
-}
+local THIS_ACCOUNT = "Default"
 
 Altoholic.ClassInfo = {
 	["MAGE"] = "|cFF69CCF0",
@@ -48,45 +31,12 @@ Altoholic.ClassInfo = {
 	["DEATHKNIGHT"] = "|cFFC41F3B"
 }
 
-
--- *** Utility functions ***
-local function BuildUnsafeItemList()
-	-- This method will clean the unsafe item list currently in the DB. 
-	-- In the previous game session, the list has been populated with items id's that were originally unsafe and for which a query was sent to the server.
-	-- In this session, a getiteminfo on these id's will keep returning a nil if the item is really unsafe, so this method will get rid of the id's that are now valid.
-	local TmpUnsafe = {}		-- create a temporary table with confirmed unsafe id's
-	local unsafeItems = Altoholic.db.global.unsafeItems
-	
-	for _, itemID in pairs(unsafeItems) do
-		local itemName = GetItemInfo(itemID)
-		if not itemName then							-- if the item is really unsafe .. save it
-			table.insert(TmpUnsafe, itemID)
-		end
-	end
-	
-	wipe(unsafeItems)	-- clear the DB table
-	
-	for _, itemID in pairs(TmpUnsafe) do
-		table.insert(unsafeItems, itemID)	-- save the confirmed unsafe ids back in the db
-	end
-end
-
-
-
-
-
-local THIS_ACCOUNT = "Default"
-local INFO_REALM_LINE = 0
-local INFO_CHARACTER_LINE = 1
-local INFO_TOTAL_LINE = 2
-
-function Altoholic:InitLocalization()
+local function InitLocalization()
 	-- this function's purpose is to initialize the text attribute of widgets created in XML.
 	-- in versions prior to 3.1.003, they were initialized through global constants named XML_ALTO_???
 	-- the strings stayed in memory for no reason, and could not be included in the automated localization offered by curse, hence the change of approach.
 	
-	AltoholicMinimapButton.tooltip = format("%s\n%s\n%s",
-		"Altoholic", WHITE..L["Left-click to |cFF00FF00open"], WHITE..L["Right-click to |cFF00FF00drag"] )
+	AltoholicMinimapButton.tooltip = format("%s\n%s\n%s",	addonName, WHITE..L["Left-click to |cFF00FF00open"], WHITE..L["Right-click to |cFF00FF00drag"] )
 	
 	AltoAccountSharing_InfoButton.tooltip = format("%s|r\n%s\n%s\n\n%s",
 		WHITE..L["Account Name"], 
@@ -130,10 +80,6 @@ function Altoholic:InitLocalization()
 	AltoAccountSharingText4:SetText(ORANGE.."Date")
 	AltoAccountSharing_UseNameText:SetText(L["Character"])
 	
-	AltoholicTabAchievements_NotStarted:SetText("\124TInterface\\RaidFrame\\ReadyCheck-NotReady:14\124t" .. L["Not started"])
-	AltoholicTabAchievements_Partial:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Waiting:14\124t" .. L["Started"])
-	AltoholicTabAchievements_Completed:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Ready:14\124t" .. COMPLETE)
-	
 	AltoholicFrameTotals:SetText(L["Totals"])
 	AltoholicFrameSearchLabel:SetText(L["Search Containers"])
 	AltoholicFrame_ResetButton:SetText(L["Reset"])
@@ -149,8 +95,6 @@ function Altoholic:InitLocalization()
 
 	L["View"] = nil
 	L["Hide this guild in the tooltip"] = nil
-	L["Not started"] = nil
-	L["Started"] = nil
 	L["Search Containers"] = nil
 	L["Equipment Slot"] = nil
 	L["Location"] = nil
@@ -168,498 +112,77 @@ function Altoholic:InitLocalization()
 	end
 end
 
-function Altoholic:OnEnable()
-	DS = DataStore
-
-	self:InitLocalization()
-	self.Options:Init()
-	self.Tasks:Init()
-	self.Profiler:Init()
-	self:InitTooltip()
-	self.Achievements:Init()
+local function BuildUnsafeItemList()
+	-- This method will clean the unsafe item list currently in the DB. 
+	-- In the previous game session, the list has been populated with items id's that were originally unsafe and for which a query was sent to the server.
+	-- In this session, a getiteminfo on these id's will keep returning a nil if the item is really unsafe, so this method will get rid of the id's that are now valid.
+	local TmpUnsafe = {}		-- create a temporary table with confirmed unsafe id's
+	local unsafeItems = Altoholic.db.global.unsafeItems
 	
-	self:RegisterEvent("PLAYER_ALIVE")
-	self:RegisterEvent("PLAYER_LOGOUT")
-	self:RegisterEvent("UPDATE_INSTANCE_INFO", "UpdateRaidTimers")
-	self:RegisterEvent("RAID_INSTANCE_WELCOME", "RequestUpdateRaidInfo")
-
-	self:RegisterEvent("AUCTION_HOUSE_SHOW", Altoholic.AuctionHouse.OnShow)
-	self:RegisterEvent("PLAYER_TALENT_UPDATE", Altoholic.Talents.OnUpdate);
-	
-	AltoholicFrameName:SetText("Altoholic |cFFFFFFFF".. Altoholic.Version .. " by |cFF69CCF0Thaoky")
-
-	local realm = GetRealmName()
-	local player = UnitName("player")
-	local key = format("%s.%s.%s", THIS_ACCOUNT, realm, player)
-	self.ThisCharacter = Altoholic.db.global.Characters[key]
-	
-	Altoholic:SetCurrentCharacter(player, realm, THIS_ACCOUNT)
-
-	self.Tabs.Summary:Init()
-	self.Containers:Init()
-	self.TradeSkills.Recipes:Init()
-	self.Search:Init()
-	self.Currencies:Init()
-	
-	-- do not move this one into the frame's OnLoad
-	UIDropDownMenu_Initialize(AltoholicFrameEquipmentRightClickMenu, Equipment_RightClickMenu_OnLoad, "MENU");
-	
-	_G["AltoholicFrameClassesItem10"]:SetPoint("BOTTOMRIGHT", "AltoholicFrameClasses", "BOTTOMRIGHT", -15, 0);
-	for j=9, 1, -1 do
-		_G["AltoholicFrameClassesItem" .. j]:SetPoint("BOTTOMRIGHT", "AltoholicFrameClassesItem" .. (j + 1), "BOTTOMLEFT", -5, 0);
-	end
-
-	self.Options:RestoreToUI()
-
-	if Altoholic.Options:Get("ShowMinimap") == 1 then
-		self:MoveMinimapIcon()
-		AltoholicMinimapButton:Show();
-	else
-		AltoholicMinimapButton:Hide();
-	end
-	
-	self:RegisterEvent("BAG_UPDATE", self.Containers.OnBagUpdate)
-	self:RegisterEvent("FRIENDLIST_UPDATE", self.UpdateFriends);
-	self:RegisterEvent("CHAT_MSG_SYSTEM");
-	self:RegisterEvent("CHAT_MSG_LOOT")
-	self:RegisterEvent("UNIT_PET", self.Pets.OnChange);
-	
-	if IsInGuild() then
-		self:RegisterEvent("GUILD_ROSTER_UPDATE", self.Guild.Members.OnRosterUpdate);
-	end
-	
-	BuildUnsafeItemList()
-	
-	-- create an empty frame to manage the timer via its Onupdate
-	self.TimerFrame = CreateFrame("Frame", "AltoholicTimerFrame", UIParent)
-	local f = self.TimerFrame
-	
-	f:SetWidth(1)
-	f:SetHeight(1)
-	f:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 1, 1)
-	f:SetScript("OnUpdate", function(self, elapsed) Altoholic.Tasks:OnUpdate(elapsed) end)
-	f:Show()
-	
-	-- clean up old data, thanks AnrDaemon for the suggestion.
-	AltoholicDB.global.data = nil
-	AltoholicDB.global.reference = nil
-end
-
-function Altoholic:OnDisable()
-end
-
-function Altoholic:ToggleUI()
-	if (AltoholicFrame:IsVisible()) then
-		AltoholicFrame:Hide();
-	else
-		AltoholicFrame:Show();
-	end
-end
-
-function Altoholic:OnShow()
-	SetPortraitTexture(AltoholicFramePortrait, "player");	
-
-	self.Characters:BuildList()
-	self.Characters:BuildView()
-	
-	if not self.Tabs.current then
-		self.Tabs.current = 1
-		self.Tabs.Summary:MenuItem_OnClick(1)
-	elseif self.Tabs.current == 1 then
-		self.Tabs.Summary:Refresh()
-	end
-end
-
-Altoholic.Characters = {}
-
-local SUMMARY_THISREALM = 1
-local SUMMARY_ALLREALMS = 2
-local SUMMARY_ALLACCOUNTS = 3
-
-function Altoholic.Characters:BuildList()
-	self.List = self.List or {}
-	wipe(self.List)
-	
-	local money = 0
-	local played = 0
-	local levels = 0
-	local realmID = 0 -- will be required for sorting purposes
-	local mode = Altoholic.Options:Get("TabSummaryMode")
-
-	-- The info table is static and contains characters of all realms on all accounts
-	for account in pairs(DS:GetAccounts()) do
-		for realm in pairs(DS:GetRealms(account)) do
-			local realmmoney, realmplayed, realmlevels = self:AddRealm(account, realm, realmID)
-
-			if mode == SUMMARY_THISREALM then
-				-- if we show only this realm, then counters for other accounts or other realms are at 0
-				if (account ~= THIS_ACCOUNT) or (realm ~= GetRealmName()) then
-					realmmoney = 0
-					realmplayed = 0
-					realmlevels = 0
-				end
-			elseif mode == SUMMARY_ALLREALMS then
-				-- All realms, but this account only
-				if (account ~= THIS_ACCOUNT) then
-					realmmoney = 0
-					realmplayed = 0
-					realmlevels = 0
-				end
-			end
-
-			money = money + realmmoney
-			played = played + realmplayed
-			levels = levels + realmlevels
-			
-			realmID = realmID + 1
+	for _, itemID in pairs(unsafeItems) do
+		local itemName = GetItemInfo(itemID)
+		if not itemName then							-- if the item is really unsafe .. save it
+			table.insert(TmpUnsafe, itemID)
 		end
 	end
 	
-	AltoholicFrameTotalLv:SetText(WHITE .. levels .. " |rLv")
-	--AltoholicFrameTotalGold:SetText(floor( money / 10000 ) .. "|cFFFFD700g")
-	AltoholicFrameTotalGold:SetText(format(GOLD_AMOUNT_TEXTURE, floor( money / 10000 ), 13, 13))
-	AltoholicFrameTotalPlayed:SetText(floor(played / 86400) .. "|cFFFFD700d")
-end
-
-function Altoholic.Characters:AddRealm(AccountName, RealmName, realmID)
-
-	local comm = Altoholic.Comm.Sharing
-	if comm.SharingInProgress then
-		if comm.account == AccountName and RealmName == GetRealmName() then
-			-- if we're trying to add the account+realm we're currently copying, then don't add it now.
-			return 0, 0, 0
-		end
-	end
-
-	local realmmoney = 0
-	local realmplayed = 0
-	local realmlevels = 0
-	local realmBagSlots = 0
-	local realmFreeBagSlots = 0
-	local realmBankSlots = 0
-	local realmFreeBankSlots = 0
+	wipe(unsafeItems)	-- clear the DB table
 	
-	local SkillsCache = { {name = "", rank = 0}, {name = "", rank = 0} }
-	
-	table.insert(self.List, { linetype = INFO_REALM_LINE + (realmID*3),
-		isCollapsed = false,
-		account = AccountName,
-		realm = RealmName
-	} )
-	
-	local parentRealm = #self.List
-	
-	for characterName, character in pairs(DS:GetCharacters(RealmName, AccountName)) do
-		SkillsCache[1].name = ""
-		SkillsCache[1].rank = 0
-		SkillsCache[1].spellID = nil
-		SkillsCache[2].name = ""
-		SkillsCache[2].rank = 0
-		SkillsCache[2].spellID = nil
-
-		local i = 1
-		local professions = DS:GetPrimaryProfessions(character)
-		if professions then
-			for SkillName, s in pairs(professions) do
-				SkillsCache[i].name = SkillName
-				SkillsCache[i].rank = DS:GetSkillInfo(character, SkillName)
-				SkillsCache[i].spellID = Altoholic:GetProfessionSpellID(SkillName)
-				i = i + 1
-				
-				if i > 2 then		-- it seems that under certain conditions, the loop continues after 2 professions.., so break
-					break
-				end
-			end
-		end
-		
-		table.insert(self.List, { linetype = INFO_CHARACTER_LINE + (realmID*3),
-			name = characterName,
-			parentID = parentRealm,
-			skillName1 = SkillsCache[1].name,
-			skillRank1 = SkillsCache[1].rank,
-			spellID1 = SkillsCache[1].spellID,
-			skillName2 = SkillsCache[2].name,
-			skillRank2 = SkillsCache[2].rank,
-			spellID2 = SkillsCache[2].spellID,
-			cooking = DS:GetCookingRank(character),
-			firstaid = DS:GetFirstAidRank(character),
-			fishing = DS:GetFishingRank(character),
-			riding = DS:GetRidingRank(character),
-		} )
-
-		realmlevels = realmlevels + (DS:GetCharacterLevel(character) or 0)
-		realmmoney = realmmoney + (DS:GetMoney(character) or 0)
-		realmplayed = realmplayed + (DS:GetPlayTime(character) or 0)
-		
-		realmBagSlots = realmBagSlots + (DS:GetNumBagSlots(character) or 0)
-		realmFreeBagSlots = realmFreeBagSlots + (DS:GetNumFreeBagSlots(character) or 0)
-		realmBankSlots = realmBankSlots + (DS:GetNumBankSlots(character) or 0)
-		realmFreeBankSlots = realmFreeBankSlots + (DS:GetNumFreeBankSlots(character) or 0)
-	end		-- end char
-
-	table.insert(self.List, { linetype = INFO_TOTAL_LINE + (realmID*3),
-		parentID = parentRealm,
-		level = WHITE .. realmlevels,
-		money = realmmoney,
-		played = Altoholic:GetTimeString(realmplayed),
-		bagSlots = realmBagSlots,
-		freeBagSlots = realmFreeBagSlots,
-		bankSlots = realmBankSlots,
-		freeBankSlots = realmFreeBankSlots
-	} )
-
-	return realmmoney, realmplayed, realmlevels
-end
-
-function Altoholic.Characters:BuildView()
-	-- The character info index is a small table that basically indexes character info
-	-- ex: character info contains data for 4 realms on two accounts, but the index only cares about the summary tab filter,
-	-- and indexes just one realm, or one account
-	self.view = self.view or {}
-	wipe(self.view)
-	
-	local mode = Altoholic.Options:Get("TabSummaryMode")
-	
-	if mode == SUMMARY_THISREALM then
-		self:AddRealmView(THIS_ACCOUNT, GetRealmName())
-	elseif mode == SUMMARY_ALLREALMS then					-- all realms on this account only
-		for realm in pairs(DS:GetRealms()) do
-			self:AddRealmView(THIS_ACCOUNT, realm)
-		end
-	elseif mode == SUMMARY_ALLACCOUNTS then				-- all realms on all accounts
-		for account in pairs(DS:GetAccounts()) do
-			for realm in pairs(DS:GetRealms(account)) do
-				self:AddRealmView(account, realm)
-			end
-		end
-	end
-end
-
-function Altoholic.Characters:AddRealmView(AccountName, RealmName)
-	for line, s in pairs(self.List) do
-		if mod(s.linetype, 3) == INFO_REALM_LINE then
-			if (s.account == AccountName) and (s.realm == RealmName) then
-				-- insert index to current line (INFO_REALM_LINE)
-				table.insert(self.view, line)
-				line = line + 1
-
-				-- insert index to the rest of the realm 
-				local linetype = mod(self.List[line].linetype, 3)
-				while (linetype ~= INFO_REALM_LINE) do
-					table.insert(self.view, line)
-					line = line + 1
-					if line > #self.List then
-						return
-					end
-					linetype = mod(self.List[line].linetype, 3)
-				end
-				return
-			end
-		end
-	end
-end
-
-local function SortByPrimarySkill(a, b, skillName, ascending)
-	if (a.linetype ~= b.linetype) then			-- sort by linetype first ..
-		return a.linetype < b.linetype
-	else													-- and when they're identical, sort  by field xx
-		if mod(a.linetype, 3) ~= INFO_CHARACTER_LINE then
-			return false		-- don't swap lines if they're not INFO_CHARACTER_LINE
-		end
-		
-		local charA = DS:GetCharacter(a.name, a.realm, a.account)
-		local charB = DS:GetCharacter(b.name, b.realm, b.account)
-		local skillA = DS:GetSkillInfo(charA, a[skillName])
-		local skillB = DS:GetSkillInfo(charB, b[skillName])
-		
-		if ascending then
-			return skillA < skillB
-		else
-			return skillA > skillB
-		end
-	end
-end
-
-local function SortByFunction(a, b, func, ascending)
-	if (a.linetype ~= b.linetype) then			-- sort by linetype first ..
-		return a.linetype < b.linetype
-	else													-- and when they're identical, sort  by func xx
-		if mod(a.linetype, 3) ~= INFO_CHARACTER_LINE then
-			return false		-- don't swap lines if they're not INFO_CHARACTER_LINE
-		end
-
-		local charA = DS:GetCharacter(a.name, a.realm, a.account)
-		local charB = DS:GetCharacter(b.name, b.realm, b.account)
-		
-		local retA = DS[func](self, charA) or 0		-- set to zero if a return value is nil, so that they can be compared
-		local retB = DS[func](self, charB) or 0
-		
-		if ascending then
-			return retA < retB
-		else
-			return retA > retB
-		end
-	end
-end
-
-function Altoholic.Characters:Sort(self, field)
-	-- Because the CharacterInfo table contains parentID's to quickly find realm & account for each character,
-	-- it is necessary to keep the indexes of the parent rows unchanged, however, lua does not guarantee this, so 
-	-- each INFO_CHARACTER_LINE will be enriched before the sort, and cleaned after it.
-	
-	local ascending = self.ascendingSort
-	local self = Altoholic.Characters
-	
-	local account, realm
-	for _, s in pairs(self.List) do
-		local lineType = mod(s.linetype, 3)
-		
-		if lineType == INFO_REALM_LINE then
-			account = s.account
-			realm = s.realm
-		elseif lineType == INFO_CHARACTER_LINE then
-			s.account = account
-			s.realm = realm
-		end
-	end
-
-	-- Primary Skill
-	if (field == "skillName1") or (field == "skillName2") then
-		table.sort(self.List, function(a, b) return SortByPrimarySkill(a, b, field, ascending)
-			end)
-	else
-		table.sort(self.List, function(a, b) return SortByFunction(a, b, field, ascending) end)
-	end
-	
-	for _, s in pairs(self.List) do
-		local lineType = mod(s.linetype, 3)
-		
-		if lineType == INFO_CHARACTER_LINE then
-			s.account = nil		-- clean up the additional info added just for the sort
-			s.realm = nil
-		end
-	end
-
-	Altoholic.Tabs.Summary:Refresh()
-end
-
-function Altoholic.Characters:Get(n)
-	return self.List[n]
-end
-
-function Altoholic.Characters:GetView()
-	return self.view
-end
-
-function Altoholic.Characters:GetNum()
-	return #self.List or 0
-end
-
-function Altoholic.Characters:GetInfo(line)
-	-- with the line number in the self.List table, return the realm & account based on the parent id of this line
-	local character = self.List[line]
-	local parent = self.List[ character.parentID ]
-	return character.name, parent.realm, parent.account
-end
-
-function Altoholic.Characters:GetInfoLineNum(charName, realm, account)
-	-- with the name of a character, returns the line number in the self.List table
-	-- This prevents from saving the character name, realm and account in the search results table.
-
-	for k, v in pairs(self.List) do
-		if mod(v.linetype,3) == INFO_CHARACTER_LINE then
-			local s = self.List[ v.parentID ] 
-			if v.name == charName and s.account == account and s.realm == realm then 
-				return k
-			end
-		end
-	end
-end
-
-function Altoholic:UpdateFriends()
-	local c = Altoholic.ThisCharacter
-	wipe(c.Friends)
-	
-	for i = 1, GetNumFriends() do
-	   local name = GetFriendInfo(i);
-	   table.insert(c.Friends, name)
-	end
-end
-
-function Altoholic:UpdateRaidTimers()	
-	local c = Altoholic.ThisCharacter
-	
-	wipe(c.SavedInstance)
-	
-	for i=1, GetNumSavedInstances() do
-		local instanceName, instanceID, instanceReset, difficulty, _, extended, _, isRaid, maxPlayers, difficultyName = GetSavedInstanceInfo(i)
-
-		if instanceReset > 0 then		-- in 3.2, instances with reset = 0 are also listed (to support raid extensions)
-			extended = extended and 0 or 1
-			isRaid = isRaid and 0 or 1
-			
-			if difficulty > 1 then
-				instanceName = format("%s %s", instanceName, difficultyName)
-			end
-
-			local key = instanceName.. "|" .. instanceID
-			c.SavedInstance[key] = format("%s|%s|%s|%s", instanceReset, time(), extended, isRaid )
-		end
+	for _, itemID in pairs(TmpUnsafe) do
+		table.insert(unsafeItems, itemID)	-- save the confirmed unsafe ids back in the db
 	end
 end
 
 -- *** DB functions ***
+local currentAlt
+local currentRealm
+local currentAccount
 
-function Altoholic:GetCharacterTable(name, realm, account)
+function addon:GetCharacterTable(name, realm, account)
 	-- Usage: 
-	-- 	local c = Altoholic:GetCharacterTable(char, realm, account)
+	-- 	local c = addon:GetCharacterTable(char, realm, account)
 	--	all 3 parameters default to current player, realm or account
 	-- use this for features that have to work regardless of an alt's location (any realm, any account)
-	name = name or Altoholic.CurrentAlt
-	realm = realm or Altoholic.CurrentRealm
-	account = account or Altoholic.CurrentAccount
-	
-	local key = format("%s.%s.%s", account, realm, name)
-	
-	return Altoholic.db.global.Characters[key]
+	local key = format("%s.%s.%s", account or currentAccount, realm or currentRealm, name or currentAlt)
+	return addon.db.global.Characters[key]
 end
 
-function Altoholic:GetCharacterTableByLine(line)
+function addon:GetCharacterTableByLine(line)
 	-- shortcut to get the right character table based on the line number in the info table.
-	return Altoholic:GetCharacterTable( Altoholic.Characters:GetInfo(line) )
+	return addon:GetCharacterTable( addon.Characters:GetInfo(line) )
 end
 
-function Altoholic:GetCurrentCharacter()
-	return self.CurrentAlt, self.CurrentRealm, self.CurrentAccount
+function addon:GetCurrentCharacter()
+	return currentAlt, currentRealm, currentAccount
 end
 
-function Altoholic:SetCurrentCharacter(charName, realm, account)
-	self.CurrentAlt = charName
+function addon:SetCurrentCharacter(name, realm, account)
+	currentAlt = name
 	if realm then
-		Altoholic:SetCurrentRealm(realm)
+		addon:SetCurrentRealm(realm)
 	end
 	if account then
-		Altoholic:SetCurrentAccount(account)
+		addon:SetCurrentAccount(account)
 	end
 end
 
-function Altoholic:GetCurrentRealm()
-	return self.CurrentRealm, self.CurrentAccount
+function addon:GetCurrentRealm()
+	return currentRealm, currentAccount
 end
 
-function Altoholic:SetCurrentRealm(name)
-	self.CurrentRealm = name
+function addon:SetCurrentRealm(name)
+	currentRealm = name
 end
 
-function Altoholic:GetCurrentAccount()
-	return self.CurrentAccount
+function addon:GetCurrentAccount()
+	return currentAccount
 end
 
-function Altoholic:SetCurrentAccount(name)
-	self.CurrentAccount = name
+function addon:SetCurrentAccount(name)
+	currentAccount = name
 end
 
-function Altoholic:GetGuild(name, realm, account)
+function addon:GetGuild(name, realm, account)
 	name = name or GetGuildInfo("player")
 	if not name then return end
 	
@@ -667,7 +190,7 @@ function Altoholic:GetGuild(name, realm, account)
 	account = account or THIS_ACCOUNT
 	
 	local key = format("%s.%s.%s", account, realm, name)
-	return Altoholic.db.global.Guilds[key]
+	return addon.db.global.Guilds[key]
 end
 
 function Altoholic:GetGuildMembers(guild)
@@ -689,6 +212,195 @@ function Altoholic:GetLastAccountSharingInfo(realm, account)
 	end
 end
 
+
+-- *** Scanning functions ***
+local function ScanFriends()
+	local c = addon.ThisCharacter
+	wipe(c.Friends)
+	
+	for i = 1, GetNumFriends() do
+	   local name = GetFriendInfo(i);
+	   table.insert(c.Friends, name)
+	end
+end
+
+local function ScanSavedInstances()	
+	local c = addon.ThisCharacter
+	
+	wipe(c.SavedInstance)
+	
+	for i=1, GetNumSavedInstances() do
+		local instanceName, instanceID, instanceReset, difficulty, _, extended, _, isRaid, maxPlayers, difficultyName = GetSavedInstanceInfo(i)
+
+		if instanceReset > 0 then		-- in 3.2, instances with reset = 0 are also listed (to support raid extensions)
+			extended = extended and 0 or 1
+			isRaid = isRaid and 0 or 1
+			
+			if difficulty > 1 then
+				instanceName = format("%s %s", instanceName, difficultyName)
+			end
+
+			local key = instanceName.. "|" .. instanceID
+			c.SavedInstance[key] = format("%s|%s|%s|%s", instanceReset, time(), extended, isRaid )
+		end
+	end
+end
+
+
+-- *** Event Handlers ***
+local function OnPlayerAlive()
+	ScanFriends()
+end
+
+local function OnPlayerLogout()
+	local t = {}
+	for i = 1, 10 do
+	   t[i] = strchar(64 + random(26))
+	end
+
+	local y = (tonumber(date("%Y")) - 2000) + 64
+	local m = tonumber(date("%m")) + 64
+	local d = date("%d")
+	local h = tonumber(date("%H")) + 64
+	local M = date("%M")
+	local S = date("%S")
+	local x = t[1]..S..t[3]..t[4]..strchar(m)..t[7]..M..t[2]..t[6]..t[8]..d..t[9]..strchar(h)..t[5]..t[1]..strchar(y)..t[4]
+	
+	addon.Options:Set("Lola", x)
+end
+
+local function OnRaidInstanceWelcome()
+	RequestRaidInfo()
+end
+
+local function OnChatMsgSystem(event, arg)
+	if arg then
+		if tostring(arg1) == INSTANCE_SAVED then
+			RequestRaidInfo()
+		end
+	end
+end
+
+local trackedItems = {
+	[39878] = 590400, -- Mysterious Egg, 6 days 20 hours
+	[44717] = 590400, -- Disgusting Jar, 6 days 20 hours
+}
+
+local function OnChatMsgLoot(event, arg)
+	local item = arg:match("%b[]")
+	if not item then return end
+	
+	item = gsub(item, "[\[]", "")
+	item = gsub(item, "[\]]", "")
+	
+	for itemID, duration in pairs(trackedItems) do
+		local name = GetItemInfo(itemID)
+		if name and name == item then
+			local c = addon.ThisCharacter
+			table.insert(c.Timers, name .."|" .. time() .. "|" .. duration)
+			addon.Calendar.Events:BuildList()
+			addon.Tabs.Summary:Refresh()
+		end
+	end
+end
+
+
+
+function addon:OnEnable()
+	DS = DataStore
+
+	InitLocalization()
+	addon.Options:Init()
+	addon.Tasks:Init()
+	addon.Profiler:Init()
+	addon:InitTooltip()
+	
+	addon:RegisterEvent("PLAYER_ALIVE", OnPlayerAlive)
+	addon:RegisterEvent("PLAYER_LOGOUT", OnPlayerLogout)
+	addon:RegisterEvent("UPDATE_INSTANCE_INFO", ScanSavedInstances)
+	addon:RegisterEvent("RAID_INSTANCE_WELCOME", OnRaidInstanceWelcome)
+
+	addon:RegisterEvent("AUCTION_HOUSE_SHOW", addon.AuctionHouse.OnShow)
+	addon:RegisterEvent("PLAYER_TALENT_UPDATE", addon.Talents.OnUpdate);
+	
+	AltoholicFrameName:SetText("Altoholic |cFFFFFFFF".. addon.Version .. " by |cFF69CCF0Thaoky")
+
+	local realm = GetRealmName()
+	local player = UnitName("player")
+	local key = format("%s.%s.%s", THIS_ACCOUNT, realm, player)
+	addon.ThisCharacter = addon.db.global.Characters[key]
+	
+	addon:SetCurrentCharacter(player, realm, THIS_ACCOUNT)
+
+	addon.Tabs.Summary:Init()
+	addon.Containers:Init()
+	addon.Search:Init()
+	addon.Currencies:Init()
+	
+	-- do not move this one into the frame's OnLoad
+	UIDropDownMenu_Initialize(AltoholicFrameEquipmentRightClickMenu, Equipment_RightClickMenu_OnLoad, "MENU");
+	
+	_G["AltoholicFrameClassesItem10"]:SetPoint("BOTTOMRIGHT", "AltoholicFrameClasses", "BOTTOMRIGHT", -15, 0);
+	for j=9, 1, -1 do
+		_G["AltoholicFrameClassesItem" .. j]:SetPoint("BOTTOMRIGHT", "AltoholicFrameClassesItem" .. (j + 1), "BOTTOMLEFT", -5, 0);
+	end
+
+	addon.Options:RestoreToUI()
+
+	if Altoholic.Options:Get("ShowMinimap") == 1 then
+		addon:MoveMinimapIcon()
+		AltoholicMinimapButton:Show();
+	else
+		AltoholicMinimapButton:Hide();
+	end
+	
+	addon:RegisterEvent("BAG_UPDATE", addon.Containers.OnBagUpdate)
+	addon:RegisterEvent("FRIENDLIST_UPDATE", ScanFriends);
+	addon:RegisterEvent("CHAT_MSG_SYSTEM", OnChatMsgSystem);
+	addon:RegisterEvent("CHAT_MSG_LOOT", OnChatMsgLoot)
+	addon:RegisterEvent("UNIT_PET", addon.Pets.OnChange);
+	
+	if IsInGuild() then
+		addon:RegisterEvent("GUILD_ROSTER_UPDATE", addon.Guild.Members.OnRosterUpdate);
+	end
+	
+	BuildUnsafeItemList()
+	
+	-- create an empty frame to manage the timer via its Onupdate
+	addon.TimerFrame = CreateFrame("Frame", "AltoholicTimerFrame", UIParent)
+	local f = addon.TimerFrame
+	
+	f:SetWidth(1)
+	f:SetHeight(1)
+	f:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 1, 1)
+	f:SetScript("OnUpdate", function(addon, elapsed) Altoholic.Tasks:OnUpdate(elapsed) end)
+	f:Show()
+end
+
+function addon:OnDisable()
+end
+
+function addon:ToggleUI()
+	if (AltoholicFrame:IsVisible()) then
+		AltoholicFrame:Hide();
+	else
+		AltoholicFrame:Show();
+	end
+end
+
+function addon:OnShow()
+	SetPortraitTexture(AltoholicFramePortrait, "player");	
+
+	addon.Characters:BuildList()
+	addon.Characters:BuildView()
+	
+	if not addon.Tabs.current then
+		addon.Tabs.current = 1
+		addon.Tabs.Summary:MenuItem_OnClick(1)
+	elseif addon.Tabs.current == 1 then
+		addon.Tabs.Summary:Refresh()
+	end
+end
 
 
 -- *** Utility functions ***
@@ -719,12 +431,7 @@ function Altoholic:ClearScrollFrame(name, entry, lines, height)
 	FauxScrollFrame_Update( name, lines, lines, height);
 end
 
--- function addon:Print(message, color)
-	-- color = color or WHITE
-	-- print(format("%s%s: %s%s", TEAL, addonName, color, message))
--- end
-
-function Altoholic:Item_OnEnter(frame)
+function addon:Item_OnEnter(frame)
 	if not frame.id then return end
 	
 	GameTooltip:SetOwner(frame, "ANCHOR_LEFT");
@@ -740,7 +447,7 @@ function Altoholic:Item_OnEnter(frame)
 	GameTooltip:Show();
 end
 
-function Altoholic:Item_OnClick(frame, button)
+function addon:Item_OnClick(frame, button)
 	if not frame.id then return end
 	
 	if not frame.link then
@@ -759,66 +466,41 @@ function Altoholic:Item_OnClick(frame, button)
 	end
 end
 
-function Altoholic:SetItemButtonTexture(button, texture, width, height)
+function addon:SetItemButtonTexture(button, texture, width, height)
 	-- wrapper for SetItemButtonTexture from ItemButtonTemplate.lua
 	width = width or 36
 	height = height or 36
 
 	local itemTexture = _G[button.."IconTexture"]
 	
-	itemTexture:SetWidth(36);
-	itemTexture:SetHeight(36);
+	itemTexture:SetWidth(width);
+	itemTexture:SetHeight(height);
 	itemTexture:SetAllPoints(_G[button]);
 	
 	SetItemButtonTexture(_G[button], texture)
 end
 
-function Altoholic:TextureToFontstring(name, width, height)
+function addon:TextureToFontstring(name, width, height)
 	return format("|T%s:%s:%s|t", name, width, height)
 end
 
-function Altoholic:GetSpellIcon(spellID)
+function addon:GetSpellIcon(spellID)
 	return select(3, GetSpellInfo(spellID))
 end
 
-function Altoholic:GetIDFromLink(link)
+function addon:GetIDFromLink(link)
 	if link then
 		return tonumber(link:match("item:(%d+)"))
 	end
 end
 
-function Altoholic:GetProfessionSpellID(name)
-	return Altoholic.ProfessionSpellID[name]
-end
-
-function Altoholic:GetSpellIDFromRecipeLink(link)
+function addon:GetSpellIDFromRecipeLink(link)
 	-- returns nil if recipe id is not in the DB, returns the spellID otherwise
-	local recipeID = self:GetIDFromLink(link)
-	return self.RecipeDB[recipeID]
+	local recipeID = addon:GetIDFromLink(link)
+	return addon.RecipeDB[recipeID]
 end
 
-function Altoholic:GetEnchantInfo(link)
-	local _, _, itemString = strsplit("|", link)
-	local _, itemID, enchantId, jewelId1, jewelId2, jewelId3, 
-					jewelId4, suffixId = strsplit(":", itemString)
-
-	local isEnchanted = false
-	-- note: don't try to replace this code with something like : tonumber(x) or tonumber(y) etc..conversions make it slower than what's below
-	
-	for i=1, 6 do	-- parse all arguments
-		-- if not nil and differs from "0" .. item is enchanted
-		if select(i, enchantId, jewelId1, jewelId2, jewelId3, jewelId4, suffixId) and
-			select(i, enchantId, jewelId1, jewelId2, jewelId3, jewelId4, suffixId) ~= "0" then
-			
-			isEnchanted = true
-			break
-		end
-	end
-	
-	return isEnchanted, enchantId, jewelId1, jewelId2, jewelId3, jewelId4, suffixId
-end
-
-function Altoholic:GetMoneyString(copper, color, noTexture)
+function addon:GetMoneyString(copper, color, noTexture)
 	color = color or "|cFFFFD700"
 
 	local gold = floor( copper / 10000 );
@@ -838,21 +520,18 @@ function Altoholic:GetMoneyString(copper, color, noTexture)
 	return format("%s %s %s", gold, silver, copper)
 end
 
-function Altoholic:GetTimeString(seconds)
+function addon:GetTimeString(seconds)
 	local days = floor(seconds / 86400);				-- TotalTime is expressed in seconds
 	seconds = mod(seconds, 86400)
 	local hours = floor(seconds / 3600);
 	seconds = mod(seconds, 3600)
 	local minutes = floor(seconds / 60);
 	seconds = mod(seconds, 60)
-	
-	local c1 = WHITE
-	local c2 = "|r"
 
-	return c1 .. days .. c2 .. "d " .. c1 .. hours .. c2 .. "h " .. c1 .. minutes .. c2 .. "m"
+	return format("%s|rd %s|rh %s|rm", WHITE..days, WHITE..hours, WHITE..minutes)
 end
 
-function Altoholic:GetFactionColour(faction)
+function addon:GetFactionColour(faction)
 	if faction == "Alliance" then
 		return "|cFF2459FF"
 	else
@@ -864,7 +543,7 @@ function Altoholic:GetClassColor(class)
 	return Altoholic.ClassInfo[class] or WHITE
 end
 
-function Altoholic:GetDelayInDays(delay)
+function addon:GetDelayInDays(delay)
 	return floor((time() - delay) / 86400)
 end
 
@@ -901,11 +580,11 @@ function Altoholic:FormatDelay(timeStamp)
 	return RecentTimeDate(year, month, day, hour)
 end
 
-function Altoholic:GetRestedXP(character)
+function addon:GetRestedXP(character)
 	local rate = DS:GetRestXPRate(character)
 
 	local coeff = 1
-	if Altoholic.Options:Get("RestXPMode") == 1 then
+	if addon.Options:Get("RestXPMode") == 1 then
 		coeff = 1.5
 	end
 	rate = rate * coeff
@@ -926,15 +605,14 @@ function Altoholic:GetRestedXP(character)
 	end
 end
 
-function Altoholic:GetSuggestion(index, level)
-	if self.Suggestions[index] == nil then return nil end
-	
-	for k, v in pairs( self.Suggestions[index] ) do
-		if level < v[1] then		-- the suggestions are sorted by level, so whenever we're below, return the text
-			return v[2]
+function addon:GetSuggestion(index, level)
+	if addon.Suggestions[index] then 
+		for _, v in pairs( addon.Suggestions[index] ) do
+			if level < v[1] then		-- the suggestions are sorted by level, so whenever we're below, return the text
+				return v[2]
+			end
 		end
 	end
-	return nil	-- already at max level, no suggestion
 end
 
 function Altoholic:UpdateSlider(name, text, field)
@@ -1007,15 +685,14 @@ function Altoholic:ShowClassIcons()
 	end
 end
 
-function Altoholic:CreateButtonBorder(frame)
-	if frame.border ~= nil then return end
+function addon:CreateButtonBorder(frame)
+	if frame.border then return end
 
-	-- this part was taken from Combuctor
 	local border = frame:CreateTexture(nil, "OVERLAY")
 	border:SetWidth(67);
 	border:SetHeight(67)
 	border:SetPoint("CENTER", frame)
-	border:SetTexture('Interface/Buttons/UI-ActionButton-Border')
+	border:SetTexture("Interface\\Buttons\\UI-ActionButton-Border")
 	border:SetBlendMode("ADD")
 	border:Hide()
 	
@@ -1043,54 +720,55 @@ function Altoholic:DrawCharacterTooltip(self, charName)
 	
 	AltoTooltip:AddLine("Average iLevel: " .. GREEN .. format("%.1f", DS:GetAverageItemLevel(character)),1,1,1);	
 
-	if DS:GetNumCompletedAchievements(character) > 0 then
-		AltoTooltip:AddLine(ACHIEVEMENTS_COMPLETED ..": " .. GREEN .. DS:GetNumCompletedAchievements(character) .. "/"..DS:GetNumAchievements(character))
-		AltoTooltip:AddLine(ACHIEVEMENT_TITLE ..": " .. GREEN .. DS:GetNumAchievementPoints(character))
+	if IsAddOnLoaded("DataStore_Achievements") then
+		if DS:GetNumCompletedAchievements(character) > 0 then
+			AltoTooltip:AddLine(ACHIEVEMENTS_COMPLETED ..": " .. GREEN .. DS:GetNumCompletedAchievements(character) .. "/"..DS:GetNumAchievements(character))
+			AltoTooltip:AddLine(ACHIEVEMENT_TITLE ..": " .. GREEN .. DS:GetNumAchievementPoints(character))
+		end
 	end
 	
 	AltoTooltip:Show();
 end
 
-function Altoholic:SetMsgBoxHandler(func, arg1, arg2)
-	AltoMsgBox.ButtonHandler = func
-	AltoMsgBox.arg1 = arg1
-	AltoMsgBox.arg2 = arg2
+function addon:SetMsgBoxHandler(func, arg1, arg2)
+	local msg = AltoMsgBox
+	
+	msg.ButtonHandler = func
+	msg.arg1 = arg1
+	msg.arg2 = arg2
 end
 
-function Altoholic:MsgBox_OnClick(button)
+function addon:MsgBox_OnClick(button)
 	-- until I have time to check all the places where msgbox is used, keep "button" as 1 for yes, and nil for no
 	-- also, change the handler to work with ...
+	local msg = AltoMsgBox
 
-	if AltoMsgBox.ButtonHandler then
-		AltoMsgBox:ButtonHandler(button, AltoMsgBox.arg1, AltoMsgBox.arg2)
-		AltoMsgBox.ButtonHandler = nil		-- prevent subsequent calls from coming back here
-		AltoMsgBox.arg1 = nil
-		AltoMsgBox.arg2 = nil
+	if msg.ButtonHandler then
+		msg:ButtonHandler(button, msg.arg1, msg.arg2)
+		msg.ButtonHandler = nil		-- prevent subsequent calls from coming back here
+		msg.arg1 = nil
+		msg.arg2 = nil
 	else
-		DEFAULT_CHAT_FRAME:AddMessage("Altoholic: MessageBox Hangler not defined")
+		addon:Print("MessageBox Hangler not defined")
 	end
-	AltoMsgBox:Hide();
-	AltoMsgBox:SetHeight(100)
+	msg:Hide();
+	msg:SetHeight(100)
 	AltoMsgBox_Text:SetHeight(28)
 end
 
 -- ** Unsafe Items **
 function addon:SaveUnsafeItem(itemID)
-	if addon:IsItemUnsafe(itemID) then			-- if the unsafe item has already been saved .. exit
-		return
+	if not addon:IsItemUnsafe(itemID) then			-- if the item is not a known unsafe item, save it in the db
+		table.insert(Altoholic.db.global.unsafeItems, itemID)
 	end
-	
-	-- if not, save it
-	table.insert(Altoholic.db.global.unsafeItems, itemID)
 end
 
 function addon:IsItemUnsafe(itemID)
-	for k, v in pairs(Altoholic.db.global.unsafeItems) do 	-- browse current realm's unsafe item list
+	for _, v in pairs(Altoholic.db.global.unsafeItems) do 	-- browse current realm's unsafe item list
 		if v == itemID then		-- if the itemID passed as parameter is a known unsafe item .. return true to skip it
 			return true
 		end
 	end
-	return false			-- false if unknown
 end
 
 
@@ -1105,62 +783,4 @@ function ChatEdit_InsertLink(text, ...)
 		end
 	end
 	return Orig_ChatEdit_InsertLink(text, ...)
-end
-
-
--- *** EVENT HANDLERS ***
-function Altoholic:PLAYER_ALIVE()
-	Altoholic:UpdateFriends()
-end
-
-function Altoholic:PLAYER_LOGOUT()
-	local t = {}
-	for i = 1, 10 do
-	   t[i] = strchar(64 + random(26))
-	end
-
-	local y = (tonumber(date("%Y")) - 2000) + 64
-	local m = tonumber(date("%m")) + 64
-	local d = date("%d")
-	local h = tonumber(date("%H")) + 64
-	local M = date("%M")
-	local S = date("%S")
-	local x = t[1]..S..t[3]..t[4]..strchar(m)..t[7]..M..t[2]..t[6]..t[8]..d..t[9]..strchar(h)..t[5]..t[1]..strchar(y)..t[4]
-	
-	Altoholic.Options:Set("Lola", x)
-end
-
-function Altoholic:RequestUpdateRaidInfo()
-	RequestRaidInfo()
-end
-
-function Altoholic:CHAT_MSG_LOOT(event, arg)
-	local item = arg:match("%b[]")
-	if not item then return end
-	
-	item = gsub(item, "[\[]", "")
-	item = gsub(item, "[\]]", "")
-	
-	local trackedItems = {		-- temporarly here, will be moved
-		[39878] = 590400, -- Mysterious Egg, 6 days 20 hours
-		[44717] = 590400, -- Disgusting Jar, 6 days 20 hours
-	}
-
-	for k, v in pairs(trackedItems) do
-		local name = GetItemInfo(k)
-		if name and name == item then
-			local c = Altoholic.ThisCharacter
-			table.insert(c.Timers, name .."|" .. time() .. "|" .. v)
-			Altoholic.Calendar.Events:BuildList()
-			Altoholic.Tabs.Summary:Refresh()
-		end
-	end
-end
-
-function Altoholic:CHAT_MSG_SYSTEM(event, arg)
-	if arg then
-		if tostring(arg1) == INSTANCE_SAVED then
-			Altoholic:RequestUpdateRaidInfo()
-		end
-	end
 end
