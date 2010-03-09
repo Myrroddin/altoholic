@@ -194,6 +194,20 @@ local function BuildReferenceTable()
 	end
 end
 
+-- now that this part of the UI is LoD, this can be called here
+BuildReferenceTable()
+
+SortedAchievements = nil
+UnsortedAchievements = nil
+BuildReferenceTable = nil
+BuildCategoryList = nil
+AddAchievementToCategory = nil
+SortByName = nil
+
+AltoholicTabAchievements_NotStarted:SetText("\124TInterface\\RaidFrame\\ReadyCheck-NotReady:14\124t" .. L["Not started"])
+AltoholicTabAchievements_Partial:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Waiting:14\124t" .. L["Started"])
+AltoholicTabAchievements_Completed:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Ready:14\124t" .. COMPLETE)
+
 local function GetCategorySize(categoryID)
 	if type(AchievementsList[categoryID]) == "table" then
 		return #AchievementsList[categoryID]
@@ -214,100 +228,9 @@ local function GetAchievementFactionInfo(categoryID, index)
 	end
 end
 
-addon.Achievements = {}
-
-local ns = addon.Achievements		-- ns = namespace
-
-function ns:Init()
-	BuildReferenceTable()
-	SortedAchievements = nil
-	UnsortedAchievements = nil
-end
-
-local currentCategoryID
-
-function ns:SetCategory(categoryID)
-	currentCategoryID = categoryID
-end
-
-function ns:Update()
-	local VisibleLines = 8
-	local frame = "AltoholicFrameAchievements"
-	local entry = frame.."Entry"
-	
-	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
-	local categorySize = GetCategorySize(currentCategoryID)
-	
-	local realm, account = addon:GetCurrentRealm()
-	local character
-	
-	AltoholicTabAchievementsStatus:SetText(format("%s: %s", ACHIEVEMENTS, GREEN..categorySize ))
-	
-	for i=1, VisibleLines do
-		local line = i + offset
-		if line <= categorySize then	-- if the line is visible
-			local achievementID
-			local allianceID, hordeID = GetAchievementFactionInfo(currentCategoryID, line)
-			local _, achName = GetAchievementInfo(allianceID)		-- use the alliance name if a
-			
-			_G[entry..i.."Name"]:SetText(WHITE .. achName)
-			_G[entry..i.."Name"]:SetJustifyH("LEFT")
-			_G[entry..i.."Name"]:SetPoint("TOPLEFT", 15, 0)
-			
-			for j = 1, 10 do
-				local itemName = entry.. i .. "Item" .. j;
-				local itemButton = _G[itemName]
-				
-				local classButton = _G["AltoholicFrameClassesItem" .. j]
-				if classButton.CharName then
-					character = DataStore:GetCharacter(classButton.CharName, realm, account)
-					
-					if hordeID and DataStore:GetCharacterFaction(character) ~= "Alliance" then
-						achievementID = hordeID
-					else
-						achievementID = allianceID
-					end
-					
-					local itemTexture = _G[itemName .. "_Background"]
-					
-					local _, _, _, _, _, _, _, _, _, achImage = GetAchievementInfo(achievementID)
-					itemTexture:SetTexture(achImage)
-					
-					local isStarted, isComplete = DataStore:GetAchievementInfo(character, achievementID)
-					
-					if isComplete then
-						itemTexture:SetVertexColor(1.0, 1.0, 1.0);
-						_G[itemName .. "Name"]:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Ready:14\124t")
-					elseif isStarted then
-						itemTexture:SetVertexColor(0.9, 0.6, 0.2);
-						_G[itemName .. "Name"]:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Waiting:14\124t")
-					else
-						itemTexture:SetVertexColor(0.4, 0.4, 0.4);
-						_G[itemName .. "Name"]:SetText("\124TInterface\\RaidFrame\\ReadyCheck-NotReady:14\124t")
-					end
-					
-					itemButton.CharName = classButton.CharName
-					itemButton.id = achievementID
-					itemButton:Show()
-				else
-					itemButton:Hide()
-					itemButton.CharName = nil
-					itemButton.id = nil
-				end
-			end
-
-			_G[ entry..i ]:Show()
-		else
-			_G[ entry..i ]:Hide()
-		end
-	end
-
-	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], categorySize, VisibleLines, 41);
-end
-
 local CRITERIA_COMPLETE_ICON = "\124TInterface\\AchievementFrame\\UI-Achievement-Criteria-Check:14\124t"
 
-function ns:OnEnter(frame)
+local function ButtonOnEnter(frame)
 	if not frame.CharName then return end
 	
 	local DS = DataStore
@@ -395,7 +318,7 @@ function ns:OnEnter(frame)
 	AltoTooltip:Show();
 end
 
-function ns:OnClick(frame, button)
+local function ButtonOnClick(frame, button)
 	if not frame.CharName then return end
 	
 	if ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
@@ -410,4 +333,92 @@ function ns:OnClick(frame, button)
 			end		
 		end
 	end
+end
+
+addon.Achievements = {}
+
+local ns = addon.Achievements		-- ns = namespace
+
+local currentCategoryID
+
+function ns:SetCategory(categoryID)
+	currentCategoryID = categoryID
+end
+
+function ns:Update()
+	local VisibleLines = 8
+	local frame = "AltoholicFrameAchievements"
+	local entry = frame.."Entry"
+	
+	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
+	local categorySize = GetCategorySize(currentCategoryID)
+	
+	local realm, account = addon:GetCurrentRealm()
+	local character
+	
+	AltoholicTabAchievementsStatus:SetText(format("%s: %s", ACHIEVEMENTS, GREEN..categorySize ))
+	
+	for i=1, VisibleLines do
+		local line = i + offset
+		if line <= categorySize then	-- if the line is visible
+			local achievementID
+			local allianceID, hordeID = GetAchievementFactionInfo(currentCategoryID, line)
+			local _, achName = GetAchievementInfo(allianceID)		-- use the alliance name if a
+			
+			_G[entry..i.."Name"]:SetText(WHITE .. achName)
+			_G[entry..i.."Name"]:SetJustifyH("LEFT")
+			_G[entry..i.."Name"]:SetPoint("TOPLEFT", 15, 0)
+			
+			for j = 1, 10 do
+				local itemName = entry.. i .. "Item" .. j;
+				local itemButton = _G[itemName]
+				
+				local classButton = _G["AltoholicFrameClassesItem" .. j]
+				if classButton.CharName then
+					character = DataStore:GetCharacter(classButton.CharName, realm, account)
+					
+					itemButton:SetScript("OnEnter", ButtonOnEnter)
+					itemButton:SetScript("OnClick", ButtonOnClick)
+					
+					if hordeID and DataStore:GetCharacterFaction(character) ~= "Alliance" then
+						achievementID = hordeID
+					else
+						achievementID = allianceID
+					end
+					
+					local itemTexture = _G[itemName .. "_Background"]
+					
+					local _, _, _, _, _, _, _, _, _, achImage = GetAchievementInfo(achievementID)
+					itemTexture:SetTexture(achImage)
+					
+					local isStarted, isComplete = DataStore:GetAchievementInfo(character, achievementID)
+					
+					if isComplete then
+						itemTexture:SetVertexColor(1.0, 1.0, 1.0);
+						_G[itemName .. "Name"]:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Ready:14\124t")
+					elseif isStarted then
+						itemTexture:SetVertexColor(0.9, 0.6, 0.2);
+						_G[itemName .. "Name"]:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Waiting:14\124t")
+					else
+						itemTexture:SetVertexColor(0.4, 0.4, 0.4);
+						_G[itemName .. "Name"]:SetText("\124TInterface\\RaidFrame\\ReadyCheck-NotReady:14\124t")
+					end
+					
+					itemButton.CharName = classButton.CharName
+					itemButton.id = achievementID
+					itemButton:Show()
+				else
+					itemButton:Hide()
+					itemButton.CharName = nil
+					itemButton.id = nil
+				end
+			end
+
+			_G[ entry..i ]:Show()
+		else
+			_G[ entry..i ]:Hide()
+		end
+	end
+
+	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], categorySize, VisibleLines, 41);
 end

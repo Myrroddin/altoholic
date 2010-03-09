@@ -1,4 +1,7 @@
-﻿local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+﻿local addonName = ...
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local BZ = LibStub("LibBabble-Zone-3.0"):GetLookupTable()
 local BF = LibStub("LibBabble-Faction-3.0"):GetLookupTable()
@@ -10,7 +13,7 @@ local GREEN		= "|cFF00FF00"
 local YELLOW	= "|cFFFFFF00"
 
 -- 以下为声望值、等级、技能等的建议
-Altoholic.Suggestions = {
+addon.Suggestions = {
 	[L["Riding"]] = {
 		{ 75, "初级骑术(20级): |cFFFFFFFF4g\n|cFFFFD700主城附近的的普通坐骑：|cFFFFFFFF1g" },
 		{ 150, "中级骑术(40级): |cFFFFFFFF50g\n|cFFFFD700主城附近的史诗级坐骑：|cFFFFFFFF10g" },

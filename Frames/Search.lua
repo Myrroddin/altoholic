@@ -1,4 +1,4 @@
-local addonName = "Altoholic"
+local addonName = ...
 local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
@@ -557,72 +557,30 @@ local SEARCH_ALLREALMS = 4
 local SEARCH_ALLACCOUNTS = 5
 local SEARCH_LOOTS = 6
 
+local filters = addon.ItemFilters
+
 -- ** Search attributes **
 local currentValue				-- the value being searched (entered in the edit box)
-local currentType					-- the type of item being searched (armor, weapon, etc..)
-local currentSubType				-- the sub type .. (cloth, plate, etc...)
-local currentMinLevel			-- the item's minimum level
-local currentMaxLevel			-- the item's maximum level
-local currentRarity				-- the item's minimum rarity (eg: minimum blue)
-local currentSlot					-- the item slot
 
 local currentResultType			-- type of result currently being searched (eg: PLAYER_ITEM_LINE or GUILD_ITEM_LINE)
 local currentResultKey			-- key defining who is being searched (eg: a datastore character or guild key)
 local currentResultLocation	-- what is actually being searched (bags, bank, equipment, mail, etc..)
 
 local function VerifyItem(item, itemCount)
-	local itemName, _, itemRarity, _, itemMinLevel, itemType, itemSubType, _, itemEquipLoc = GetItemInfo(item)
-	
-	if not itemName and not itemRarity then
-		-- with these 2 being nil, the item isn't in the item cache, so its link would be invalid: don't list it
-		-- This should never happen here, since this function deals only with alts inventories, therefore all items are supposed to be known
-		return
-	end
-	
-	if currentType and currentType ~= itemType then
-		return		-- if there's a type and it's invalid .. Exit
-	end
-
-	if currentSubType and currentSubType ~= itemSubType then
-		return		-- if there's a subtype and it's invalid .. Exit
-	end	
-
-	if (itemRarity < currentRarity) then
-		return		-- if rarity is too low .. exit
-	end
-	
-	if (itemMinLevel == 0) then
-		if (addon.Options:Get("IncludeNoMinLevel") == 0) then
-			return		-- no minimum requireement & should not be included ? .. exit
-		end
-	else
-		if (itemMinLevel < currentMinLevel) or (itemMinLevel > currentMaxLevel) then
-			return		-- not within the right level boundaries ? .. exit
-		end
-	end
-	
-	if currentSlot ~= 0 then	-- if a specific equipment slot is specified ..
-		if addon.Equipment:GetInventoryTypeIndex(itemEquipLoc) ~= currentSlot then
-			return		-- not the right slot ? .. exit
-		end
-	end
-
-	if string.find(strlower(itemName), currentValue, 1, true) == nil then
-		return		-- item name does not match search value ? .. exit
-	end
-
 	if type(item) == "string" then		-- convert a link to its item id, only data saved
 		item = tonumber(item:match("item:(%d+)"))
 	end
 	
-	-- All conditions ok ? save it
-	ns:AddResult( {
-		linetype = currentResultType,			-- PLAYER_ITEM_LINE or GUILD_ITEM_LINE 
-		id = item,
-		source = currentResultKey,				-- character or guild key in DataStore
-		count = itemCount,
-		location = currentResultLocation
-	} )
+	filters:SetSearchedItem(item)
+	if filters:ItemPassesFilters() then			-- All conditions ok ? save it
+		ns:AddResult( {
+			linetype = currentResultType,			-- PLAYER_ITEM_LINE or GUILD_ITEM_LINE 
+			id = item,
+			source = currentResultKey,				-- character or guild key in DataStore
+			count = itemCount,
+			location = currentResultLocation
+		} )
+	end
 end
 
 local function CraftMatchFound(spellID, value)
@@ -679,10 +637,10 @@ local function BrowseCharacter(character)
 		end
 	end
 	
-	if addon.Options:Get("IncludeRecipes") == 1						-- check known recipes ?
-		and (currentType == nil) 
-		and (currentRarity == 0)
-		and (currentSlot == 0) then
+	if addon.Options:Get("IncludeRecipes") == 1					-- check known recipes ?
+		and (filters:GetFilterValue("itemType") == nil) 
+		and (filters:GetFilterValue("itemRarity") == 0)
+		and (filters:GetFilterValue("itemSlot") == 0) then
 		
 		local isHeader, spellID, itemID
 		local professions = DS:GetProfessions(character)
@@ -767,9 +725,6 @@ function ns:FindItem(searchType, searchSubType)
 		return		-- if a search is already happening .. then exit
 	end
 	
-	currentType = searchType
-	currentSubType = searchSubType
-	
 	local value = AltoholicFrame_SearchEditBox:GetText()
 	
 	if not searchType and not searchSubType then		-- if no type & subtype, it's not a menu search, so value may not be empty
@@ -781,14 +736,35 @@ function ns:FindItem(searchType, searchSubType)
 	ongoingSearch = true
 	currentValue = strlower(value)
 	
-	currentMinLevel = AltoholicTabSearch_MinLevel:GetNumber()
-	currentMaxLevel = AltoholicTabSearch_MaxLevel:GetNumber()
-	if currentMaxLevel == 0 then
-		currentMaxLevel = MAX_PLAYER_LEVEL
+	-- Set Filters
+	local itemMinLevel = AltoholicTabSearch_MinLevel:GetNumber()
+	local itemMaxLevel = AltoholicTabSearch_MaxLevel:GetNumber()	
+	local itemSlot = UIDropDownMenu_GetSelectedValue(AltoholicTabSearch_SelectSlot)
+	
+	filters:SetFilterValue("itemName", currentValue)
+	filters:SetFilterValue("itemType", searchType)
+	filters:SetFilterValue("itemSubType", searchSubType)
+	filters:SetFilterValue("itemRarity", UIDropDownMenu_GetSelectedValue(AltoholicTabSearch_SelectRarity))
+	filters:SetFilterValue("itemMinLevel", itemMinLevel)
+	filters:SetFilterValue("itemMaxLevel", itemMaxLevel)
+	filters:SetFilterValue("itemSlot", itemSlot)
+
+	filters:EnableFilter("Existence")
+	filters:EnableFilter("Type")
+	filters:EnableFilter("SubType")
+	filters:EnableFilter("Rarity")
+	filters:EnableFilter("MinLevel")
+
+	if itemMaxLevel ~= 0 then			-- enable the filter only if a max level has been set
+		filters:EnableFilter("Maxlevel")
 	end
 	
-	currentRarity = UIDropDownMenu_GetSelectedValue(AltoholicTabSearch_SelectRarity)
-	currentSlot = UIDropDownMenu_GetSelectedValue(AltoholicTabSearch_SelectSlot)
+	if itemSlot ~= 0 then	-- don't apply filter if = 0, it means we take them all
+		filters:EnableFilter("EquipmentSlot")
+	end
+	filters:EnableFilter("Name")
+	
+	-- Start the search
 	local searchLocation = UIDropDownMenu_GetSelectedValue(AltoholicTabSearch_SelectLocation)
 	
 	ns:ClearResults()
@@ -818,9 +794,10 @@ function ns:FindItem(searchType, searchSubType)
 		end
 	else	-- search loot tables
 		SearchLoots = true -- this value will be tested in ns:Update() to resize columns properly
-		addon.Loots:Find(currentValue, currentType, currentSubType, 
-				currentRarity, currentMinLevel, currentMaxLevel, currentSlot)
+		addon.Loots:Find()
 	end
+	
+	filters:ClearFilters()
 	
 	if not AltoholicTabSearch:IsVisible() then
 		addon.Tabs:OnClick(3)
@@ -836,8 +813,6 @@ function ns:FindItem(searchType, searchSubType)
 	ongoingSearch = nil 	-- search done
 	
 	-- currentValue = nil				-- don't nil it, it may be required by the task checking guild professions
-	currentType = nil
-	currentSubType = nil
 	
 	if SearchLoots then
 		addon.Tabs.Search:SetMode("loots")
@@ -915,23 +890,39 @@ end
 
 function ns:FindEquipmentUpgrade()
 	local upgradeType = self.value
-	
-	-- debugprofilestart()
-	-- addon.Profiler:Begin("FindEquipmentUpgrade")
-	
-	local _, itemLink, _, itemLevel, _, itemType, itemSubType, _, itemEquipLoc = GetItemInfo(currentItemID)
 
 	ns:ClearResults()
 	
+	-- Set Filters
+	local _, itemLink, _, itemLevel, _, itemType, itemSubType, _, itemEquipLoc = GetItemInfo(currentItemID)
+	local itemSlot = addon.Equipment:GetInventoryTypeIndex(itemEquipLoc)
+	
+	filters:SetFilterValue("itemLevel", itemLevel)
+	filters:SetFilterValue("itemType", itemType)
+	filters:SetFilterValue("itemSubType", itemSubType)
+
+	filters:EnableFilter("Existence")
+	filters:EnableFilter("ItemLevel")
+	filters:EnableFilter("Type")
+	filters:EnableFilter("SubType")
+	
+	if itemSlot ~= 0 then	-- don't apply filter if = 0, it means we take them all
+		filters:SetFilterValue("itemSlot", itemSlot)
+		filters:EnableFilter("EquipmentSlot")
+	end
+	
+	-- Start the search
 	if upgradeType ~= -1 then	-- not an item level upgrade
 		ns:SetClass(upgradeType)
-		addon.Loots:FindUpgradeByStats( currentItemID, upgradeType, itemLevel, itemType, itemSubType, addon.Equipment:GetInventoryTypeIndex(itemEquipLoc))
+		addon.Loots:FindUpgradeByStats( currentItemID, upgradeType)
 
 	else	-- simple search, point to simple VerifyUpgrade method
-		addon.Loots:FindUpgrade( itemLevel, itemType, itemSubType,	addon.Equipment:GetInventoryTypeIndex(itemEquipLoc))
+		addon.Loots:FindUpgrade()
 		AltoholicSearchOptionsLootInfo:SetText( GREEN .. addon.Options:Get("TotalLoots") .. "|r " .. L["Loots"] .. " / "
 				.. GREEN .. addon.Options:Get("UnknownLoots") .. "|r " .. L["Unknown"])
 	end
+	
+	filters:ClearFilters()
 	currentItemID = nil
 
 	AltoTooltip:Hide();	-- mandatory hide after processing	
@@ -953,9 +944,6 @@ function ns:FindEquipmentUpgrade()
 		AltoholicTabSearch_Sort8.ascendingSort = nil
 		ns:SortResults(AltoholicTabSearch_Sort8, "iLvl")
 	end
-	
-	-- DEFAULT_CHAT_FRAME:AddMessage(debugprofilestop())
-	-- addon.Profiler:End("FindEquipmentUpgrade") 
-	-- DEFAULT_CHAT_FRAME:AddMessage(addon.Profiler:GetSampleDuration("FindEquipmentUpgrade"))
+
 	ns:Update()
 end

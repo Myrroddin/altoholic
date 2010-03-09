@@ -1,4 +1,4 @@
-local addonName = "Altoholic"
+local addonName = ...
 local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
@@ -120,6 +120,19 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "3.3.002 Changes",
+		bulletedList = {
+			"Added an information tooltip when mousing over the number of mails in the Activity pane.",
+			"Search is now cancelled if there is no value in the search edit box, except if you're using the categories in the search tab.",
+			"Reworked item filtering during searches. All types of searches now use the same code path. Also fixed a few filters that were not working properly.",
+			"Changed the location drop down in the Summary tab, you can now select more combinations of realms/accounts.",
+			"Added an option to clamp the addon's window to the screen.",
+			"Fixed skill tooltip displaying 'no data' when mousing over skinning or herbalism.",
+			"The achievement UI is now a module on its own and is loaded-on-demand. This slightly decreases resource usage if you don't use that part of the UI.",
+			"You can now fully disable DataStore_Achievements and Altoholic_Achievements if you do not wish to track achievements at all.",
+			"Winter code cleanup is almost over, almost everything has been reviewed. Next reviews: Calendar & Account Sharing (too big/touchy to review in this pass).",
+		},
+	},
 	{	name = "3.3.001d Changes",
 		bulletedList = {
 			"Fixed several issues with the guild bank tab: deleting a guild, guilds that still appeared in the drop down, etc..",
@@ -151,19 +164,6 @@ local whatsnew = {
 			"Added a sorted list of achievements in the category 'Dungeons & Raids'.",
 			"Fixed a tooltip bug where only one of two guilds with the same name would be listed.",
 			"Added The Ashen Verdict faction.",
-		},
-	},
-	{	name = "3.3.001 Changes",
-		bulletedList = {
-			"Added two new options in DataStore_Mails to check mail expiries for all accounts and/or all realms.",
-			"Slightly modified the options panels to better fit all resolutions/UI scales.",
-			"The 'Shared Content' scroll frame now has its own panel, right under 'Account Sharing'.",
-			"Added an option to automatically clear expired auctions and bids (DataStore_Auctions).",
-			"Fixed a bug where mail counters were not always displayed in the tooltip. (Thanks Quagm1re !)",
-			"Added currencies count to the tooltip.",
-			"Added 4 missing pets.",
-			"Added mandatory dependencies on DataStore_Characters & DataStore_Containers.",
-			"Manually updated the loot tables of Onyxia's Lair & ToC.",
 		},
 	},
 	{	name = "Earlier changes",
@@ -208,6 +208,8 @@ function Altoholic.Options:Init()
 		L["|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option will allow other Altoholic users\nto update their guild bank information with yours automatically.\n\n"],
 		L["When |cFFFF0000disabled|cFFFFFFFF, your confirmation will be\nrequired before sending any information.\n\n"],
 		L["Security hint: disable this if you have officer rights\non guild bank tabs that may not be viewed by everyone,\nand authorize requests manually"])
+	
+	AltoholicGeneralOptions_ClampWindowToScreenText:SetText(L["Clamp window to screen"])
 	
 	L["|cFFFFFFFFWhen |cFF00FF00enabled|cFFFFFFFF, this option will allow other Altoholic users\nto update their guild bank information with yours automatically.\n\n"] = nil
 	L["When |cFFFF0000disabled|cFFFFFFFF, your confirmation will be\nrequired before sending any information.\n\n"] = nil
@@ -349,6 +351,7 @@ function Altoholic.Options:RestoreToUI()
 	
 	AltoholicGeneralOptions_RestXPMode:SetChecked(O.RestXPMode)
 	AltoholicGeneralOptions_GuildBankAutoUpdate:SetChecked(O.GuildBankAutoUpdate)
+	AltoholicGeneralOptions_ClampWindowToScreen:SetChecked(O.ClampWindowToScreen)
 
 	AltoholicGeneralOptions_SliderAngle:SetValue(O.MinimapIconAngle)
 	AltoholicGeneralOptions_SliderRadius:SetValue(O.MinimapIconRadius)

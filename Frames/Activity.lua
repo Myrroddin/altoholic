@@ -1,4 +1,4 @@
-local addonName = "Altoholic"
+local addonName = ...
 local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
@@ -20,13 +20,12 @@ local ICON_FACTION_ALLIANCE = "Interface\\Icons\\INV_BannerPVP_02"
 addon.Activity = {}
 
 local ns = addon.Activity		-- ns = namespace
+local Characters = addon.Characters
 
 function ns:Update()
 	local VisibleLines = 14
 	local frame = "AltoholicFrameActivity"
 	local entry = frame.."Entry"
-	
-	local Characters = addon.Characters
 	
 	local DS = DataStore
 	
@@ -34,18 +33,14 @@ function ns:Update()
 	local DisplayedCount = 0
 	local VisibleCount = 0
 	local DrawRealm
-	local CurrentAccount, CurrentRealm
 	local i=1
 	
 	for _, line in pairs(Characters:GetView()) do
-		local s = Characters:Get(line)
-		local lineType = mod(s.linetype, 3)
+		local lineType = Characters:GetLineType(line)
 		
 		if (offset > 0) or (DisplayedCount >= VisibleLines) then		-- if the line will not be visible
 			if lineType == INFO_REALM_LINE then								-- then keep track of counters
-				CurrentAccount = s.account
-				CurrentRealm = s.realm
-				if s.isCollapsed == false then
+				if Characters:GetField(line, "isCollapsed") == false then
 					DrawRealm = true
 				else
 					DrawRealm = false
@@ -58,9 +53,9 @@ function ns:Update()
 			end
 		else		-- line will be displayed
 			if lineType== INFO_REALM_LINE then
-				CurrentAccount = s.account
-				CurrentRealm = s.realm
-				if s.isCollapsed == false then
+				local _, realm, account = Characters:GetInfo(line)
+				
+				if Characters:GetField(line, "isCollapsed") == false then
 					_G[ entry..i.."Collapse" ]:SetNormalTexture("Interface\\Buttons\\UI-MinusButton-Up"); 
 					DrawRealm = true
 				else
@@ -71,11 +66,11 @@ function ns:Update()
 				_G[entry..i.."Name"]:SetWidth(300)
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 25, 0)
 				_G[entry..i.."NameNormalText"]:SetWidth(300)
-				if s.account == "Default" then	-- saved as default, display as localized.
-					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", s.realm, WHITE, GREEN, L["Default"]))
+				if account == "Default" then	-- saved as default, display as localized.
+					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", realm, WHITE, GREEN, L["Default"]))
 				else
-					local last = addon:GetLastAccountSharingInfo(CurrentRealm, CurrentAccount)
-					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", s.realm, WHITE, GREEN, s.account, YELLOW, last or ""))
+					local last = addon:GetLastAccountSharingInfo(realm, account)
+					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", realm, WHITE, GREEN, account, YELLOW, last or ""))
 				end				
 				_G[entry..i.."Level"]:SetText("")
 				_G[entry..i.."MailsNormalText"]:SetText("")
@@ -92,7 +87,7 @@ function ns:Update()
 				DisplayedCount = DisplayedCount + 1
 			elseif DrawRealm then
 				if (lineType == INFO_CHARACTER_LINE) then
-					local character = DS:GetCharacter(s.name, CurrentRealm, CurrentAccount)
+					local character = DS:GetCharacter( Characters:GetInfo(line) )
 					
 					local icon
 					if DS:GetCharacterFaction(character) == "Alliance" then
@@ -135,7 +130,8 @@ function ns:Update()
 					lastVisit = DS:GetAuctionHouseLastVisit(character)
 					_G[entry..i.."LastAHCheckNormalText"]:SetText(WHITE .. addon:FormatDelay(lastVisit))
 
-					if (s.name == UnitName("player")) and (CurrentRealm == GetRealmName()) and (CurrentAccount == "Default") then
+					local player, realm, account = Characters:GetInfo(line)
+					if (player == UnitName("player")) and (realm == GetRealmName()) and (account == "Default") then
 						_G[entry..i.."LastLogoutNormalText"]:SetText(GREEN .. GUILD_ONLINE_LABEL)
 					else
 						_G[entry..i.."LastLogoutNormalText"]:SetText(WHITE .. addon:FormatDelay(DS:GetLastLogout(character)))
@@ -146,7 +142,7 @@ function ns:Update()
 					_G[entry..i.."Name"]:SetPoint("TOPLEFT", 15, 0)
 					_G[entry..i.."NameNormalText"]:SetWidth(200)
 					_G[entry..i.."NameNormalText"]:SetText(L["Totals"])
-					_G[entry..i.."Level"]:SetText(s.level)
+					_G[entry..i.."Level"]:SetText(Characters:GetField(line, "level"))
 					_G[entry..i.."MailsNormalText"]:SetText("")
 					_G[entry..i.."LastMailCheckNormalText"]:SetText("")
 					_G[entry..i.."AuctionsNormalText"]:SetText("")
@@ -174,14 +170,13 @@ end
 
 function ns:OnEnter(self)
 	local line = self:GetParent():GetID()
-	local s = addon.Characters:Get(line)
-	
-	if mod(s.linetype, 3) ~= INFO_CHARACTER_LINE then		
+	local lineType = Characters:GetLineType(line)
+	if lineType ~= INFO_CHARACTER_LINE then		
 		return
 	end
 	
 	local DS = DataStore
-	local character = DS:GetCharacter(addon.Characters:GetInfo(line))
+	local character = DS:GetCharacter(Characters:GetInfo(line))
 	
 	AltoTooltip:ClearLines();
 	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
@@ -230,9 +225,9 @@ local VIEW_BIDS = 6
 
 function ns:OnClick(self)
 	local line = self:GetParent():GetID()
-	local s = addon.Characters:Get(line)
+	local lineType = Characters:GetLineType(line)
 	
-	if mod(s.linetype, 3) ~= INFO_CHARACTER_LINE then		
+	if lineType ~= INFO_CHARACTER_LINE then		
 		return
 	end
 	
@@ -241,10 +236,10 @@ function ns:OnClick(self)
 		return
 	end
 	
-	addon:SetCurrentCharacter( addon.Characters:GetInfo(line) )
+	addon:SetCurrentCharacter( Characters:GetInfo(line) )
 	
 	local DS = DataStore
-	local character = DS:GetCharacter(addon.Characters:GetInfo(line))
+	local character = DS:GetCharacter(Characters:GetInfo(line))
 	
 	local action, num
 	
@@ -274,14 +269,14 @@ end
 
 function ns:Mails_OnEnter(self)
 	local line = self:GetParent():GetID()
-	local s = addon.Characters:Get(line)
+	local lineType = Characters:GetLineType(line)
 	
-	if mod(s.linetype, 3) ~= INFO_CHARACTER_LINE then		
+	if lineType ~= INFO_CHARACTER_LINE then		
 		return
 	end
 	
 	local DS = DataStore
-	local character = DS:GetCharacter(addon.Characters:GetInfo(line))
+	local character = DS:GetCharacter(Characters:GetInfo(line))
 	local num = DS:GetNumMails(character)
 	if not num or num == 0 then return end
 	

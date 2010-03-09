@@ -1,4 +1,4 @@
-local addonName = "Altoholic"
+local addonName = ...
 local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
@@ -19,6 +19,7 @@ local ICON_FACTION_ALLIANCE = "Interface\\Icons\\INV_BannerPVP_02"
 addon.BagUsage = {}
 
 local ns = addon.BagUsage		-- ns = namespace
+local Characters = addon.Characters
 
 function ns:Update()
 	local VisibleLines = 14
@@ -26,24 +27,19 @@ function ns:Update()
 	local entry = frame.."Entry"
 	
 	local DS = DataStore
-	local Characters = addon.Characters
-	
+		
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
 	local DisplayedCount = 0
 	local VisibleCount = 0
 	local DrawRealm
-	local CurrentAccount, CurrentRealm
 	local i=1
 	
 	for _, line in pairs(Characters:GetView()) do
-		local s = Characters:Get(line)
-		local lineType = mod(s.linetype, 3)
+		local lineType = Characters:GetLineType(line)
 		
 		if (offset > 0) or (DisplayedCount >= VisibleLines) then		-- if the line will not be visible
 			if lineType == INFO_REALM_LINE then								-- then keep track of counters
-				CurrentAccount = s.account
-				CurrentRealm = s.realm
-				if s.isCollapsed == false then
+				if Characters:GetField(line, "isCollapsed") == false then
 					DrawRealm = true
 				else
 					DrawRealm = false
@@ -56,9 +52,9 @@ function ns:Update()
 			end
 		else		-- line will be displayed
 			if lineType == INFO_REALM_LINE then
-				CurrentAccount = s.account
-				CurrentRealm = s.realm
-				if s.isCollapsed == false then
+				local _, realm, account = Characters:GetInfo(line)
+
+				if Characters:GetField(line, "isCollapsed") == false then
 					_G[ entry..i.."Collapse" ]:SetNormalTexture("Interface\\Buttons\\UI-MinusButton-Up"); 
 					DrawRealm = true
 				else
@@ -69,11 +65,11 @@ function ns:Update()
 				_G[entry..i.."Name"]:SetWidth(300)
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 25, 0)
 				_G[entry..i.."NameNormalText"]:SetWidth(300)
-				if s.account == "Default" then	-- saved as default, display as localized.
-					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", s.realm, WHITE, GREEN, L["Default"]))
+				if account == "Default" then	-- saved as default, display as localized.
+					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", realm, WHITE, GREEN, L["Default"]))
 				else
-					local last = addon:GetLastAccountSharingInfo(CurrentRealm, CurrentAccount)
-					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", s.realm, WHITE, GREEN, s.account, YELLOW, last or ""))
+					local last = addon:GetLastAccountSharingInfo(realm, account)
+					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", realm, WHITE, GREEN, account, YELLOW, last or ""))
 				end
 				_G[entry..i.."Level"]:SetText("")
 				_G[entry..i.."FreeBags"]:SetText("")
@@ -87,7 +83,7 @@ function ns:Update()
 				DisplayedCount = DisplayedCount + 1
 			elseif DrawRealm then
 				if (lineType == INFO_CHARACTER_LINE) then
-					local character = DS:GetCharacter(s.name, CurrentRealm, CurrentAccount)
+					local character = DS:GetCharacter( Characters:GetInfo(line) )
 				
 					local icon
 					if DS:GetCharacterFaction(character) == "Alliance" then
@@ -139,12 +135,12 @@ function ns:Update()
 					_G[entry..i.."Name"]:SetPoint("TOPLEFT", 15, 0)
 					_G[entry..i.."NameNormalText"]:SetWidth(200)
 					_G[entry..i.."NameNormalText"]:SetText(L["Totals"])
-					_G[entry..i.."Level"]:SetText(s.level)
-					_G[entry..i.."FreeBags"]:SetText(WHITE .. s.freeBagSlots)
-					_G[entry..i.."FreeBank"]:SetText(WHITE .. s.freeBankSlots)
-					_G[entry..i.."BagSlotsNormalText"]:SetText(WHITE .. s.bagSlots .. " |r" .. L["slots"])
+					_G[entry..i.."Level"]:SetText(Characters:GetField(line, "level"))
+					_G[entry..i.."FreeBags"]:SetText(WHITE .. Characters:GetField(line, "freeBagSlots"))
+					_G[entry..i.."FreeBank"]:SetText(WHITE .. Characters:GetField(line, "freeBankSlots"))
+					_G[entry..i.."BagSlotsNormalText"]:SetText(WHITE .. Characters:GetField(line, "bagSlots") .. " |r" .. L["slots"])
 					_G[entry..i.."BagSlotsNormalText"]:SetJustifyH("CENTER")
-					_G[entry..i.."BankSlotsNormalText"]:SetText(WHITE .. s.bankSlots .. " |r" .. L["slots"])
+					_G[entry..i.."BankSlotsNormalText"]:SetText(WHITE .. Characters:GetField(line, "bankSlots") .. " |r" .. L["slots"])
 					_G[entry..i.."BankSlotsNormalText"]:SetJustifyH("CENTER")
 				end
 				_G[ entry..i ]:SetID(line)
@@ -175,15 +171,14 @@ end
 
 function ns:OnEnter(self)
 	local line = self:GetParent():GetID()
-	local s = addon.Characters:Get(line)
-	
-	if mod(s.linetype, 3) ~= INFO_CHARACTER_LINE then		
+	local lineType = Characters:GetLineType(line)
+	if lineType ~= INFO_CHARACTER_LINE then		
 		return
 	end
 	
 	local c = addon:GetCharacterTableByLine(line)
 	local DS = DataStore
-	local character = DS:GetCharacter(addon.Characters:GetInfo(line))
+	local character = DS:GetCharacter(Characters:GetInfo(line))
 	
 	AltoTooltip:ClearLines();
 	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");

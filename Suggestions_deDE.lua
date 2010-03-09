@@ -1,4 +1,7 @@
-﻿local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+﻿local addonName = ...
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local BZ = LibStub("LibBabble-Zone-3.0"):GetLookupTable()
 local BF = LibStub("LibBabble-Faction-3.0"):GetLookupTable()
@@ -10,7 +13,7 @@ local GREEN		= "|cFF00FF00"
 local YELLOW	= "|cFFFFFF00"
 
 -- This table contains a list of suggestions to get to the next level of reputation, craft or skill
-Altoholic.Suggestions = {
+addon.Suggestions = {
 	[L["Riding"]] = {
 		{ 75, "Unerfahrener Reiter (Lv 20): |cFFFFFFFF4g\n|cFFFFD700Standard mount in der Nähe einer Hauptstadt: |cFFFFFFFF1g" },
 		{ 150, "Geübter Reiter (Lv 40): |cFFFFFFFF50g\n|cFFFFD700Epic mount in der Nähe einer Hauptstadt: |cFFFFFFFF10g" },

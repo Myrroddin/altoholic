@@ -8,7 +8,7 @@
 ## Notes-zhCN: 能让你全面掌握你的所有角色的信息。
 
 ## Author: Thaoky (EU-Marécages de Zangar)
-## Version: 3.3.001d
+## Version: 3.3.002
 ## X-Category: Inventory, Tradeskill, Mail
 ## X-Localizations: enUS, frFR, zhCN, zhTW, deDE, koKR, esES, esMX, ruRU
 ## X-Website: http://wow.curse.com/downloads/wow-addons/details/altoholic.aspx
@@ -42,12 +42,10 @@ Frames\TabGuildBank.xml
 # note: review this, might not be necessary anymore with the implementation of DataStore (28/07/2009)
 Frames\Equipment.xml
 Frames\TabSearch.xml
-Frames\TabAchievements.xml
 Frames\TabOptions.xml
 
 Frames\AccountSharing.xml
 Frames\AccountSummary.xml
-Frames\Achievements.xml
 Frames\Activity.xml
 Frames\AuctionHouse.xml
 Frames\BagUsage.xml

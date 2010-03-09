@@ -1,4 +1,4 @@
-local addonName = "Altoholic"
+local addonName = ...
 local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
@@ -354,7 +354,7 @@ local inventoryTypes = {
 	["INVTYPE_RELIC"] = 18
 }
 
-ns.Slots = {
+local slotNames = {
 	[1] = BI["Head"],			-- "INVTYPE_HEAD" 
 	[2] = BI["Shoulder"],	-- "INVTYPE_SHOULDER"
 	[3] = BI["Chest"],		-- "INVTYPE_CHEST",  "INVTYPE_ROBE"
@@ -402,12 +402,16 @@ function ns:GetSlotTexture(slot)
 	return slotTypeInfo[slot].icon
 end
 
+function ns:GetSlotName(slot)
+	return slotNames[slot]
+end
+
 function ns:GetInventoryTypeIndex(inv)
 	return inventoryTypes[inv]
 end
 
 function ns:GetInventoryTypeName(inv)
-	return self.Slots[ inventoryTypes[inv] ]
+	return slotNames[ inventoryTypes[inv] ]
 end
 
 function ns:Update()
@@ -551,7 +555,7 @@ end
 function Equipment_RightClickMenu_OnLoad()
 	local info = UIDropDownMenu_CreateInfo(); 
 
-	info.text		= L["Find Upgrade"] .. " " .. GREEN .. L["(based on iLvl)"]
+	info.text		= format("%s %s", L["Find Upgrade"], GREEN .. L["(based on iLvl)"])
 	info.value		= -1
 	info.func		= Altoholic.Search.FindEquipmentUpgrade
 	UIDropDownMenu_AddButton(info, 1); 
@@ -564,7 +568,7 @@ function Equipment_RightClickMenu_OnLoad()
 		(class == CLASS_DEATHKNIGHT) or
 		(class == CLASS_PALADIN) then
 		
-		info.text		= L["Find Upgrade"] .. " " .. GREEN .. "(".. L["Tank"] .. ")"
+		info.text		= format("%s %s(%s)", L["Find Upgrade"], GREEN, L["Tank"])
 		info.value		= class .. "Tank"
 		info.func		= Altoholic.Search.FindEquipmentUpgrade
 		UIDropDownMenu_AddButton(info, 1); 	
@@ -572,19 +576,19 @@ function Equipment_RightClickMenu_OnLoad()
 	
 	-- DPS upgrade
 	if class then
-		info.text		= L["Find Upgrade"] .. " " .. GREEN .. "(".. L["DPS"] .. ")"
+		info.text		= format("%s %s(%s)", L["Find Upgrade"], GREEN, L["DPS"])
 		info.value		= class .. "DPS"
 		info.func		= Altoholic.Search.FindEquipmentUpgrade
 		UIDropDownMenu_AddButton(info, 1); 
 	end
 		
 	if class == CLASS_DRUID then
-		info.text		= L["Find Upgrade"] .. " " .. GREEN .. "(".. L["Balance"] .. ")"
+		info.text		= format("%s %s(%s)", L["Find Upgrade"], GREEN, L["Balance"])
 		info.value		= class .. "Balance"
 		info.func		= Altoholic.Search.FindEquipmentUpgrade
 		UIDropDownMenu_AddButton(info, 1); 
 	elseif class == CLASS_SHAMAN then
-		info.text		= L["Find Upgrade"] .. " " .. GREEN .. "(".. L["Elemental Shaman"] .. ")"
+		info.text		= format("%s %s(%s)", L["Find Upgrade"], GREEN, L["Elemental Shaman"])
 		info.value		= class .. "Elemental"
 		info.func		= Altoholic.Search.FindEquipmentUpgrade
 		UIDropDownMenu_AddButton(info, 1); 
@@ -596,7 +600,7 @@ function Equipment_RightClickMenu_OnLoad()
 		(class == CLASS_DRUID) or
 		(class == CLASS_PALADIN) then
 		
-		info.text		= L["Find Upgrade"] .. " " .. GREEN .. "(".. L["Heal"] .. ")"
+		info.text		= format("%s %s(%s)", L["Find Upgrade"], GREEN, L["Heal"])
 		info.value		= class .. "Heal"
 		info.func		= Altoholic.Search.FindEquipmentUpgrade
 		UIDropDownMenu_AddButton(info, 1); 

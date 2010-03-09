@@ -59,17 +59,7 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						local id = self:GetParent():GetID()
-						if id == 0 then return end
-						
-						local h = Altoholic.Quests.CollapsedHeaders
-						if h[id] then
-							h[id] = nil
-						else
-							h[id] = true
-						end
-						
-						Altoholic.Quests:Update()
+						Altoholic.Quests:Collapse_OnClick(self, button)
 					</OnClick>
 				</Scripts>
 				<NormalTexture name="$parentIcon" file="Interface\Buttons\UI-MinusButton-UP" />

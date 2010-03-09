@@ -1,4 +1,4 @@
-﻿local addonName = "Altoholic"
+﻿local addonName = ...
 local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
@@ -504,8 +504,8 @@ function ns:Collapse_OnClick(self)
 	ns:Update()
 end
 
-function ns:ToggleView(self)
-	if self.isCollapsed then	-- collapse all headers
+function ns:ToggleView(frame)
+	if frame.isCollapsed then	-- collapse all headers
 		wipe(expandedHeaders)
 	else								-- expand all headers
 		for _, line in pairs(view) do

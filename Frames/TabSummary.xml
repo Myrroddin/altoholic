@@ -243,34 +243,11 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad>
-						UIDropDownMenu_SetWidth(self, 100) 
+						UIDropDownMenu_SetWidth(self, 180) 
 						UIDropDownMenu_SetButtonWidth(self, 20)
 					</OnLoad>
 				</Scripts>
 			</Frame>
-			<Button name="$parent_RequestSharing" inherits="UIPanelButtonTemplate">
-				<Size>
-					<AbsDimension x="200" y="24"/>
-				</Size>
-				<Anchors>
-					<Anchor point="LEFT" relativeTo="$parent_SelectLocation" relativePoint="RIGHT" >
-						<Offset>
-							<AbsDimension x="20" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<Scripts>
-					<OnEnter>
-						Altoholic.Tabs.Summary:AccountSharingButton_OnEnter(self)
-					</OnEnter>
-					<OnLeave>
-						AltoTooltip:Hide();
-					</OnLeave>
-					<OnClick>
-						Altoholic.Tabs.Summary:AccountSharingButton_OnClick()
-					</OnClick>
-				</Scripts>
-			</Button>
 			
 			<Button name="$parent_OptionsDataStore">
 				<Size>
@@ -327,6 +304,34 @@
 					<OnClick>
 						Altoholic:ToggleUI()
 						InterfaceOptionsFrame_OpenToCategory("Altoholic")
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="$parent_RequestSharing">
+				<Size>
+					<AbsDimension x="36" y="36"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeTo="$parent_Options" relativePoint="TOPLEFT" >
+						<Offset>
+							<AbsDimension x="-15" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="BORDER">
+						<Texture name="$parentIconTexture" file="Interface\Icons\Achievement_Reputation_01" />
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnEnter>
+						Altoholic.Tabs.Summary:AccountSharingButton_OnEnter(self)
+					</OnEnter>
+					<OnLeave>
+						AltoTooltip:Hide();
+					</OnLeave>
+					<OnClick>
+						Altoholic.Tabs.Summary:AccountSharingButton_OnClick()
 					</OnClick>
 				</Scripts>
 			</Button>

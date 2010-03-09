@@ -1,4 +1,4 @@
-local addonName = "Altoholic"
+local addonName = ...
 local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
@@ -300,7 +300,8 @@ function tns:Update(treeIndex)
 	local character = addon.Tabs.Characters:GetCurrent()
 	if not character then return end
 
-	if character.ActiveTalents == 1 then
+	local DS = DataStore
+	if DS:GetActiveTalents(character) == 1 then
 		AltoholicFrameTalents_PrimaryText:SetText(format("%s (%s)",WHITE..TALENT_SPEC_PRIMARY..GREEN, TALENT_ACTIVE_SPEC_STATUS ))
 		AltoholicFrameTalents_SecondaryText:SetText(WHITE..TALENT_SPEC_SECONDARY)
 	else
@@ -308,7 +309,6 @@ function tns:Update(treeIndex)
 		AltoholicFrameTalents_SecondaryText:SetText(format("%s (%s)",WHITE..TALENT_SPEC_SECONDARY..GREEN, TALENT_ACTIVE_SPEC_STATUS ))
 	end
 	
-	local DS = DataStore
 	local _, class = DS:GetCharacterClass(character)
 	if not DS:IsClassKnown(class) then return end
 	
@@ -333,7 +333,7 @@ function tns:Update(treeIndex)
 		index = index + 1
 	end
 	
-	local isActiveTalentGroup = currentTalentGroup == character.ActiveTalents
+	local isActiveTalentGroup = currentTalentGroup == DS:GetActiveTalents(character)
 
 	-- textures are 90.625% of the original size
 	local _, bg = DS:GetTreeInfo(class, treeName)

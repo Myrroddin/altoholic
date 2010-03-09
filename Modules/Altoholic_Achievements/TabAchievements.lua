@@ -89,7 +89,8 @@ function ns:Update()
 		buttonWidth = 136
 	end
 	
-	local offset = FauxScrollFrame_GetOffset( _G[ "AltoholicAchievementsMenuScrollFrame" ] );
+	local scrollFrame = AltoholicAchievementsMenuScrollFrame
+	local offset = FauxScrollFrame_GetOffset( scrollFrame );
 	local itemButtom = "AltoholicTabAchievementsMenuItem"
 	for i=1, VisibleLines do
 		local line = i + offset
@@ -126,5 +127,5 @@ function ns:Update()
 		end
 	end
 	
-	FauxScrollFrame_Update( _G[ "AltoholicAchievementsMenuScrollFrame" ], #MenuCache, VisibleLines, 20);
+	FauxScrollFrame_Update( scrollFrame, #MenuCache, VisibleLines, 20);
 end
