@@ -267,7 +267,7 @@ local function OnRealmChange(self, account, realm)
 			
 			HideAll()
 			StopAutoCastShine()
-			AltoholicFrameAchievements:Hide()
+			-- AltoholicFrameAchievements:Hide()
 			ns:UpdateViewIcons()
 		end
 	end

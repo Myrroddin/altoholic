@@ -322,7 +322,9 @@ function ns:Mails_OnEnter(self)
 
 	AltoTooltip:AddLine(" ");
 	AltoTooltip:AddLine(format("%s%d %swill be returned upon expiry", GREEN, numReturned, WHITE))
-	AltoTooltip:AddLine(format("%sClosest return in %s%s", WHITE, GREEN, SecondsToTime(closestReturn)))
+	if closestReturn then
+		AltoTooltip:AddLine(format("%sClosest return in %s%s", WHITE, GREEN, SecondsToTime(closestReturn)))
+	end
 	
 	if numDeleted > 0 then
 		AltoTooltip:AddLine(" ");

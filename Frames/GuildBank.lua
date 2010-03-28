@@ -7,6 +7,8 @@ local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
 local YELLOW	= "|cFFFFFF00"
 
+local NUM_GUILDBANK_ROWS = 7
+
 addon.GuildBank = {}
 
 local ns = addon.GuildBank		-- ns = namespace
@@ -19,15 +21,14 @@ function ns:DrawTab(tabID)
 		AltoGuildBank:Show()
 	end
 	
-	local DS = DataStore
 	local account, realm, guildName = strsplit("|", selectedGuild)
-	local guild	= DS:GetGuild(guildName, realm, account)
+	local guild	= DataStore:GetGuild(guildName, realm, account)
 	
 	if not tabID then		
 		-- will be nil when clicking on the guild bank tab for the first time, so find the first available one
 		-- called in OnShow (tabguildbank.xml)
 		for i=1, 6 do
-			if DS:GetGuildBankTabName(guild, i) then
+			if DataStore:GetGuildBankTabName(guild, i) then
 				tabID = i
 				
 				for i=1, 6 do 
@@ -41,10 +42,14 @@ function ns:DrawTab(tabID)
 	
 	if not tabID then return end	-- no tab found ? exit
 	
-	local tab = DS:GetGuildBankTab(guild, tabID)
-	if not tab.name then return end	-- tab not yet scanned ? exit
-	
 	local entry = "AltoGuildBankEntry"
+	local tab = DataStore:GetGuildBankTab(guild, tabID)
+	if not tab.name then 	-- tab not yet scanned ? exit
+		for rowIndex = 1, NUM_GUILDBANK_ROWS do
+			_G[ entry..rowIndex ]:Hide()
+		end
+		return 
+	end	
 	
 	AltoholicTabGuildBankInfo1:SetText(format(L["Last visit: %s by %s"], GREEN..tab.ClientDate..WHITE, GREEN..tab.visitedBy))
 	local localTime, realmTime
@@ -52,18 +57,18 @@ function ns:DrawTab(tabID)
 	realmTime = format("%s%02d%s:%s%02d", GREEN, tab.ServerHour, WHITE, GREEN, tab.ServerMinute )
 	AltoholicTabGuildBankInfo2:SetText(format(L["Local Time: %s   %sRealm Time: %s"], localTime, WHITE, realmTime))
 	
-	for i=1, 7 do
+	for rowIndex = 1, NUM_GUILDBANK_ROWS do
 	
-		local from = mod(i, 7)
-		if from == 0 then from = 7 end
+		local from = mod(rowIndex, NUM_GUILDBANK_ROWS)
+		if from == 0 then from = NUM_GUILDBANK_ROWS end
 	
-		for j=14, 1, -1 do
-			local itemName = entry..i .. "Item" .. j;
+		for columnIndex = 14, 1, -1 do
+			local itemName = entry..rowIndex .. "Item" .. columnIndex;
 			local itemButton = _G[itemName];
 			
-			local itemIndex = from + ((j - 1) * 7)
+			local itemIndex = from + ((columnIndex - 1) * NUM_GUILDBANK_ROWS)
 			
-			local itemID, itemLink, itemCount = DS:GetSlotInfo(tab, itemIndex)
+			local itemID, itemLink, itemCount = DataStore:GetSlotInfo(tab, itemIndex)
 			
 			if itemID then
 				addon:SetItemButtonTexture(itemName, GetItemIcon(itemID));
@@ -87,6 +92,6 @@ function ns:DrawTab(tabID)
 		
 			_G[ itemName ]:Show()
 		end
-		_G[ entry..i ]:Show()
+		_G[ entry..rowIndex ]:Show()
 	end
 end

@@ -329,7 +329,7 @@ function ns:OnClick(frame, button)
 	local profession = DS:GetProfession(character, skillName)
 	
 	if skillName then
-		if DS:GetNumCraftLines(profession) == 0 then		-- if profession hasn't been scanned (or scan failed), exit
+		if not profession or DS:GetNumCraftLines(profession) == 0 then		-- if profession hasn't been scanned (or scan failed), exit
 			return
 		end
 	end
