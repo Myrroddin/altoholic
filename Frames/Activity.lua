@@ -294,7 +294,9 @@ function ns:Mails_OnEnter(self)
 		local _, seconds = DS:GetMailExpiry(character, index)
 		
 		if seconds < 0 then		-- mail has already expired
-			numExpired = numExpired + 1
+			if isReturned then	-- .. and it was a returned mail
+				numExpired = numExpired + 1
+			end
 		else
 			if isReturned then
 				numDeleted = numDeleted + 1

@@ -426,12 +426,15 @@ function Altoholic:MoveMinimapIcon()
 end
 
 function Altoholic.Options:Get(name)
-	return Altoholic.db.global.options[name]
+	if addon.db and addon.db.global then
+		return addon.db.global.options[name]
+	end
 end
 
 function Altoholic.Options:Set(name, value)
-	if Altoholic.db == nil then return end
-	Altoholic.db.global.options[name] = value
+	if addon.db and addon.db.global then 
+		addon.db.global.options[name] = value
+	end
 end
 
 function Altoholic.Options:Toggle(self, option)
