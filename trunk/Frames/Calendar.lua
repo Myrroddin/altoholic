@@ -277,7 +277,7 @@ local CalendarEventTypes = {
 			end,
 		GetInfo = function(self, event)
 				local c = Altoholic:GetCharacterTable(event.char, event.realm)
-				local _, _, title, eventType, eventDesc, attendees = strsplit("|", c.ConnectMMO[e.parentID])
+				local _, _, title, eventType, eventDesc, attendees = strsplit("|", c.ConnectMMO[event.parentID])
 				
 				local numPlayers, minLvl, maxLvl, privateToFriends, privateToGuild = strsplit(",", eventDesc)
 				local eventTable = {}
