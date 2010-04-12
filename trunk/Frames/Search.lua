@@ -596,34 +596,40 @@ local function BrowseCharacter(character)
 	currentResultKey = character
 	
 	local itemID, itemLink, itemCount
-	for containerName, container in pairs(DS:GetContainers(character)) do
-		if (containerName == "Bag100") then
-			currentResultLocation = L["Bank"]
-		elseif (containerName == "Bag-2") then
-			currentResultLocation = KEYRING
-		else
-			local bagNum = tonumber(string.sub(containerName, 4))
-			if (bagNum >= 0) and (bagNum <= 4) then
-				currentResultLocation = L["Bags"]
-			else
+	local containers = DS:GetContainers(character)
+	if containers then
+		for containerName, container in pairs(containers) do
+			if (containerName == "Bag100") then
 				currentResultLocation = L["Bank"]
-			end			
-		end
-	
-		for slotID = 1, container.size do
-			itemID, itemLink, itemCount = DS:GetSlotInfo(container, slotID)
-			
-			-- use the link before the id if there's one
-			if itemID then
-				VerifyItem(itemLink or itemID, itemCount)
+			elseif (containerName == "Bag-2") then
+				currentResultLocation = KEYRING
+			else
+				local bagNum = tonumber(string.sub(containerName, 4))
+				if (bagNum >= 0) and (bagNum <= 4) then
+					currentResultLocation = L["Bags"]
+				else
+					currentResultLocation = L["Bank"]
+				end			
+			end
+		
+			for slotID = 1, container.size do
+				itemID, itemLink, itemCount = DS:GetSlotInfo(container, slotID)
+				
+				-- use the link before the id if there's one
+				if itemID then
+					VerifyItem(itemLink or itemID, itemCount)
+				end
 			end
 		end
 	end
 	
 	currentResultLocation = L["Equipped"]
 
-	for _, v in pairs(DS:GetInventory(character)) do
-		VerifyItem(v, 1)
+	local inventory = DS:GetInventory(character)
+	if inventory then
+		for _, v in pairs(inventory) do
+			VerifyItem(v, 1)
+		end
 	end
 	
 	if addon.Options:Get("IncludeMailbox") == 1 then			-- check mail ?
