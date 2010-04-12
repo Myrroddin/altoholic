@@ -286,20 +286,25 @@ local trackedItems = {
 	[44717] = 590400, -- Disgusting Jar, 6 days 20 hours
 }
 
+local lootMsg = gsub(LOOT_ITEM_SELF, "%%s", "(.+)")
+
 local function OnChatMsgLoot(event, arg)
-	local item = arg:match("%b[]")
-	if not item then return end
-	
-	item = gsub(item, "[\[]", "")
-	item = gsub(item, "[\]]", "")
+	local _, _, link = strfind(arg, lootMsg)
+	if not link then return end
+		
+	local id = addon:GetIDFromLink(link)
+	id = tonumber(id)
+	if not id then return end
 	
 	for itemID, duration in pairs(trackedItems) do
-		local name = GetItemInfo(itemID)
-		if name and name == item then
-			local c = addon.ThisCharacter
-			table.insert(c.Timers, name .."|" .. time() .. "|" .. duration)
-			addon.Calendar.Events:BuildList()
-			addon.Tabs.Summary:Refresh()
+		if itemID == id then
+			local name = GetItemInfo(itemID)
+			if name then
+				local c = addon.ThisCharacter
+				table.insert(c.Timers, name .."|" .. time() .. "|" .. duration)
+				addon.Calendar.Events:BuildList()
+				addon.Tabs.Summary:Refresh()
+			end
 		end
 	end
 end

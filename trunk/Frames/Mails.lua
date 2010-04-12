@@ -55,20 +55,6 @@ local function SortByExpiry(a, b, ascending)
 	end
 end
 
-local function FormatExpiry(character, index)
-	local days, seconds = DataStore:GetMailExpiry(character, index)
-	local colour
-	
-	if days > 10 then
-		colour =  GREEN
-	elseif days > 5 then
-		colour = YELLOW
-	else
-		colour = RED
-	end
-	return colour .. SecondsToTime(seconds)
-end
-
 function ns:BuildView(field, ascending)
 	
 	field = field or "expiry"
@@ -98,12 +84,6 @@ function ns:Update()
 	local VisibleLines = 7
 	local frame = "AltoholicFrameMail"
 	local entry = frame.."Entry"
-	
-	
--- TIME_UNTIL_DELETED = "Time until message is deleted"; -- Tooltip for mail that is marked deletable
--- TIME_UNTIL_RETURNED = "Time until message is returned"; -- Tooltip for items marked returnable
-
-	
 	local player = addon:GetCurrentCharacter()
 	
 	local DS = DataStore
@@ -115,7 +95,7 @@ function ns:Update()
 		AltoholicFrameMailInfo1:SetText(localDate .. WHITE .. " @ " .. date("%H:%M", lastVisit))
 		AltoholicFrameMailInfo1:Show()
 	else
-		-- never visited the AH
+		-- never visited the mailbox
 		AltoholicFrameMailInfo1:Hide()
 	end
 	
@@ -139,14 +119,17 @@ function ns:Update()
 			local icon, count, link, _, _, wasReturned = DS:GetMailInfo(character, index)
 			
 			_G[ entry..i.."Name" ]:SetText(link or DS:GetMailSubject(character, index))
-			
 			_G[ entry..i.."Character" ]:SetText(DS:GetMailSender(character, index))
 			
+			local msg
 			if not wasReturned then
-				_G[ entry..i.."Expiry" ]:SetText(FormatExpiry(character, index))
+				msg = format(L["Will be %sreturned|r in"], GREEN, WHITE)
 			else
-				_G[ entry..i.."Expiry" ]:SetText(format("%s %s(%s)", FormatExpiry(character, index), YELLOW, MAIL_RETURN))
+				msg = format(L["Will be %sdeleted|r in"], RED, WHITE)
 			end
+			
+			local _, seconds = DataStore:GetMailExpiry(character, index)
+			_G[ entry..i.."Expiry" ]:SetText(format("%s:\n%s", msg, WHITE .. SecondsToTime(seconds)))
 			
 			_G[ entry..i.."ItemIconTexture" ]:SetTexture(icon);
 			if count and count > 1 then
@@ -251,10 +234,9 @@ SendMailNameEditBox:SetScript("OnChar", function(...)
 	if addon.Options:Get("NameAutoComplete") == 1 then
 		local text = this:GetText(); 
 		local textlen = strlen(text); 
-		local DS = DataStore
 		
-		for characterName, character in pairs(DS:GetCharacters()) do
-			if DS:GetCharacterFaction(character) == UnitFactionGroup("player") then
+		for characterName, character in pairs(DataStore:GetCharacters()) do
+			if DataStore:GetCharacterFaction(character) == UnitFactionGroup("player") then
 				if ( strfind(strupper(characterName), strupper(text), 1, 1) == 1 ) then
 					SendMailNameEditBox:SetText(characterName);
 					SendMailNameEditBox:HighlightText(textlen, -1);
