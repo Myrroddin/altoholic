@@ -233,6 +233,8 @@ L[" days"] = true
 L["Mail is about to expire on at least one character."] = true
 L["Refer to the activity pane for more details."] = true
 L["Do you want to view it now ?"] = true
+L["Will be %sreturned|r in"] = true
+L["Will be %sdeleted|r in"] = true
 
 --Quests.lua
 L["No quest found for "] = true

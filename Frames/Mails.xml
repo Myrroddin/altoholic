@@ -33,7 +33,7 @@
 				</FontString>
 				<FontString name="$parentExpiry" inherits="GameFontNormal">
 					<Size>
-						<AbsDimension x="130" y="32"/>
+						<AbsDimension x="200" y="32"/>
 					</Size>
 					<Anchors>
 						<Anchor point="BOTTOMLEFT" relativeTo="$parentCharacter" relativePoint="BOTTOMRIGHT">

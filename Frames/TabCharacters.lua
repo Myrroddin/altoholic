@@ -450,7 +450,7 @@ function ns:SetMode(mode)
 	if mode == VIEW_MAILS then
 		Columns:Add(MAIL_SUBJECT_LABEL, 220, function(self) addon.Mail:Sort(self, "name") end)
 		Columns:Add(FROM, 140, function(self) addon.Mail:Sort(self, "from") end)
-		Columns:Add(L["Expiry:"], 130, function(self) addon.Mail:Sort(self, "expiry") end)
+		Columns:Add(L["Expiry:"], 200, function(self) addon.Mail:Sort(self, "expiry") end)
 
 	elseif mode == VIEW_AUCTIONS then
 		Columns:Add(HELPFRAME_ITEM_TITLE, 220, function(self) addon.AuctionHouse:Sort(self, "name", "Auctions") end)
