@@ -194,8 +194,9 @@ function ns:OnClick(self, button)
 
 	if link then
 		if ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
-			if ( ChatFrameEditBox:IsShown() ) then
-				ChatFrameEditBox:Insert(link);
+			local chat = ChatEdit_GetLastActiveWindow()
+			if chat:IsShown() then
+				chat:Insert(link);
 			end
 		end
 	end

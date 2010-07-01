@@ -442,10 +442,11 @@ end
 
 function tns:Button_OnClick(frame, button)
 	if ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
-		if ( ChatFrameEditBox:IsShown() ) then
+		local chat = ChatEdit_GetLastActiveWindow()
+		if chat:IsShown() then
 			local link = GetTalentLink(frame)
 			if link then
-				ChatFrameEditBox:Insert(link);
+				chat:Insert(link)
 			end
 		end
 	end
@@ -620,10 +621,10 @@ function gns:Button_OnClick(frame, button)
 	if not spell then return end
 	
 	if ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
-		if ( ChatFrameEditBox:IsShown() ) then
+		local chat = ChatEdit_GetLastActiveWindow()
+		if chat:IsShown() then
 			local link = DS:GetGlyphLink(id, spell, glyphID)
-			
-			ChatFrameEditBox:Insert(link);
+			chat:Insert(link)
 		end
 	end
 end

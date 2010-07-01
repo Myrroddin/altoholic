@@ -353,8 +353,9 @@ function ns:OnClick(frame, button)
 	if not status then return end
 	
 	if ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
-		if ( ChatFrameEditBox:IsShown() ) then
-			ChatFrameEditBox:Insert(format(L["%s is %s with %s (%d/%d)"], charName, status, faction, currentLevel, maxLevel))
+		local chat = ChatEdit_GetLastActiveWindow()
+		if chat:IsShown() then
+			chat:Insert(format(L["%s is %s with %s (%d/%d)"], charName, status, faction, currentLevel, maxLevel))
 		end
 	end	
 end

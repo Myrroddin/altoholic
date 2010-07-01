@@ -336,14 +336,16 @@ local function ButtonOnClick(frame, button)
 	if not frame.CharName then return end
 	
 	if ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
-		if ( ChatFrameEditBox:IsShown() ) then
+		local chat = ChatEdit_GetLastActiveWindow()
+	
+		if chat:IsShown() then
 			local realm, account = addon:GetCurrentRealm()
 			local character = DataStore:GetCharacter(frame.CharName, realm, account)
 			local achievementID = frame.id
 
 			local link = DataStore:GetAchievementLink(character, achievementID)
 			if link then 
-				ChatFrameEditBox:Insert(link)
+				chat:Insert(link)
 			end		
 		end
 	end

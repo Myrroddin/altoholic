@@ -38,8 +38,8 @@ local function Header_OnClick(frame)
 
 	ns:Update();
 	AltoholicFrameAchievements:Show()
-	Altoholic.Achievements:SetCategory(header.id)
-	Altoholic.Achievements:Update()
+	addon.Achievements:SetCategory(header.id)
+	addon.Achievements:Update()
 end
 
 local function Item_OnClick(frame)
@@ -48,8 +48,8 @@ local function Item_OnClick(frame)
 	
 	ns:Update();
 	AltoholicFrameAchievements:Show()
-	Altoholic.Achievements:SetCategory(item)
-	Altoholic.Achievements:Update()
+	addon.Achievements:SetCategory(item)
+	addon.Achievements:Update()
 end
 
 function ns:Update()

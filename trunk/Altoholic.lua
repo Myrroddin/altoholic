@@ -463,8 +463,10 @@ function addon:Item_OnClick(frame, button)
 	if ( button == "LeftButton" ) and ( IsControlKeyDown() ) then
 		DressUpItemLink(frame.link);
 	elseif ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
-		if ( ChatFrameEditBox:IsShown() ) then
-			ChatFrameEditBox:Insert(frame.link);
+		local chat = ChatEdit_GetLastActiveWindow()
+	
+		if chat:IsShown() then
+			chat:Insert(frame.link);
 		else
 			AltoholicFrame_SearchEditBox:SetText(GetItemInfo(frame.link))
 		end
@@ -540,7 +542,7 @@ function addon:GetFactionColour(faction)
 	if faction == "Alliance" then
 		return "|cFF2459FF"
 	else
-		return "|cFFFF0000"
+		return RED
 	end
 end
 
@@ -595,19 +597,17 @@ function addon:GetRestedXP(character)
 	rate = rate * coeff
 	
 	-- second return value = the actual percentage of rest xp, as a numeric value (1 to 100, not 150)
+	local color = GREEN
 	if rate >= (100 * coeff) then 
-		return "|cFF00FF00" .. format("%d", (100 * coeff)) .. "%", 100 * coeff
+		rate = 100 * coeff
 	else
-		local color
 		if rate < (30 * coeff) then
-			color = "|cFFFF0000"
+			color = RED
 		elseif rate < (60 * coeff) then
-			color = "|cFFFFFF00"
-		else
-			color = GREEN
+			color = YELLOW
 		end
-		return color .. format("%d", rate) .. "%", rate
 	end
+	return format("%s%d", color, rate).."%", rate
 end
 
 function addon:GetSuggestion(index, level)
@@ -754,7 +754,7 @@ function addon:MsgBox_OnClick(button)
 		msg.arg1 = nil
 		msg.arg2 = nil
 	else
-		addon:Print("MessageBox Hangler not defined")
+		addon:Print("MessageBox Handler not defined")
 	end
 	msg:Hide();
 	msg:SetHeight(100)

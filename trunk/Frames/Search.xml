@@ -135,8 +135,9 @@
 							if ( button == "LeftButton" ) and ( IsControlKeyDown() ) then
 								DressUpItemLink(link);
 							elseif ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
-								if ( ChatFrameEditBox:IsShown() ) then
-									ChatFrameEditBox:Insert(link);
+								local chat = ChatEdit_GetLastActiveWindow()
+								if chat:IsShown() then
+									chat:Insert(link)
 								else
 									AltoholicFrame_SearchEditBox:SetText(GetItemInfo(link))
 								end
@@ -197,7 +198,8 @@
 					</OnLeave>
 					<OnClick>
 						if ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
-							if ( ChatFrameEditBox:IsShown() ) then
+							local chat = ChatEdit_GetLastActiveWindow()
+							if chat:IsShown() then
 								local id = self:GetID()
 								if id == 0 then return end
 								
@@ -213,7 +215,7 @@
 								end
 								
 								if not link then return end
-								ChatFrameEditBox:Insert(link);
+								chat:Insert(link)
 							end
 						end
 					</OnClick>
