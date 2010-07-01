@@ -382,8 +382,9 @@ function ns:OnClick(self, button)
 	local _, link = DataStore:GetGuildMemberProfession(guild, member, id)
 	if not link then return end
 
-	if ChatFrameEditBox:IsShown() and IsShiftKeyDown() then
-		ChatFrameEditBox:Insert(link);
+	local chat = ChatEdit_GetLastActiveWindow()
+	if chat:IsShown() and IsShiftKeyDown() then
+		chat:Insert(link);
 	else
 		SetItemRef(link:match("|H([^|]+)"), "Profession", "LeftButton")
 	end

@@ -480,6 +480,9 @@ function Altoholic.Calendar:Update()
 	-- taken from CalendarFrame_Update() in Blizzard_Calendar.lua, adjusted for my needs.
 
 	local self = Altoholic.Calendar
+	self.Events:BuildList()				-- force a rebuild when updating the view. In some rare cases, the list was not correctly updated. Temporary workaround	26/04/2010
+	
+	
 	local presentWeekday, presentMonth, presentDay, presentYear = CalendarGetDate();
 	local prevMonth, prevYear, prevNumDays = CalendarGetMonth(-1);
 	local nextMonth, nextYear, nextNumDays = CalendarGetMonth(1);

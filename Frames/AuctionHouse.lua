@@ -316,8 +316,9 @@ function ns:OnClick(frame, button)
 	if ( button == "LeftButton" ) and ( IsControlKeyDown() ) then
 		DressUpItemLink(link);
 	elseif ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
-		if ( ChatFrameEditBox:IsShown() ) then
-			ChatFrameEditBox:Insert(link);
+		local chat = ChatEdit_GetLastActiveWindow()
+		if chat:IsShown() then
+			chat:Insert(link)
 		else
 			AltoholicFrame_SearchEditBox:SetText(GetItemInfo(link))
 		end

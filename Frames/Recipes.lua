@@ -419,13 +419,14 @@ end
 
 function ns:RecipeLink_OnClick(frame, button)
 	if ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
-		if ( ChatFrameEditBox:IsShown() ) then
+		local chat = ChatEdit_GetLastActiveWindow()
+		if chat:IsShown() then
 			local id = frame:GetID()
 			if id == 0 then return end
 
 			local link = GetLinkByLine(id)
 			if link then
-				ChatFrameEditBox:Insert(link);
+				chat:Insert(link)
 			end
 		end
 	end
@@ -465,7 +466,8 @@ function ns:Link_OnClick(frame, button)
 		return
 	end
 	
-	if ( ChatFrameEditBox:IsShown() ) then
-		ChatFrameEditBox:Insert(addon:GetCurrentCharacter() .. ": " .. link);
+	local chat = ChatEdit_GetLastActiveWindow()
+	if chat:IsShown() then
+		chat:Insert(addon:GetCurrentCharacter() .. ": " .. link);
 	end
 end

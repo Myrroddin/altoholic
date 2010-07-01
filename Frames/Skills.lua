@@ -335,12 +335,13 @@ function ns:OnClick(frame, button)
 	end
 	
 	local charName, realm, account = addon:GetCurrentCharacter()
+	local chat = ChatEdit_GetLastActiveWindow()
 	
-	if ChatFrameEditBox:IsShown() and IsShiftKeyDown() and realm == GetRealmName() and id ~= 6 then
+	if chat:IsShown() and IsShiftKeyDown() and realm == GetRealmName() and id ~= 6 then
 		-- if shift-click, then display the profession link and exit
 		local link = profession.FullLink	
 		if link and link:match("trade:") then
-			ChatFrameEditBox:Insert(link);
+			chat:Insert(link);
 		end
 		return
 	end

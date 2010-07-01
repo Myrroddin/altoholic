@@ -28,10 +28,11 @@ end
 
 function ns:OnClick(frame, button)
 	if frame.spellID and ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
-		if ( ChatFrameEditBox:IsShown() ) then
+		local chat = ChatEdit_GetLastActiveWindow()
+		if chat:IsShown() then
 			local link = DataStore:GetCompanionLink(frame.spellID)
 			if link then
-				ChatFrameEditBox:Insert(link);
+				chat:Insert(link)
 			end
 		end
 	end
