@@ -120,6 +120,12 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "3.3.002b Changes",
+		bulletedList = {
+			"Fixed linking items/quests/etc.. to chat.",
+			"Several minor bugfixes.",
+		},
+	},
 	{	name = "3.3.002 Changes",
 		bulletedList = {
 			"Added an information tooltip when mousing over the number of mails in the Activity pane.",
