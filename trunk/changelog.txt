@@ -3,6 +3,15 @@ Altoholic Changelog (dates in dd/mm/yyyy)
 
 Join the #altoholic IRC channel on Freenode : irc://irc.freenode.net:6667/
 
+3.3.002b
+
+- Fixed linking items/quests/etc.. to chat.
+- Several minor bugfixes.
+
+Note: due to several real life constraints, progress is likely to remain slow, and the fact that Cataclysm is getting closer means I will not update the addon for a while.
+Chances are that once addons are allowed on the beta servers and I get access, I will spend my time making changes there directly. 
+Adding functionalities now and having to rewrite them in a month wouldn't make sense.
+
 3.3.002
 
 - Added an information tooltip when mousing over the number of mails in the Activity pane.
