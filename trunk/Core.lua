@@ -4,8 +4,8 @@ _G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "A
 
 local addon = _G[addonName]
 
-addon.Version = "v3.3.002b"
-addon.VersionNum = 303002
+addon.Version = "v4.0.001"
+addon.VersionNum = 400000
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local commPrefix = addonName
@@ -286,7 +286,7 @@ function addon.Tabs:OnClick(index)
 	self.current = index
 	self.Columns.prefix = addonName.."Tab"..tabList[index].."_Sort"
 	
-	if index == 5 then
+	if index == 2 or index == 3 or index == 5 then
 		SafeLoadAddOn(format("%s_%s", addonName, tabList[index]))		-- make this part a bit more generic once we'll have more LoD parts
 	end
 	
@@ -372,5 +372,6 @@ function addon:CmdSearchBags(arg1, arg2)
 		AltoholicFrame:Show();
 	end
 	AltoholicFrame_SearchEditBox:SetText(strlower(arg2))
+	addon.Tabs:OnClick(3)
 	addon.Search:FindItem();
 end	

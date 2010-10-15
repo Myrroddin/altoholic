@@ -22,7 +22,7 @@ local characterList
 local view
 
 local function ProcessRealms(func)
-	local mode = addon.Options:Get("TabSummaryMode")
+	local mode = addon:GetOption("TabSummaryMode")
 	local thisRealm = GetRealmName()
 	
 	-- this account only
@@ -75,8 +75,6 @@ local function AddRealm(AccountName, RealmName)
 	local realmFreeBagSlots = 0
 	local realmBankSlots = 0
 	local realmFreeBankSlots = 0
-	
-	local SkillsCache = { {name = "", rank = 0}, {name = "", rank = 0} }
 
 	-- 1) Add the realm name
 	table.insert(characterList, { linetype = INFO_REALM_LINE + (realmCount*3),
@@ -87,40 +85,21 @@ local function AddRealm(AccountName, RealmName)
 	
 	-- 2) Add the characters
 	for characterName, character in pairs(DataStore:GetCharacters(RealmName, AccountName)) do
-		SkillsCache[1].name = ""
-		SkillsCache[1].rank = 0
-		SkillsCache[1].spellID = nil
-		SkillsCache[2].name = ""
-		SkillsCache[2].rank = 0
-		SkillsCache[2].spellID = nil
-
-		local i = 1
-		local professions = DataStore:GetPrimaryProfessions(character)
-		if professions then
-			for SkillName, s in pairs(professions) do
-				SkillsCache[i].name = SkillName
-				SkillsCache[i].rank = DataStore:GetSkillInfo(character, SkillName)
-				SkillsCache[i].spellID = DataStore:GetProfessionSpellID(SkillName)
-				i = i + 1
-				
-				if i > 2 then		-- it seems that under certain conditions, the loop continues after 2 professions.., so break
-					break
-				end
-			end
-		end
+		local rank1, _, _, name1 = DataStore:GetProfession1(character)
+		local rank2, _, _, name2 = DataStore:GetProfession2(character)
 		
 		table.insert(characterList, { linetype = INFO_CHARACTER_LINE + (realmCount*3),
 			key = character,
-			skillName1 = SkillsCache[1].name,
-			skillRank1 = SkillsCache[1].rank,
-			spellID1 = SkillsCache[1].spellID,
-			skillName2 = SkillsCache[2].name,
-			skillRank2 = SkillsCache[2].rank,
-			spellID2 = SkillsCache[2].spellID,
+			skillName1 = name1,
+			skillRank1 = rank1,
+			spellID1 = DataStore:GetProfessionSpellID(name1),
+			skillName2 = name2,
+			skillRank2 = rank2,
+			spellID2 = DataStore:GetProfessionSpellID(name2),
 			cooking = DataStore:GetCookingRank(character),
 			firstaid = DataStore:GetFirstAidRank(character),
 			fishing = DataStore:GetFishingRank(character),
-			riding = DataStore:GetRidingRank(character),
+			archa = DataStore:GetArchaeologyRank(character),
 		} )
 
 		realmLevels = realmLevels + (DataStore:GetCharacterLevel(character) or 0)
@@ -207,8 +186,8 @@ local function SortByPrimarySkill(a, b, skillName, ascending)
 			return false		-- don't swap lines if they're not INFO_CHARACTER_LINE
 		end
 
-		local skillA = DataStore:GetSkillInfo(a.key, a[skillName])
-		local skillB = DataStore:GetSkillInfo(b.key, b[skillName])
+		local skillA = DataStore:GetProfessionInfo(DataStore:GetProfession(a.key, a[skillName]))
+		local skillB = DataStore:GetProfessionInfo(DataStore:GetProfession(b.key, b[skillName]))
 		
 		if ascending then
 			return skillA < skillB

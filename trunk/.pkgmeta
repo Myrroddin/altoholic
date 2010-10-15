@@ -17,7 +17,6 @@ required-dependencies:
 	- datastore_pets
 	- datastore_quests
 	- datastore_reputations
-	- datastore_skills
 	- datastore_spells
 	- datastore_stats
 	- datastore_talents
@@ -47,3 +46,5 @@ externals:
 
 move-folders:
     Altoholic/Modules/Altoholic_Achievements: Altoholic_Achievements
+    Altoholic/Modules/Altoholic_Characters: Altoholic_Characters
+    Altoholic/Modules/Altoholic_Search: Altoholic_Search

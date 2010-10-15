@@ -250,6 +250,7 @@ L["Shift-Click to link this info"] = true
 L[" is "] = true
 L[" with "] = true
 L["%s is %s with %s (%d/%d)"] = true
+L["Up to %s"] = true
 
 --Search.lua
 L["Item Level"] = true
@@ -702,6 +703,8 @@ L["Account Name"] = true
 L["Send account sharing request to:"] = true
 
 --TabOptions.lua
+
+L["Memory used"] = true
 
 -- ** Frame 1 : General **
 L["Max rest XP displayed as 150%"] = true

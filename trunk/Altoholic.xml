@@ -182,7 +182,7 @@
 						</Anchor>
 					</Anchors>
 				</Texture>
-				<Texture name="$parentBot" file="Interface\AuctionFrame\UI-AuctionFrame-Browse-Bot">
+				<Texture name="$parentBot" file="Interface\AuctionFrame\UI-AuctionFrame-Auction-Bot">
 					<Size>
 						<AbsDimension x="320" y="256"/>
 					</Size>
@@ -194,7 +194,7 @@
 						</Anchor>
 					</Anchors>
 				</Texture>
-				<Texture name="$parentBotRight" file="Interface\AuctionFrame\UI-AuctionFrame-Browse-BotRight">
+				<Texture name="$parentBotRight" file="Interface\AuctionFrame\UI-AuctionFrame-Bid-BotRight">
 					<Size>
 						<AbsDimension x="256" y="256"/>
 					</Size>
@@ -324,6 +324,7 @@
 						self:SetAutoFocus( false );
 					</OnLoad>
 					<OnEnterPressed>
+						Altoholic.Tabs:OnClick(3)
 						Altoholic.Search:FindItem();
 						self:ClearFocus();
 					</OnEnterPressed>
@@ -345,7 +346,9 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						Altoholic.Tabs.Search:Reset()
+						if IsAddOnLoaded("Altoholic_Search") then
+							Altoholic.Tabs.Search:Reset()
+						end
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -362,6 +365,7 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
+						Altoholic.Tabs:OnClick(3)
 						Altoholic.Search:FindItem();
 					</OnClick>
 				</Scripts>
