@@ -205,6 +205,8 @@ function ns:OnEnter(self)
 	local num = DS:GetNumCurrencies(character) or 0
 	for i = 1, num do
 		local isHeader, name, count = DS:GetCurrencyInfo(character, i)
+		name = name or ""
+		
 		if isHeader then
 			AltoTooltip:AddLine(YELLOW..name)
 		else
@@ -261,8 +263,8 @@ function ns:OnClick(self)
 	end
 	
 	if action then
-		addon.Tabs.Characters:SetCurrent( addon:GetCurrentCharacter() )
 		addon.Tabs:OnClick(2)
+		addon.Tabs.Characters:SetCurrent( addon:GetCurrentCharacter() )
 		addon.Tabs.Characters:ViewCharInfo(action)	
 	end
 end

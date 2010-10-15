@@ -18,7 +18,7 @@ local childrenFrames = {
 	"Skills",
 	"Activity",
 	"GuildMembers",
-	"GuildProfessions",
+	-- "GuildProfessions",
 	"GuildBankTabs",
 	"Calendar",
 }
@@ -39,7 +39,7 @@ local locationLabels = {
 local function OnRealmFilterChange(self)
 	UIDropDownMenu_SetSelectedValue(AltoholicTabSummary_SelectLocation, self.value);
 	
-	addon.Options:Set("TabSummaryMode", self.value)
+	addon:SetOption("TabSummaryMode", self.value)
 	addon.Characters:BuildList()
 	addon.Characters:BuildView()
 	ns:Refresh()
@@ -84,14 +84,14 @@ function ns:Init()
 		addon.TradeSkills,
 		addon.Activity,
 		addon.Guild.Members,
-		addon.Guild.Professions,
+		-- addon.Guild.Professions,
 		addon.Guild.BankTabs,
 		addon.Calendar,
 	}
 	
 	local f = AltoholicTabSummary_SelectLocation
-	UIDropDownMenu_SetSelectedValue(f, addon.Options:Get("TabSummaryMode"))
-	UIDropDownMenu_SetText(f, select(addon.Options:Get("TabSummaryMode"), locationLabels[THISREALM_THISACCOUNT], locationLabels[THISREALM_ALLACCOUNTS], locationLabels[ALLREALMS_THISACCOUNT], locationLabels[ALLREALMS_ALLACCOUNTS]))
+	UIDropDownMenu_SetSelectedValue(f, addon:GetOption("TabSummaryMode"))
+	UIDropDownMenu_SetText(f, select(addon:GetOption("TabSummaryMode"), locationLabels[THISREALM_THISACCOUNT], locationLabels[THISREALM_ALLACCOUNTS], locationLabels[ALLREALMS_THISACCOUNT], locationLabels[ALLREALMS_ALLACCOUNTS]))
 	UIDropDownMenu_Initialize(f, DropDownLocation_Initialize)
 	
 	addon.Calendar:Init()
@@ -119,7 +119,7 @@ function ns:MenuItem_OnClick(id)
 	f:Show()
 	o:Update()
 	
-	for i=1, 8 do 
+	for i=1, 7 do 
 		_G[ "AltoholicTabSummaryMenuItem"..i ]:UnlockHighlight();
 	end
 	_G[ "AltoholicTabSummaryMenuItem"..id ]:LockHighlight();
@@ -168,7 +168,8 @@ function ns:SetMode(mode)
 		Columns:Add(title, 65, function(self) addon.Characters:Sort(self, "GetFirstAidRank") end)
 		title = GetSpellInfo(24303)	-- Fishing
 		Columns:Add(title, 65, function(self) addon.Characters:Sort(self, "GetFishingRank") end)
-		Columns:Add(L["Riding"], 65, function(self) addon.Characters:Sort(self, "GetRidingRank") end)
+		title = string.sub(GetSpellInfo(78670), 1, 4)	-- Archaeology
+		Columns:Add(title, 65, function(self) addon.Characters:Sort(self, "GetArchaeologyRank") end)
 		
 	elseif currentMode == 4 then
 		Columns:Add(NAME, 100, function(self) addon.Characters:Sort(self, "GetCharacterName") end)
@@ -187,20 +188,20 @@ function ns:SetMode(mode)
 		Columns:Add(GAME_VERSION_LABEL, 80, function(self) addon.Guild.Members:Sort(self, "version") end)
 		Columns:Add(CLASS, 100, function(self) addon.Guild.Members:Sort(self, "englishClass") end)
 
-	elseif currentMode == 6 then
-		Columns:Add(NAME, 60, function(self) addon.Guild.Professions:Sort(self, "name") end)
-		Columns:Add(LEVEL, 60, function(self) addon.Guild.Professions:Sort(self, "level") end)
-		Columns:Add(CLASS, 120, function(self) addon.Guild.Professions:Sort(self, "englishClass") end)
-		Columns:Add(L["Prof. 1"], 110, function(self) addon.Guild.Professions:Sort(self, "profLink", 1) end)
-		Columns:Add(L["Prof. 2"], 110, function(self) addon.Guild.Professions:Sort(self, "profLink", 2) end)
-		title = GetSpellInfo(2550)		-- cooking
-		Columns:Add(title, 110, function(self) addon.Guild.Professions:Sort(self, "profLink", 3) end)
+	-- elseif currentMode == 6 then
+		-- Columns:Add(NAME, 60, function(self) addon.Guild.Professions:Sort(self, "name") end)
+		-- Columns:Add(LEVEL, 60, function(self) addon.Guild.Professions:Sort(self, "level") end)
+		-- Columns:Add(CLASS, 120, function(self) addon.Guild.Professions:Sort(self, "englishClass") end)
+		-- Columns:Add(L["Prof. 1"], 110, function(self) addon.Guild.Professions:Sort(self, "profLink", 1) end)
+		-- Columns:Add(L["Prof. 2"], 110, function(self) addon.Guild.Professions:Sort(self, "profLink", 2) end)
+		-- title = GetSpellInfo(2550)		-- cooking
+		-- Columns:Add(title, 110, function(self) addon.Guild.Professions:Sort(self, "profLink", 3) end)
 		
-	elseif currentMode == 7 then
+	elseif currentMode == 6 then
 		Columns:Add(NAME, 100, nil)
 		Columns:Add(TIMEMANAGER_TOOLTIP_LOCALTIME, 120,  nil)
 		Columns:Add(TIMEMANAGER_TOOLTIP_REALMTIME, 120,  nil)
-	elseif currentMode == 8 then
+	elseif currentMode == 7 then
 		AltoholicTabSummaryToggleView:Hide()
 		AltoholicTabSummary_SelectLocation:Hide()
 		AltoholicTabSummary_RequestSharing:Hide()
@@ -220,8 +221,8 @@ function ns:Refresh()
 		addon.Activity:Update()
 	elseif AltoholicFrameGuildMembers:IsVisible() then
 		addon.Guild.Members:Update()
-	elseif AltoholicFrameGuildProfessions:IsVisible() then
-		addon.Guild.Professions:Update()
+	-- elseif AltoholicFrameGuildProfessions:IsVisible() then
+		-- addon.Guild.Professions:Update()
 	elseif AltoholicFrameGuildBankTabs:IsVisible() then
 		addon.Guild.BankTabs:Update()
 	elseif AltoholicFrameCalendar:IsVisible() then
@@ -244,9 +245,9 @@ function ns:ToggleView(frame)
 		ns:Refresh()
 	elseif currentMode == 5 then
 		addon.Guild.Members:ToggleView(frame)
+	-- elseif currentMode == 6 then
+		-- addon.Guild.Professions:ToggleView(frame)
 	elseif currentMode == 6 then
-		addon.Guild.Professions:ToggleView(frame)
-	elseif currentMode == 7 then
 		addon.Guild.BankTabs:ToggleView(frame)
 	end
 end
@@ -260,7 +261,7 @@ function ns:AccountSharingButton_OnEnter(self)
 end
 
 function ns:AccountSharingButton_OnClick()
-	if addon.Options:Get("AccSharingHandlerEnabled") == 0 then
+	if addon:GetOption("AccSharingHandlerEnabled") == 0 then
 		addon:Print(L["Both parties must enable account sharing\nbefore using this feature (see options)"])
 		return
 	end

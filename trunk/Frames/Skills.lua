@@ -8,6 +8,8 @@ local INFO_REALM_LINE = 0
 local INFO_CHARACTER_LINE = 1
 local INFO_TOTAL_LINE = 2
 
+local SKILL_CAP = 525
+
 local WHITE		= "|cFFFFFFFF"
 local TEAL		= "|cFF00FF9A"
 local RED		= "|cFFFF0000"
@@ -24,6 +26,14 @@ local ICON_FACTION_ALLIANCE = "Interface\\Icons\\INV_BannerPVP_02"
 
 local ns = addon.TradeSkills		-- ns = namespace
 local Characters = addon.Characters
+
+local function DisplaySecondarySkillLevel(frame, field, spellID, line)
+	local icon = addon:TextureToFontstring(addon:GetSpellIcon(spellID), 18, 18) .. " "
+	local value = Characters:GetField(line, field)
+	
+	value = value or 0
+	frame:SetText(icon .. ns:GetColor(value) .. value)
+end
 
 function ns:Update()
 	local VisibleLines = 14
@@ -115,7 +125,11 @@ function ns:Update()
 						icon = ""
 					end
 					field = Characters:GetField(line, "skillRank1")
-					_G[entry..i.."Skill1NormalText"]:SetText(icon .. ns:GetColor(field) .. field)
+					if field then
+						_G[entry..i.."Skill1NormalText"]:SetText(icon .. ns:GetColor(field) .. field)
+					else
+						_G[entry..i.."Skill1NormalText"]:SetText("")
+					end
 					
 					-- profession 2
 					field = Characters:GetField(line, "spellID2")
@@ -125,33 +139,18 @@ function ns:Update()
 						icon = ""
 					end
 					field = Characters:GetField(line, "skillRank2")
-					_G[entry..i.."Skill2NormalText"]:SetText(icon .. ns:GetColor(field) .. field)
-					
-					-- cooking
-					icon = addon:TextureToFontstring(addon:GetSpellIcon(2550), 18, 18) .. " "
-					field = Characters:GetField(line, "cooking")
-					_G[entry..i.."CookingNormalText"]:SetText(icon .. ns:GetColor(field) .. field)
-					
-					-- first aid
-					icon = addon:TextureToFontstring(addon:GetSpellIcon(3273), 18, 18) .. " "
-					field = Characters:GetField(line, "firstaid")
-					_G[entry..i.."FirstAidNormalText"]:SetText(icon .. ns:GetColor(field) .. field)
-					
-					-- fishing
-					icon = addon:TextureToFontstring(addon:GetSpellIcon(7733), 18, 18) .. " "
-					field = Characters:GetField(line, "fishing")
-					_G[entry..i.."FishingNormalText"]:SetText(icon .. ns:GetColor(field) .. field)
-					
-					-- riding
-					field = Characters:GetField(line, "riding")
-					if DS:IsSpellKnown(character, 54197) then
-						icon = addon:TextureToFontstring(addon:GetSpellIcon(54197), 18, 18) .. " "
-					elseif field >= 225 then
-						icon = addon:TextureToFontstring("Interface\\Icons\\Ability_Mount_Gryphon_01", 18, 18) .. " "
+					if field then
+						_G[entry..i.."Skill2NormalText"]:SetText(icon .. ns:GetColor(field) .. field)
 					else
-						icon = addon:TextureToFontstring("Interface\\Icons\\Ability_Mount_RidingHorse", 18, 18) .. " "
+						_G[entry..i.."Skill2NormalText"]:SetText("")
 					end
-					_G[entry..i.."RidingNormalText"]:SetText(icon .. ns:GetColor(field, 300) .. field)
+					
+					DisplaySecondarySkillLevel(_G[entry..i.."CookingNormalText"], "cooking", 2550, line)
+					DisplaySecondarySkillLevel(_G[entry..i.."FirstAidNormalText"], "firstaid", 3273, line)
+					DisplaySecondarySkillLevel(_G[entry..i.."FishingNormalText"], "fishing", 7733, line)
+					DisplaySecondarySkillLevel(_G[entry..i.."RidingNormalText"], "archa", 78670, line)
+
+					
 				elseif (lineType == INFO_TOTAL_LINE) then
 					_G[entry..i.."Collapse"]:Hide()
 					_G[entry..i.."Name"]:SetWidth(200)
@@ -203,33 +202,35 @@ function ns:OnEnter(frame)
 	elseif id == 4 then
 		skillName = GetSpellInfo(3273)		-- First Aid
 	elseif id == 5 then
-		skillName = GetSpellInfo(24303)	-- Fishing
+		skillName = GetSpellInfo(71691)		-- Fishing
 	elseif id == 6 then
-		skillName = L["Riding"]
+		skillName = GetSpellInfo(78670)		-- Archaeology
 	end
 
 	local DS = DataStore
 	local character = DS:GetCharacter(Characters:GetInfo(line))
-	local curRank, maxRank = DS:GetSkillInfo(character, skillName)
+	local last = DataStore:GetModuleLastUpdateByKey("DataStore_Crafts", character)
+	if not last then return end
+	
+	local curRank, maxRank = DS:GetProfessionInfo(DS:GetProfession(character, skillName))
 	local profession = DS:GetProfession(character, skillName)
 	
 	if (id >= 1) and (id <= 6) then
-		if id == 6 then	-- riding
-			rank = ns:GetColor(curRank, 300) .. curRank .. "/" .. maxRank
-		else
-			rank = ns:GetColor(curRank) .. curRank .. "/" .. maxRank
-		end
+		rank = ns:GetColor(curRank) .. curRank .. "/" .. maxRank
 		suggestion = addon:GetSuggestion(skillName, curRank)
 	elseif id == 7 then	-- class
-		local _, class = DS:GetCharacterClass(character)
-		if class ~= "ROGUE" then
-			return
-		end
-		skillName = L["Rogue Proficiencies"]
+		-- until we find out what happens with lockpicking, exit
+		return
+	
+		-- local _, class = DS:GetCharacterClass(character)
+		-- if class ~= "ROGUE" then
+			-- return
+		-- end
+		-- skillName = L["Rogue Proficiencies"]
 		
-		local curLock, maxLock = DS:GetSkillInfo(character, L["Lockpicking"])
-		rank = TEAL .. L["Lockpicking"] .. " " .. curLock .. "/" .. maxLock
-		suggestion = addon:GetSuggestion(L["Lockpicking"], curLock)
+		-- local curLock, maxLock = DS:GetSkillInfo(character, L["Lockpicking"])
+		-- rank = TEAL .. L["Lockpicking"] .. " " .. curLock .. "/" .. maxLock
+		-- suggestion = addon:GetSuggestion(L["Lockpicking"], curLock)
 	end
 	
 	AltoTooltip:ClearLines();
@@ -261,17 +262,12 @@ function ns:OnEnter(frame)
 		end
 	end
 	
-	local skillCap = 450
-	if id == 6 then
-		skillCap = 300
-	end
-	
 	AltoTooltip:AddLine(" ");
-	AltoTooltip:AddLine(RECIPE_GREY .. L["Grey"] .. "|r " .. L["up to"] .. " " .. (floor(skillCap*0.25)-1),1,1,1);
-	AltoTooltip:AddLine(RED .. RED_GEM .. "|r " .. L["up to"] .. " " .. (floor(skillCap*0.50)-1),1,1,1);
-	AltoTooltip:AddLine(ORANGE .. BI["Orange"] .. "|r " .. L["up to"] .. " " .. (floor(skillCap*0.75)-1),1,1,1);
-	AltoTooltip:AddLine(YELLOW .. YELLOW_GEM .. "|r " .. L["up to"] .. " " .. (skillCap-1),1,1,1);
-	AltoTooltip:AddLine(GREEN .. BI["Green"] .. "|r " .. L["at"] .. " "..skillCap.." " .. L["and above"],1,1,1);
+	AltoTooltip:AddLine(RECIPE_GREY .. L["Grey"] .. "|r " .. L["up to"] .. " " .. (floor(SKILL_CAP*0.25)-1),1,1,1);
+	AltoTooltip:AddLine(RED .. RED_GEM .. "|r " .. L["up to"] .. " " .. (floor(SKILL_CAP*0.50)-1),1,1,1);
+	AltoTooltip:AddLine(ORANGE .. BI["Orange"] .. "|r " .. L["up to"] .. " " .. (floor(SKILL_CAP*0.75)-1),1,1,1);
+	AltoTooltip:AddLine(YELLOW .. YELLOW_GEM .. "|r " .. L["up to"] .. " " .. (SKILL_CAP-1),1,1,1);
+	AltoTooltip:AddLine(GREEN .. BI["Green"] .. "|r " .. L["at"] .. " "..SKILL_CAP.." " .. L["and above"],1,1,1);
 
 	if suggestion then
 		AltoTooltip:AddLine(" ",1,1,1);
@@ -309,7 +305,7 @@ function ns:OnClick(frame, button)
 	end
 	
 	local id = frame:GetID()
-	if id == 5 then return end		-- fishing ? do nothing
+	if id >= 5 then return end		-- fishing or archaeology ? do nothing
 	
 	addon:SetCurrentCharacter( Characters:GetInfo(line) )
 	
@@ -326,6 +322,9 @@ function ns:OnClick(frame, button)
 
 	local DS = DataStore
 	local character = DS:GetCharacter(Characters:GetInfo(line))
+	local last = DataStore:GetModuleLastUpdateByKey("DataStore_Crafts", character)
+	if not last then return end
+	
 	local profession = DS:GetProfession(character, skillName)
 	
 	if skillName then
@@ -346,19 +345,14 @@ function ns:OnClick(frame, button)
 		return
 	end
 
-	addon.Tabs.Characters:SetCurrent(charName, realm, account)
 	addon.Tabs:OnClick(2)
-
-	if id == 6 then
-		addon.Tabs.Characters:ViewCharInfo(VIEW_MOUNTS)
-	else
-		addon.Tabs.Characters:ViewRecipes(skillName)
-	end
+	addon.Tabs.Characters:SetCurrent(charName, realm, account)
+	addon.Tabs.Characters:ViewRecipes(skillName)
 end
 
 local skillColors = { RECIPE_GREY, RED, ORANGE, YELLOW, GREEN }
 
 function ns:GetColor(rank, skillCap)
-	skillCap = skillCap or 450
+	skillCap = skillCap or SKILL_CAP
 	return skillColors[ floor(rank / (skillCap/4)) + 1 ]
 end

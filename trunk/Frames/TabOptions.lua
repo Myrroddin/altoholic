@@ -3,6 +3,13 @@ local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
+local addonList = {
+	"Altoholic",
+	"Altoholic_Characters",
+	"Altoholic_Search",
+	"Altoholic_Achievements",
+}
+
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
 local TEAL		= "|cFF00FF9A"
@@ -120,56 +127,20 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
-	{	name = "3.3.002b Changes",
+	{	name = "4.0.001 Changes",
 		bulletedList = {
-			"Fixed linking items/quests/etc.. to chat.",
-			"Several minor bugfixes.",
-		},
-	},
-	{	name = "3.3.002 Changes",
-		bulletedList = {
-			"Added an information tooltip when mousing over the number of mails in the Activity pane.",
-			"Search is now cancelled if there is no value in the search edit box, except if you're using the categories in the search tab.",
-			"Reworked item filtering during searches. All types of searches now use the same code path. Also fixed a few filters that were not working properly.",
-			"Changed the location drop down in the Summary tab, you can now select more combinations of realms/accounts.",
-			"Added an option to clamp the addon's window to the screen.",
-			"Fixed skill tooltip displaying 'no data' when mousing over skinning or herbalism.",
-			"The achievement UI is now a module on its own and is loaded-on-demand. This slightly decreases resource usage if you don't use that part of the UI.",
-			"You can now fully disable DataStore_Achievements and Altoholic_Achievements if you do not wish to track achievements at all.",
-			"Winter code cleanup is almost over, almost everything has been reviewed. Next reviews: Calendar & Account Sharing (too big/touchy to review in this pass).",
-		},
-	},
-	{	name = "3.3.001d Changes",
-		bulletedList = {
-			"Fixed several issues with the guild bank tab: deleting a guild, guilds that still appeared in the drop down, etc..",
-			"Improved the source's description when searching for items located in the guild bank.",
-			"Fixed an error when changing alt in the 'Characters' tab.",
-		},
-	},
-	{	name = "3.3.001c Changes",
-		bulletedList = {
-			"Added back 'text' field in LDB (conditional, for Broker2FuBar)",
-			"Fixed LinkWrangler hook.",
-			"Added support for faction specific achievements. They are now displayed on the same line if a given realm contains characters of the two factions. This used to be a bug/limitation of the system in earlier versions.",
-			"Guild bank counters from other realms are no longer displayed in the tooltip.",
-			"Fixed a Lua error in the 'Guild Skills' pane.",
-			"Added Offline Members to the 'Guild Members' pane. The AiL of an offline member can still be clicked, and if a players' equipment has been checked earlier, it will be displayed.",
-			"Fixed a few Lua errors.",
-			"Added an option to show/hide pets already known/could be learned by xx. (Thanks bsmorgan !)",
-			"Pets/mounts can now be shift-clicked and linked.",
-			"Expiries that are supposed to be shown in a dialog box will now be printed to the chat frame instead if player is in combat.",
-			"Changed dependencies in the .toc file, to help the Curse Client with DataStore & its modules.",
-			"Updated the recipe DB.",
-			"Updated loot tables (ICC).",
-		},
-	},
-	{	name = "3.3.001b Changes - The 'Two Year Anniversary Edition'",
-		bulletedList = {
-			"Fixed a Lua error in DataStore_Auctions.",
-			"Fixed missing currencies count to the tooltip.",
-			"Added a sorted list of achievements in the category 'Dungeons & Raids'.",
-			"Fixed a tooltip bug where only one of two guilds with the same name would be listed.",
-			"Added The Ashen Verdict faction.",
+			"The format of most DataStore databases has been reviewed in order to decrease memory consumption, as well as the amount of data to transfer during the account sharing process. As an example, I'm now at 2.6 Mb for 12 chars, down from 4.2Mb.",
+			"DataStore_Skills is gone.",
+			"Altoholic is now divided in 4 directories/addons, one for each tab, although 'Summary' and 'Guild bank' do not have their own directory yet (it will happen soon enough). Each tab is LoD.",
+			"Altoholic no longer has all the DataStore modules as dependencies. Only the main DataStore module and DataStore_Characters are mandatory. Note that the code to fully support disabled modules IS NOT fully implemented yet.",
+			"A lot of bugs that arose after an account sharing have been fixed. Unfortunately, I couldn't test this entirely on the beta realms, so a few may still be there.",
+			"Skills pane: The column related to the riding skill has been replaced by archaeology.",
+			"Guild skill pane: gone. This information is provided by the genuine guild UI.",
+			"Characters tab: The availability of data is now checked prior to enabling the icons. If a character has not visited the AH or his mailbox, or if specific info hasn't been shared, the icon will be greyed out.",
+			"Achievement lists have been updated.",
+			"The talent trees are working, but have a minor display issue (a 'cut' branch/arrow). This won't be fixed since it does not prevent the addon from running properly, and I'm about to modify this pane to add additional features anyway.",
+			"The glyph UI has been updated to show Prime glyphs. The list of glyphs added to the game's UI is not in Altoholic yet, but I plan to add that soon.",
+			"Currencies UI is also ok, but currencies count in the tooltip is temporarily disabled.",
 		},
 	},
 	{	name = "Earlier changes",
@@ -179,9 +150,23 @@ local whatsnew = {
 	},
 }
 
-Altoholic.Options = {}
+function addon:GetOption(name)
+	if addon.db and addon.db.global then
+		return addon.db.global.options[name]
+	end
+end
 
-function Altoholic.Options:Init()
+function addon:SetOption(name, value)
+	if addon.db and addon.db.global then 
+		addon.db.global.options[name] = value
+	end
+end
+
+function addon:ToggleOption(frame, option)
+	addon:SetOption(option, (frame:GetChecked()) and 1 or 0)
+end
+
+function addon:SetupOptions()
 	-- create categories in Blizzard's options panel
 	
 	DataStore:AddOptionCategory(AltoholicGeneralOptions, addonName)
@@ -189,6 +174,7 @@ function Altoholic.Options:Init()
 	DataStore:AddOptionCategory(AltoholicHelp, HELP_LABEL, addonName)
 	DataStore:AddOptionCategory(AltoholicSupport, "Getting support", addonName)
 	DataStore:AddOptionCategory(AltoholicWhatsNew, "What's new?", addonName)
+	DataStore:AddOptionCategory(AltoholicMemoryOptions, L["Memory used"], addonName)
 	DataStore:AddOptionCategory(AltoholicSearchOptions, SEARCH, addonName)
 	DataStore:AddOptionCategory(AltoholicMailOptions, MAIL_LABEL, addonName)
 	DataStore:AddOptionCategory(AltoholicAccountSharingOptions, L["Account Sharing"], addonName)
@@ -244,6 +230,17 @@ function Altoholic.Options:Init()
 	AltoholicGeneralOptions_SliderAlphaLow:SetText("0.1");
 	AltoholicGeneralOptions_SliderAlphaHigh:SetText("1.0"); 
 	AltoholicGeneralOptions_SliderAlphaText:SetText(format("%s (%1.2f)", L["Transparency"], value));
+	
+	-- ** Memory **
+	AltoholicMemoryOptions_AddonsText:SetText(ORANGE..ADDONS)
+	local list = ""
+	for index, module in ipairs(addonList) do
+		list = format("%s%s:\n", list, module)
+	end
+
+	list = format("%s\n%s", list, format("%s:", L["Memory used"]))
+	
+	AltoholicMemoryOptions_AddonsList:SetText(list)
 	
 	-- ** Search **
 	AltoholicSearchOptions_SearchAutoQueryText:SetText(L["AutoQuery server |cFFFF0000(disconnection risk)"])
@@ -352,7 +349,7 @@ function Altoholic.Options:Init()
 	UIDropDownMenu_SetText(AltoholicCalendarOptions_WarningType4, "Item Timers")
 end
 
-function Altoholic.Options:RestoreToUI()
+function addon:RestoreOptionsToUI()
 	local O = Altoholic.db.global.options
 	
 	AltoholicGeneralOptions_RestXPMode:SetChecked(O.RestXPMode)
@@ -406,7 +403,7 @@ function Altoholic.Options:RestoreToUI()
 	AltoholicCalendarOptionsDisableWarnings:SetChecked(O.DisableWarnings)
 end
 
-function Altoholic:UpdateMinimapIconCoords()
+function addon:UpdateMinimapIconCoords()
 	-- Thanks to Atlas for this code, modified to fit this addon's requirements though
 	local xPos, yPos = GetCursorPosition() 
 	local left, bottom = Minimap:GetLeft(), Minimap:GetBottom() 
@@ -414,41 +411,24 @@ function Altoholic:UpdateMinimapIconCoords()
 	xPos = left - xPos/UIParent:GetScale() + 70 
 	yPos = yPos/UIParent:GetScale() - bottom - 70 
 
-	local O = self.db.global.options
-	O.MinimapIconAngle = math.deg(math.atan2(yPos, xPos))
-
-	if(O.MinimapIconAngle < 0) then
-		O.MinimapIconAngle = O.MinimapIconAngle + 360
+	local iconAngle = math.deg(math.atan2(yPos, xPos))
+	if(iconAngle < 0) then
+		iconAngle = iconAngle + 360
 	end
-	AltoholicGeneralOptions_SliderAngle:SetValue(O.MinimapIconAngle)
-end
-
-function Altoholic:MoveMinimapIcon()
-	local O = self.db.global.options
 	
-	AltoholicMinimapButton:SetPoint(	"TOPLEFT", "Minimap", "TOPLEFT",
-		54 - (O.MinimapIconRadius * cos(O.MinimapIconAngle)),
-		(O.MinimapIconRadius * sin(O.MinimapIconAngle)) - 55	);
+	addon:SetOption("MinimapIconAngle", iconAngle)
+	AltoholicGeneralOptions_SliderAngle:SetValue(iconAngle)
 end
 
-function Altoholic.Options:Get(name)
-	if addon.db and addon.db.global then
-		return addon.db.global.options[name]
-	end
+function addon:MoveMinimapIcon()
+	local radius = addon:GetOption("MinimapIconRadius")
+	local angle = addon:GetOption("MinimapIconAngle")
+	
+	AltoholicMinimapButton:SetPoint( "TOPLEFT", "Minimap", "TOPLEFT", 54 - (radius * cos(angle)), (radius * sin(angle)) - 55 );
 end
 
-function Altoholic.Options:Set(name, value)
-	if addon.db and addon.db.global then 
-		addon.db.global.options[name] = value
-	end
-end
-
-function Altoholic.Options:Toggle(self, option)
-	if self:GetChecked() then 
-		Altoholic.Options:Set(option, 1)
-	else
-		Altoholic.Options:Set(option, 0)
-	end
+function addon:UpdateMyMemoryUsage()
+	DataStore:UpdateMemoryUsage(addonList, AltoholicMemoryOptions, format("%s:", L["Memory used"]))
 end
 
 local function ResizeScrollFrame(frame, width, height)
@@ -472,7 +452,7 @@ local OptionsPanelWidth, OptionsPanelHeight
 local lastOptionsPanelWidth = 0
 local lastOptionsPanelHeight = 0
 
-function Altoholic.Options:OnUpdate(self, mandatoryResize)
+function addon:OnUpdate(self, mandatoryResize)
 	OptionsPanelWidth = InterfaceOptionsFramePanelContainer:GetWidth()
 	OptionsPanelHeight = InterfaceOptionsFramePanelContainer:GetHeight()
 	

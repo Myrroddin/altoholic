@@ -98,37 +98,45 @@ function ns:Update()
 					_G[entry..i.."NameNormalText"]:SetWidth(170)
 					_G[entry..i.."NameNormalText"]:SetText(icon .. format("%s (%s)", DS:GetColoredCharacterName(character), DS:GetCharacterClass(character)))
 					_G[entry..i.."Level"]:SetText(GREEN .. DS:GetCharacterLevel(character))
-				
-					_G[entry..i.."FreeBags"]:SetText(GREEN .. DS:GetNumFreeBagSlots(character))
-					_G[entry..i.."FreeBank"]:SetText(GREEN .. DS:GetNumFreeBankSlots(character))
-
 					_G[entry..i.."BagSlotsNormalText"]:SetJustifyH("LEFT")
 					_G[entry..i.."BankSlotsNormalText"]:SetJustifyH("LEFT")
 					
-					-- Normal bags
-					_G[entry..i.."BagSlotsNormalText"]:SetText(format("%s/%s|r/%s|r/%s|r/%s |r(%s|r)",
-						DS:GetContainerSize(character, 0),
-						WHITE .. DS:GetContainerSize(character, 1),
-						WHITE .. DS:GetContainerSize(character, 2),
-						WHITE .. DS:GetContainerSize(character, 3),
-						WHITE .. DS:GetContainerSize(character, 4),
-						CYAN .. DS:GetNumBagSlots(character)))
-					
-					-- Bank bags
-					if DS:GetNumBankSlots(character) < 28 then
-						_G[entry..i.."BankSlotsNormalText"]:SetText(L["Bank not visited yet"])
+					local last = DataStore:GetModuleLastUpdateByKey("DataStore_Containers", character)
+					if last then
+						_G[entry..i.."FreeBags"]:SetText(GREEN .. DS:GetNumFreeBagSlots(character))
+						_G[entry..i.."FreeBank"]:SetText(GREEN .. DS:GetNumFreeBankSlots(character))
+
+						-- Normal bags
+						_G[entry..i.."BagSlotsNormalText"]:SetText(format("%s/%s|r/%s|r/%s|r/%s |r(%s|r)",
+							DS:GetContainerSize(character, 0),
+							WHITE .. DS:GetContainerSize(character, 1),
+							WHITE .. DS:GetContainerSize(character, 2),
+							WHITE .. DS:GetContainerSize(character, 3),
+							WHITE .. DS:GetContainerSize(character, 4),
+							CYAN .. DS:GetNumBagSlots(character)))
+						
+						-- Bank bags
+						if DS:GetNumBankSlots(character) < 28 then
+							_G[entry..i.."BankSlotsNormalText"]:SetText(L["Bank not visited yet"])
+						else
+							_G[entry..i.."BankSlotsNormalText"]:SetText(format("%s/%s|r/%s|r/%s|r/%s|r/%s|r/%s|r/%s |r(%s|r)",
+								DS:GetContainerSize(character, 100),
+								WHITE .. DS:GetContainerSize(character, 5),
+								WHITE .. DS:GetContainerSize(character, 6),
+								WHITE .. DS:GetContainerSize(character, 7),
+								WHITE .. DS:GetContainerSize(character, 8),
+								WHITE .. DS:GetContainerSize(character, 9),
+								WHITE .. DS:GetContainerSize(character, 10),
+								WHITE .. DS:GetContainerSize(character, 11),
+								CYAN .. DS:GetNumBankSlots(character)))
+						end
 					else
-						_G[entry..i.."BankSlotsNormalText"]:SetText(format("%s/%s|r/%s|r/%s|r/%s|r/%s|r/%s|r/%s |r(%s|r)",
-							DS:GetContainerSize(character, 100),
-							WHITE .. DS:GetContainerSize(character, 5),
-							WHITE .. DS:GetContainerSize(character, 6),
-							WHITE .. DS:GetContainerSize(character, 7),
-							WHITE .. DS:GetContainerSize(character, 8),
-							WHITE .. DS:GetContainerSize(character, 9),
-							WHITE .. DS:GetContainerSize(character, 10),
-							WHITE .. DS:GetContainerSize(character, 11),
-							CYAN .. DS:GetNumBankSlots(character)))
+						_G[entry..i.."FreeBags"]:SetText(GREEN .. 0)
+						_G[entry..i.."FreeBank"]:SetText(GREEN .. 0)
+						_G[entry..i.."BagSlotsNormalText"]:SetText(UNKNOWN)
+						_G[entry..i.."BankSlotsNormalText"]:SetText(UNKNOWN)
 					end
+
 				elseif (lineType == INFO_TOTAL_LINE) then
 					_G[entry..i.."Collapse"]:Hide()
 					_G[entry..i.."Name"]:SetWidth(200)
@@ -179,6 +187,10 @@ function ns:OnEnter(self)
 	local c = addon:GetCharacterTableByLine(line)
 	local DS = DataStore
 	local character = DS:GetCharacter(Characters:GetInfo(line))
+	
+	if not DataStore:GetModuleLastUpdateByKey("DataStore_Containers", character) then
+		return
+	end
 	
 	AltoTooltip:ClearLines();
 	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");

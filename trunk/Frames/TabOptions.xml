@@ -40,7 +40,7 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "RestXPMode")
+						Altoholic:ToggleOption(self, "RestXPMode")
 						Altoholic.Summary:Update()
 					</OnClick>
 				</Scripts>
@@ -59,9 +59,9 @@
 				<Scripts>
 					<OnClick>
 						if self:GetChecked() then 
-							Altoholic.Options:Set("GuildBankAutoUpdate", 1)
+							Altoholic:SetOption("GuildBankAutoUpdate", 1)
 						else
-							Altoholic.Options:Set("GuildBankAutoUpdate", 0)
+							Altoholic:SetOption("GuildBankAutoUpdate", 0)
 						end
 					</OnClick>
 					<OnEnter>
@@ -87,9 +87,9 @@
 					<OnClick>
 						AltoholicFrame:SetClampedToScreen(self:GetChecked())
 						if self:GetChecked() then 
-							Altoholic.Options:Set("ClampWindowToScreen", 1)
+							Altoholic:SetOption("ClampWindowToScreen", 1)
 						else
-							Altoholic.Options:Set("ClampWindowToScreen", 0)
+							Altoholic:SetOption("ClampWindowToScreen", 0)
 						end
 					</OnClick>
 					<OnEnter>
@@ -115,10 +115,10 @@
 				<Scripts>
 					<OnClick>
 						if self:GetChecked() then 
-							Altoholic.Options:Set("ShowMinimap", 1)
+							Altoholic:SetOption("ShowMinimap", 1)
 							AltoholicMinimapButton:Show()
 						else
-							Altoholic.Options:Set("ShowMinimap", 0)
+							Altoholic:SetOption("ShowMinimap", 0)
 							AltoholicMinimapButton:Hide()
 						end
 					</OnClick>
@@ -202,7 +202,7 @@
 						_G[name .. "_SliderScale"]:SetValue(1.0)
 						_G[name .. "_SliderScaleText"]:SetText(format("%s (%1.1f)", UI_SCALE, 1.0));
 						AltoholicFrame:SetScale(1.0)
-						Altoholic.Options:Set("UIScale", 1.0)
+						Altoholic:SetOption("UIScale", 1.0)
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -222,7 +222,7 @@
 						local name = self:GetParent():GetName()
 						local value = _G[name .. "_SliderScale"]:GetValue()
 						AltoholicFrame:SetScale(value)
-						Altoholic.Options:Set("UIScale", value)
+						Altoholic:SetOption("UIScale", value)
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -244,7 +244,7 @@
 						local value = self:GetValue()
 						_G[self:GetName() .. "Text"]:SetText(format("%s (%1.2f)", L["Transparency"], value));
 						AltoholicFrame:SetAlpha(value)
-						Altoholic.Options:Set("UITransparency", value)
+						Altoholic:SetOption("UITransparency", value)
 					</OnValueChanged>
 				</Scripts>
 			</Slider>
@@ -281,7 +281,7 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "SearchAutoQuery")
+						Altoholic:ToggleOption(self, "SearchAutoQuery")
 					</OnClick>
 					<OnEnter>
 						Altoholic:ShowWidgetTooltip(self)
@@ -304,7 +304,7 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "SortDescending")
+						Altoholic:ToggleOption(self, "SortDescending")
 					</OnClick>
 				</Scripts>
 			</CheckButton>
@@ -321,7 +321,7 @@
 				</Anchors>      
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "IncludeNoMinLevel")
+						Altoholic:ToggleOption(self, "IncludeNoMinLevel")
 					</OnClick>
 				</Scripts>
 			</CheckButton>
@@ -338,7 +338,7 @@
 				</Anchors>      
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "IncludeMailbox")
+						Altoholic:ToggleOption(self, "IncludeMailbox")
 					</OnClick>
 				</Scripts>
 			</CheckButton>
@@ -355,7 +355,7 @@
 				</Anchors>      
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "IncludeGuildBank")
+						Altoholic:ToggleOption(self, "IncludeGuildBank")
 					</OnClick>
 				</Scripts>
 			</CheckButton>
@@ -372,7 +372,7 @@
 				</Anchors>      
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "IncludeRecipes")
+						Altoholic:ToggleOption(self, "IncludeRecipes")
 					</OnClick>
 				</Scripts>
 			</CheckButton>
@@ -389,7 +389,7 @@
 				</Anchors>      
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "IncludeGuildSkills")
+						Altoholic:ToggleOption(self, "IncludeGuildSkills")
 					</OnClick>
 				</Scripts>
 			</CheckButton>
@@ -414,7 +414,7 @@
 				</Anchors>      
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "GuildMailWarning")
+						Altoholic:ToggleOption(self, "GuildMailWarning")
 					</OnClick>
 					<OnEnter>
 						Altoholic:ShowWidgetTooltip(self)
@@ -437,7 +437,7 @@
 				</Anchors>      
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "NameAutoComplete")
+						Altoholic:ToggleOption(self, "NameAutoComplete")
 					</OnClick>
 				</Scripts>
 			</CheckButton>
@@ -462,7 +462,7 @@
 				</Anchors>      
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "TooltipSource")
+						Altoholic:ToggleOption(self, "TooltipSource")
 					</OnClick>
 				</Scripts>
 			</CheckButton>
@@ -479,7 +479,7 @@
 				</Anchors>      
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "TooltipCount")
+						Altoholic:ToggleOption(self, "TooltipCount")
 					</OnClick>
 				</Scripts>
 			</CheckButton>
@@ -496,7 +496,7 @@
 				</Anchors>      
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "TooltipTotal")
+						Altoholic:ToggleOption(self, "TooltipTotal")
 					</OnClick>
 				</Scripts>
 			</CheckButton>
@@ -513,7 +513,7 @@
 				</Anchors>      
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "TooltipRecipeInfo")
+						Altoholic:ToggleOption(self, "TooltipRecipeInfo")
 					</OnClick>
 				</Scripts>
 			</CheckButton>
@@ -530,7 +530,7 @@
 				</Anchors>      
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "TooltipPetInfo")
+						Altoholic:ToggleOption(self, "TooltipPetInfo")
 					</OnClick>
 				</Scripts>
 			</CheckButton>
@@ -547,7 +547,7 @@
 				</Anchors>      
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "TooltipItemID")
+						Altoholic:ToggleOption(self, "TooltipItemID")
 					</OnClick>
 				</Scripts>
 			</CheckButton>
@@ -564,7 +564,7 @@
 				</Anchors>      
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "TooltipGatheringNode")
+						Altoholic:ToggleOption(self, "TooltipGatheringNode")
 					</OnClick>
 				</Scripts>
 			</CheckButton>
@@ -581,7 +581,7 @@
 				</Anchors>      
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "TooltipCrossFaction")
+						Altoholic:ToggleOption(self, "TooltipCrossFaction")
 					</OnClick>
 				</Scripts>
 			</CheckButton>
@@ -598,7 +598,7 @@
 				</Anchors>      
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "TooltipMultiAccount")
+						Altoholic:ToggleOption(self, "TooltipMultiAccount")
 					</OnClick>
 				</Scripts>
 			</CheckButton>
@@ -615,7 +615,7 @@
 				</Anchors>      
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "TooltipGuildBank")
+						Altoholic:ToggleOption(self, "TooltipGuildBank")
 					</OnClick>
 				</Scripts>
 			</CheckButton>
@@ -632,7 +632,7 @@
 				</Anchors>      
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "TooltipGuildBankCount")
+						Altoholic:ToggleOption(self, "TooltipGuildBankCount")
 					</OnClick>
 				</Scripts>
 			</CheckButton>
@@ -649,7 +649,7 @@
 				</Anchors>      
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "TooltipGuildBankCountPerTab")
+						Altoholic:ToggleOption(self, "TooltipGuildBankCountPerTab")
 					</OnClick>
 				</Scripts>
 			</CheckButton>
@@ -740,10 +740,10 @@
 				<Scripts>
 					<OnClick>
 						if self:GetChecked() then 
-							Altoholic.Options:Set("AccSharingHandlerEnabled", 1)
+							Altoholic:SetOption("AccSharingHandlerEnabled", 1)
 							Altoholic.Comm.Sharing:SetMessageHandler("ActiveHandler")
 						else
-							Altoholic.Options:Set("AccSharingHandlerEnabled", 0)
+							Altoholic:SetOption("AccSharingHandlerEnabled", 0)
 							Altoholic.Comm.Sharing:SetMessageHandler("EmptyHandler")
 						end
 					</OnClick>
@@ -957,7 +957,7 @@
 				</Anchors>      
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "WeekStartsMonday")
+						Altoholic:ToggleOption(self, "WeekStartsMonday")
 						if self:GetChecked() then 
 							Altoholic.Calendar:SetFirstDayOfWeek(2)
 						else
@@ -980,7 +980,7 @@
 				</Anchors>      
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "WarningDialogBox")
+						Altoholic:ToggleOption(self, "WarningDialogBox")
 					</OnClick>
 				</Scripts>
 			</CheckButton>
@@ -997,7 +997,7 @@
 				</Anchors>      
 				<Scripts>
 					<OnClick>
-						Altoholic.Options:Toggle(self, "DisableWarnings")
+						Altoholic:ToggleOption(self, "DisableWarnings")
 					</OnClick>
 				</Scripts>
 			</CheckButton>
@@ -1046,10 +1046,10 @@
 		</Size>
 		<Scripts>
 			<OnUpdate>
-				Altoholic.Options:OnUpdate(self)
+				Altoholic:OnUpdate(self)
 			</OnUpdate>
 			<OnShow>
-				Altoholic.Options:OnUpdate(self, true)
+				Altoholic:OnUpdate(self, true)
 			</OnShow>
 		</Scripts>
 		<Frames>
@@ -1104,10 +1104,10 @@
 		</Size>
 		<Scripts>
 			<OnUpdate>
-				Altoholic.Options:OnUpdate(self)
+				Altoholic:OnUpdate(self)
 			</OnUpdate>
 			<OnShow>
-				Altoholic.Options:OnUpdate(self, true)
+				Altoholic:OnUpdate(self, true)
 			</OnShow>
 		</Scripts>
 		<Frames>
@@ -1162,10 +1162,10 @@
 		</Size>
 		<Scripts>
 			<OnUpdate>
-				Altoholic.Options:OnUpdate(self)
+				Altoholic:OnUpdate(self)
 			</OnUpdate>
 			<OnShow>
-				Altoholic.Options:OnUpdate(self, true)
+				Altoholic:OnUpdate(self, true)
 			</OnShow>
 		</Scripts>
 		<Frames>
@@ -1213,5 +1213,56 @@
 			</ScrollFrame>
 		</Frames>
 	</Frame>	
+	
+	<Frame name="AltoholicMemoryOptions" hidden="true">
+		<Size>
+			<AbsDimension x="615" y="306"/>
+		</Size>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString name="$parent_AddonsText" inherits="GameFontNormal" justifyH="LEFT">
+					<Size>
+						<AbsDimension x="60" y="20"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="20" y="-40"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parent_AddonsList" inherits="GameFontNormal" justifyH="LEFT" justifyV="TOP">
+					<Size>
+						<AbsDimension x="220" y="240"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent_AddonsText" relativePoint="BOTTOMLEFT">
+							<Offset>
+								<AbsDimension x="20" y="-20"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parent_AddonsMem" inherits="GameFontNormal" justifyH="RIGHT" justifyV="TOP">
+					<Size>
+						<AbsDimension x="60" y="240"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent_AddonsList" relativePoint="TOPRIGHT">
+							<Offset>
+								<AbsDimension x="20" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnShow>
+				Altoholic:UpdateMyMemoryUsage()
+			</OnShow>
+		</Scripts>
+	</Frame>
 	
 </Ui>
