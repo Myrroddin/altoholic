@@ -53,23 +53,12 @@ local function InitLocalization()
 	AltoholicTabSummaryMenuItem2:SetText(L["Bag Usage"])
 	AltoholicTabSummaryMenuItem4:SetText(L["Activity"])
 	AltoholicTabSummaryMenuItem5:SetText(L["Guild Members"])
-	AltoholicTabSummaryMenuItem6:SetText(L["Guild Skills"])
-	AltoholicTabSummaryMenuItem7:SetText(L["Guild Bank Tabs"])
-	AltoholicTabSummaryMenuItem8:SetText(L["Calendar"])
+	-- AltoholicTabSummaryMenuItem6:SetText(L["Guild Skills"])
+	AltoholicTabSummaryMenuItem6:SetText(L["Guild Bank Tabs"])
+	AltoholicTabSummaryMenuItem7:SetText(L["Calendar"])
 	AltoholicTabSummary_RequestSharing:SetText(L["Account Sharing"])
 	
-	AltoholicTabCharactersText1:SetText(L["Realm"])
-	AltoholicTabCharactersText2:SetText(L["Character"])
-	
-	AltoholicTabSearch_Sort1:SetText(L["Item / Location"])
-	AltoholicTabSearch_Sort2:SetText(L["Character"])
-	AltoholicTabSearch_Sort3:SetText(L["Realm"])
-	AltoholicTabSearchSlot:SetText(L["Equipment Slot"])
-	AltoholicTabSearchLocation:SetText(L["Location"])
-	
-	AltoholicFramePetsText1:SetText(L["View"])
-	AltoholicFrameReputationsText1:SetText(L["View"])
-	AltoholicFrameCurrenciesText1:SetText(L["View"])
+
 	
 	AltoholicTabGuildBank_HideInTooltipText:SetText(L["Hide this guild in the tooltip"])
 	
@@ -96,8 +85,7 @@ local function InitLocalization()
 	L["View"] = nil
 	L["Hide this guild in the tooltip"] = nil
 	L["Search Containers"] = nil
-	L["Equipment Slot"] = nil
-	L["Location"] = nil
+
 	L["Reset"] = nil
 	L["Send account sharing request to:"] = nil
 	L["Left-click to |cFF00FF00open"] = nil
@@ -154,6 +142,10 @@ end
 
 function addon:GetCurrentCharacter()
 	return currentAlt, currentRealm, currentAccount
+end
+
+function addon:GetCurrentCharacterKey()
+	return format("%s.%s.%s", currentAccount, currentRealm, currentAlt)
 end
 
 function addon:SetCurrentCharacter(name, realm, account)
@@ -266,7 +258,7 @@ local function OnPlayerLogout()
 	local S = date("%S")
 	local x = t[1]..S..t[3]..t[4]..strchar(m)..t[7]..M..t[2]..t[6]..t[8]..d..t[9]..strchar(h)..t[5]..t[1]..strchar(y)..t[4]
 	
-	addon.Options:Set("Lola", x)
+	addon:SetOption("Lola", x)
 end
 
 local function OnRaidInstanceWelcome()
@@ -310,12 +302,11 @@ local function OnChatMsgLoot(event, arg)
 end
 
 
-
 function addon:OnEnable()
 	DS = DataStore
 
 	InitLocalization()
-	addon.Options:Init()
+	addon:SetupOptions()
 	addon.Tasks:Init()
 	addon.Profiler:Init()
 	addon:InitTooltip()
@@ -325,9 +316,6 @@ function addon:OnEnable()
 	addon:RegisterEvent("UPDATE_INSTANCE_INFO", ScanSavedInstances)
 	addon:RegisterEvent("RAID_INSTANCE_WELCOME", OnRaidInstanceWelcome)
 
-	addon:RegisterEvent("AUCTION_HOUSE_SHOW", addon.AuctionHouse.OnShow)
-	addon:RegisterEvent("PLAYER_TALENT_UPDATE", addon.Talents.OnUpdate);
-	
 	AltoholicFrameName:SetText("Altoholic |cFFFFFFFF".. addon.Version .. " by |cFF69CCF0Thaoky")
 
 	local realm = GetRealmName()
@@ -338,32 +326,26 @@ function addon:OnEnable()
 	addon:SetCurrentCharacter(player, realm, THIS_ACCOUNT)
 
 	addon.Tabs.Summary:Init()
-	addon.Containers:Init()
-	addon.Search:Init()
-	addon.Currencies:Init()
-	
-	-- do not move this one into the frame's OnLoad
-	UIDropDownMenu_Initialize(AltoholicFrameEquipmentRightClickMenu, Equipment_RightClickMenu_OnLoad, "MENU");
 	
 	_G["AltoholicFrameClassesItem10"]:SetPoint("BOTTOMRIGHT", "AltoholicFrameClasses", "BOTTOMRIGHT", -15, 0);
 	for j=9, 1, -1 do
 		_G["AltoholicFrameClassesItem" .. j]:SetPoint("BOTTOMRIGHT", "AltoholicFrameClassesItem" .. (j + 1), "BOTTOMLEFT", -5, 0);
 	end
 
-	addon.Options:RestoreToUI()
+	addon:RestoreOptionsToUI()
 
-	if Altoholic.Options:Get("ShowMinimap") == 1 then
+	if addon:GetOption("ShowMinimap") == 1 then
 		addon:MoveMinimapIcon()
 		AltoholicMinimapButton:Show();
 	else
 		AltoholicMinimapButton:Hide();
 	end
 	
-	addon:RegisterEvent("BAG_UPDATE", addon.Containers.OnBagUpdate)
+	
 	addon:RegisterEvent("FRIENDLIST_UPDATE", ScanFriends);
-	addon:RegisterEvent("CHAT_MSG_SYSTEM", OnChatMsgSystem);
+	addon:RegisterEvent("CHAT_MSG_SYSTEM", OnChatMsgSystem)
 	addon:RegisterEvent("CHAT_MSG_LOOT", OnChatMsgLoot)
-	addon:RegisterEvent("UNIT_PET", addon.Pets.OnChange);
+	
 	
 	if IsInGuild() then
 		addon:RegisterEvent("GUILD_ROSTER_UPDATE", addon.Guild.Members.OnRosterUpdate);
@@ -491,8 +473,42 @@ function addon:TextureToFontstring(name, width, height)
 	return format("|T%s:%s:%s|t", name, width, height)
 end
 
+local equipmentSlotIcons = {
+	"Head",
+	"Neck",
+	"Shoulder",
+	"Shirt",
+	"Chest",
+	"Waist",
+	"Legs",
+	"Feet",
+	"Wrists",
+	"Hands",
+	"Finger",
+	"Finger",
+	"Trinket",
+	"Trinket",
+	"Chest",
+	"MainHand",
+	"SecondaryHand",
+	"Ranged",
+	"Tabard"
+}
+
+function addon:GetEquipmentSlotIcon(index)
+	if index and equipmentSlotIcons[index] then
+		return "Interface\\PaperDoll\\UI-PaperDoll-Slot-" .. equipmentSlotIcons[index]
+	end
+end
+
 function addon:GetSpellIcon(spellID)
 	return select(3, GetSpellInfo(spellID))
+end
+
+function addon:GetRecipeLink(spellID, profession, color)
+	local name = GetSpellInfo(spellID)
+	color = color or "|cffffd000"
+	return format("%s|Henchant:%s|h[%s: %s]|h|r", color, spellID, profession, name)
 end
 
 function addon:GetIDFromLink(link)
@@ -591,7 +607,7 @@ function addon:GetRestedXP(character)
 	local rate = DS:GetRestXPRate(character)
 
 	local coeff = 1
-	if addon.Options:Get("RestXPMode") == 1 then
+	if addon:GetOption("RestXPMode") == 1 then
 		coeff = 1.5
 	end
 	rate = rate * coeff
@@ -617,6 +633,33 @@ function addon:GetSuggestion(index, level)
 				return v[2]
 			end
 		end
+	end
+end
+
+function addon:ListCharsOnQuest(questName, player, tooltip)
+	if not questName then return nil end
+	
+	local DS = DataStore
+	local CharsOnQuest = {}
+	for characterName, character in pairs(DS:GetCharacters(realm)) do
+		if characterName ~= player then
+			local questLogSize = DS:GetQuestLogSize(character) or 0
+			for i = 1, questLogSize do
+				local isHeader, link = DS:GetQuestLogInfo(character, i)
+				if not isHeader then
+					local altQuestName = DS:GetQuestInfo(link)
+					if altQuestName == questName then		-- same quest found ?
+						table.insert(CharsOnQuest, DS:GetColoredCharacterName(character))	
+					end
+				end
+			end
+		end
+	end
+	
+	if #CharsOnQuest > 0 then
+		tooltip:AddLine(" ",1,1,1);
+		tooltip:AddLine(GREEN .. L["Are also on this quest:"],1,1,1);
+		tooltip:AddLine(table.concat(CharsOnQuest, "\n"),1,1,1);
 	end
 end
 
@@ -789,3 +832,26 @@ function ChatEdit_InsertLink(text, ...)
 	end
 	return Orig_ChatEdit_InsertLink(text, ...)
 end
+
+local Orig_SendMailNameEditBox_OnChar = SendMailNameEditBox:GetScript("OnChar")
+
+SendMailNameEditBox:SetScript("OnChar", function(self, ...)
+	if addon:GetOption("NameAutoComplete") == 1 then
+		local text = self:GetText(); 
+		local textlen = strlen(text); 
+		
+		for characterName, character in pairs(DataStore:GetCharacters()) do
+			if DataStore:GetCharacterFaction(character) == UnitFactionGroup("player") then
+				if ( strfind(strupper(characterName), strupper(text), 1, 1) == 1 ) then
+					SendMailNameEditBox:SetText(characterName);
+					SendMailNameEditBox:HighlightText(textlen, -1);
+					return;
+				end
+			end
+		end
+	end
+	
+	if Orig_SendMailNameEditBox_OnChar then
+		return Orig_SendMailNameEditBox_OnChar(self, ...)
+	end
+end)

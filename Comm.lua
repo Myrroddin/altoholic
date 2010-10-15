@@ -488,7 +488,7 @@ end
 
 -- *** DataStore Event Handlers ***
 function addon:DATASTORE_BANKTAB_REQUESTED(event, sender, tabName)
-	if addon.Options:Get("GuildBankAutoUpdate") == 1 then
+	if addon:GetOption("GuildBankAutoUpdate") == 1 then
 		DataStore:SendBankTabToGuildMember(sender, tabName)
 		return
 	end
@@ -525,7 +525,7 @@ end
 
 function addon:DATASTORE_GUILD_ALTS_RECEIVED(event, sender, alts)
 	addon.Guild.Members:InvalidateView()
-	addon.Guild.Professions:InvalidateView()
+	-- addon.Guild.Professions:InvalidateView()
 end
 
 function addon:DATASTORE_GUILD_BANKTABS_UPDATED(event, sender)
@@ -533,16 +533,42 @@ function addon:DATASTORE_GUILD_BANKTABS_UPDATED(event, sender)
 end
 
 function addon:DATASTORE_GUILD_PROFESSION_RECEIVED(event, sender, alt, data, index)
-	addon.Guild.Professions:InvalidateView()
+	-- addon.Guild.Professions:InvalidateView()
 end
 
 function addon:DATASTORE_GUILD_MEMBER_OFFLINE(event, member)
 	addon.Guild.Members:InvalidateView()
-	addon.Guild.Professions:InvalidateView()
+	-- addon.Guild.Professions:InvalidateView()
 end
 
 function addon:DATASTORE_GUILD_MAIL_RECEIVED(event, sender, recipient)
 	if addon.Options:Get("GuildMailWarning") == 1 then
 		addon:Print(format(L["%s|r has received a mail from %s"], GREEN..recipient, GREEN..sender))
 	end
+end
+
+function addon:DATASTORE_GLOBAL_MAIL_EXPIRY(event, threshold)
+	-- at least one mail has expired
+
+	AltoMsgBox:SetHeight(130)
+	AltoMsgBox_Text:SetHeight(60)
+	addon:SetMsgBoxHandler(function(self, button)
+			if button then
+				addon:ToggleUI()
+				addon.Tabs.Summary:MenuItem_OnClick(4)
+			end
+		end)
+	
+	AltoMsgBox_Text:SetText(format("%sAltoholic: %s%s", TEAL, WHITE, 
+		"\n" .. L["Mail is about to expire on at least one character."] .. "\n" 
+		.. L["Refer to the activity pane for more details."].. "\n\n")
+		.. L["Do you want to view it now ?"])
+	AltoMsgBox:Show()
+end
+
+function addon:DATASTORE_MAIL_EXPIRY(event, character, key, threshold, numExpiredMails)
+	-- if option then
+		-- local _, _, name = strsplit(".", key)
+		-- addon:Print(format("%d mails will expire in less than %d days on %s", numExpiredMails, threshold, name)
+ 	-- end
 end

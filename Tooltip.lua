@@ -163,7 +163,7 @@ end
 local function WriteCounterLines(tooltip)
 	if #counterLines == 0 then return end
 
-	if (addon.Options:Get("TooltipCount") == 1) then			-- add count per character/guild
+	if (addon:GetOption("TooltipCount") == 1) then			-- add count per character/guild
 		tooltip:AddLine(" ",1,1,1);
 		for _, line in ipairs (counterLines) do
 			tooltip:AddDoubleLine(line.owner,  TEAL .. line.info);
@@ -172,7 +172,7 @@ local function WriteCounterLines(tooltip)
 end
 
 local function WriteTotal(tooltip)
-	if (addon.Options:Get("TooltipTotal") == 1) and cachedTotal then
+	if (addon:GetOption("TooltipTotal") == 1) and cachedTotal then
 		tooltip:AddLine(cachedTotal,1,1,1);
 	end
 end
@@ -215,7 +215,7 @@ local function GetAccountItemCount(account, searchedID)
 	local count = 0
 
 	for _, character in pairs(DataStore:GetCharacters(realm, account)) do
-		if addon.Options:Get("TooltipCrossFaction") == 1 then
+		if addon:GetOption("TooltipCrossFaction") == 1 then
 			count = count + GetCharacterItemCount(character, searchedID)
 		else
 			if	DataStore:GetCharacterFaction(character) == UnitFactionGroup("player") then
@@ -231,7 +231,7 @@ local function GetItemCount(searchedID)
 	wipe(counterLines)
 
 	local count = 0
-	if addon.Options:Get("TooltipMultiAccount") == 1 and not addon.Comm.Sharing.SharingInProgress then
+	if addon:GetOption("TooltipMultiAccount") == 1 and not addon.Comm.Sharing.SharingInProgress then
 		for account in pairs(DataStore:GetAccounts()) do
 			count = count + GetAccountItemCount(account, searchedID)
 		end
@@ -239,13 +239,13 @@ local function GetItemCount(searchedID)
 		count = GetAccountItemCount(THIS_ACCOUNT, searchedID)
 	end
 		
-	if addon.Options:Get("TooltipGuildBank") == 1 then
+	if addon:GetOption("TooltipGuildBank") == 1 then
 		for guildName, guildKey in pairs(DataStore:GetGuilds(GetRealmName())) do				-- this realm only
 			local altoGuild = addon:GetGuild(guildName)
 			if not altoGuild or (altoGuild and not altoGuild.hideInTooltip) then
 				local guildCount = 0
 				
-				if addon.Options:Get("TooltipGuildBankCountPerTab") == 1 then
+				if addon:GetOption("TooltipGuildBankCountPerTab") == 1 then
 					local tabCounters = {}
 					
 					for tabID = 1, 6 do 
@@ -266,7 +266,7 @@ local function GetItemCount(searchedID)
 					end
 				end
 					
-				if addon.Options:Get("TooltipGuildBankCount") == 1 then
+				if addon:GetOption("TooltipGuildBankCount") == 1 then
 					count = count + guildCount
 				end
 			end
@@ -316,7 +316,7 @@ local function GetRecipeOwners(professionName, link, recipeLevel)
 			if isKnownByChar then
 				table.insert(know, coloredName)
 			else
-				local currentLevel = DataStore:GetSkillInfo(character, professionName)
+				local currentLevel = DataStore:GetProfessionInfo(DataStore:GetProfession(character, professionName))
 				if currentLevel > 0 then
 					if currentLevel < recipeLevel then
 						table.insert(willLearn, format("%s |r(%d)", coloredName, currentLevel))
@@ -367,7 +367,7 @@ end
 
 local function ShowGatheringNodeCounters()
 	-- exit if player does not want counters for known gathering nodes
-	if addon.Options:Get("TooltipGatheringNode") == 0 then return end
+	if addon:GetOption("TooltipGatheringNode") == 0 then return end
 
 	local itemID = IsGatheringNode( _G["GameTooltipTextLeft1"]:GetText() )
 	if not itemID or (itemID == cachedItemID) then return end					-- is the item in the tooltip a known type of gathering node ?
@@ -377,7 +377,7 @@ local function ShowGatheringNodeCounters()
 	end
 
 	-- check player bags to see how many times he owns this item, and where
-	if addon.Options:Get("TooltipCount") == 1 or addon.Options:Get("TooltipTotal") == 1 then
+	if addon:GetOption("TooltipCount") == 1 or addon:GetOption("TooltipTotal") == 1 then
 		cachedCount = GetItemCount(itemID) -- if one of the 2 options is active, do the count
 		cachedTotal = (cachedCount > 0) and format("%s: %s", GOLD..L["Total owned"], TEAL..cachedCount) or nil
 	end
@@ -401,7 +401,7 @@ local function ProcessTooltip(tooltip, name, link)
 		
 		-- these are the cpu intensive parts of the update .. so do them only if necessary
 		cachedSource = nil
-		if addon.Options:Get("TooltipSource") == 1 then
+		if addon:GetOption("TooltipSource") == 1 then
 			local Instance, Boss = addon.Loots:GetSource(itemID)
 			
 			cachedItemID = itemID			-- we have searched this ID ..
@@ -411,7 +411,7 @@ local function ProcessTooltip(tooltip, name, link)
 		end
 		
 		-- .. then check player bags to see how many times he owns this item, and where
-		if addon.Options:Get("TooltipCount") == 1 or addon.Options:Get("TooltipTotal") == 1 then
+		if addon:GetOption("TooltipCount") == 1 or addon:GetOption("TooltipTotal") == 1 then
 			cachedCount = GetItemCount(itemID) -- if one of the 2 options is active, do the count
 			cachedTotal = (cachedCount > 0) and format("%s: %s", GOLD..L["Total owned"], TEAL..cachedCount) or nil
 		end
@@ -433,7 +433,7 @@ local function ProcessTooltip(tooltip, name, link)
 	
 	-- addon:CheckMaterialUtility(itemID)
 	
-	if addon.Options:Get("TooltipItemID") == 1 then
+	if addon:GetOption("TooltipItemID") == 1 then
 		local iLevel = select(4, GetItemInfo(itemID))
 		
 		if iLevel then
@@ -443,7 +443,7 @@ local function ProcessTooltip(tooltip, name, link)
 		end
 	end
 	
-	if DataStore:IsModuleEnabled("DataStore_Pets") and addon.Options:Get("TooltipPetInfo") == 1 then
+	if DataStore:IsModuleEnabled("DataStore_Pets") and addon:GetOption("TooltipPetInfo") == 1 then
 		local companionID = DataStore:GetCompanionSpellID(itemID)
 		if companionID then
 			tooltip:AddLine(" ",1,1,1);	
@@ -459,7 +459,7 @@ local function ProcessTooltip(tooltip, name, link)
 		end
 	end
 	
-	if addon.Options:Get("TooltipRecipeInfo") == 0 then return end -- exit if recipe information is not wanted
+	if addon:GetOption("TooltipRecipeInfo") == 0 then return end -- exit if recipe information is not wanted
 	
 	local _, _, _, _, _, itemType, itemSubType = GetItemInfo(itemID)
 	if itemType ~= BI["Recipe"] then return end		-- exit if not a recipe
@@ -529,7 +529,7 @@ local function OnItemRefTooltipShow(tooltip, ...)
 		Orig_ItemRefTooltip_OnShow(tooltip, ...)
 	end
 
-	addon.Quests:ListCharsOnQuest( _G["ItemRefTooltipTextLeft1"]:GetText(), UnitName("player"), ItemRefTooltip)
+	addon:ListCharsOnQuest( _G["ItemRefTooltipTextLeft1"]:GetText(), UnitName("player"), ItemRefTooltip)
 	ItemRefTooltip:Show()
 end
 

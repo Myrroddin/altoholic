@@ -53,7 +53,7 @@ end
 local function FilterMinimumLevel()
 	local minLevel = searchedItem["itemMinLevel"]
 	if minLevel == 0 then
-		if (addon.Options:Get("IncludeNoMinLevel") == 1) then
+		if (addon:GetOption("IncludeNoMinLevel") == 1) then
 			return true		-- include items with no minimum requireement
 		end
 	else

@@ -3,7 +3,28 @@ Altoholic Changelog (dates in dd/mm/yyyy)
 
 Join the #altoholic IRC channel on Freenode : irc://irc.freenode.net:6667/
 
-3.3.002b
+4.0.001 (15/10/2010)
+
+IMPORTANT NOTE:
+- Make sure you delete the addon's databases in SavedVariables. ie: Altoholic.lua and all DataStore*.lua.
+- Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
+
+Changes:
+- The format of most DataStore databases has been reviewed in order to decrease memory consumption, as well as the amount of data to transfer during the account sharing process. As an example, I'm now at 2.6 Mb for 12 chars, down from 4.2Mb.
+- DataStore_Skills is gone.
+- Altoholic is now divided in 4 directories/addons, one for each tab, although "Summary" and "Guild bank" do not have their own directory yet (it will happen soon enough). Each tab is LoD.
+- Altoholic no longer has all the DataStore modules as dependencies. Only the main DataStore module and DataStore_Characters are mandatory. Note that the code to fully support disabled modules IS NOT fully implemented yet.
+- A lot of bugs that arose after an account sharing have been fixed. Unfortunately, I couldn't test this entirely on the beta realms, so a few may still be there.
+- Skills pane: The column related to the riding skill has been replaced by archaeology.
+- Guild skill pane: gone. This information is provided by the genuine guild UI.
+- Characters tab: The availability of data is now checked prior to enabling the icons. If a character has not visited the AH or his mailbox, or if specific info hasn't been shared, the icon will be greyed out.
+- Achievement lists have been updated.
+- The talent trees are working, but have a minor display issue (a 'cut' branch/arrow). This won't be fixed since it does not prevent the addon from running properly, and I'm about to modify this pane to add additional features anyway.
+- The glyph UI has been updated to show Prime glyphs. The list of glyphs added to the game's UI is not in Altoholic yet, but I plan to add that soon.
+- Currencies UI is also ok, but currencies count in the tooltip is temporarily disabled.
+
+
+3.3.002b (06/07/2010)
 
 - Fixed linking items/quests/etc.. to chat.
 - Several minor bugfixes.
@@ -12,7 +33,7 @@ Note: due to several real life constraints, progress is likely to remain slow, a
 Chances are that once addons are allowed on the beta servers and I get access, I will spend my time making changes there directly. 
 Adding functionalities now and having to rewrite them in a month wouldn't make sense.
 
-3.3.002
+3.3.002 (09/03/2010)
 
 - Added an information tooltip when mousing over the number of mails in the Activity pane.
 - Search is now cancelled if there is no value in the search edit box, except if you're using the categories in the search tab.
