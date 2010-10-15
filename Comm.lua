@@ -7,6 +7,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
 local YELLOW	= "|cFFFFFF00"
+local TEAL		= "|cFF00FF9A"
 
 Altoholic.Comm = {}
 
