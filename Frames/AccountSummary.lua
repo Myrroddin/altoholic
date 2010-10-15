@@ -262,7 +262,8 @@ function ns:Update()
 						_G[entry..i.."Rested"]:SetText( addon:GetRestedXP(character) )
 					end
 					
-					_G[entry..i.."AvgILevelNormalText"]:SetText(YELLOW..format("%.1f", DS:GetAverageItemLevel(character)))
+					local AiL = DS:GetAverageItemLevel(character) or 0
+					_G[entry..i.."AvgILevelNormalText"]:SetText(YELLOW..format("%.1f", AiL))
 					
 				elseif (lineType == INFO_TOTAL_LINE) then
 					_G[entry..i.."Collapse"]:Hide()
@@ -398,11 +399,12 @@ function ns:Level_OnEnter(frame)
 	
 	-- add PVP info if any
 
-	local hk, dk, arena, honor = DS:GetStats(character, "PVP")
+	-- disabled until I see clearer in what happens to PVP stats (arena & honor points, which are supposed to be in the currencies tab anyway)
+	-- local hk, dk, arena, honor = DS:GetStats(character, "PVP")
 	
-	AltoTooltip:AddLine(" ",1,1,1);
-	AltoTooltip:AddDoubleLine(WHITE.. L["Arena points: "] .. GREEN .. arena, "HK: " .. GREEN .. hk )
-	AltoTooltip:AddDoubleLine(WHITE.. L["Honor points: "] .. GREEN .. honor, "DK: " .. GREEN .. dk )
+	-- AltoTooltip:AddLine(" ",1,1,1);
+	-- AltoTooltip:AddDoubleLine(WHITE.. L["Arena points: "] .. GREEN .. arena, "HK: " .. GREEN .. hk )
+	-- AltoTooltip:AddDoubleLine(WHITE.. L["Honor points: "] .. GREEN .. honor, "DK: " .. GREEN .. dk )
 	AltoTooltip:AddLine(" ",1,1,1);
 	AltoTooltip:AddLine(GREEN .. L["Right-Click for options"]);
 	AltoTooltip:Show();
@@ -423,12 +425,14 @@ function ns:Level_OnClick(frame, button)
 		return
 	elseif button == "LeftButton" and lineType == INFO_CHARACTER_LINE then
 	
-		local tc = addon.Tabs.Characters
 		local charName, realm, account = Characters:GetInfo(line)
 		addon:SetCurrentCharacter(charName, realm, account)
-		addon.Tabs.Characters:SetCurrent(charName, realm, account)
 		
 		addon.Tabs:OnClick(2)
+		
+		local tc = addon.Tabs.Characters
+		addon.Tabs.Characters:SetCurrent(charName, realm, account)
+		
 		addon.Containers:UpdateCache()
 		tc:ViewCharInfo(VIEW_BAGS)
 	end
@@ -444,6 +448,9 @@ function ns:AIL_OnEnter(frame)
 		
 	local DS = DataStore
 	local character = DS:GetCharacter(Characters:GetInfo(line))
+	if not DataStore:GetModuleLastUpdateByKey("DataStore_Inventory", character) then
+		return
+	end
 	
 	AltoTooltip:ClearLines();
 	AltoTooltip:SetOwner(frame, "ANCHOR_RIGHT");
@@ -455,32 +462,34 @@ function ns:AIL_OnEnter(frame)
 end
 
 function addon:AiLTooltip()
-	AltoTooltip:AddLine(" ",1,1,1);
-	AltoTooltip:AddLine(TEAL .. L["Level"] .. " 60",1,1,1);
-	AltoTooltip:AddDoubleLine(YELLOW .. "58-63", WHITE .. "Tier 0")
-	AltoTooltip:AddDoubleLine(YELLOW .. "66", WHITE .. "Tier 1")
-	AltoTooltip:AddDoubleLine(YELLOW .. "76", WHITE .. "Tier 2")
-	AltoTooltip:AddDoubleLine(YELLOW .. "86-92", WHITE .. "Tier 3")
-	AltoTooltip:AddLine(" ",1,1,1);
+	local tooltip = AltoTooltip
 	
-	AltoTooltip:AddLine(TEAL .. L["Level"] .. " 70",1,1,1);
-	AltoTooltip:AddDoubleLine(YELLOW .. "115", WHITE .. BZ["Karazhan"])
-	AltoTooltip:AddDoubleLine(YELLOW .. "120", WHITE .. "Tier 4")
-	AltoTooltip:AddDoubleLine(YELLOW .. "128", WHITE .. BZ["Zul'Aman"])
-	AltoTooltip:AddDoubleLine(YELLOW .. "133", WHITE .. "Tier 5")
-	AltoTooltip:AddDoubleLine(YELLOW .. "146-154", WHITE .. "Tier 6")
-	AltoTooltip:AddLine(" ",1,1,1);
+	tooltip:AddLine(" ",1,1,1);
+	tooltip:AddLine(TEAL .. L["Level"] .. " 60",1,1,1);
+	tooltip:AddDoubleLine(YELLOW .. "58-63", WHITE .. "Tier 0")
+	tooltip:AddDoubleLine(YELLOW .. "66", WHITE .. "Tier 1")
+	tooltip:AddDoubleLine(YELLOW .. "76", WHITE .. "Tier 2")
+	tooltip:AddDoubleLine(YELLOW .. "86-92", WHITE .. "Tier 3")
+	tooltip:AddLine(" ",1,1,1);
+	
+	tooltip:AddLine(TEAL .. L["Level"] .. " 70",1,1,1);
+	tooltip:AddDoubleLine(YELLOW .. "115", WHITE .. BZ["Karazhan"])
+	tooltip:AddDoubleLine(YELLOW .. "120", WHITE .. "Tier 4")
+	tooltip:AddDoubleLine(YELLOW .. "128", WHITE .. BZ["Zul'Aman"])
+	tooltip:AddDoubleLine(YELLOW .. "133", WHITE .. "Tier 5")
+	tooltip:AddDoubleLine(YELLOW .. "146-154", WHITE .. "Tier 6")
+	tooltip:AddLine(" ",1,1,1);
 
-	AltoTooltip:AddLine(TEAL .. L["Level"] .. " 80",1,1,1);
-	AltoTooltip:AddDoubleLine(YELLOW .. "200", WHITE .. BZ["Naxxramas"] .. " (10)")
-	AltoTooltip:AddDoubleLine(YELLOW .. "213", WHITE .. BZ["Naxxramas"] .. " (25)")
-	AltoTooltip:AddDoubleLine(YELLOW .. "200-219", WHITE .. BZ["Trial of the Champion"])
-	AltoTooltip:AddDoubleLine(YELLOW .. "219", WHITE .. BZ["Ulduar"] .. " (10)")
-	AltoTooltip:AddDoubleLine(YELLOW .. "226-239", WHITE .. BZ["Ulduar"] .. " (25)")
-	AltoTooltip:AddDoubleLine(YELLOW .. "232-258", WHITE .. BZ["Trial of the Crusader"] .. " (10)")
-	AltoTooltip:AddDoubleLine(YELLOW .. "245-272", WHITE .. BZ["Trial of the Crusader"] .. " (25)")
-	AltoTooltip:AddDoubleLine(YELLOW .. "251-271", WHITE .. BZ["Icecrown Citadel"] .. " (10)")
-	AltoTooltip:AddDoubleLine(YELLOW .. "264-284", WHITE .. BZ["Icecrown Citadel"] .. " (25)")
+	tooltip:AddLine(TEAL .. L["Level"] .. " 80",1,1,1);
+	tooltip:AddDoubleLine(YELLOW .. "200", WHITE .. BZ["Naxxramas"] .. " (10)")
+	tooltip:AddDoubleLine(YELLOW .. "213", WHITE .. BZ["Naxxramas"] .. " (25)")
+	tooltip:AddDoubleLine(YELLOW .. "200-219", WHITE .. BZ["Trial of the Champion"])
+	tooltip:AddDoubleLine(YELLOW .. "219", WHITE .. BZ["Ulduar"] .. " (10)")
+	tooltip:AddDoubleLine(YELLOW .. "226-239", WHITE .. BZ["Ulduar"] .. " (25)")
+	tooltip:AddDoubleLine(YELLOW .. "232-258", WHITE .. BZ["Trial of the Crusader"] .. " (10)")
+	tooltip:AddDoubleLine(YELLOW .. "245-272", WHITE .. BZ["Trial of the Crusader"] .. " (25)")
+	tooltip:AddDoubleLine(YELLOW .. "251-271", WHITE .. BZ["Icecrown Citadel"] .. " (10)")
+	tooltip:AddDoubleLine(YELLOW .. "264-284", WHITE .. BZ["Icecrown Citadel"] .. " (25)")
 end
 
 function ns:RightClickMenu_OnLoad()

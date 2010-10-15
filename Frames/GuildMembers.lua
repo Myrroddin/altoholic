@@ -207,7 +207,7 @@ local function LoadEquipmentTextures()
 	
 	for i = 1, 19 do
 		itemName = "AltoholicFrameGuildMembersItem".. i;
-		addon:SetItemButtonTexture(itemName, addon.Equipment:GetSlotTexture(EquipmentToFrame[i]));
+		addon:SetItemButtonTexture(itemName, addon:GetEquipmentSlotIcon(EquipmentToFrame[i]));
 		_G[itemName]:Show()
 	end
 end
@@ -262,7 +262,7 @@ local function UpdateEquipment(member)
 			itemCount:SetText(itemLevel);
 			itemCount:Show();
 		else
-			addon:SetItemButtonTexture(itemName, addon.Equipment:GetSlotTexture(EquipmentToFrame[i]));
+			addon:SetItemButtonTexture(itemName, addon:GetEquipmentSlotIcon(EquipmentToFrame[i]));
 			itemButton.id = nil
 			itemButton.link = nil
 		end
@@ -525,12 +525,12 @@ function ns:InvalidateView()
 end
 	
 function ns:OnRosterUpdate()
-	AltoholicTabSummaryMenuItem5:SetText(format("%s %s(%d)", L["Guild Members"], GREEN, GetNumGuildMembers()))
+	local _, onlineMembers = GetNumGuildMembers()
+	AltoholicTabSummaryMenuItem5:SetText(format("%s %s(%d)", L["Guild Members"], GREEN, onlineMembers))
 	
 	ns:InvalidateView()
-	addon.Guild.Professions:InvalidateView()
+	-- addon.Guild.Professions:InvalidateView()
 	addon.Guild.BankTabs:InvalidateView()
---	addon.Tabs.Summary:Refresh()
 end
 
 function addon:DATASTORE_PLAYER_EQUIPMENT_RECEIVED(event, sender, character)

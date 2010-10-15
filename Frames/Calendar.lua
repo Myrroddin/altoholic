@@ -1,4 +1,7 @@
-local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+local addonName = ...
+local addon = _G[addonName]
+
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local WHITE		= "|cFFFFFFFF"
 local TEAL		= "|cFF00FF9A"
@@ -99,7 +102,7 @@ end
 
 function Altoholic.Calendar:Init()
 	-- by default, the week starts on Sunday, adjust CALENDAR_FIRST_WEEKDAY if necessary
-	if Altoholic.Options:Get("WeekStartsMonday") == 1 then
+	if addon:GetOption("WeekStartsMonday") == 1 then
 		CALENDAR_FIRST_WEEKDAY = 2
 	end
 	
@@ -348,7 +351,7 @@ local function ShowExpiryWarning(index, minutes)
 	if not warning then return end
 	
 	-- print instead of dialog box if player is in combat
-	if Altoholic.Options:Get("WarningDialogBox") == 1 and not UnitAffectingCombat("player") then
+	if addon:GetOption("WarningDialogBox") == 1 and not UnitAffectingCombat("player") then
 		AltoMsgBox.ButtonHandler = Altoholic.Calendar.WarningButtonHandler
 		AltoMsgBox_Text:SetText(format("%s\n%s", WHITE..warning, L["Do you want to open Altoholic's calendar for details ?"]))
 		AltoMsgBox:Show()
@@ -422,7 +425,7 @@ local EventToWarningType = {
 }
 
 function Altoholic.Calendar:CheckEvents(elapsed)
-	if Altoholic.Options:Get("DisableWarnings") == 1 then	-- warnings disabled ? do nothing
+	if addon:GetOption("DisableWarnings") == 1 then	-- warnings disabled ? do nothing
 		Altoholic.Tasks:Reschedule("EventWarning", 60)
 		return true
 	end
@@ -439,7 +442,7 @@ function Altoholic.Calendar:CheckEvents(elapsed)
 			ShowExpiryWarning(k, 0)
 			hasEventExpired = true		-- at least one event has expired
 		elseif numMin <= 30 then
-			local warnings = Altoholic.Options:Get("WarningType"..EventToWarningType[v.eventType])		-- Gets something like "15|5|1"
+			local warnings = addon:GetOption("WarningType"..EventToWarningType[v.eventType])		-- Gets something like "15|5|1"
 			for _, threshold in pairs(TimerThresholds) do
 				if threshold == numMin then			-- if snooze is allowed for this value
 					if IsNumberInString(threshold, warnings) then
@@ -988,7 +991,7 @@ end
 
 local function ToggleWarningThreshold(self)
 	local id = self.arg1
-	local warnings = Altoholic.Options:Get("WarningType"..id)		-- Gets something like "15|5|1"
+	local warnings = addon:GetOption("WarningType"..id)		-- Gets something like "15|5|1"
 	
 	local t = {}		-- create a temporary table to store checked values
 	for v in warnings:gmatch("(%d+)") do
@@ -1002,13 +1005,13 @@ local function ToggleWarningThreshold(self)
 		table.insert(t, self.value)
 	end
 	
-	Altoholic.Options:Set("WarningType"..id, table.concat(t, "|"))		-- Sets something like "15|5|10|1"
+	addon:SetOption("WarningType"..id, table.concat(t, "|"))		-- Sets something like "15|5|10|1"
 end
 
 function Altoholic.Calendar:WarningType_Initialize()
 	local info = UIDropDownMenu_CreateInfo();
 	local id = self:GetID()
-	local warnings = Altoholic.Options:Get("WarningType"..id)		-- Gets something like "15|5|1"
+	local warnings = addon:GetOption("WarningType"..id)		-- Gets something like "15|5|1"
 	
 	for _, threshold in pairs(TimerThresholds) do
 		info.text = format(D_MINUTES, threshold)
