@@ -151,7 +151,7 @@ local optionalModules = {		-- this defines the order in which modules should be 
 	"DataStore_Pets",
 	"DataStore_Quests",
 	"DataStore_Reputations",
-	"DataStore_Skills",
+	-- "DataStore_Skills",
 	"DataStore_Spells",
 	"DataStore_Talents",
 }
@@ -168,7 +168,7 @@ local moduleLabels = {		-- these are the labels
 	["DataStore_Pets"] = format("%s & %s", COMPANIONS, MOUNTS),
 	["DataStore_Quests"] = L["Quests"],
 	["DataStore_Reputations"] = L["Reputations"],
-	["DataStore_Skills"] = SKILLS,
+	-- ["DataStore_Skills"] = SKILLS,
 	["DataStore_Spells"] = SPELLBOOK,
 --	["DataStore_Stats"] = ,
 	["DataStore_Talents"] = format("%s & %s", TALENTS, GLYPHS),
