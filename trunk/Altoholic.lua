@@ -145,7 +145,9 @@ function addon:GetCurrentCharacter()
 end
 
 function addon:GetCurrentCharacterKey()
-	return format("%s.%s.%s", currentAccount, currentRealm, currentAlt)
+	if currentAlt and currentRealm and currentAccount then
+		return format("%s.%s.%s", currentAccount, currentRealm, currentAlt)
+	end
 end
 
 function addon:SetCurrentCharacter(name, realm, account)
