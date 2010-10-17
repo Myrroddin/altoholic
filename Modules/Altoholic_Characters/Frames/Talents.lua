@@ -504,7 +504,7 @@ local function DrawGlyph(id)
 	local glyph = _G[name]
 	
 	local character = addon.Tabs.Characters:GetCurrent()
-	local enabled, glyphType, spell, icon = DataStore:GetGlyphInfo(character, currentTalentGroup, id)
+	local enabled, glyphType, spell, icon = DataStore:GetGlyphSocketInfo(character, currentTalentGroup, id)
 
 	local info = glyphSlotTexCoord[glyphType]
 	if info then
@@ -578,7 +578,7 @@ local glyphTypes = {
 function gns:Button_OnEnter(frame)
 	local id = frame:GetID()
 	local character = addon.Tabs.Characters:GetCurrent()
-	local enabled, glyphType, spell, _, glyphID, tooltipIndex = DataStore:GetGlyphInfo(character, currentTalentGroup, id)
+	local enabled, glyphType, spell, _, glyphID, tooltipIndex = DataStore:GetGlyphSocketInfo(character, currentTalentGroup, id)
 	if not glyphType then return end
 	
 	local glyphTypeText = "|cFF69CCF0" .. glyphTypes[tonumber(glyphType)]
@@ -610,7 +610,7 @@ end
 function gns:Button_OnClick(frame, button)
 	local id = frame:GetID()
 	local character = addon.Tabs.Characters:GetCurrent()
-	local enabled, glyphType, spell, _, glyphID = DataStore:GetGlyphInfo(character, currentTalentGroup, id)
+	local enabled, glyphType, spell, _, glyphID = DataStore:GetGlyphSocketInfo(character, currentTalentGroup, id)
 
 	if not spell then return end
 	
