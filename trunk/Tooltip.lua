@@ -365,6 +365,31 @@ local function AddPetOwners(companionSpellID, companionType, tooltip)
 	end
 end
 
+local function AddGlyphOwners(itemID, tooltip)
+	local know = {}				-- list of alts who know this glyoh
+	local couldLearn = {}		-- list of alts who could learn it
+
+	local knows, could
+	for characterName, character in pairs(DataStore:GetCharacters()) do
+		knows, could = DataStore:IsGlyphKnown(character, itemID)
+		if knows then
+			table.insert(know, characterName)
+		elseif could then
+			table.insert(couldLearn, characterName)
+		end
+	end
+	
+	if #know > 0 then
+		tooltip:AddLine(" ",1,1,1);
+		tooltip:AddLine(TEAL .. L["Already known by "] ..": ".. WHITE.. table.concat(know, ", "), 1, 1, 1, 1);
+	end
+	
+	if #couldLearn > 0 then
+		tooltip:AddLine(" ",1,1,1);
+		tooltip:AddLine(YELLOW .. L["Could be learned by "] ..": ".. WHITE.. table.concat(couldLearn, ", "), 1, 1, 1, 1);
+	end
+end
+
 local function ShowGatheringNodeCounters()
 	-- exit if player does not want counters for known gathering nodes
 	if addon:GetOption("TooltipGatheringNode") == 0 then return end
@@ -443,25 +468,36 @@ local function ProcessTooltip(tooltip, name, link)
 		end
 	end
 	
-	if DataStore:IsModuleEnabled("DataStore_Pets") and addon:GetOption("TooltipPetInfo") == 1 then
-		local companionID = DataStore:GetCompanionSpellID(itemID)
-		if companionID then
-			tooltip:AddLine(" ",1,1,1);	
-			AddPetOwners(companionID, "CRITTER", tooltip)
-			return	-- it's certainly not a recipe if we passed here
+	local _, _, _, _, _, itemType, itemSubType = GetItemInfo(itemID)
+	
+	if itemType == BI["Miscellaneous"] then
+		if DataStore:IsModuleEnabled("DataStore_Pets") and addon:GetOption("TooltipPetInfo") == 1 then
+			if itemSubType == BI["Pet"] then
+				local companionID = DataStore:GetCompanionSpellID(itemID)
+				if companionID then
+					tooltip:AddLine(" ",1,1,1);	
+					AddPetOwners(companionID, "CRITTER", tooltip)
+					return	-- it's certainly not a recipe if we passed here
+				end
+			end
+
+			if itemSubType == BI["Mount"] then
+				local mountID = DataStore:GetMountSpellID(itemID)
+				if mountID then
+					tooltip:AddLine(" ",1,1,1);	
+					AddPetOwners(mountID, "MOUNT", tooltip)
+					return	-- it's certainly not a recipe if we passed here
+				end
+			end
 		end
-		
-		local mountID = DataStore:GetMountSpellID(itemID)
-		if mountID then
-			tooltip:AddLine(" ",1,1,1);	
-			AddPetOwners(mountID, "MOUNT", tooltip)
-			return	-- it's certainly not a recipe if we passed here
-		end
+	
+	elseif itemType == BI["Glyph"] then
+		AddGlyphOwners(itemID, tooltip)
+		return
 	end
 	
 	if addon:GetOption("TooltipRecipeInfo") == 0 then return end -- exit if recipe information is not wanted
 	
-	local _, _, _, _, _, itemType, itemSubType = GetItemInfo(itemID)
 	if itemType ~= BI["Recipe"] then return end		-- exit if not a recipe
 	if itemSubType == BI["Book"] then return end		-- exit if it's a book
 

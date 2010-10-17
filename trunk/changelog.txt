@@ -3,11 +3,22 @@ Altoholic Changelog (dates in dd/mm/yyyy)
 
 Join the #altoholic IRC channel on Freenode : irc://irc.freenode.net:6667/
 
-4.0.001 (15/10/2010)
+IMPORTANT NOTE: If you're upgrading from 3.x :
 
-IMPORTANT NOTE:
 - Make sure you delete the addon's databases in SavedVariables. ie: Altoholic.lua and all DataStore*.lua.
 - Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
+
+
+4.0.002 (17/10/2010)
+
+- DataStore_Mails : fixed a potential conflict with other mail addons when sending a mail.
+- DataStore_Quests : fixed  auto history update.
+- DataStore_Talents : now tracking the list of known glyphs.
+- Glyph tooltip is now showing "already know by/could be learned by" information.
+- Fixed account sharing not working.
+
+
+4.0.001 (15/10/2010)
 
 Changes:
 - The format of most DataStore databases has been reviewed in order to decrease memory consumption, as well as the amount of data to transfer during the account sharing process. As an example, I'm now at 2.6 Mb for 12 chars, down from 4.2Mb.
