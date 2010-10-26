@@ -16,6 +16,7 @@ local THIS_ACCOUNT = "Default"
 local Orig_GameTooltip_OnShow
 local Orig_GameTooltip_SetItem
 local Orig_GameTooltip_ClearItem
+local Orig_GameTooltip_SetCurrencyToken
 -- local Orig_GameTooltip_SetSpell
 
 local Orig_ItemRefTooltip_OnShow
@@ -182,7 +183,6 @@ local function GetCharacterItemCount(character, searchedID)
 	itemCounts[3] = DataStore:GetAuctionHouseItemCount(character, searchedID)
 	itemCounts[4] = DataStore:GetInventoryItemCount(character, searchedID)
 	itemCounts[5] = DataStore:GetMailItemCount(character, searchedID)
-	itemCounts[6] = DataStore:GetCurrencyItemCount(character, searchedID)
 	
 	local charCount = 0
 	for _, v in pairs(itemCounts) do
@@ -559,6 +559,33 @@ local function OnGameTooltipCleared(tooltip, ...)
 	return Orig_GameTooltip_ClearItem(tooltip, ...)
 end
 
+local function Hook_SetCurrencyToken(self,index,...)
+	if not index then return end
+
+	local currency = GetCurrencyListInfo(index)
+	if not currency then return end
+
+	GameTooltip:ClearLines();
+	GameTooltip:AddLine(currency,1,1,1);
+	GameTooltip:AddLine(" ",1,1,1);
+
+	local total = 0
+	for _, character in pairs(DataStore:GetCharacters()) do
+		local _, _, count = DataStore:GetCurrencyInfoByName(character, currency)
+		if count and count > 0 then
+			GameTooltip:AddDoubleLine(DataStore:GetColoredCharacterName(character),  TEAL .. count);
+			total = total + count
+		end
+		
+	end
+	
+	if total > 0 then
+		GameTooltip:AddLine(" ",1,1,1);
+	end
+	GameTooltip:AddLine(format("%s: %s", GOLD..L["Total owned"], TEAL..total ) ,1,1,1);
+	GameTooltip:Show()
+end
+
 -- ** ItemRefTooltip hooks **
 local function OnItemRefTooltipShow(tooltip, ...)
 	if Orig_ItemRefTooltip_OnShow then
@@ -588,11 +615,15 @@ local function OnItemRefTooltipCleared(tooltip, ...)
 	return Orig_ItemRefTooltip_ClearItem(tooltip, ...)
 end
 
+
+
+
 function addon:InitTooltip()
 	-- save all function pointers
 	Orig_GameTooltip_OnShow = GameTooltip:GetScript("OnShow")
 	Orig_GameTooltip_SetItem = GameTooltip:GetScript("OnTooltipSetItem")
 	Orig_GameTooltip_ClearItem = GameTooltip:GetScript("OnTooltipCleared")
+	Orig_GameTooltip_SetCurrencyToken = GameTooltip.SetCurrencyToken
 	-- Orig_GameTooltip_SetSpell = GameTooltip:GetScript("OnTooltipSetSpell")
 
 	Orig_ItemRefTooltip_OnShow = ItemRefTooltip:GetScript("OnShow")
@@ -604,6 +635,7 @@ function addon:InitTooltip()
 	GameTooltip:SetScript("OnShow", OnGameTooltipShow)
 	GameTooltip:SetScript("OnTooltipSetItem", OnGameTooltipSetItem)
 	GameTooltip:SetScript("OnTooltipCleared", OnGameTooltipCleared)
+	GameTooltip.SetCurrencyToken = Hook_SetCurrencyToken
 	-- GameTooltip:SetScript("OnTooltipSetSpell", OnGameTooltipSetSpell)
 
 	ItemRefTooltip:SetScript("OnShow", OnItemRefTooltipShow)

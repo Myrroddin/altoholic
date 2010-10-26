@@ -12,151 +12,63 @@ local RECIPE_GREY		= "|cFF808080"
 local RECIPE_GREEN	= "|cFF40C040"
 local RECIPE_ORANGE	= "|cFFFF8040"
 
-local view
+local SKILL_GREY = 0
+local SKILL_GREEN = 1
+local SKILL_YELLOW = 2
+local SKILL_ORANGE = 3
+local SKILL_ANY = 4
 
 local RecipeColors = { 
-	[0] = RECIPE_GREY,
-	[1] = RECIPE_GREEN, 
-	[2] = YELLOW, 
-	[3] = RECIPE_ORANGE, 
+	[SKILL_GREY] = RECIPE_GREY,
+	[SKILL_GREEN] = RECIPE_GREEN, 
+	[SKILL_YELLOW] = YELLOW, 
+	[SKILL_ORANGE] = RECIPE_ORANGE, 
 }
 local RecipeColorNames = { 
-	[0] = L["Grey"],
-	[1] = BI["Green"], 
-	[2] = BI["Yellow"], 
-	[3] = BI["Orange"], 
+	[SKILL_GREY] = L["Grey"],
+	[SKILL_GREEN] = BI["Green"], 
+	[SKILL_YELLOW] = BI["Yellow"], 
+	[SKILL_ORANGE] = BI["Orange"], 
 }
+
+local parent = "AltoholicFrameRecipes"
+local view
+local currentProfession
+local currentColor = SKILL_ANY
+local currentSlots = ALL_INVENTORY_SLOTS
+local currentSubClass = ALL_SUBCLASSES
 
 local ns = addon.TradeSkills.Recipes		-- ns = namespace
 
+-- *** Utility functions ***
 local function GetCurrentProfessionTable()
 	local character = addon.Tabs.Characters:GetCurrent()
-	return DataStore:GetProfession(character, addon.TradeSkills.CurrentProfession)		-- current profession
+	return DataStore:GetProfession(character, currentProfession)
 end
 
 local function GetLinkByLine(index)
 	local profession = GetCurrentProfessionTable()
 	local _, _, spellID = DataStore:GetCraftLineInfo(profession, index)
 	
-	return addon:GetRecipeLink(spellID, addon.TradeSkills.CurrentProfession)
+	return addon:GetRecipeLink(spellID, currentProfession)
 end
 
--- drop down menus
-local function DDM_AddButton(text, value, func)
-	local info = UIDropDownMenu_CreateInfo()
-	
-	info.text = text
-	info.value = value
-	info.func = func
-	info.checked = nil; 
-	info.icon = nil; 
-	UIDropDownMenu_AddButton(info, 1); 
+function ns:GetRecipeColor(index)
+	return RecipeColors[index]
 end
 
-local function OnColorChange(self)
-	UIDropDownMenu_SetSelectedValue(AltoholicFrameRecipesInfo_SelectColor, self.value);
-	ns:BuildView()
-	ns:Update()
-end
-
-function ns:DropDownColor_Initialize()
-	local ts = Altoholic.TradeSkills
-	if not ts.CurrentProfession then
-		DDM_AddButton(L["Any"], 0, OnColorChange)
-		return
-	end
-	
-	local character = Altoholic.Tabs.Characters:GetCurrent()
-	local profession = DataStore:GetProfession(character, ts.CurrentProfession)
-	local orange, yellow, green, grey = DataStore:GetNumRecipesByColor(profession)
-	
-	DDM_AddButton(format("%s %s(%s)", L["Any"], GREEN, orange+yellow+green+grey ), 0, OnColorChange)
-	DDM_AddButton(format("%s %s(%s)", RecipeColors[1] .. RecipeColorNames[1], GREEN, orange ), 1, OnColorChange)
-	DDM_AddButton(format("%s %s(%s)", RecipeColors[2] .. RecipeColorNames[2], GREEN, yellow ), 2, OnColorChange)
-	DDM_AddButton(format("%s %s(%s)", RecipeColors[3] .. RecipeColorNames[3], GREEN, green ), 3, OnColorChange)
-	DDM_AddButton(format("%s %s(%s)", RecipeColors[4] .. RecipeColorNames[4], GREEN, grey ), 4, OnColorChange)
-end
-
-local function OnSubClassChange(self)
-	UIDropDownMenu_SetSelectedValue(AltoholicFrameRecipesInfo_SelectSubclass, self.value);
-	ns:BuildView()
-	ns:Update()
-end
-
-function ns:DropDownSubclass_Initialize()
-	DDM_AddButton(ALL_SUBCLASSES, ALL_SUBCLASSES, OnSubClassChange)
-	
-	local ts = Altoholic.TradeSkills
-	if not ts.CurrentProfession then return end
-	
-	local character = Altoholic.Tabs.Characters:GetCurrent()
-	local profession = DataStore:GetProfession(character, ts.CurrentProfession)
-		
-	for index = 1, DataStore:GetNumCraftLines(profession) do
-		local isHeader, _, name = DataStore:GetCraftLineInfo(profession, index)
-		
-		if isHeader then
-			DDM_AddButton(name, name, OnSubClassChange)
-		end
-	end
-end
-
-local function OnInvSlotChange(self)
-	UIDropDownMenu_SetSelectedValue(AltoholicFrameRecipesInfo_SelectInvSlot, self.value);
-	ns:BuildView()
-	ns:Update()
-end
-
-function ns:DropDownInvSlot_Initialize()
-	DDM_AddButton(ALL_INVENTORY_SLOTS, ALL_INVENTORY_SLOTS, OnInvSlotChange)
-
-	local ts = Altoholic.TradeSkills
-	if not ts.CurrentProfession then return end
-	
-	local invSlots = {}
-	local character = Altoholic.Tabs.Characters:GetCurrent()
-	local profession = DataStore:GetProfession(character, ts.CurrentProfession)
-		
-	for index = 1, DataStore:GetNumCraftLines(profession) do
-		local isHeader, _, spellID = DataStore:GetCraftLineInfo(profession, index)
-		
-		if not isHeader then		-- NON header !!
-			local itemID = DataStore:GetCraftInfo(spellID)
-			
-			if itemID then
-				local _, _, _, _, _, itemType, _, _, itemEquipLoc = GetItemInfo(itemID)
-				
-				if itemEquipLoc and strlen(itemEquipLoc) > 0 then
-					local slot = Altoholic.Equipment:GetInventoryTypeName(itemEquipLoc)
-					if slot then
-						invSlots[slot] = itemEquipLoc
-					end
-				end
-			end
-		end
-	end
-	
-	for k, v in pairs(invSlots) do		-- add all the slots found
-		DDM_AddButton(k, v, OnInvSlotChange)
-	end
-
-	--NONEQUIPSLOT = "Created Items"; -- Items created by enchanting
-	DDM_AddButton(NONEQUIPSLOT, NONEQUIPSLOT, OnInvSlotChange)
+function ns:GetRecipeColorName(index)
+	return RecipeColors[index]..RecipeColorNames[index]
 end
 
 
 function ns:BuildView()
 	view = view or {}
 	wipe(view)
-		
-	local ts = addon.TradeSkills
+
 	local character = addon.Tabs.Characters:GetCurrent()
-	local profession = DataStore:GetProfession(character, ts.CurrentProfession)
+	local profession = DataStore:GetProfession(character, currentProfession)
 	if not profession then return end
-	
-	local selectedColor = UIDropDownMenu_GetSelectedValue(AltoholicFrameRecipesInfo_SelectColor)
-	local selectedClass = UIDropDownMenu_GetSelectedValue(AltoholicFrameRecipesInfo_SelectSubclass)
-	local selectedSlot = UIDropDownMenu_GetSelectedValue(AltoholicFrameRecipesInfo_SelectInvSlot)
 	
 	local hideCategory		-- hide or show the current header ?
 	local hideLine			-- hide or show the current line ?
@@ -166,7 +78,7 @@ function ns:BuildView()
 
 		if isHeader then
 			hideCategory = false
-			if selectedClass ~= ALL_SUBCLASSES and selectedClass ~= info then
+			if currentSubClass ~= ALL_SUBCLASSES and currentSubClass ~= info then
 				hideCategory = true	-- hide if a specific subclass is selected AND we're not on it
 			end
 
@@ -176,9 +88,9 @@ function ns:BuildView()
 		else		-- data line
 			if not hideCategory then
 				hideLine = false
-				if selectedColor ~= 0 and selectedColor ~= color then
+				if currentColor ~= SKILL_ANY and currentColor ~= color then
 					hideLine = true
-				elseif selectedSlot ~= ALL_INVENTORY_SLOTS then
+				elseif currentSlots ~= ALL_INVENTORY_SLOTS then
 					if info then	-- on a data line, info contains the itemID and is numeric
 						local itemID = DataStore:GetCraftInfo(info)
 						if itemID then
@@ -186,12 +98,12 @@ function ns:BuildView()
 
 							if itemType == BI["Armor"] or itemType == BI["Weapon"] then
 								if itemEquipLoc and strlen(itemEquipLoc) > 0 then
-									if selectedSlot ~= itemEquipLoc then
+									if currentSlots ~= itemEquipLoc then
 										hideLine = true
 									end
 								end
 							else	-- not a weapon or armor ? then test if it's a generic "Created item"
-								if selectedSlot ~= NONEQUIPSLOT then
+								if currentSlots ~= NONEQUIPSLOT then
 									hideLine = true
 								end
 							end
@@ -199,7 +111,7 @@ function ns:BuildView()
 							hideLine = true
 						end
 					else
-						if selectedSlot ~= NONEQUIPSLOT then
+						if currentSlots ~= NONEQUIPSLOT then
 							hideLine = true
 						end
 					end
@@ -226,25 +138,17 @@ function ns:BuildView()
 end
 
 function ns:Update()
-	local currentProfession = addon.TradeSkills.CurrentProfession
-	
 	local VisibleLines = 14
-	local frame = "AltoholicFrameRecipes"
-	local entry = frame.."Entry"
+	local entry = parent.."Entry"
 	
 	local character = addon.Tabs.Characters:GetCurrent()
 	local profession = DataStore:GetProfession(character, currentProfession)
 	
-	AltoholicFrameRecipesInfo:Show()
-	AltoholicTabCharactersStatus:SetText("")
+	_G[parent .. "Info"]:Show()
 
 	local curRank, maxRank = DataStore:GetProfessionInfo(DataStore:GetProfession(character, currentProfession))
-
-	AltoholicFrameRecipesInfo_NumRecipes:SetText(
-		format("%s" ..TEAL .. " %d/%d", currentProfession, curRank or 0, maxRank or 0 )
-	)
 	
-	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
+	local offset = FauxScrollFrame_GetOffset( _G[ parent.."ScrollFrame" ] );
 	local DisplayedCount = 0
 	local VisibleCount = 0
 	local DrawGroup = true
@@ -371,22 +275,47 @@ function ns:Update()
 		i = i + 1
 	end
 	
+	local status = format("%s|r / %s", DataStore:GetColoredCharacterName(character), currentProfession)
 	if VisibleCount == 0 then
-		AltoholicTabCharactersStatus:SetText(format("%s: %s", currentProfession, L["No data"]))
+		status = format("%s : %s", status, L["No data"])
 	end
+	AltoholicTabCharactersStatus:SetText(status)
 	
-	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleCount, VisibleLines, 18);
+	_G[parent]:Show()
+	
+	FauxScrollFrame_Update( _G[ parent.."ScrollFrame" ], VisibleCount, VisibleLines, 18);
 end
 
-function ns:ResetDropDownMenus()
-	UIDropDownMenu_SetSelectedValue(AltoholicFrameRecipesInfo_SelectColor, 0);
-	UIDropDownMenu_SetText(AltoholicFrameRecipesInfo_SelectColor, L["Any"])
-	UIDropDownMenu_SetSelectedValue(AltoholicFrameRecipesInfo_SelectSubclass, ALL_SUBCLASSES);
-	UIDropDownMenu_SetText(AltoholicFrameRecipesInfo_SelectSubclass, ALL_SUBCLASSES)
-	UIDropDownMenu_SetSelectedValue(AltoholicFrameRecipesInfo_SelectInvSlot, ALL_INVENTORY_SLOTS);
-	UIDropDownMenu_SetText(AltoholicFrameRecipesInfo_SelectInvSlot, ALL_INVENTORY_SLOTS)
+function ns:SetCurrentProfession(prof)
+	currentProfession = prof
 end
 
+function ns:SetCurrentColor(color)
+	currentColor = color
+end
+
+function ns:GetCurrentColor()
+	return currentColor
+end
+
+function ns:SetCurrentSlots(slot)
+	currentSlots = slot
+end
+
+function ns:GetCurrentSlots()
+	return currentSlots
+end
+
+function ns:SetCurrentSubClass(class)
+	currentSubClass = class
+end
+
+function ns:GetCurrentSubClass()
+	return currentSubClass
+end
+
+
+-- ** widgets **
 function ns:ToggleAll(frame)
 	-- expand or collapse all sections of the currently displayed alt /tradeskill
 	if not frame.isCollapsed then
@@ -462,7 +391,7 @@ function ns:Link_OnClick(frame, button)
 	end
 
 	local character = addon.Tabs.Characters:GetCurrent()
-	local profession = DataStore:GetProfession(character, addon.TradeSkills.CurrentProfession)
+	local profession = DataStore:GetProfession(character, currentProfession)
 	local link = profession.FullLink
 
 	if not link then

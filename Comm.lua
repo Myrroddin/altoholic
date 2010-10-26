@@ -510,40 +510,8 @@ function addon:DATASTORE_BANKTAB_REQUESTED(event, sender, tabName)
 	AltoMsgBox:Show()
 end
 
-function addon:DATASTORE_BANKTAB_REQUEST_ACK(event, sender)
-	addon:Print(format(L["Waiting for %s to accept .."], sender))
-end
-
-function addon:DATASTORE_BANKTAB_REQUEST_REJECTED(event, sender)
-	addon:Print(format(L["Request rejected by %s"], sender))
-end
-
-function addon:DATASTORE_BANKTAB_UPDATE_SUCCESS(event, sender, guildName, tabName, tabID)
-	addon.Tabs.GuildBank:LoadGuild("Default", GetRealmName(), guildName)
-	addon:Print(format(L["Guild bank tab %s successfully updated !"], tabName ))
-	addon.Guild.BankTabs:InvalidateView()
-end
-
-function addon:DATASTORE_GUILD_ALTS_RECEIVED(event, sender, alts)
-	addon.Guild.Members:InvalidateView()
-	-- addon.Guild.Professions:InvalidateView()
-end
-
-function addon:DATASTORE_GUILD_BANKTABS_UPDATED(event, sender)
-	addon.Guild.BankTabs:InvalidateView()
-end
-
-function addon:DATASTORE_GUILD_PROFESSION_RECEIVED(event, sender, alt, data, index)
-	-- addon.Guild.Professions:InvalidateView()
-end
-
-function addon:DATASTORE_GUILD_MEMBER_OFFLINE(event, member)
-	addon.Guild.Members:InvalidateView()
-	-- addon.Guild.Professions:InvalidateView()
-end
-
 function addon:DATASTORE_GUILD_MAIL_RECEIVED(event, sender, recipient)
-	if addon.Options:Get("GuildMailWarning") == 1 then
+	if addon:GetOption("GuildMailWarning") == 1 then
 		addon:Print(format(L["%s|r has received a mail from %s"], GREEN..recipient, GREEN..sender))
 	end
 end

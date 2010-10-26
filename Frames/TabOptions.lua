@@ -7,6 +7,7 @@ local addonList = {
 	"Altoholic",
 	"Altoholic_Characters",
 	"Altoholic_Search",
+	"Altoholic_Guild",
 	"Altoholic_Achievements",
 }
 
@@ -127,6 +128,31 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "4.0.003 Changes",
+		bulletedList = {
+			"Fixed the LK Dungeon achievement list.",
+			"The 'Guild Bank' tab is now the 'Guild' tab. It is now an LoD addon of its own.",
+			"The 'Guild Members' pane has moved from the 'Summary' tab to the 'Guild' tab.",
+			"Guild bank content is also in the guild tab, and its UI has been updated to use menu icons.",
+			"The 'Guild Bank Tabs' that was previously in the 'Summary' tab is gone. It's functionality (remote update) is still there though, and is now available in the Guild Bank UI (3rd icon).",
+			"Fixed the color filter in the profession pane.",
+			"The 'Characters' tab has been entirely reworked. The UI of this tab now uses menu icons for a more convenient navigation.",
+			"Added a UI for the character spell book. Make sure to reload an alt before checking his spell book.",
+			"Added a UI for the list of known glyphs (the existing UI was only about the socketed glyphs).",
+			"The 'Talents & Glyphs' pane has been split into two specific panes. They both feel a bit emptier than before, but fear not, that empty space has a purpose that will be revealed soon :)",
+			"Fixed displaying enchants/gems on items in the search pane. (Thanks mixz !)",
+			"Brought back the count when mousing over a currency.",
+		},
+	},
+	{	name = "4.0.002 Changes",
+		bulletedList = {
+			"DataStore_Mails : fixed a potential conflict with other mail addons when sending a mail.",
+			"DataStore_Quests : fixed  auto history update.",
+			"DataStore_Talents : now tracking the list of known glyphs.",
+			"Glyph tooltip is now showing 'already know by/could be learned by' information.",
+			"Fixed account sharing not working.",
+		},
+	},
 	{	name = "4.0.001 Changes",
 		bulletedList = {
 			"The format of most DataStore databases has been reviewed in order to decrease memory consumption, as well as the amount of data to transfer during the account sharing process. As an example, I'm now at 2.6 Mb for 12 chars, down from 4.2Mb.",
@@ -151,19 +177,27 @@ local whatsnew = {
 }
 
 function addon:GetOption(name)
-	if addon.db and addon.db.global then
+	if addon.db and addon.db.global and addon.db.global.options then
 		return addon.db.global.options[name]
 	end
 end
 
 function addon:SetOption(name, value)
-	if addon.db and addon.db.global then 
+	if addon.db and addon.db.global and addon.db.global.options then 
 		addon.db.global.options[name] = value
 	end
 end
 
 function addon:ToggleOption(frame, option)
-	addon:SetOption(option, (frame:GetChecked()) and 1 or 0)
+	if frame then
+		addon:SetOption(option, (frame:GetChecked()) and 1 or 0)
+	else
+		if addon:GetOption(option) == 1 then
+			addon:SetOption(option, 0)
+		else
+			addon:SetOption(option, 1)
+		end
+	end
 end
 
 function addon:SetupOptions()

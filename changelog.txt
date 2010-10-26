@@ -8,6 +8,20 @@ IMPORTANT NOTE: If you're upgrading from 3.x :
 - Make sure you delete the addon's databases in SavedVariables. ie: Altoholic.lua and all DataStore*.lua.
 - Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
 
+4.0.003 (26/10/2010)
+
+- Fixed the LK Dungeon achievement list.
+- The 'Guild Bank' tab is now the 'Guild' tab. It is now an LoD addon of its own.
+- The 'Guild Members' pane has moved from the 'Summary' tab to the 'Guild' tab.
+- Guild bank content is also in the guild tab, and its UI has been updated to use menu icons.
+- The 'Guild Bank Tabs' that was previously in the 'Summary' tab is gone. It's functionality (remote update) is still there though, and is now available in the Guild Bank UI (3rd icon).
+- Fixed the color filter in the profession pane.
+- The 'Characters' tab has been entirely reworked. The UI of this tab now uses menu icons for a more convenient navigation.
+- Added a UI for the character spell book. Make sure to reload an alt before checking his spell book.
+- Added a UI for the list of known glyphs (the existing UI was only about the socketed glyphs).
+- The 'Talents & Glyphs' pane has been split into two specific panes. They both feel a bit emptier than before, but fear not, that empty space has a purpose that will be revealed soon :)
+- Fixed displaying enchants/gems on items in the search pane. (Thanks mixz !)
+- Brought back the count when mousing over a currency.
 
 4.0.002 (17/10/2010)
 

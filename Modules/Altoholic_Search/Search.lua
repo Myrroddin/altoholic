@@ -95,6 +95,7 @@ local function Realm_UpdateEx(self, offset, entry, desc)
 			
 			local id = LineDesc:GetItemID(result)
 			_G[ entry..i.."Item" ]:SetID(id or 0)
+			_G[ entry..i ]:SetID(line)
 			_G[ entry..i ]:Show()
 		end
 	end
@@ -563,16 +564,21 @@ local currentResultType			-- type of result currently being searched (eg: PLAYER
 local currentResultKey			-- key defining who is being searched (eg: a datastore character or guild key)
 local currentResultLocation	-- what is actually being searched (bags, bank, equipment, mail, etc..)
 
-local function VerifyItem(item, itemCount)
+local function VerifyItem(item, itemCount, itemLink)
 	if type(item) == "string" then		-- convert a link to its item id, only data saved
 		item = tonumber(item:match("item:(%d+)"))
 	end
 	
-	filters:SetSearchedItem(item)
+	if type(itemLink) ~= "string" then              -- a link is not a link - delete it
+		itemLink = nil
+	end
+	
+	filters:SetSearchedItem(item, itemLink)
 	if filters:ItemPassesFilters() then			-- All conditions ok ? save it
 		ns:AddResult( {
 			linetype = currentResultType,			-- PLAYER_ITEM_LINE or GUILD_ITEM_LINE 
 			id = item,
+			link = itemLink,
 			source = currentResultKey,				-- character or guild key in DataStore
 			count = itemCount,
 			location = currentResultLocation
@@ -614,7 +620,7 @@ local function BrowseCharacter(character)
 				
 				-- use the link before the id if there's one
 				if itemID then
-					VerifyItem(itemLink or itemID, itemCount)
+					VerifyItem(itemLink or itemID, itemCount, itemLink)
 				end
 			end
 		end
@@ -625,7 +631,7 @@ local function BrowseCharacter(character)
 	local inventory = DataStore:GetInventory(character)
 	if inventory then
 		for _, v in pairs(inventory) do
-			VerifyItem(v, 1)
+			VerifyItem(v, 1, v)
 		end
 	end
 	
@@ -635,7 +641,7 @@ local function BrowseCharacter(character)
 		for i = 1, num do
 			local _, count, link = DataStore:GetMailInfo(character, i)
 			if link then
-				VerifyItem(link, count)
+				VerifyItem(link, count, link)
 			end
 		end
 	end
@@ -695,7 +701,7 @@ local function BrowseRealm(realm, account, bothFactions)
 							local id, link, count = DataStore:GetSlotInfo(tab, slotID)
 							if id then
 								link = link or id
-								VerifyItem(link, count)
+								VerifyItem(link, count, link)
 							end
 						end
 					end

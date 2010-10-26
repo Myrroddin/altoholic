@@ -52,15 +52,8 @@ local function InitLocalization()
 	AltoholicTabSummaryMenuItem1:SetText(L["Account Summary"])
 	AltoholicTabSummaryMenuItem2:SetText(L["Bag Usage"])
 	AltoholicTabSummaryMenuItem4:SetText(L["Activity"])
-	AltoholicTabSummaryMenuItem5:SetText(L["Guild Members"])
-	-- AltoholicTabSummaryMenuItem6:SetText(L["Guild Skills"])
-	AltoholicTabSummaryMenuItem6:SetText(L["Guild Bank Tabs"])
-	AltoholicTabSummaryMenuItem7:SetText(L["Calendar"])
+	AltoholicTabSummaryMenuItem5:SetText(L["Calendar"])
 	AltoholicTabSummary_RequestSharing:SetText(L["Account Sharing"])
-	
-
-	
-	AltoholicTabGuildBank_HideInTooltipText:SetText(L["Hide this guild in the tooltip"])
 	
 	AltoAccountSharingName:SetText(L["Account Name"])
 	AltoAccountSharingText1:SetText(L["Send account sharing request to:"])
@@ -75,15 +68,9 @@ local function InitLocalization()
 	
 	-- nil strings to save memory, since they are not used later on.
 	L["Summary"] = nil
-	L["Characters"] = nil
 	L["Account Summary"] = nil
 	L["Bag Usage"] = nil
 	L["Activity"] = nil
-	L["Guild Skills"] = nil
-	L["Guild Bank Tabs"] = nil
-
-	L["View"] = nil
-	L["Hide this guild in the tooltip"] = nil
 	L["Search Containers"] = nil
 
 	L["Reset"] = nil
@@ -343,15 +330,9 @@ function addon:OnEnable()
 		AltoholicMinimapButton:Hide();
 	end
 	
-	
 	addon:RegisterEvent("FRIENDLIST_UPDATE", ScanFriends);
 	addon:RegisterEvent("CHAT_MSG_SYSTEM", OnChatMsgSystem)
 	addon:RegisterEvent("CHAT_MSG_LOOT", OnChatMsgLoot)
-	
-	
-	if IsInGuild() then
-		addon:RegisterEvent("GUILD_ROSTER_UPDATE", addon.Guild.Members.OnRosterUpdate);
-	end
 	
 	BuildUnsafeItemList()
 	

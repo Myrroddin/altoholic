@@ -93,21 +93,6 @@
 				</Offset>
 			</Anchor>
 		</Anchors>
-		<Layers>
-			<Layer level="OVERLAY">
-				<FontString name="$parentInfo1" inherits="GameFontNormalSmall" justifyH="LEFT">
-					<Size>
-						<AbsDimension x="250" y="16"/>
-					</Size>
-					<Anchors>
-						<Anchor point="LEFT" relativeTo="AltoholicFrameSearchLabel" relativePoint="RIGHT" >
-							<Offset x="60" y="-15" />
-						</Anchor>
-					</Anchors>
-					<Color r="255" g="255" b="255" />
-				</FontString>
-			</Layer>
-		</Layers>
 		<Frames>
 			<ScrollFrame name="$parentScrollFrame" inherits="FauxScrollFrameTemplate" hidden="true">
 				<Anchors>

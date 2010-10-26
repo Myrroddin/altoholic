@@ -12,59 +12,7 @@
 				</Offset>
 			</Anchor>
 		</Anchors>
-		<Layers>
-			<Layer level="OVERLAY">
-				<FontString name="$parentText1" inherits="GameFontNormalSmall" justifyH="LEFT" text="TUTORIAL_TITLE10">
-					<Size>
-						<AbsDimension x="60" y="18"/>
-					</Size>
-					<Anchors>
-						<Anchor point="LEFT" relativeTo="AltoholicFrameSearchLabel" relativePoint="RIGHT" >
-							<Offset x="60" y="-5" />
-						</Anchor>
-					</Anchors>
-					<Color r="255" g="255" b="255" />
-				</FontString>
-				<FontString name="$parentRarity" inherits="GameFontNormalSmall" text="RARITY">
-					<Size x="70" y="20" />
-					<Anchors>
-						<Anchor point="LEFT" relativeTo="$parentText1" relativePoint="RIGHT" >
-							<Offset x="100" y="0" />
-						</Anchor>
-					</Anchors>
-					<Color r="255" g="255" b="255" />
-				</FontString>
-			</Layer>
-		</Layers>
 		<Frames>
-			<Frame name="$parent_SelectContainerView" inherits="UIDropDownMenuTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentText1" relativePoint="BOTTOMLEFT">
-						<Offset>
-							<AbsDimension x="-25" y="-2"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<Scripts>
-					<OnLoad>
-						Altoholic.Containers:SelectContainer_OnLoad(self)
-					</OnLoad>
-				</Scripts>
-			</Frame>
-			<Frame name="$parent_SelectRarity" inherits="UIDropDownMenuTemplate">
-				<Anchors>
-					<Anchor point="LEFT" relativeTo="$parent_SelectContainerView" relativePoint="RIGHT">
-						<Offset>
-							<AbsDimension x="10" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<Scripts>
-					<OnLoad>
-						Altoholic.Containers:SelectRarity_OnLoad(self)
-					</OnLoad>
-				</Scripts>
-			</Frame>
 			<ScrollFrame name="$parentScrollFrame" inherits="FauxScrollFrameTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" />

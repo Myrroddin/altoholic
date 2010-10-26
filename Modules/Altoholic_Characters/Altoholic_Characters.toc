@@ -2,7 +2,7 @@
 ## Title: Altoholic_Characters
 ## Notes: Altoholic's Characters UI
 ## Author: Thaoky (EU-Marécages de Zangar)
-## Version: 4.0.001
+## Version: 4.0.003
 ## Dependencies: Altoholic, DataStore, DataStore_Characters
 ## LoadOnDemand: 1
 ## X-Category: Interface Enhancements
@@ -13,11 +13,13 @@ Frames\AuctionHouse.xml
 Frames\Containers.xml
 Frames\Currencies.xml
 Frames\Equipment.xml
+Frames\Glyphs.xml
 Frames\Mails.xml
 Frames\Pets.xml
 Frames\Quests.xml
 Frames\Recipes.xml
 Frames\Reputations.xml
+Frames\Spellbook.xml
 Frames\Talents.xml
 
 Data\FactionLeveling_deDE.lua

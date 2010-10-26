@@ -44,76 +44,7 @@ function ns:OnClick(frame, button)
 	ns:UpdatePets()
 end
 
-local function OnChangePetView(self)
-	local value = self.value
-	
-	UIDropDownMenu_SetSelectedValue(AltoholicFramePets_SelectPetView, value);
-	
-	if value == 1 or value == 3 then
-		AltoholicFrameClasses:Hide()
-		AltoholicFramePetsNormal:Show()
-		AltoholicFramePetsAllInOne:Hide()
-	else
-		AltoholicFrameClasses:Show()
-		AltoholicFramePetsNormal:Hide()
-		AltoholicFramePetsAllInOne:Show()
-	end
-	
-	AltoholicFramePets:Show()
-	
-	if value == 1 then
-		ns:SetType("CRITTER")
-	elseif value == 2 then
-		table.sort(DataStore:GetCompanionList(), function(a, b)
-					local textA = GetSpellInfo(a) or ""
-					local textB = GetSpellInfo(b) or ""
-					return textA < textB
-				end)
-		ns:UpdatePetsAllInOne()
-	elseif value == 3 then
-		ns:SetType("MOUNT")
-	elseif value == 4 then
-		table.sort(DataStore:GetMountList(), function(a, b)
-					local textA = GetSpellInfo(a) or ""
-					local textB = GetSpellInfo(b) or ""
-					return textA < textB
-				end)
-		ns:UpdatePetsAllInOne()
-	end
-end
-
-function ns:DropDownPets_Initialize()
-	local info = UIDropDownMenu_CreateInfo(); 
-	
-	info.text =  COMPANIONS
-	info.value = 1
-	info.func = OnChangePetView
-	info.checked = nil; 
-	info.icon = nil; 
-	UIDropDownMenu_AddButton(info, 1); 
-	
-	info.text = format("%s %s(%s)", COMPANIONS, GREEN, L["All-in-one"])
-	info.value = 2
-	info.func = OnChangePetView
-	info.checked = nil; 
-	info.icon = nil; 
-	UIDropDownMenu_AddButton(info, 1); 
-	
-	info.text =  MOUNTS
-	info.value = 3
-	info.func = OnChangePetView
-	info.checked = nil; 
-	info.icon = nil; 
-	UIDropDownMenu_AddButton(info, 1); 
-	
-	info.text = format("%s %s(%s)", MOUNTS, GREEN, L["All-in-one"])
-	info.value = 4
-	info.func = OnChangePetView
-	info.checked = nil; 
-	info.icon = nil; 
-	UIDropDownMenu_AddButton(info, 1); 
-end
-
+-- ** Single pet view **
 local function SetPage(pageNum)
 	currentPage = pageNum
 	
@@ -152,18 +83,31 @@ function ns:GoToNextPage()
 	SetPage(currentPage + 1)
 end
 
-function ns:SetType(petType)
+function ns:SetSinglePetView(petType)
 	selectedID = 1
 	currentPetType = petType
+	
+	AltoholicFramePetsNormal:Show()
+	AltoholicFramePetsAllInOne:Hide()
+	AltoholicFramePets:Show()
+	
 	SetPage(1)
 end
 
 function ns:UpdatePets()
 	local DS = DataStore
 	local character = addon.Tabs.Characters:GetCurrent()
-	local pets = DS:GetPets(character, currentPetType)
+	local pets = DataStore:GetPets(character, currentPetType)
 	
-	if not pets or (DS:GetNumPets(pets) == 0) then		-- added this test as simply addressing the table seems to make it grow, I'd assume this is due to AceDB magic value ['*'].
+	local num = DataStore:GetNumPets(pets)
+	
+	if currentPetType == "MOUNT" then
+		AltoholicTabCharactersStatus:SetText(format("%s|r / %s", DataStore:GetColoredCharacterName(character), format(MOUNTS .. " %s(%d)", GREEN, num)))
+	else
+		AltoholicTabCharactersStatus:SetText(format("%s|r / %s", DataStore:GetColoredCharacterName(character), format(COMPANIONS .. " %s(%d)", GREEN, num)))
+	end
+	
+	if not pets or (num == 0) then		-- added this test as simply addressing the table seems to make it grow, I'd assume this is due to AceDB magic value ['*'].
 		for i = 1, PETS_PER_PAGE do
 			local button = _G["AltoholicFramePetsNormal_Button" .. i];
 		
@@ -184,7 +128,7 @@ function ns:UpdatePets()
 		local index = offset + i
 		local button = _G["AltoholicFramePetsNormal_Button" .. i];
 		
-		local modelID, name, spellID, icon = DS:GetPetInfo(pets, index)
+		local modelID, name, spellID, icon = DataStore:GetPetInfo(pets, index)
 		
 		if icon and spellID then						-- if there's a pet  .. texture & enable it
 			button:SetNormalTexture(icon);	
@@ -211,23 +155,38 @@ function ns:UpdatePets()
 	end
 end
 
+-- ** All in one view **
+local function SortPets(a, b)
+	local textA = GetSpellInfo(a) or ""
+	local textB = GetSpellInfo(b) or ""
+	return textA < textB
+end
+
+function ns:SetAllInOneView(petType)
+	currentPetType = petType
+	AltoholicFramePetsNormal:Hide()
+	AltoholicFramePetsAllInOne:Show()
+	AltoholicFramePets:Show()
+	
+	if petType == "MOUNT" then
+		table.sort(DataStore:GetMountList(), SortPets)
+	else
+		table.sort(DataStore:GetCompanionList(), SortPets)
+	end
+end
+
 function ns:UpdatePetsAllInOne()
 	local VisibleLines = 8
 	local frame = "AltoholicFramePetsAllInOne"
 	local entry = frame.."Entry"
 		
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
-	
-	local mode = UIDropDownMenu_GetSelectedValue(AltoholicFramePets_SelectPetView);
-	local petList, petType
-	
-	local DS = DataStore
-	if mode == 2 then
-		petList = DS:GetCompanionList()
-		petType = "CRITTER"
-	elseif mode == 4 then
-		petList = DS:GetMountList()
-		petType = "MOUNT"
+	local petList
+
+	if currentPetType == "CRITTER" then
+		petList = DataStore:GetCompanionList()
+	elseif currentPetType == "MOUNT" then
+		petList = DataStore:GetMountList()
 	end
 	
 	local realm, account = addon:GetCurrentRealm()
@@ -255,12 +214,12 @@ function ns:UpdatePetsAllInOne()
 				
 				local classButton = _G["AltoholicFrameClassesItem" .. j]
 				if classButton.CharName then
-					character = DS:GetCharacter(classButton.CharName, realm, account)				
+					character = DataStore:GetCharacter(classButton.CharName, realm, account)				
 					
 					itemButton:SetScript("OnEnter", function(self) ns:OnEnter(self) end)
 					itemTexture:SetTexture(petTexture)
 					
-					if DS:IsPetKnown(character, petType, spellID) then
+					if DataStore:IsPetKnown(character, currentPetType, spellID) then
 						itemTexture:SetVertexColor(1.0, 1.0, 1.0);
 						_G[itemName .. "Name"]:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Ready:14\124t")
 					else
@@ -274,7 +233,7 @@ function ns:UpdatePetsAllInOne()
 					itemButton:Hide()
 				end
 			end
-						
+
 			_G[ entry..i ]:Show()
 		else
 			_G[ entry..i ]:Hide()
@@ -283,6 +242,8 @@ function ns:UpdatePetsAllInOne()
 
 	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], #petList, VisibleLines, 41);
 end
+
+
 
 local function ScanHunter()
 	-- this is a specific function to scan hunter pet talents

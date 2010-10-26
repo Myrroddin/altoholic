@@ -296,6 +296,7 @@ function ns:OnEnter(frame)
 end
 
 local VIEW_MOUNTS = 8
+local VIEW_PROFESSION = 12
 
 function ns:OnClick(frame, button)
 	local line = frame:GetParent():GetID()
@@ -347,7 +348,8 @@ function ns:OnClick(frame, button)
 
 	addon.Tabs:OnClick(2)
 	addon.Tabs.Characters:SetCurrent(charName, realm, account)
-	addon.Tabs.Characters:ViewRecipes(skillName)
+	addon.TradeSkills.Recipes:SetCurrentProfession(skillName)
+	addon.Tabs.Characters:ViewCharInfo(VIEW_PROFESSION)
 end
 
 local skillColors = { RECIPE_GREY, RED, ORANGE, YELLOW, GREEN }

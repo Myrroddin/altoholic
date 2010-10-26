@@ -455,4 +455,38 @@
 		</Frames>
 	</Button>
 	
+	<Button name="AltoMenuIconTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="36" y="36"/>
+		</Size>
+		<Layers>
+			<Layer level="BORDER">
+				<Texture name="$parentIconTexture"/>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame name="$parentShine" inherits="AutoCastShineTemplate">
+				<Anchors>
+					<Anchor point="CENTER">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Size>
+					<AbsDimension x="34" y="34"/>
+				</Size>
+			</Frame>
+		</Frames>
+
+		<PushedTexture file="Interface\Buttons\UI-Quickslot-Depress"/>
+		<HighlightTexture file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD"/>
+	</Button>
+	
+	<Frame name="AltoRightClickMenuTemplate" inherits="UIDropDownMenuTemplate" hidden="true" virtual="true">
+		<Size>
+			<AbsDimension x="100" y="40"/>
+		</Size>
+	</Frame>
+	
 </Ui>

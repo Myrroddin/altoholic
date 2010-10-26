@@ -78,6 +78,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
+			<!--
 			<Button name="$parentMenuItem6" inherits="AltoSummaryMenuItemTemplate" id="6">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem5" relativePoint="BOTTOMLEFT">
@@ -96,7 +97,6 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<!--
 			<Button name="$parentMenuItem8" inherits="AltoSummaryMenuItemTemplate" id="8">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem7" relativePoint="BOTTOMLEFT">

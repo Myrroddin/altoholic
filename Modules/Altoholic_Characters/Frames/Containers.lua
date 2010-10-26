@@ -16,62 +16,6 @@ addon.Containers = {}
 
 local ns = addon.Containers		-- ns = namespace
 
-local containerViewLabels = {
-	format("%s & %s", L["Bags"], L["Bank"]),
-	format("%s & %s %s(%s)", L["Bags"], L["Bank"], GREEN, L["All-in-one"]),
-	L["Bags"],
-	format("%s %s(%s)", L["Bags"], GREEN, L["All-in-one"]),
-	L["Bank"],
-	format("%s %s(%s)", L["Bank"], GREEN, L["All-in-one"]),
-}
-
-local function OnContainerViewChange(self)
-	local value = self.value
-	
-	UIDropDownMenu_SetSelectedValue(AltoholicFrameContainers_SelectContainerView, value);
-	addon:SetOption("lastContainerView", value)
-	ns:SetView(value)
-	ns:Update();
-end
-
-local function DropDownContainerView_Initialize() 
-	local info = UIDropDownMenu_CreateInfo(); 
-	
-	for i = 1, #containerViewLabels do
-		info.text = containerViewLabels[i]
-		info.value = i
-		info.func = OnContainerViewChange
-		info.checked = nil; 
-		info.icon = nil; 
-		UIDropDownMenu_AddButton(info, 1); 
-	end
-end
-
-local function OnRarityChange(self)
-	UIDropDownMenu_SetSelectedValue(AltoholicFrameContainers_SelectRarity, self.value);
-	ns:Update();
-end
-
-local function DropDownRarity_Initialize() 
-	local info = UIDropDownMenu_CreateInfo(); 
-	
-	info.text =  L["Any"]
-	info.value = 0
-	info.func = OnRarityChange
-	info.checked = nil; 
-	info.icon = nil; 
-	UIDropDownMenu_AddButton(info, 1); 
-	
-	for i = 2, 6 do		-- Quality: 0 = poor .. 5 = legendary
-		info.text = ITEM_QUALITY_COLORS[i].hex .. _G["ITEM_QUALITY"..i.."_DESC"]
-		info.value = i
-		info.func = OnRarityChange
-		info.checked = nil; 
-		info.icon = nil; 
-		UIDropDownMenu_AddButton(info, 1); 
-	end
-end
-
 local bagIndices
 
 local function UpdateBagIndices(bag, size)
@@ -94,8 +38,8 @@ local function UpdateBagIndices(bag, size)
 end
 
 local function UpdateSpread()
-	local mode = UIDropDownMenu_GetSelectedValue(AltoholicFrameContainers_SelectContainerView)
-	local rarity = UIDropDownMenu_GetSelectedValue(AltoholicFrameContainers_SelectRarity)
+
+	local rarity = addon:GetOption("CharacterTabViewBagsRarity")
 	local VisibleLines = 7
 	local frame = "AltoholicFrameContainers"
 	local entry = frame.."Entry"
@@ -104,12 +48,12 @@ local function UpdateSpread()
 		addon:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
 		return
 	end
-
-	AltoholicTabCharactersStatus:SetText("")
 	
 	local character = Altoholic.Tabs.Characters:GetCurrent()
 	local DS = DataStore
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
+	
+	AltoholicTabCharactersStatus:SetText(format("%s|r / %s", DataStore:GetColoredCharacterName(character), L["Containers"]))
 	
 	for i=1, VisibleLines do
 		local line = i + offset
@@ -240,15 +184,19 @@ local function UpdateSpread()
 end	
 
 local function UpdateAllInOne()
-	local mode = UIDropDownMenu_GetSelectedValue(AltoholicFrameContainers_SelectContainerView)
-	local rarity = UIDropDownMenu_GetSelectedValue(AltoholicFrameContainers_SelectRarity)
+	local viewBags = (addon:GetOption("CharacterTabViewBags") == 1)
+	local viewBank = (addon:GetOption("CharacterTabViewBank") == 1)
+	
+	local bagsOnly = (viewBags and not viewBank)
+	local bankOnly = (viewBank and not viewBags)
+
+	local rarity = addon:GetOption("CharacterTabViewBagsRarity")
 	local VisibleLines = 7
 	local frame = "AltoholicFrameContainers"
 	local entry = frame.."Entry"
 	
-	AltoholicTabCharactersStatus:SetText("")
-	
 	local character = Altoholic.Tabs.Characters:GetCurrent()
+	AltoholicTabCharactersStatus:SetText(format("%s|r / %s / %s", DataStore:GetColoredCharacterName(character), L["Containers"], L["All-in-one"]))
 
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
 	
@@ -259,14 +207,14 @@ local function UpdateAllInOne()
 	
 	local containerList = {}
 	
-	if mode ~= BANKONLY_ALLINONE then		-- if it's not a bank only view, add the normal bags
+	if not bankOnly then		-- if it's not a bank only view, add the normal bags
 		table.insert(containerList, -2)
 		for i = 0, 4 do
 			table.insert(containerList, i)
 		end
 	end
 	
-	if mode ~= BAGSONLY_ALLINONE then		-- if it's not a bag only view, add bank bags
+	if not bagsOnly then		-- if it's not a bag only view, add bank bags
 		for i = 5, 11 do
 			table.insert(containerList, i)
 		end
@@ -274,65 +222,67 @@ local function UpdateAllInOne()
 	end
 
 	local DS = DataStore
-	for _, containerID in pairs(containerList) do
-		local container = DS:GetContainer(character, containerID)
-		local _, _, containerSize = DS:GetContainerInfo(character, containerID)
+	if viewBags or viewBank then
+		for _, containerID in pairs(containerList) do
+			local container = DS:GetContainer(character, containerID)
+			local _, _, containerSize = DS:GetContainerInfo(character, containerID)
 
-		for slotID = 1, containerSize do
-			local itemID, itemLink, itemCount = DS:GetSlotInfo(container, slotID)
-			if itemID then
-				currentSlotIndex = currentSlotIndex + 1
-				if (currentSlotIndex > minSlotIndex) and (i <= VisibleLines) then
-					local itemName = entry..i .. "Item" .. j;
-					local itemButton = _G[itemName];
-					local itemTexture = _G[itemName.."IconTexture"]
-					
-					Altoholic:CreateButtonBorder(itemButton)
-					itemButton.border:Hide()
-					
-					Altoholic:SetItemButtonTexture(itemName, GetItemIcon(itemID));
-					itemTexture:SetDesaturated(0)
-					
-					if rarity ~= 0 then
-						local _, _, itemRarity = GetItemInfo(itemID)
-						if itemRarity and itemRarity == rarity then
-							local r, g, b = GetItemQualityColor(itemRarity)
-							itemButton.border:SetVertexColor(r, g, b, 0.5)
-							itemButton.border:Show()
-						else
-							itemTexture:SetDesaturated(1)
+			for slotID = 1, containerSize do
+				local itemID, itemLink, itemCount = DS:GetSlotInfo(container, slotID)
+				if itemID then
+					currentSlotIndex = currentSlotIndex + 1
+					if (currentSlotIndex > minSlotIndex) and (i <= VisibleLines) then
+						local itemName = entry..i .. "Item" .. j;
+						local itemButton = _G[itemName];
+						local itemTexture = _G[itemName.."IconTexture"]
+						
+						Altoholic:CreateButtonBorder(itemButton)
+						itemButton.border:Hide()
+						
+						Altoholic:SetItemButtonTexture(itemName, GetItemIcon(itemID));
+						itemTexture:SetDesaturated(0)
+						
+						if rarity ~= 0 then
+							local _, _, itemRarity = GetItemInfo(itemID)
+							if itemRarity and itemRarity == rarity then
+								local r, g, b = GetItemQualityColor(itemRarity)
+								itemButton.border:SetVertexColor(r, g, b, 0.5)
+								itemButton.border:Show()
+							else
+								itemTexture:SetDesaturated(1)
+							end
 						end
-					end
+						
+						itemButton.id = itemID
+						itemButton.link = itemLink
+						itemButton:SetScript("OnEnter", function(self) 
+								Altoholic:Item_OnEnter(self)
+							end)
 					
-					itemButton.id = itemID
-					itemButton.link = itemLink
-					itemButton:SetScript("OnEnter", function(self) 
-							Altoholic:Item_OnEnter(self)
-						end)
+						local countWidget = _G[itemName .. "Count"]
+						if not itemCount or (itemCount < 2) then
+							countWidget:Hide();
+						else
+							countWidget:SetText(itemCount);
+							countWidget:Show();
+						end
+						
+						local startTime, duration, isEnabled = DS:GetContainerCooldownInfo(container, slotID)
+						
+						itemButton.startTime = startTime
+						itemButton.duration = duration
+						
+						CooldownFrame_SetTimer(_G[itemName .. "Cooldown"], startTime or 0, duration or 0, isEnabled)
 				
-					local countWidget = _G[itemName .. "Count"]
-					if not itemCount or (itemCount < 2) then
-						countWidget:Hide();
-					else
-						countWidget:SetText(itemCount);
-						countWidget:Show();
-					end
-					
-					local startTime, duration, isEnabled = DS:GetContainerCooldownInfo(container, slotID)
-					
-					itemButton.startTime = startTime
-					itemButton.duration = duration
-					
-					CooldownFrame_SetTimer(_G[itemName .. "Cooldown"], startTime or 0, duration or 0, isEnabled)
-			
-					_G[ itemName ]:Show()
-					
-					j = j + 1
-					if j > 14 then
-						j = 1
-						i = i + 1
-					end
-				end				
+						_G[ itemName ]:Show()
+						
+						j = j + 1
+						if j > 14 then
+							j = 1
+							i = i + 1
+						end
+					end				
+				end
 			end
 		end
 	end
@@ -359,9 +309,8 @@ local function UpdateAllInOne()
 end
 
 
-function ns:SetView(view)
-	view = view or 1
-	if mod(view, 2) ~= 0 then	-- not an all-in-one view
+function ns:SetView(isAllInOne)
+	if not isAllInOne then	-- not an all-in-one view
 		ns.Update = UpdateSpread
 		ns:UpdateCache()
 		FauxScrollFrame_SetOffset( AltoholicFrameContainersScrollFrame, 0)
@@ -371,62 +320,47 @@ function ns:SetView(view)
 end
 
 function ns:UpdateCache()
-	local mode = UIDropDownMenu_GetSelectedValue(AltoholicFrameContainers_SelectContainerView)
-	local character = addon.Tabs.Characters:GetCurrent()
-	
 	bagIndices = bagIndices or {}
 	wipe(bagIndices)
 	
+	local viewBags = (addon:GetOption("CharacterTabViewBags") == 1)
+	local viewBank = (addon:GetOption("CharacterTabViewBank") == 1)
+	if not viewBags and not viewBank then return end
+	
+	local bagsOnly = (viewBags and not viewBank)
+	local bankOnly = (viewBank and not viewBags)
+
 	local bagMin = 0
 	local bagMax = 11
 	
 	-- bags : -2 (keyring) and 0 to 4
 	-- bank: 5 to 11 and 100
-	if mode == BAGSONLY then
+	if bagsOnly then
 		bagMax = 4			-- 0 to 4
-	elseif mode == BANKONLY then
+	elseif bankOnly then
 		bagMin = 5			-- 5 to 11
 	end
 	
-	local DS = DataStore
+	local character = addon.Tabs.Characters:GetCurrent()
 	for bagID = bagMin, bagMax do
-		if DS:GetContainer(character, bagID) then
-			local _, _, size = DS:GetContainerInfo(character, bagID)
+		if DataStore:GetContainer(character, bagID) then
+			local _, _, size = DataStore:GetContainerInfo(character, bagID)
 			UpdateBagIndices(bagID, size)
 		end
 	end
 	
-	if mode ~= BANKONLY then
+	if not bankOnly then
 		UpdateBagIndices(-2, 32)		-- KeyRing
 	end
 	
-	if mode ~= BAGSONLY then
-		if DS:GetContainer(character, 100) then 	-- if bank hasn't been visited yet, exit
+	if not bagsOnly then
+		if DataStore:GetContainer(character, 100) then 	-- if bank hasn't been visited yet, exit
 			UpdateBagIndices(100, 28)
 		end
 	end
 end
 
--- *** EVENT HANDLERS ***
-function ns:SelectContainer_OnLoad(frame)
-	local mode = addon:GetOption("lastContainerView")
-	mode = mode or 1
-	
-	UIDropDownMenu_SetWidth(frame, 120) 
-	UIDropDownMenu_SetButtonWidth(frame, 20)
-	UIDropDownMenu_SetSelectedValue(frame, mode);
-	UIDropDownMenu_SetText(frame, containerViewLabels[mode])
-	UIDropDownMenu_Initialize(frame, DropDownContainerView_Initialize)
-end
-
-function ns:SelectRarity_OnLoad(frame)
-	UIDropDownMenu_SetWidth(frame, 100) 
-	UIDropDownMenu_SetButtonWidth(frame, 20)
-	UIDropDownMenu_SetSelectedValue(frame, 0);
-	UIDropDownMenu_SetText(frame, L["Any"])
-	UIDropDownMenu_Initialize(frame, DropDownRarity_Initialize)
-end
-
+-- *** Event Handlers ***
 local function OnBagUpdate(bag)
 	addon:RefreshTooltip()
 
