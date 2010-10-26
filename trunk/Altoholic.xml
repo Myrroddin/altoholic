@@ -293,7 +293,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentTab4" inherits="AltoTabTemplate" id="4" text="GUILD_BANK">
+			<Button name="$parentTab4" inherits="AltoTabTemplate" id="4" text="GUILD">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentTab3" relativePoint="TOPRIGHT">
 						<Offset>

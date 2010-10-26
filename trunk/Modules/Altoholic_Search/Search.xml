@@ -117,7 +117,12 @@
 				</Anchors>
 				<Scripts>
 					<OnEnter>
-						local link = select(2, GetItemInfo(self:GetID()))
+						-- local link = select(2, GetItemInfo(self:GetID()))
+						
+						local link = self:GetParent():GetID()
+						if link then link = Altoholic.Search:GetResult(link) end
+						if link then link = link.link end
+						if not link then link = select(2, GetItemInfo(self:GetID())) end
 						
 						if link then
 							GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
@@ -129,7 +134,12 @@
 						GameTooltip:Hide();
 					</OnLeave>
 					<OnClick>
-						local link = select(2, GetItemInfo(self:GetID()))
+						-- local link = select(2, GetItemInfo(self:GetID()))
+							
+						local link = self:GetParent():GetID()
+						if link then link = Altoholic.Search:GetResult(link) end
+						if link then link = link.link end
+						if not link then link = select(2, GetItemInfo(self:GetID())) end
 							
 						if link then
 							if ( button == "LeftButton" ) and ( IsControlKeyDown() ) then

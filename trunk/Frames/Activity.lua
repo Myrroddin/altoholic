@@ -221,9 +221,9 @@ function ns:OnEnter(self)
 	AltoTooltip:Show();
 end
 
-local VIEW_MAILS = 3
 local VIEW_AUCTIONS = 5
 local VIEW_BIDS = 6
+local VIEW_MAILS = 7
 
 function ns:OnClick(self)
 	local line = self:GetParent():GetID()

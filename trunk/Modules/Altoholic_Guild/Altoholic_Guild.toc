@@ -1,11 +1,14 @@
 ﻿## Interface: 40000
-## Title: Altoholic_Search
-## Notes: Altoholic's Search UI
+## Title: Altoholic_Guild
+## Notes: Altoholic's Guild UI
 ## Author: Thaoky (EU-Marécages de Zangar)
 ## Version: 4.0.003
 ## Dependencies: Altoholic, DataStore, DataStore_Characters
 ## LoadOnDemand: 1
 ## X-Category: Interface Enhancements
 
-TabSearch.xml
-Search.xml
+TabGuild.xml
+
+Frames\GuildMembers.xml
+Frames\GuildBank.xml
+# Frames\GuildProfessions.xml

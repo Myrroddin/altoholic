@@ -4,8 +4,8 @@ _G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "A
 
 local addon = _G[addonName]
 
-addon.Version = "v4.0.002"
-addon.VersionNum = 400002
+addon.Version = "v4.0.003"
+addon.VersionNum = 400003
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local commPrefix = addonName
@@ -132,6 +132,13 @@ local AddonDB_Defaults = {
 			WarningType2 = "30|15|10|5|4|3|2|1",		-- for dungeon resets
 			WarningType3 = "30|15|10|5|4|3|2|1",		-- for calendar events
 			WarningType4 = "30|15|10|5|4|3|2|1",		-- for item timers (like mysterious egg)
+			
+			-- ** Character tab options **
+			CharacterTabViewBags = 1,
+			CharacterTabViewBank = 1,
+			CharacterTabViewBagsAllInOne = 0,
+			CharacterTabViewBagsRarity = 0,
+			
 		},
 }}
 
@@ -201,19 +208,12 @@ function addon:OnInitialize()
 	DataStore:SetGuildCommCallbacks(commPrefix, GuildCommCallbacks)
 
 	addon:RegisterMessage("DATASTORE_ANNOUNCELOGIN", OnAnnounceLogin)
-	addon:RegisterMessage("DATASTORE_GUILD_ALTS_RECEIVED")
 	
 	addon:RegisterComm("AltoShare", "AccSharingHandler")
 	addon:RegisterComm(commPrefix, DataStore:GetGuildCommHandler())
 	
+	-- this event MUST stay here, we have to be able to respond to a request event if the guild tab is not loaded
 	addon:RegisterMessage("DATASTORE_BANKTAB_REQUESTED")
-	addon:RegisterMessage("DATASTORE_BANKTAB_REQUEST_ACK")
-	addon:RegisterMessage("DATASTORE_BANKTAB_REQUEST_REJECTED")
-	addon:RegisterMessage("DATASTORE_BANKTAB_UPDATE_SUCCESS")
-	addon:RegisterMessage("DATASTORE_PLAYER_EQUIPMENT_RECEIVED")
-	addon:RegisterMessage("DATASTORE_GUILD_BANKTABS_UPDATED")
-	addon:RegisterMessage("DATASTORE_GUILD_PROFESSION_RECEIVED")
-	addon:RegisterMessage("DATASTORE_GUILD_MEMBER_OFFLINE")
 	addon:RegisterMessage("DATASTORE_GUILD_MAIL_RECEIVED")
 	addon:RegisterMessage("DATASTORE_GLOBAL_MAIL_EXPIRY")
 end
@@ -238,7 +238,6 @@ function addon:ChatCommand(input)
 	end
 end
 
-addon.Guild = {}
 addon.TradeSkills = {}
 addon.TradeSkills.Recipes = {}
 
@@ -248,7 +247,7 @@ local tabList = {
 	"Summary",
 	"Characters",
 	"Search",
-	"GuildBank",
+	"Guild",
 	"Achievements",
 }
 
@@ -286,7 +285,7 @@ function addon.Tabs:OnClick(index)
 	self.current = index
 	self.Columns.prefix = addonName.."Tab"..tabList[index].."_Sort"
 	
-	if index == 2 or index == 3 or index == 5 then
+	if index >= 2 and index <= 5 then
 		SafeLoadAddOn(format("%s_%s", addonName, tabList[index]))		-- make this part a bit more generic once we'll have more LoD parts
 	end
 	

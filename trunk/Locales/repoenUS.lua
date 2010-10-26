@@ -222,6 +222,9 @@ L["Heal"] = true
 --GuildBank.lua
 L["Last visit: %s by %s"] = true
 L["Local Time: %s   %sRealm Time: %s"] = true
+L["Update current tab from"] = true
+L["Newer data"] = true
+L["Older data"] = true
 
 --Mails.lua
 L[" has not visited his/her mailbox yet"] = true

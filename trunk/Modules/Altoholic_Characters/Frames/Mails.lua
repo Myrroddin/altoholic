@@ -88,25 +88,21 @@ function ns:Update()
 	
 	local DS = DataStore
 	local character = addon.Tabs.Characters:GetCurrent()
-	local lastVisit = DS:GetMailboxLastVisit(character)
 	
-	if lastVisit ~= 0 then
-		local localDate = format(L["Last visit: %s by %s"], GREEN..date("%m/%d/%Y", lastVisit)..WHITE, GREEN..player)
-		AltoholicFrameMailInfo1:SetText(localDate .. WHITE .. " @ " .. date("%H:%M", lastVisit))
-		AltoholicFrameMailInfo1:Show()
-	else
-		-- never visited the mailbox
-		AltoholicFrameMailInfo1:Hide()
-	end
+	-- local lastVisit = DS:GetMailboxLastVisit(character)
+	-- if lastVisit ~= 0 then
+		-- local localDate = format(L["Last visit: %s by %s"], GREEN..date("%m/%d/%Y", lastVisit)..WHITE, GREEN..player)
+		-- AltoholicFrameMailInfo1:SetText(localDate .. WHITE .. " @ " .. date("%H:%M", lastVisit))
+		-- AltoholicFrameMailInfo1:Show()
+	-- else		-- never visited the mailbox
+		-- AltoholicFrameMailInfo1:Hide()
+	-- end
 	
 	local numMails = DS:GetNumMails(character) or 0
-	if numMails == 0 then
-		AltoholicTabCharactersStatus:SetText(format(L["%s has no mail"], player))
-		-- make sure the scroll frame is cleared !
+	AltoholicTabCharactersStatus:SetText(format("%s|r / %s", DataStore:GetColoredCharacterName(character), format(L["Mails %s(%d)"], GREEN, numMails)))
+	if numMails == 0 then		-- make sure the scroll frame is cleared !
 		addon:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
 		return
-	else
-		AltoholicTabCharactersStatus:SetText("")
 	end
 	
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );

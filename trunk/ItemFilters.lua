@@ -126,11 +126,11 @@ function ns:TryFilter(filter)
 end
 
 -- currently searched item
-function ns:SetSearchedItem(itemID)
+function ns:SetSearchedItem(itemID, itemLink)
 	local s = searchedItem
 	
 	s.itemID = itemID
-	s.itemName, s.itemLink, s.itemRarity, s.itemLevel,	s.itemMinLevel, s.itemType, s.itemSubType, _, s.itemEquipLoc = GetItemInfo(itemID)
+	s.itemName, s.itemLink, s.itemRarity, s.itemLevel,	s.itemMinLevel, s.itemType, s.itemSubType, _, s.itemEquipLoc = GetItemInfo(itemLink or itemID)
 end
 
 function ns:GetSearchedItemInfo(field)

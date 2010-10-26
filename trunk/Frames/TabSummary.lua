@@ -17,9 +17,9 @@ local childrenFrames = {
 	"BagUsage",
 	"Skills",
 	"Activity",
-	"GuildMembers",
+	-- "GuildMembers",
 	-- "GuildProfessions",
-	"GuildBankTabs",
+	-- "GuildBankTabs",
 	"Calendar",
 }
 
@@ -83,9 +83,6 @@ function ns:Init()
 		addon.BagUsage,
 		addon.TradeSkills,
 		addon.Activity,
-		addon.Guild.Members,
-		-- addon.Guild.Professions,
-		addon.Guild.BankTabs,
 		addon.Calendar,
 	}
 	
@@ -104,11 +101,11 @@ function ns:MenuItem_OnClick(id)
 
 	ns:SetMode(id)
 	
-	if id == 5 then				-- specific treatment per frame goes here
-		if IsInGuild() then
-			GuildRoster()
-		end
-	end
+	-- if id == 5 then				-- specific treatment per frame goes here
+		-- if IsInGuild() then
+			-- GuildRoster()
+		-- end
+	-- end
 	
 	local f = _G[ "AltoholicFrame" .. childrenFrames[id]]
 	local o = childrenObjects[id]
@@ -119,7 +116,7 @@ function ns:MenuItem_OnClick(id)
 	f:Show()
 	o:Update()
 	
-	for i=1, 7 do 
+	for i=1, 5 do 
 		_G[ "AltoholicTabSummaryMenuItem"..i ]:UnlockHighlight();
 	end
 	_G[ "AltoholicTabSummaryMenuItem"..id ]:LockHighlight();
@@ -181,13 +178,6 @@ function ns:SetMode(mode)
 		Columns:Add(L["Visited"], 60, function(self) addon.Characters:Sort(self, "GetAuctionHouseLastVisit") end)
 		Columns:Add(LASTONLINE, 90, function(self) addon.Characters:Sort(self, "GetLastLogout") end)
 
-	elseif currentMode == 5 then
-		Columns:Add(NAME, 100, function(self) addon.Guild.Members:Sort(self, "name") end)
-		Columns:Add(LEVEL, 60, function(self) addon.Guild.Members:Sort(self, "level") end)
-		Columns:Add("AiL", 65, function(self) addon.Guild.Members:Sort(self, "averageItemLvl") end)
-		Columns:Add(GAME_VERSION_LABEL, 80, function(self) addon.Guild.Members:Sort(self, "version") end)
-		Columns:Add(CLASS, 100, function(self) addon.Guild.Members:Sort(self, "englishClass") end)
-
 	-- elseif currentMode == 6 then
 		-- Columns:Add(NAME, 60, function(self) addon.Guild.Professions:Sort(self, "name") end)
 		-- Columns:Add(LEVEL, 60, function(self) addon.Guild.Professions:Sort(self, "level") end)
@@ -197,11 +187,7 @@ function ns:SetMode(mode)
 		-- title = GetSpellInfo(2550)		-- cooking
 		-- Columns:Add(title, 110, function(self) addon.Guild.Professions:Sort(self, "profLink", 3) end)
 		
-	elseif currentMode == 6 then
-		Columns:Add(NAME, 100, nil)
-		Columns:Add(TIMEMANAGER_TOOLTIP_LOCALTIME, 120,  nil)
-		Columns:Add(TIMEMANAGER_TOOLTIP_REALMTIME, 120,  nil)
-	elseif currentMode == 7 then
+	elseif currentMode == 5 then
 		AltoholicTabSummaryToggleView:Hide()
 		AltoholicTabSummary_SelectLocation:Hide()
 		AltoholicTabSummary_RequestSharing:Hide()
@@ -219,12 +205,6 @@ function ns:Refresh()
 		addon.TradeSkills:Update()
 	elseif AltoholicFrameActivity:IsVisible() then
 		addon.Activity:Update()
-	elseif AltoholicFrameGuildMembers:IsVisible() then
-		addon.Guild.Members:Update()
-	-- elseif AltoholicFrameGuildProfessions:IsVisible() then
-		-- addon.Guild.Professions:Update()
-	elseif AltoholicFrameGuildBankTabs:IsVisible() then
-		addon.Guild.BankTabs:Update()
 	elseif AltoholicFrameCalendar:IsVisible() then
 		addon.Calendar.Events:BuildList()
 		addon.Calendar:Update()
@@ -243,12 +223,6 @@ function ns:ToggleView(frame)
 	if (currentMode >= 1) and (currentMode <= 4) then
 		addon.Characters:ToggleView(frame)
 		ns:Refresh()
-	elseif currentMode == 5 then
-		addon.Guild.Members:ToggleView(frame)
-	-- elseif currentMode == 6 then
-		-- addon.Guild.Professions:ToggleView(frame)
-	elseif currentMode == 6 then
-		addon.Guild.BankTabs:ToggleView(frame)
 	end
 end
 

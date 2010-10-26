@@ -221,20 +221,10 @@
 							<Size x="50" y="20" />
 							<Anchors>
 								<Anchor point="TOPLEFT">
-									<Offset x="20" y="-13" />
+									<Offset x="420" y="-13" />
 								</Anchor>
 							</Anchors>
 							<Color r="255" g="255" b="255" />
-						</FontString>
-						<FontString name="$parent_NumRecipes" inherits="GameFontNormalSmall" justifyH="LEFT">
-							<Size x="300" y="20" />
-							<Anchors>
-								<Anchor point="TOPLEFT" relativeTo="$parent_CollapseAllText" relativePoint="BOTTOMLEFT" >
-									<Offset>
-										<AbsDimension x="-20" y="-6"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
 						</FontString>
 					</Layer>
 				</Layers>
@@ -246,7 +236,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="0" y="-15"/>
+									<AbsDimension x="400" y="-15"/>
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -289,58 +279,7 @@
 							<TexCoords left="0" right="1.0" top="0.5" bottom="1.0"/>
 						</HighlightTexture>
 					</Button>
-					
-					<Frame name="$parent_SelectColor" inherits="UIDropDownMenuTemplate">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parent_LinkButton" relativePoint="TOPRIGHT">
-								<Offset>
-									<AbsDimension x="10" y="0"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								UIDropDownMenu_SetWidth(self, 100) 
-								UIDropDownMenu_SetButtonWidth(self, 20)
-								UIDropDownMenu_Initialize(self, Altoholic.TradeSkills.Recipes.DropDownColor_Initialize)
-								UIDropDownMenu_SetSelectedValue(self, 0);
-							</OnLoad>
-						</Scripts>
-					</Frame>
-					<Frame name="$parent_SelectSubclass" inherits="UIDropDownMenuTemplate">
-						<Anchors>
-							<Anchor point="LEFT" relativeTo="$parent_SelectColor" relativePoint="RIGHT">
-								<Offset>
-									<AbsDimension x="-5" y="0"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								UIDropDownMenu_SetWidth(self, 120) 
-								UIDropDownMenu_SetButtonWidth(self, 20)
-								UIDropDownMenu_Initialize(self, Altoholic.TradeSkills.Recipes.DropDownSubclass_Initialize)
-								UIDropDownMenu_SetSelectedValue(self, ALL_SUBCLASSES);
-							</OnLoad>
-						</Scripts>
-					</Frame>
-					<Frame name="$parent_SelectInvSlot" inherits="UIDropDownMenuTemplate">
-						<Anchors>
-							<Anchor point="LEFT" relativeTo="$parent_SelectSubclass" relativePoint="RIGHT">
-								<Offset>
-									<AbsDimension x="-5" y="0"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								UIDropDownMenu_SetWidth(self, 120) 
-								UIDropDownMenu_SetButtonWidth(self, 20)
-								UIDropDownMenu_Initialize(self, Altoholic.TradeSkills.Recipes.DropDownInvSlot_Initialize)
-								UIDropDownMenu_SetSelectedValue(self, ALL_INVENTORY_SLOTS);
-							</OnLoad>
-						</Scripts>
-					</Frame>
+
 				</Frames>
 			</Frame>
 			<ScrollFrame name="$parentScrollFrame" inherits="FauxScrollFrameTemplate">

@@ -45,7 +45,8 @@ function ns:Update()
 		addon:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
 		return
 	end
-	AltoholicTabCharactersStatus:SetText("")
+
+	AltoholicTabCharactersStatus:SetText(format("%s|r / %s", DataStore:GetColoredCharacterName(character), QUEST_LOG))
 	
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
 	local DisplayedCount = 0

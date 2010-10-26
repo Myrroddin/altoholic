@@ -77,15 +77,14 @@ local function BuildView()
 	view = view or {}
 	wipe(view)
 	
-	local DS = DataStore
 	local character = addon.Tabs.Characters:GetCurrent()
 	if not character then return end
 	
 	local num
 	if listType == "Auctions" then
-		num = DS:GetNumAuctions(character) or 0
+		num = DataStore:GetNumAuctions(character) or 0
 	else
-		num = DS:GetNumBids(character) or 0
+		num = DataStore:GetNumBids(character) or 0
 	end
 	
 	for i = 1, num do
@@ -144,25 +143,22 @@ function ns:UpdateAuctions()
 
 	local DS = DataStore
 	local character = addon.Tabs.Characters:GetCurrent()
-	local lastVisit = DS:GetAuctionHouseLastVisit(character)
 	
-	if lastVisit ~= 0 then
-		local localDate = format(L["Last visit: %s by %s"], GREEN..date("%m/%d/%Y", lastVisit)..WHITE, GREEN..player)
-		AltoholicFrameAuctionsInfo1:SetText(localDate .. WHITE .. " @ " .. date("%H:%M", lastVisit))
-		AltoholicFrameAuctionsInfo1:Show()
-	else
-		-- never visited the AH
-		AltoholicFrameAuctionsInfo1:Hide()
-	end
+	-- local lastVisit = DS:GetAuctionHouseLastVisit(character)
+	-- if lastVisit ~= 0 then
+		-- local localDate = format(L["Last visit: %s by %s"], GREEN..date("%m/%d/%Y", lastVisit)..WHITE, GREEN..player)
+		-- AltoholicFrameAuctionsInfo1:SetText(localDate .. WHITE .. " @ " .. date("%H:%M", lastVisit))
+		-- AltoholicFrameAuctionsInfo1:Show()
+	-- else		-- never visited the AH
+		-- AltoholicFrameAuctionsInfo1:Hide()
+	-- end
 	
 	local numAuctions = DS:GetNumAuctions(character) or 0
-	if numAuctions == 0 then
-		AltoholicTabCharactersStatus:SetText(format(L["%s has no auctions"], player))
-		-- make sure the scroll frame is cleared !
+	AltoholicTabCharactersStatus:SetText(format("%s|r / %s", DataStore:GetColoredCharacterName(character), format(L["Auctions %s(%d)"], GREEN, numAuctions)))
+	
+	if numAuctions == 0 then		-- make sure the scroll frame is cleared !
 		addon:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
 		return
-	else
-		AltoholicTabCharactersStatus:SetText("")
 	end
 
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
@@ -171,7 +167,7 @@ function ns:UpdateAuctions()
 		local line = i + offset
 		if line <= numAuctions then
 			local index = view[line]
-		
+
 			local isGoblin, itemID, count, highBidder, startPrice, buyoutPrice, timeLeft = DS:GetAuctionHouseItemInfo(character, "Auctions", index)
 
 			local itemName, _, itemRarity = GetItemInfo(itemID)
@@ -225,25 +221,21 @@ function ns:UpdateBids()
 	local DS = DataStore
 	local character = addon.Tabs.Characters:GetCurrent()
 	
-	local lastVisit = DS:GetAuctionHouseLastVisit(character)
-	
-	if lastVisit ~= 0 then
-		local localDate = format(L["Last visit: %s by %s"], GREEN..date("%m/%d/%Y", lastVisit)..WHITE, GREEN..player)
-		AltoholicFrameAuctionsInfo1:SetText(localDate .. WHITE .. " @ " .. date("%H:%M", lastVisit))
-		AltoholicFrameAuctionsInfo1:Show()
-	else
-		-- never visited the AH
-		AltoholicFrameAuctionsInfo1:Hide()
-	end
+	-- local lastVisit = DS:GetAuctionHouseLastVisit(character)
+	-- if lastVisit ~= 0 then
+		-- local localDate = format(L["Last visit: %s by %s"], GREEN..date("%m/%d/%Y", lastVisit)..WHITE, GREEN..player)
+		-- AltoholicFrameAuctionsInfo1:SetText(localDate .. WHITE .. " @ " .. date("%H:%M", lastVisit))
+		-- AltoholicFrameAuctionsInfo1:Show()
+	-- else		-- never visited the AH
+		-- AltoholicFrameAuctionsInfo1:Hide()
+	-- end
 	
 	local numBids = DS:GetNumBids(character) or 0
-	if numBids == 0 then
-		AltoholicTabCharactersStatus:SetText(format(L["%s has no bids"], player))
-		-- make sure the scroll frame is cleared !
+	AltoholicTabCharactersStatus:SetText(format("%s|r / %s", DataStore:GetColoredCharacterName(character), format(L["Bids %s(%d)"], GREEN, numBids)))
+	
+	if numBids == 0 then		-- make sure the scroll frame is cleared !
 		addon:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
 		return
-	else
-		AltoholicTabCharactersStatus:SetText("")
 	end
 	
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
@@ -324,48 +316,6 @@ function ns:OnClick(frame, button)
 		end
 	end
 end
-
-local function ClearPlayerAHEntries(self)
-	local character = addon.Tabs.Characters:GetCurrent()
-	
-	if (self.value == 1) or (self.value == 3) then	-- clean this faction's data
-		DataStore:ClearAuctionEntries(character, listType, 0)
-	end
-	
-	if (self.value == 2) or (self.value == 3) then	-- clean goblin AH
-		DataStore:ClearAuctionEntries(character, listType, 1)
-	end
-	
-	ns:InvalidateView()
-end
-
-function ns:RightClickMenu_OnLoad()
-	local info = UIDropDownMenu_CreateInfo(); 
-
-	info.text		= WHITE .. L["Clear your faction's entries"]
-	info.value		= 1
-	info.func		= ClearPlayerAHEntries
-	UIDropDownMenu_AddButton(info, 1); 
-
-	info.text		= WHITE .. L["Clear goblin AH entries"]
-	info.value		= 2
-	info.func		= ClearPlayerAHEntries
-	UIDropDownMenu_AddButton(info, 1); 
-	
-	info.text		= WHITE .. L["Clear all entries"]
-	info.value		= 3
-	info.func		= ClearPlayerAHEntries
-	UIDropDownMenu_AddButton(info, 1); 
-
-	-- Close menu item
-	info.text = CLOSE
-	info.func = function() CloseDropDownMenus() end
-	info.checked = nil
-	info.icon = nil
-	info.notCheckable = 1
-	UIDropDownMenu_AddButton(info, 1)
-end
-
 
 -- *** EVENT HANDLERS ***
 local function OnClose()
