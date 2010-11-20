@@ -308,8 +308,6 @@ function ns:OnClick(frame, button)
 	local id = frame:GetID()
 	if id >= 5 then return end		-- fishing or archaeology ? do nothing
 	
-	addon:SetCurrentCharacter( Characters:GetInfo(line) )
-	
 	local skillName
 	if id == 1 then
 		skillName = Characters:GetField(line, "skillName1")
@@ -334,7 +332,7 @@ function ns:OnClick(frame, button)
 		end
 	end
 	
-	local charName, realm, account = addon:GetCurrentCharacter()
+	local charName, realm, account = Characters:GetInfo(line)
 	local chat = ChatEdit_GetLastActiveWindow()
 	
 	if chat:IsShown() and IsShiftKeyDown() and realm == GetRealmName() and id ~= 6 then
@@ -347,8 +345,9 @@ function ns:OnClick(frame, button)
 	end
 
 	addon.Tabs:OnClick(2)
-	addon.Tabs.Characters:SetCurrent(charName, realm, account)
+	addon.Tabs.Characters:SetAlt(charName, realm, account)
 	addon.TradeSkills.Recipes:SetCurrentProfession(skillName)
+	addon.Tabs.Characters:MenuItem_OnClick(AltoholicTabCharacters_Characters, "LeftButton")
 	addon.Tabs.Characters:ViewCharInfo(VIEW_PROFESSION)
 end
 

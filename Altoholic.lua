@@ -6,6 +6,7 @@ local addonName = ...
 local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
+local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local DS
 
 local WHITE		= "|cFFFFFFFF"
@@ -109,9 +110,9 @@ local function BuildUnsafeItemList()
 end
 
 -- *** DB functions ***
-local currentAlt
-local currentRealm
-local currentAccount
+local currentAlt = UnitName("player")
+local currentRealm = GetRealmName()
+local currentAccount = THIS_ACCOUNT
 
 function addon:GetCharacterTable(name, realm, account)
 	-- Usage: 
@@ -125,42 +126,6 @@ end
 function addon:GetCharacterTableByLine(line)
 	-- shortcut to get the right character table based on the line number in the info table.
 	return addon:GetCharacterTable( addon.Characters:GetInfo(line) )
-end
-
-function addon:GetCurrentCharacter()
-	return currentAlt, currentRealm, currentAccount
-end
-
-function addon:GetCurrentCharacterKey()
-	if currentAlt and currentRealm and currentAccount then
-		return format("%s.%s.%s", currentAccount, currentRealm, currentAlt)
-	end
-end
-
-function addon:SetCurrentCharacter(name, realm, account)
-	currentAlt = name
-	if realm then
-		addon:SetCurrentRealm(realm)
-	end
-	if account then
-		addon:SetCurrentAccount(account)
-	end
-end
-
-function addon:GetCurrentRealm()
-	return currentRealm, currentAccount
-end
-
-function addon:SetCurrentRealm(name)
-	currentRealm = name
-end
-
-function addon:GetCurrentAccount()
-	return currentAccount
-end
-
-function addon:SetCurrentAccount(name)
-	currentAccount = name
 end
 
 function addon:GetGuild(name, realm, account)
@@ -191,6 +156,116 @@ function Altoholic:GetLastAccountSharingInfo(realm, account)
 	if sharing then
 		return date("%m/%d/%Y %H:%M", sharing.lastSharingTimestamp), sharing.lastUpdatedWith
 	end
+end
+
+
+-- *** Hooks ***
+local Orig_ChatEdit_InsertLink = ChatEdit_InsertLink
+
+function ChatEdit_InsertLink(text, ...)
+	if text and AltoholicFrame_SearchEditBox:IsVisible() then
+		if not DataStore_Crafts:IsTradeSkillWindowOpen() then
+			AltoholicFrame_SearchEditBox:Insert(GetItemInfo(text))
+			return true
+		end
+	end
+	return Orig_ChatEdit_InsertLink(text, ...)
+end
+
+local Orig_SendMailNameEditBox_OnChar = SendMailNameEditBox:GetScript("OnChar")
+
+SendMailNameEditBox:SetScript("OnChar", function(self, ...)
+	if addon:GetOption("NameAutoComplete") == 1 then
+		local text = self:GetText(); 
+		local textlen = strlen(text); 
+		
+		for characterName, character in pairs(DataStore:GetCharacters()) do
+			if DataStore:GetCharacterFaction(character) == UnitFactionGroup("player") then
+				if ( strfind(strupper(characterName), strupper(text), 1, 1) == 1 ) then
+					SendMailNameEditBox:SetText(characterName);
+					SendMailNameEditBox:HighlightText(textlen, -1);
+					return;
+				end
+			end
+		end
+	end
+	
+	if Orig_SendMailNameEditBox_OnChar then
+		return Orig_SendMailNameEditBox_OnChar(self, ...)
+	end
+end)
+
+local Orig_AuctionFrameBrowse_Update
+
+local function AuctionFrameBrowse_UpdateHook()
+
+	Orig_AuctionFrameBrowse_Update()		-- Let default stuff happen first ..
+	
+	local offset = FauxScrollFrame_GetOffset(BrowseScrollFrame)
+	local link
+	for i = 1, NUM_BROWSE_TO_DISPLAY do			-- NUM_BROWSE_TO_DISPLAY = 8;
+		link = GetAuctionItemLink("list", i+offset)
+		if link then		-- if there's a valid item link in this slot ..
+			local itemID = addon:GetIDFromLink(link)
+			local _, _, _, _, _, itemType, itemSubType = GetItemInfo(itemID)
+			if itemType == BI["Recipe"] and itemSubType ~= BI["Book"] then		-- is it a recipe ?
+				
+				local _, couldLearn, willLearn = addon:GetRecipeOwners(itemSubType, link, addon:GetRecipeLevel(link))
+				local tex = _G["BrowseButton" .. i .. "ItemIconTexture"]
+				
+				if #couldLearn == 0 and #willLearn == 0 then		-- nobody could learn the recipe, neither now nor later : red
+					tex:SetVertexColor(1, 0, 0)
+				elseif #couldLearn > 0 then							-- at least 1 could learn it : green (priority over "will learn")
+					tex:SetVertexColor(0, 1, 0)
+				elseif #willLearn > 0 then								-- nobody could learn it now, but some could later : yellow
+					tex:SetVertexColor(1, 1, 0)
+				end
+			end
+		end
+	end
+	AltoTooltip:Hide()
+end
+
+local Orig_MerchantFrame_UpdateMerchantInfo
+
+local function MerchantFrame_UpdateMerchantInfoHook()
+	
+	Orig_MerchantFrame_UpdateMerchantInfo()		-- Let default stuff happen first ..
+	
+   local numItems = GetMerchantNumItems()
+	local index, link
+
+	for i = 1, MERCHANT_ITEMS_PER_PAGE do
+		index = (((MerchantFrame.page - 1) * MERCHANT_ITEMS_PER_PAGE) + i)
+		if index <= numItems then
+			link = GetMerchantItemLink(index)
+	
+			if link then		-- if there's a valid item link in this slot ..
+				local itemID = addon:GetIDFromLink(link)
+				local _, _, _, _, _, itemType, itemSubType = GetItemInfo(itemID)
+				if itemType == BI["Recipe"] and itemSubType ~= BI["Book"] then		-- is it a recipe ?
+					
+					local _, couldLearn, willLearn = addon:GetRecipeOwners(itemSubType, link, addon:GetRecipeLevel(link))
+					local button = _G["MerchantItem" .. i .. "ItemButton"]
+					local r, g, b
+					
+					if #couldLearn == 0 and #willLearn == 0 then		-- nobody could learn the recipe, neither now nor later : red
+						r, g, b = 1, 0, 0
+					elseif #couldLearn > 0 then							-- at least 1 could learn it : green (priority over "will learn")
+						r, g, b = 0, 1, 0
+					elseif #willLearn > 0 then								-- nobody could learn it now, but some could later : yellow
+						r, g, b = 1, 1, 0
+					else
+						r, g, b = 1, 1, 1
+					end
+					SetItemButtonTextureVertexColor(button, r, g, b)
+					SetItemButtonNormalTextureVertexColor(button, r, g, b)
+				end
+			end
+
+		end
+	end
+	AltoTooltip:Hide()
 end
 
 
@@ -254,6 +329,24 @@ local function OnRaidInstanceWelcome()
 	RequestRaidInfo()
 end
 
+local function OnAuctionHouseClosed()
+	addon:UnregisterEvent("AUCTION_HOUSE_CLOSED")
+	if addon.AuctionHouse then
+		addon.AuctionHouse:InvalidateView()
+	end
+end
+
+local function OnAuctionHouseShow()
+	addon:RegisterEvent("AUCTION_HOUSE_CLOSED", OnAuctionHouseClosed)
+
+	-- hook the AH update function
+	if not Orig_AuctionFrameBrowse_Update then
+		Orig_AuctionFrameBrowse_Update = AuctionFrameBrowse_Update
+		AuctionFrameBrowse_Update = AuctionFrameBrowse_UpdateHook
+	end
+end
+
+
 local function OnChatMsgSystem(event, arg)
 	if arg then
 		if tostring(arg1) == INSTANCE_SAVED then
@@ -304,23 +397,20 @@ function addon:OnEnable()
 	addon:RegisterEvent("PLAYER_LOGOUT", OnPlayerLogout)
 	addon:RegisterEvent("UPDATE_INSTANCE_INFO", ScanSavedInstances)
 	addon:RegisterEvent("RAID_INSTANCE_WELCOME", OnRaidInstanceWelcome)
+	addon:RegisterEvent("AUCTION_HOUSE_SHOW", OnAuctionHouseShow)	-- must stay here for the AH hook (to manage recipe coloring)
 
+	-- hook the Merchant update function
+	Orig_MerchantFrame_UpdateMerchantInfo = MerchantFrame_UpdateMerchantInfo
+	MerchantFrame_UpdateMerchantInfo = MerchantFrame_UpdateMerchantInfoHook
+	
 	AltoholicFrameName:SetText("Altoholic |cFFFFFFFF".. addon.Version .. " by |cFF69CCF0Thaoky")
 
 	local realm = GetRealmName()
 	local player = UnitName("player")
 	local key = format("%s.%s.%s", THIS_ACCOUNT, realm, player)
 	addon.ThisCharacter = addon.db.global.Characters[key]
-	
-	addon:SetCurrentCharacter(player, realm, THIS_ACCOUNT)
 
 	addon.Tabs.Summary:Init()
-	
-	_G["AltoholicFrameClassesItem10"]:SetPoint("BOTTOMRIGHT", "AltoholicFrameClasses", "BOTTOMRIGHT", -15, 0);
-	for j=9, 1, -1 do
-		_G["AltoholicFrameClassesItem" .. j]:SetPoint("BOTTOMRIGHT", "AltoholicFrameClassesItem" .. (j + 1), "BOTTOMLEFT", -5, 0);
-	end
-
 	addon:RestoreOptionsToUI()
 
 	if addon:GetOption("ShowMinimap") == 1 then
@@ -619,6 +709,26 @@ function addon:GetSuggestion(index, level)
 	end
 end
 
+function addon:GetRecipeLevel(link, tooltip)
+	if not tooltip then	-- if no tooltip is provided for scanning, let's make one
+		tooltip = AltoTooltip
+		
+		tooltip:ClearLines();	
+		tooltip:SetOwner(AltoholicFrame, "ANCHOR_LEFT");
+		tooltip:SetHyperlink(link)
+	end
+
+	local tooltipName = tooltip:GetName()
+	for i = 2, tooltip:NumLines() do			-- parse all tooltip lines, one by one
+		local tooltipText = _G[tooltipName .. "TextLeft" .. i]:GetText()
+		if tooltipText then
+			if string.find(tooltipText, "%d+") then	-- try to find a numeric value .. 
+				return tonumber(string.sub(tooltipText, string.find(tooltipText, "%d+")))	-- required level found
+			end
+		end
+	end
+end
+
 function addon:ListCharsOnQuest(questName, player, tooltip)
 	if not questName then return nil end
 	
@@ -667,55 +777,6 @@ function Altoholic:ShowWidgetTooltip(frame)
 	AltoTooltip:Show(); 
 end
 
-function Altoholic:ShowClassIcons()
-	local entry = "AltoholicFrameClassesItem"
-	local i = 1
-	
-	local realm, account = Altoholic:GetCurrentRealm()
-	for characterName, character in pairs(DS:GetCharacters(realm, account)) do
-		local itemName = entry .. i;
-		local itemButton = _G[itemName];
-		itemButton:SetScript("OnEnter", function(self) 
-				Altoholic:DrawCharacterTooltip(self, self.CharName)
-			end)
-		itemButton:SetScript("OnLeave", function(self) 
-				AltoTooltip:Hide()
-			end)
-		
-		local _, class = DS:GetCharacterClass(character)
-		local tc = CLASS_ICON_TCOORDS[class]
-		local itemTexture = _G[itemName .. "IconTexture"]
-		itemTexture:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes");
-		itemTexture:SetTexCoord(tc[1], tc[2], tc[3], tc[4]);
-		itemTexture:SetWidth(36);
-		itemTexture:SetHeight(36);
-		itemTexture:SetAllPoints(itemButton);
-		
-		Altoholic:CreateButtonBorder(itemButton)
-
-		if DS:GetCharacterFaction(character) == "Alliance" then
-			itemButton.border:SetVertexColor(0.1, 0.25, 1, 0.5)
-		else
-			itemButton.border:SetVertexColor(1, 0, 0, 0.5)
-		end
-		itemButton.border:Show()
-		
-		itemButton.CharName = characterName
-		itemButton:Show()
-		
-		i = i + 1
-		if i > 10 then 	-- users of Symbolic Links might have more than 10 columns, prevent it
-			break
-		end
-	end
-	
-	while i <= 10 do
-		_G[ entry .. i ]:Hide()
-		_G[ entry .. i ].CharName = nil
-		i = i + 1
-	end
-end
-
 function addon:CreateButtonBorder(frame)
 	if frame.border then return end
 
@@ -730,10 +791,7 @@ function addon:CreateButtonBorder(frame)
 	frame.border = border
 end
 
-function Altoholic:DrawCharacterTooltip(self, charName)
-	local realm, account = Altoholic:GetCurrentRealm()
-	local character = DS:GetCharacter(charName, realm, account)	
-	
+function addon:DrawCharacterTooltip(self, character)
 	AltoTooltip:SetOwner(self, "ANCHOR_LEFT");
 	AltoTooltip:ClearLines();
 	AltoTooltip:AddDoubleLine(DS:GetColoredCharacterName(character), DS:GetColoredCharacterFaction(character))
@@ -802,39 +860,3 @@ function addon:IsItemUnsafe(itemID)
 	end
 end
 
-
--- *** Hooks ***
-local Orig_ChatEdit_InsertLink = ChatEdit_InsertLink
-
-function ChatEdit_InsertLink(text, ...)
-	if text and AltoholicFrame_SearchEditBox:IsVisible() then
-		if not DataStore_Crafts:IsTradeSkillWindowOpen() then
-			AltoholicFrame_SearchEditBox:Insert(GetItemInfo(text))
-			return true
-		end
-	end
-	return Orig_ChatEdit_InsertLink(text, ...)
-end
-
-local Orig_SendMailNameEditBox_OnChar = SendMailNameEditBox:GetScript("OnChar")
-
-SendMailNameEditBox:SetScript("OnChar", function(self, ...)
-	if addon:GetOption("NameAutoComplete") == 1 then
-		local text = self:GetText(); 
-		local textlen = strlen(text); 
-		
-		for characterName, character in pairs(DataStore:GetCharacters()) do
-			if DataStore:GetCharacterFaction(character) == UnitFactionGroup("player") then
-				if ( strfind(strupper(characterName), strupper(text), 1, 1) == 1 ) then
-					SendMailNameEditBox:SetText(characterName);
-					SendMailNameEditBox:HighlightText(textlen, -1);
-					return;
-				end
-			end
-		end
-	end
-	
-	if Orig_SendMailNameEditBox_OnChar then
-		return Orig_SendMailNameEditBox_OnChar(self, ...)
-	end
-end)

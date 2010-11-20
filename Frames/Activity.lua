@@ -238,8 +238,6 @@ function ns:OnClick(self)
 		return
 	end
 	
-	addon:SetCurrentCharacter( Characters:GetInfo(line) )
-	
 	local DS = DataStore
 	local character = DS:GetCharacter(Characters:GetInfo(line))
 	
@@ -264,7 +262,8 @@ function ns:OnClick(self)
 	
 	if action then
 		addon.Tabs:OnClick(2)
-		addon.Tabs.Characters:SetCurrent( addon:GetCurrentCharacter() )
+		addon.Tabs.Characters:SetAlt( Characters:GetInfo(line) )
+		addon.Tabs.Characters:MenuItem_OnClick(AltoholicTabCharacters_Characters, "LeftButton")
 		addon.Tabs.Characters:ViewCharInfo(action)	
 	end
 end

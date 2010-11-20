@@ -10,12 +10,19 @@ local ORANGE	= "|cFFFF7F00"
 local GREEN		= "|cFF00FF00"
 local YELLOW	= "|cFFFFFF00"
 local GREY		= "|cFF808080"
+local GOLD		= "|cFFFFD700"
 
 local parent = "AltoholicTabCharacters"
 local rcMenuName = parent .. "RightClickMenu"	-- name of right click menu frames (add a number at the end to get it)
+local classMenu = parent .. "ClassIconMenu"	-- name of mouse over menu frames (add a number at the end to get it)
+
 local currentCategory = 1	-- current category (characters, equipment, rep, currencies, etc.. )
 local currentView = 0		-- current view in the characters category
 local currentProfession
+
+local currentAlt = UnitName("player")
+local currentRealm = GetRealmName()
+local currentAccount = THIS_ACCOUNT
 
 -- ** Icons Menus **
 local VIEW_BAGS = 1
@@ -80,6 +87,9 @@ local ICON_VIEW_TOKENS = "Interface\\Icons\\Spell_Holy_SummonChampion"
 local ICON_VIEW_COMPANIONS = "Interface\\Icons\\INV_Box_Birdcage_01"
 local ICON_VIEW_MOUNTS = "Interface\\Icons\\Ability_Mount_RidingHorse"
 
+addon.Tabs.Characters = {}
+
+local ns = addon.Tabs.Characters		-- ns = namespace
 
 -- *** Utility functions ***
 local lastButton
@@ -111,7 +121,10 @@ local function HideAll()
 	AltoholicFrameGlyphs:Hide()
 	AltoholicFrameSpellbook:Hide()
 	
-	AltoholicFrameClasses:Hide()
+	-- hide class icons
+	for i = 1, 10 do
+		_G[ parent .. "_ClassIcon" .. i ]:Hide()
+	end
 end
 
 local function EnableIcon(name)
@@ -156,7 +169,7 @@ local function UpdateViewIcons()
 end
 
 local function ShowCategory(id)
-	AltoholicFrameClasses:Show()
+	ns:UpdateClassIcons()
 
 	if id == VIEW_EQUIP then
 		AltoholicFrameEquipment:Show()
@@ -176,46 +189,9 @@ local function ShowCategory(id)
 	end
 end
 
-local function DDM_AddTitle(text)
-	-- tiny wrapper
-	local info = UIDropDownMenu_CreateInfo(); 
-
-	info.isTitle	= 1
-	info.text		= text
-	info.checked	= nil
-	info.notCheckable = 1
-	info.icon		= nil
-	UIDropDownMenu_AddButton(info, 1)
-end
-
-local function DDM_Add(text, value, func, icon, isChecked)
-	-- tiny wrapper
-	local info = UIDropDownMenu_CreateInfo(); 
-	
-	info.text		= text
-	info.value		= value
-	info.func		= func
-	info.checked	= isChecked
-	info.icon		= icon
-	UIDropDownMenu_AddButton(info, 1); 
-end
-
-local function DDM_AddCloseMenu()
-	local info = UIDropDownMenu_CreateInfo(); 
-	
-	-- Close menu item
-	info.text = CLOSE
-	info.func = function() CloseDropDownMenus() end
-	info.checked = nil
-	info.notCheckable = 1
-	info.icon		= nil
-	UIDropDownMenu_AddButton(info, 1)
-end
-
-
-addon.Tabs.Characters = {}
-
-local ns = addon.Tabs.Characters		-- ns = namespace
+local DDM_Add = addon.Helpers.DDM_Add
+local DDM_AddTitle = addon.Helpers.DDM_AddTitle
+local DDM_AddCloseMenu = addon.Helpers.DDM_AddCloseMenu
 
 function ns:OnShow()
 
@@ -223,7 +199,7 @@ function ns:OnShow()
 		AltoholicFrameEquipment:IsVisible() or 
 		AltoholicFrameCurrencies:IsVisible() or 
 		AltoholicFramePetsAllInOne:IsVisible() then
-		AltoholicFrameClasses:Show()
+		ns:UpdateClassIcons()
 	end
 	
 	UpdateViewIcons()
@@ -271,20 +247,20 @@ end
 
 -- ** realm selection **
 local function OnRealmChange(self, account, realm)
-	local OldAccount = addon:GetCurrentAccount()
-	local OldRealm = addon:GetCurrentRealm()
+	local oldAccount = currentAccount
+	local oldRealm = currentRealm
 
-	addon:SetCurrentAccount(account)
-	addon:SetCurrentRealm(realm)
+	currentAccount = account
+	currentRealm = realm
 	
 	UIDropDownMenu_ClearAll(AltoholicTabCharacters_SelectRealm);
 	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, account .."|".. realm)
 	UIDropDownMenu_SetText(AltoholicTabCharacters_SelectRealm, GREEN .. account .. ": " .. WHITE.. realm)
 	
-	if OldRealm and OldAccount then	-- clear the "select char" drop down if realm or account has changed
-		if (OldRealm ~= realm) or (OldAccount ~= account) then
+	if oldRealm and oldAccount then	-- clear the "select char" drop down if realm or account has changed
+		if (oldRealm ~= realm) or (oldAccount ~= account) then
 			AltoholicTabCharactersStatus:SetText("")
-			addon:SetCurrentCharacter(nil)
+			currentAlt = nil
 			currentProfession = nil
 			
 			HideAll()
@@ -306,46 +282,54 @@ local function OnRealmChange(self, account, realm)
 	end
 end
 
-local function AddRealm(realm, account)
-	local info = UIDropDownMenu_CreateInfo(); 
-
-	info.text = format("%s: %s", GREEN..account, WHITE..realm)
-	info.value = format("%s|%s", account, realm)
-	info.checked = nil
-	info.func = OnRealmChange
-	info.arg1 = account
-	info.arg2 = realm
-	UIDropDownMenu_AddButton(info, 1); 
-end
-
 function ns:DropDownRealm_Initialize()
-	if not addon:GetCurrentAccount() or not addon:GetCurrentRealm() then return end
-
+	if not currentAccount or not currentRealm then return end
+	
 	-- this account first ..
+	DDM_AddTitle(GOLD..L["This account"])
 	for realm in pairs(DataStore:GetRealms()) do
-		AddRealm(realm, THIS_ACCOUNT)
+		local info = UIDropDownMenu_CreateInfo()
+
+		info.text = WHITE..realm
+		info.value = format("%s|%s", THIS_ACCOUNT, realm)
+		info.checked = nil
+		info.func = OnRealmChange
+		info.arg1 = THIS_ACCOUNT
+		info.arg2 = realm
+		UIDropDownMenu_AddButton(info, 1)
 	end
 
 	-- .. then all other accounts
-	for account in pairs(DataStore:GetAccounts()) do
+	local accounts = DataStore:GetAccounts()
+	local count = 0
+	for account in pairs(accounts) do
 		if account ~= THIS_ACCOUNT then
-			for realm in pairs(DataStore:GetRealms(account)) do
-				AddRealm(realm, account)
+			count = count + 1
+		end
+	end
+	
+	if count > 0 then
+		DDM_AddTitle(" ")
+		DDM_AddTitle(GOLD..OTHER)
+		for account in pairs(accounts) do
+			if account ~= THIS_ACCOUNT then
+				for realm in pairs(DataStore:GetRealms(account)) do
+					local info = UIDropDownMenu_CreateInfo()
+
+					info.text = format("%s: %s", GREEN..account, WHITE..realm)
+					info.value = format("%s|%s", account, realm)
+					info.checked = nil
+					info.func = OnRealmChange
+					info.arg1 = account
+					info.arg2 = realm
+					UIDropDownMenu_AddButton(info, 1)
+				end
 			end
 		end
 	end
+	
 end
 
-function ns:SetCurrent(name, realm, account)
-	-- this function sets both drop down menu to the right values
-	ns:DropDownRealm_Initialize()
-	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, account .."|".. realm)
-end
-
-function ns:GetCurrent()
-	-- to do: see if the current character key can be turned into a local var
-	return addon:GetCurrentCharacterKey()
-end
 
 function ns:ViewCharInfo(index)
 	index = index or self.value
@@ -370,6 +354,7 @@ function ns:ShowCharInfo(view)
 		addon.Quests:Update()		
 		
 	elseif view == VIEW_TALENTS then
+		addon.Talents:Reset();
 		addon.Talents:Update();
 	elseif view == VIEW_GLYPHS then
 		AltoholicFrameGlyphs:Show()
@@ -430,12 +415,117 @@ function ns:SetMode(mode)
 end
 
 
+-- ** DB / Get **
+function ns:GetAccount()
+	return currentAccount
+end
+
+function ns:GetRealm()
+	return currentRealm, currentAccount
+end
+
+function ns:GetAlt()
+	return currentAlt, currentRealm, currentAccount
+end
+
+function ns:GetAltKey()
+	if currentAlt and currentRealm and currentAccount then
+		return format("%s.%s.%s", currentAccount, currentRealm, currentAlt)
+	end
+end
+
+-- ** DB / Set **
+function ns:SetAlt(alt, realm, account)
+	currentAlt = alt
+	currentRealm = (realm) and realm				-- only set the value if not nil
+	currentAccount = (account) and account		-- only set the value if not nil
+	
+	-- set drop down menu
+	ns:DropDownRealm_Initialize()
+	UIDropDownMenu_SetSelectedValue(AltoholicTabCharacters_SelectRealm, account .."|".. realm)
+end
+
+
+-- ** Class Icons **
+function ns:ClassIcon_OnEnter(frame)
+	local currentMenuID = frame:GetID()
+	
+	-- hide all
+	for i = 1, 8 do
+		if i ~= currentMenuID and _G[ classMenu .. i ].visible then
+			ToggleDropDownMenu(1, nil, _G[ classMenu .. i ], frame:GetName(), 0, -5);	
+			_G[ classMenu .. i ].visible = false
+		end
+	end
+
+	-- show current
+	ToggleDropDownMenu(1, nil, _G[ classMenu .. currentMenuID ], frame:GetName(), 0, -5);	
+	_G[ classMenu .. currentMenuID ].visible = true
+	
+	local key = addon:GetOption(format("Tabs.Characters.%s.%s.Column%d", currentAccount, currentRealm, currentMenuID))
+	if key then
+		addon:DrawCharacterTooltip(frame, key)
+	end
+end
+
+function ns:UpdateClassIcons()
+	local key = addon:GetOption(format("Tabs.Characters.%s.%s.Column1", currentAccount, currentRealm))
+	if not key then	-- first time this realm is displayed
+	
+		local index = 1
+
+		-- add the first 10 keys found on this realm
+		for characterName, characterKey in pairs(DataStore:GetCharacters(currentRealm, currentAccount)) do	
+			-- ex: : ["Tabs.Characters.Default.MyRealm.Column4"] = "Account.realm.alt7"
+
+			addon:SetOption(format("Tabs.Characters.%s.%s.Column%d", currentAccount, currentRealm, index), characterKey)
+			
+			index = index + 1
+			if index > 10 then
+				break
+			end
+		end
+	end
+	
+	local itemName, itemButton
+	for i = 1, 10 do
+		itemName = parent .. "_ClassIcon" .. i
+		itemButton = _G[itemName]
+		
+		key = addon:GetOption(format("Tabs.Characters.%s.%s.Column%d", currentAccount, currentRealm, i))
+		
+		if key then
+			local _, class = DataStore:GetCharacterClass(key)
+			local tc = CLASS_ICON_TCOORDS[class]
+		
+			local itemTexture = _G[itemName .. "IconTexture"]
+			itemTexture:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes");
+			itemTexture:SetTexCoord(tc[1], tc[2], tc[3], tc[4]);
+			itemTexture:SetWidth(36);
+			itemTexture:SetHeight(36);
+			itemTexture:SetAllPoints(itemButton);
+
+			addon:CreateButtonBorder(itemButton)
+		
+			if DataStore:GetCharacterFaction(key) == "Alliance" then
+				itemButton.border:SetVertexColor(0.1, 0.25, 1, 0.5)
+			else
+				itemButton.border:SetVertexColor(1, 0, 0, 0.5)
+			end
+			itemButton.border:Show()
+			itemButton:Show()
+		else
+			itemButton:Hide()
+		end
+	end
+end
+
+
 -- ** Icon events **
 local function OnCharacterChange(self)
-	local OldAlt = addon:GetCurrentCharacter()
-	local _, _, NewAlt = strsplit(".", self.value)
-
-	addon:SetCurrentCharacter(NewAlt)
+	local oldAlt = currentAlt
+	local _, _, newAlt = strsplit(".", self.value)
+	currentAlt = newAlt
 	
 	EnableIcon(parent .. "_BagsIcon")
 	EnableIcon(parent .. "_QuestsIcon")
@@ -445,7 +535,7 @@ local function OnCharacterChange(self)
 	EnableIcon(parent .. "_SpellbookIcon")
 	EnableIcon(parent .. "_ProfessionsIcon")
 	
-	if (not OldAlt) or (OldAlt == NewAlt) then return end
+	if (not oldAlt) or (oldAlt == newAlt) then return end
 
 	currentProfession = nil
 	if currentView ~= VIEW_TALENTS and currentView < VIEW_SPELLS then
@@ -557,7 +647,7 @@ local function OnViewChange(self)
 end
 
 local function OnClearAHEntries(self)
-	local character = ns:GetCurrent()
+	local character = ns:GetAltKey()
 	
 	local listType
 	if currentView == VIEW_AUCTIONS then
@@ -593,6 +683,16 @@ local function GetCharacterLoginText(character)
 	return format("%s %s(%s%s)", DataStore:GetColoredCharacterName(character), WHITE, last, WHITE)
 end
 
+local function OnCharacterClassChange(self, id)
+	local key = self.value
+	if not key then return end
+
+	addon:SetOption(format("Tabs.Characters.%s.%s.Column%d", currentAccount, currentRealm, id), key)
+	ns:UpdateClassIcons()
+	ShowCategory(currentCategory)
+end
+
+
 -- ** Menu Icons **
 function ns:Icon_OnEnter(frame)
 	local currentMenuID = frame:GetID()
@@ -613,12 +713,12 @@ end
 local function CharactersIcon_Initialize(self, level)
 	DDM_AddTitle(L["Characters"])
 	local nameList = {}		-- we want to list characters alphabetically
-	for _, character in pairs(DataStore:GetCharacters(addon:GetCurrentRealm())) do
+	for _, character in pairs(DataStore:GetCharacters(currentRealm, currentAccount)) do
 		table.insert(nameList, character)	-- we can add the key instead of just the name, since they will all be like account.realm.name, where account & realm are identical
 	end
 	table.sort(nameList)
 	
-	local currentCharacterKey = addon:GetCurrentCharacterKey()
+	local currentCharacterKey = ns:GetAltKey()
 	for _, character in ipairs(nameList) do
 		DDM_Add(GetCharacterLoginText(character), character, OnCharacterChange, nil, (currentCharacterKey == character))
 	end
@@ -627,7 +727,7 @@ local function CharactersIcon_Initialize(self, level)
 end
 
 local function BagsIcon_Initialize(self, level)
-	local currentCharacterKey = addon:GetCurrentCharacterKey()
+	local currentCharacterKey = ns:GetAltKey()
 	if not currentCharacterKey then return end
 
 	DDM_AddTitle(format("%s / %s", L["Containers"], DataStore:GetColoredCharacterName(currentCharacterKey)))
@@ -648,7 +748,7 @@ local function BagsIcon_Initialize(self, level)
 end
 
 local function QuestsIcon_Initialize(self, level)
-	local currentCharacterKey = addon:GetCurrentCharacterKey()
+	local currentCharacterKey = ns:GetAltKey()
 	if not currentCharacterKey then return end
 	
 	DDM_AddTitle(format("%s / %s", QUESTS_LABEL, DataStore:GetColoredCharacterName(currentCharacterKey)))
@@ -663,66 +763,75 @@ local function QuestsIcon_Initialize(self, level)
 end
 
 local function TalentsIcon_Initialize(self, level)
-	local info = UIDropDownMenu_CreateInfo()
 	
-	local currentCharacterKey = addon:GetCurrentCharacterKey()
+	local currentCharacterKey = ns:GetAltKey()
 	if not currentCharacterKey then return end
 	
-	if level == 1 then
-		info.text = format("%s & %s / %s", TALENTS, GLYPHS, DataStore:GetColoredCharacterName(currentCharacterKey))
-		info.isTitle = 1
-		info.checked = nil
-		info.notCheckable = 1
-		info.icon = nil
-		UIDropDownMenu_AddButton(info, level)
-		info.isTitle = nil
+	DDM_AddTitle(format("%s & %s / %s", TALENTS, GLYPHS, DataStore:GetColoredCharacterName(currentCharacterKey)))
+	DDM_AddTitle(" ")
+	DDM_AddTitle(GOLD .. TALENT_SPEC_PRIMARY)
+
+	local _, class = DataStore:GetCharacterClass(currentCharacterKey)
+	local icon, points
+	local treeID = 1
 	
-		info.text = WHITE..TALENT_SPEC_PRIMARY
-		info.hasArrow = 1
+	local info = UIDropDownMenu_CreateInfo()
+	for tree in DataStore:GetClassTrees(class) do
+		icon = DataStore:GetTreeInfo(class, tree)
+		points = DataStore:GetNumPointsSpent(currentCharacterKey, tree, 1)
+		
+		info.text = format("%s %s",WHITE..tree, GREEN..points)
+		info.value = 1
+		info.arg1 = treeID
 		info.checked = nil
-		info.value = 1	-- for primary talents
-		info.func = nil
-		UIDropDownMenu_AddButton(info, level)
+		info.func = OnTalentChange
+		info.icon = icon
+		UIDropDownMenu_AddButton(info, 1)
 		
-		info.text = WHITE..TALENT_SPEC_SECONDARY
-		info.hasArrow = 1
-		info.checked = nil
-		info.value = 2	-- for secondary talents
-		info.func = nil
-		UIDropDownMenu_AddButton(info, level)
-		
-	elseif level == 2 then
-		local _, class = DataStore:GetCharacterClass(currentCharacterKey)
-		local icon, points
-		local treeID = 1
-		
-		for tree in DataStore:GetClassTrees(class) do
-			icon = DataStore:GetTreeInfo(class, tree)
-			points = DataStore:GetNumPointsSpent(currentCharacterKey, tree, UIDROPDOWNMENU_MENU_VALUE)
-			
-			info.text = format("%s %s",tree, GREEN..points)
-			info.value = UIDROPDOWNMENU_MENU_VALUE
-			info.arg1 = treeID
-			info.checked = nil
-			info.func = OnTalentChange
-			info.icon = icon
-			UIDropDownMenu_AddButton(info, level)
-			
-			treeID = treeID + 1
-		end
-		
-		info.text = GLYPHS
-		info.value = UIDROPDOWNMENU_MENU_VALUE
-		info.arg1 = nil
-		info.checked = nil
-		info.func = OnGlyphChange
-		info.icon = nil
-		UIDropDownMenu_AddButton(info, level)
+		treeID = treeID + 1
 	end
+	
+	info.text = WHITE..GLYPHS
+	info.value = 1
+	info.arg1 = nil
+	info.checked = nil
+	info.func = OnGlyphChange
+	info.icon = nil
+	UIDropDownMenu_AddButton(info, 1)
+
+	DDM_AddTitle(" ")
+	DDM_AddTitle(GOLD .. TALENT_SPEC_SECONDARY)
+	
+	info = UIDropDownMenu_CreateInfo()
+	treeID = 1
+	for tree in DataStore:GetClassTrees(class) do
+		icon = DataStore:GetTreeInfo(class, tree)
+		points = DataStore:GetNumPointsSpent(currentCharacterKey, tree, 2)
+		
+		info.text = format("%s %s",WHITE..tree, GREEN..points)
+		info.value = 2
+		info.arg1 = treeID
+		info.checked = nil
+		info.func = OnTalentChange
+		info.icon = icon
+		UIDropDownMenu_AddButton(info, 1)
+		
+		treeID = treeID + 1
+	end
+	
+	info.text = WHITE..GLYPHS
+	info.value = 2
+	info.arg1 = nil
+	info.checked = nil
+	info.func = OnGlyphChange
+	info.icon = nil
+	UIDropDownMenu_AddButton(info, 1)	
+	
+	DDM_AddCloseMenu()
 end
 
 local function AuctionIcon_Initialize(self, level)
-	local currentCharacterKey = addon:GetCurrentCharacterKey()
+	local currentCharacterKey = ns:GetAltKey()
 	if not currentCharacterKey then return end
 	
 	DDM_AddTitle(format("%s / %s", BUTTON_LAG_AUCTIONHOUSE, DataStore:GetColoredCharacterName(currentCharacterKey)))
@@ -754,7 +863,7 @@ local function AuctionIcon_Initialize(self, level)
 end
 
 local function MailIcon_Initialize(self, level)
-	local currentCharacterKey = addon:GetCurrentCharacterKey()
+	local currentCharacterKey = ns:GetAltKey()
 	if not currentCharacterKey then return end
 		
 	DDM_AddTitle(format("%s / %s", MINIMAP_TRACKING_MAILBOX, DataStore:GetColoredCharacterName(currentCharacterKey)))
@@ -778,7 +887,7 @@ local function MailIcon_Initialize(self, level)
 end
 
 local function SpellbookIcon_Initialize(self, level)
-	local currentCharacterKey = addon:GetCurrentCharacterKey()
+	local currentCharacterKey = ns:GetAltKey()
 	if not currentCharacterKey then return end
 	
 	DDM_AddTitle(format("%s / %s", SPELLBOOK, DataStore:GetColoredCharacterName(currentCharacterKey)))
@@ -813,7 +922,7 @@ end
 local function ProfessionsIcon_Initialize(self, level)
 	if not DataStore_Crafts then return end
 	
-	local currentCharacterKey = addon:GetCurrentCharacterKey()
+	local currentCharacterKey = ns:GetAltKey()
 	if not currentCharacterKey then return end
 	
 	if level == 1 then
@@ -979,6 +1088,34 @@ local function ProfessionsIcon_Initialize(self, level)
 	end
 end
 
+local function ClassIcon_Initialize(self, level)
+	local id = self:GetID()
+	
+	DDM_AddTitle(L["Characters"])
+	local nameList = {}		-- we want to list characters alphabetically
+	for _, character in pairs(DataStore:GetCharacters(currentRealm, currentAccount)) do
+		table.insert(nameList, character)	-- we can add the key instead of just the name, since they will all be like account.realm.name, where account & realm are identical
+	end
+	table.sort(nameList)
+	
+	-- get the key associated with this button
+	local key = addon:GetOption(format("Tabs.Characters.%s.%s.Column%d", currentAccount, currentRealm, id)) or ""
+	
+	for _, character in ipairs(nameList) do
+		local info = UIDropDownMenu_CreateInfo(); 
+		
+		info.text		= DataStore:GetColoredCharacterName(character)
+		info.value		= character
+		info.func		= OnCharacterClassChange
+		info.checked	= (key == character)
+		info.arg1		= id
+		UIDropDownMenu_AddButton(info, 1)
+	end
+
+	DDM_AddCloseMenu()
+end
+
+
 function ns:OnLoad()
 	-- Menu Icons
 	-- mini easter egg, change the icon depending on the time of year :)
@@ -1050,4 +1187,9 @@ function ns:OnLoad()
 	_G[parent .. "_Pets"].text = COMPANIONS
 	addon:SetItemButtonTexture(parent .. "_Mounts", ICON_VIEW_MOUNTS, size, size)
 	_G[parent .. "_Mounts"].text = MOUNTS
+
+	-- Class Icons
+	for i = 1, 10 do
+		UIDropDownMenu_Initialize(_G[classMenu..i], ClassIcon_Initialize, "MENU")
+	end
 end

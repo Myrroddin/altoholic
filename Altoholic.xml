@@ -2,6 +2,7 @@
 	<Script file="Core.lua"></Script>
 	<Script file="Profiler.lua"></Script>
 	<Script file="Tasks.lua"></Script>
+	<Script file="Helpers.lua"></Script>
 	<Script file="Comm.lua"></Script>
 	<Script file="Tooltip.lua"></Script>
 	<Script file="ItemFilters.lua"></Script>
@@ -379,36 +380,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			
-			<Frame name="$parentClasses" hidden="true">
-				<Size>
-					<AbsDimension x="615" y="41"/>
-				</Size>
-				<Anchors>
-					<Anchor point="TOPRIGHT">
-						<Offset>
-							<AbsDimension x="-32" y="-55"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<Frames>
-					<Button name="$parentItem1" inherits="AltoBagItemTemplate" />
-					<Button name="$parentItem2" inherits="AltoBagItemTemplate" />
-					<Button name="$parentItem3" inherits="AltoBagItemTemplate" />
-					<Button name="$parentItem4" inherits="AltoBagItemTemplate" />
-					<Button name="$parentItem5" inherits="AltoBagItemTemplate" />
-					<Button name="$parentItem6" inherits="AltoBagItemTemplate" />
-					<Button name="$parentItem7" inherits="AltoBagItemTemplate" />
-					<Button name="$parentItem8" inherits="AltoBagItemTemplate" />
-					<Button name="$parentItem9" inherits="AltoBagItemTemplate" />
-					<Button name="$parentItem10" inherits="AltoBagItemTemplate" />
-				</Frames>
-				<Scripts>
-					<OnShow>
-						Altoholic:ShowClassIcons()
-					</OnShow>
-				</Scripts>
-			</Frame>
+
 		</Frames>
 	</Frame>
 	

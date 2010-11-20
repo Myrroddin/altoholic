@@ -22,40 +22,22 @@ local currentGuildKey
 local currentGuildBankTab = 0
 
 -- *** Utility functions ***
-local function DDM_AddTitle(text)
-	-- tiny wrapper
-	local info = UIDropDownMenu_CreateInfo(); 
+local DDM_Add = addon.Helpers.DDM_Add
+local DDM_AddTitle = addon.Helpers.DDM_AddTitle
+local DDM_AddCloseMenu = addon.Helpers.DDM_AddCloseMenu
 
-	info.isTitle	= 1
-	info.text		= text
-	info.checked	= nil
-	info.notCheckable = 1
-	info.icon		= nil
-	UIDropDownMenu_AddButton(info, 1)
-end
+local function UpdateBankTabButtons()
+	if not currentGuildKey then return end
 
-local function DDM_Add(text, value, func, icon, isChecked)
-	-- tiny wrapper
-	local info = UIDropDownMenu_CreateInfo(); 
-	
-	info.text		= text
-	info.value		= value
-	info.func		= func
-	info.checked	= isChecked
-	info.icon		= icon
-	UIDropDownMenu_AddButton(info, 1); 
-end
-
-local function DDM_AddCloseMenu()
-	local info = UIDropDownMenu_CreateInfo(); 
-	
-	-- Close menu item
-	info.text = CLOSE
-	info.func = function() CloseDropDownMenus() end
-	info.checked = nil
-	info.notCheckable = 1
-	info.icon		= nil
-	UIDropDownMenu_AddButton(info, 1)
+	for i = 1, MAX_BANK_TABS do 
+		local tabName = DataStore:GetGuildBankTabName(currentGuildKey, i)
+		if tabName then
+			addon:SetItemButtonTexture(parent .. "TabButton"..i, DataStore:GetGuildBankTabIcon(currentGuildKey, i), 30, 30)
+			_G[parent .. "TabButton" ..i]:Show()
+		else
+			_G[parent .. "TabButton" ..i]:Hide()
+		end
+	end
 end
 
 addon.Guild.Bank = {}
@@ -99,6 +81,8 @@ local function OnGuildChange(self)
 	_G[parent .. "Info1"]:SetText("")
 	_G[parent .. "Info2"]:SetText("")
 	_G[parent .. "Info3"]:SetText("")
+	
+	UpdateBankTabButtons()
 	
 	ns:Update()
 end
@@ -204,6 +188,21 @@ end
 
 
 -- ** Menu Icons **
+function ns:TabIcon_OnEnter(frame)
+	local tabName = DataStore:GetGuildBankTabName(currentGuildKey, frame:GetID())
+	if not tabName then return end
+
+	AltoTooltip:ClearLines()
+	AltoTooltip:SetOwner(frame, "ANCHOR_RIGHT")
+	AltoTooltip:AddLine(tabName)
+	AltoTooltip:Show()
+end
+
+function ns:TabIcon_OnClick(frame, button)
+	currentGuildBankTab = frame:GetID()
+	ns:Update()
+end
+
 function ns:Icon_OnEnter(frame)
 	local currentMenuID = frame:GetID()
 	
@@ -372,5 +371,6 @@ function ns:OnLoad()
 	UIDropDownMenu_Initialize(_G[rcMenuName.."1"], GuildIcon_Initialize, "MENU")
 	UIDropDownMenu_Initialize(_G[rcMenuName.."2"], TabsIcon_Initialize, "MENU")
 	UIDropDownMenu_Initialize(_G[rcMenuName.."3"], UpdateIcon_Initialize, "MENU")
-
+	
+	UpdateBankTabButtons()
 end

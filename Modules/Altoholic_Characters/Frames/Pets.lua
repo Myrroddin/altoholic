@@ -48,7 +48,7 @@ end
 local function SetPage(pageNum)
 	currentPage = pageNum
 	
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	local pets = DataStore:GetPets(character, currentPetType)
 	
 	if currentPage == 1 then
@@ -96,7 +96,7 @@ end
 
 function ns:UpdatePets()
 	local DS = DataStore
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	local pets = DataStore:GetPets(character, currentPetType)
 	
 	local num = DataStore:GetNumPets(pets)
@@ -189,7 +189,7 @@ function ns:UpdatePetsAllInOne()
 		petList = DataStore:GetMountList()
 	end
 	
-	local realm, account = addon:GetCurrentRealm()
+	local realm, account = addon.Tabs.Characters:GetRealm()
 	local character
 
 	for i=1, VisibleLines do
@@ -212,10 +212,8 @@ function ns:UpdatePetsAllInOne()
 				local itemButton = _G[itemName]
 				local itemTexture = _G[itemName .. "_Background"]
 				
-				local classButton = _G["AltoholicFrameClassesItem" .. j]
-				if classButton.CharName then
-					character = DataStore:GetCharacter(classButton.CharName, realm, account)				
-					
+				character = addon:GetOption(format("Tabs.Characters.%s.%s.Column%d", account, realm, j))
+				if character then
 					itemButton:SetScript("OnEnter", function(self) ns:OnEnter(self) end)
 					itemTexture:SetTexture(petTexture)
 					

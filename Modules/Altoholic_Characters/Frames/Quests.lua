@@ -31,8 +31,7 @@ addon.Quests = {}
 local ns = addon.Quests		-- ns = namespace
 
 function ns:Update()
-	local character = addon.Tabs.Characters:GetCurrent()
-
+	local character = addon.Tabs.Characters:GetAltKey()
 	
 	local VisibleLines = 14
 	local frame = "AltoholicFrameQuests"
@@ -41,7 +40,7 @@ function ns:Update()
 	local DS = DataStore
 	
 	if DS:GetQuestLogSize(character) == 0 then
-		AltoholicTabCharactersStatus:SetText(L["No quest found for "] .. addon:GetCurrentCharacter())
+		AltoholicTabCharactersStatus:SetText(L["No quest found for "] .. addon.Tabs.Characters:GetAlt())
 		addon:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 18)
 		return
 	end
@@ -170,7 +169,7 @@ function ns:Link_OnEnter(frame)
 	if id == 0 then return end
 
 	local DS = DataStore
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	local _, link = DS:GetQuestLogInfo(character, id)
 	if not link then return end
 
@@ -187,7 +186,7 @@ function ns:Link_OnEnter(frame)
 	
 	GameTooltip:AddDoubleLine(LEVEL .. ": |cFF00FF9A" .. level, L["QuestID"] .. ": |cFF00FF9A" .. questID);
 	
-	local player = addon:GetCurrentCharacter()
+	local player = addon.Tabs.Characters:GetAlt()
 	addon:ListCharsOnQuest(questName, player, GameTooltip)
 	GameTooltip:Show();
 end
@@ -199,7 +198,7 @@ function ns:Link_OnClick(frame, button)
 			local id = frame:GetID()
 			if id == 0 then return end
 			
-			local character = addon.Tabs.Characters:GetCurrent()
+			local character = addon.Tabs.Characters:GetAltKey()
 			local _, link = DataStore:GetQuestLogInfo(character, id)
 			if link then
 				chat:Insert(link)

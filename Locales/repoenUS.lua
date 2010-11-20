@@ -273,6 +273,11 @@ L["Prof. 2"] = true
 L["Grey"] = true
 L["All cooldowns are up"] = true
 
+-- talents.lua
+L["Compare with"] = true
+L["Other guilds"] = true
+L["Other characters"] = true
+
 -- TabSummary.lua
 L["All accounts"] = true
 

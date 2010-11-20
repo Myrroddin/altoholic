@@ -49,7 +49,7 @@ local function UpdateSpread()
 		return
 	end
 	
-	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local character = Altoholic.Tabs.Characters:GetAltKey()
 	local DS = DataStore
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
 	
@@ -90,7 +90,7 @@ local function UpdateSpread()
 						GameTooltip:AddLine(L["Bank"],0.5,0.5,1);
 						GameTooltip:AddLine(L["28 Slot"],1,1,1);
 					else
-						local character = Altoholic.Tabs.Characters:GetCurrent()
+						local character = Altoholic.Tabs.Characters:GetAltKey()
 						local _, link = DS:GetContainerInfo(character, id)
 						GameTooltip:SetHyperlink(link);
 						if (id >= 5) and (id <= 11) then
@@ -195,7 +195,7 @@ local function UpdateAllInOne()
 	local frame = "AltoholicFrameContainers"
 	local entry = frame.."Entry"
 	
-	local character = Altoholic.Tabs.Characters:GetCurrent()
+	local character = Altoholic.Tabs.Characters:GetAltKey()
 	AltoholicTabCharactersStatus:SetText(format("%s|r / %s / %s", DataStore:GetColoredCharacterName(character), L["Containers"], L["All-in-one"]))
 
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
@@ -341,7 +341,7 @@ function ns:UpdateCache()
 		bagMin = 5			-- 5 to 11
 	end
 	
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	for bagID = bagMin, bagMax do
 		if DataStore:GetContainer(character, bagID) then
 			local _, _, size = DataStore:GetContainerInfo(character, bagID)

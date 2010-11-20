@@ -40,7 +40,7 @@ end
 local function SetPage(pageNum)
 	currentPage = pageNum
 	
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	
 	if currentPage == 1 then
 		_G[parent .. "PrevPage"]:Disable()
@@ -92,7 +92,7 @@ function ns:GoToNextPage()
 end
 
 function ns:Update()
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	AltoholicTabCharactersStatus:SetText(format("%s|r / %s / %s", DataStore:GetColoredCharacterName(character), SPELLBOOK, currentSchool))
 	
 	local itemName, itemButton
@@ -154,7 +154,7 @@ function ns:Update()
 end
 
 function ns:UpdateKnownGlyphs()
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	
 	local glyphText
 	if currentGlyphType == 1 then

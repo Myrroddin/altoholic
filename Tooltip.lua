@@ -276,7 +276,7 @@ local function GetItemCount(searchedID)
 	return count
 end
 
-local function GetRecipeOwners(professionName, link, recipeLevel)
+function addon:GetRecipeOwners(professionName, link, recipeLevel)
 	local craftName
 	local spellID = addon:GetSpellIDFromRecipeLink(link)
 
@@ -327,6 +327,13 @@ local function GetRecipeOwners(professionName, link, recipeLevel)
 			end
 		end
 	end
+	
+	return know, couldLearn, willLearn
+end
+
+local function GetRecipeOwnersText(professionName, link, recipeLevel)
+
+	local know, couldLearn, willLearn = addon:GetRecipeOwners(professionName, link, recipeLevel)
 	
 	local lines = {}
 	if #know > 0 then
@@ -502,18 +509,7 @@ local function ProcessTooltip(tooltip, name, link)
 	if itemSubType == BI["Book"] then return end		-- exit if it's a book
 
 	if not cachedRecipeOwners then
-		local tooltipName = tooltip:GetName()
-		local reqLevel
-		for i = 2, tooltip:NumLines() do			-- parse all tooltip lines, one by one
-			local tooltipText = _G[tooltipName .. "TextLeft" .. i]:GetText()
-			if tooltipText then
-				if string.find(tooltipText, "%d+") then	-- try to find a numeric value .. 
-					reqLevel = tonumber(string.sub(tooltipText, string.find(tooltipText, "%d+")))
-					break
-				end
-			end
-		end
-		cachedRecipeOwners = GetRecipeOwners(itemSubType, link, reqLevel)
+		cachedRecipeOwners = GetRecipeOwnersText(itemSubType, link, addon:GetRecipeLevel(link, tooltip))
 	end
 	
 	if cachedRecipeOwners then
@@ -614,8 +610,6 @@ local function OnItemRefTooltipCleared(tooltip, ...)
 	isTooltipDone = nil
 	return Orig_ItemRefTooltip_ClearItem(tooltip, ...)
 end
-
-
 
 
 function addon:InitTooltip()

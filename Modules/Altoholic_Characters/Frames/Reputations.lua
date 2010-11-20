@@ -165,26 +165,46 @@ local VertexColors = {
 	[FACTION_STANDING_LABEL8] = { r = 1.0, g = 1.0, b = 1.0 },		-- exalted
 }
 
+local view
+local isViewValid
+
 local currentXPack = 1					-- default to wow classic
 local currentFactionGroup = (UnitFactionGroup("player") == "Alliance") and 1 or 2	-- default to alliance or horde
+
+local function BuildView()
+	view = view or {}
+	wipe(view)
+	
+	if currentXPack and currentFactionGroup then
+		for index, faction in ipairs(Factions[currentXPack][currentFactionGroup]) do
+			table.insert(view, faction)	-- insert the table pointer
+		end
+
+	else	-- all in one, add all factions
+		for xPackIndex, xpack in ipairs(Factions) do		-- all xpacks
+			for factionGroupIndex, factionGroup in ipairs(xpack) do 	-- all faction groups
+				for index, faction in ipairs(factionGroup) do
+					table.insert(view, faction)	-- insert the table pointer
+				end
+			end
+		end
+		
+		table.sort(view, function(a,b) 	-- sort all factions alphabetically
+			return a.name < b.name
+		end)
+	end
+	
+	isViewValid = true
+end
+
 
 addon.Reputations = {}
 
 local ns = addon.Reputations		-- ns = namespace
 
-local function DDM_AddCloseMenu()
-	local info = UIDropDownMenu_CreateInfo(); 
-	
-	-- Close menu item
-	info.text = CLOSE
-	info.func = function() CloseDropDownMenus() end
-	info.checked = nil
-	info.notCheckable = 1
-	info.icon		= nil
-	UIDropDownMenu_AddButton(info, 1)
-end
+local DDM_AddCloseMenu = addon.Helpers.DDM_AddCloseMenu
 
-local function DDM_OnClick(self, xpackIndex, factionGroupIndex)
+local function OnFactionChange(self, xpackIndex, factionGroupIndex)
 	CloseDropDownMenus()
 
 	currentXPack = xpackIndex
@@ -193,19 +213,20 @@ local function DDM_OnClick(self, xpackIndex, factionGroupIndex)
 	local factionGroup = Factions[currentXPack][currentFactionGroup]
 	UIDropDownMenu_SetText(AltoholicFrameReputations_SelectFaction, factionGroup.name)
 	
+	isViewValid = nil
 	ns:Update()
 end
 
 local lastRealm, lastAccount
 
-local function DDM_GuildOnClick(self)
+local function OnGuildSelected(self)
 	CloseDropDownMenus()
 	
 	-- currentXPack = 5		-- 5 for cata, 4 in the meantime
 	currentXPack = 4
 	currentFactionGroup = 1
 	
-	local realm, account = addon:GetCurrentRealm()
+	local realm, account = addon.Tabs.Characters:GetRealm()
 	
 	if not lastRealm or not lastAccount or lastRealm ~= realm or lastAccount ~= account then	-- realm/account changed ? rebuild view
 		-- get the guilds on this realm/account
@@ -232,22 +253,37 @@ local function DDM_GuildOnClick(self)
 	lastRealm = realm
 	lastAccount = account
 	UIDropDownMenu_SetText(AltoholicFrameReputations_SelectFaction, GUILD)
+	
+	isViewValid = nil
+	ns:Update()
+end
+
+local function OnAllInOneSelected(self)
+	currentXPack = nil
+	currentFactionGroup = nil
+	UIDropDownMenu_SetText(AltoholicFrameReputations_SelectFaction, L["All-in-one"])
+	isViewValid = nil
 	ns:Update()
 end
 
 local function Reputations_UpdateEx(self, offset, entry, desc)
+	if not isViewValid then
+		BuildView()
+	end
+	
 	local line
 	local size = desc:GetSize()
 	
 	local DS = DataStore
-	local realm, account = addon:GetCurrentRealm()
+	local realm, account = addon.Tabs.Characters:GetRealm()
 	local character
-	local factionGroup = Factions[currentXPack][currentFactionGroup]
+
+	AltoholicTabCharactersStatus:SetText("")
 	
 	for i=1, desc.NumLines do
 		line = i + offset
 		if line <= size then
-			local faction = factionGroup[line]
+			local faction = view[line]
 		
 			_G[entry..i.."Name"]:SetText(WHITE .. faction.name)
 			_G[entry..i.."Name"]:SetJustifyH("LEFT")
@@ -256,14 +292,13 @@ local function Reputations_UpdateEx(self, offset, entry, desc)
 			for j = 1, 10 do	-- loop through the 10 alts
 				local itemName = entry.. i .. "Item" .. j;
 				local itemButton = _G[itemName]
-				local classButton = _G["AltoholicFrameClassesItem" .. j]
-				
 				local itemTexture = _G[itemName .. "_Background"]
 				itemTexture:SetTexture("Interface\\Icons\\"..faction.icon)
 
 				local status, rate
-				if classButton.CharName then	-- if there's an alt in this column..
-					character = DS:GetCharacter(classButton.CharName, realm, account)
+				
+				character = addon:GetOption(format("Tabs.Characters.%s.%s.Column%d", account, realm, j))
+				if character then	-- if there's an alt in this column..
 					status, _, _, rate = DS:GetReputationInfo(character, faction.name)
 				
 					if status and rate then 
@@ -284,13 +319,13 @@ local function Reputations_UpdateEx(self, offset, entry, desc)
 							color = DARK_RED
 						end
 
-						itemButton.CharName = classButton.CharName
+						itemButton.key = character
 						_G[itemName .. "Name"]:SetText(color..text)
 					else
 						itemTexture:SetVertexColor(0.3, 0.3, 0.3);	-- greyed out
 						_G[itemName .. "Name"]:SetPoint("BOTTOMRIGHT", 5, 0)
 						_G[itemName .. "Name"]:SetText(ICON_UNKNOWN)
-						itemButton.CharName = nil
+						itemButton.key = nil
 					end
 					itemButton:Show()				
 				else
@@ -307,7 +342,7 @@ local ReputationsScrollFrame_Desc = {
 	NumLines = 8,
 	LineHeight = 41,
 	Frame = "AltoholicFrameReputations",
-	GetSize = function() return #Factions[currentXPack][currentFactionGroup] end,
+	GetSize = function() return #view end,
 	Update = Reputations_UpdateEx,
 }
 
@@ -328,7 +363,12 @@ function ns:DropDownFaction_Initialize(level)
 		-- Guild factions
 		info.text = GUILD
 		info.hasArrow = nil
-		info.func = DDM_GuildOnClick
+		info.func = OnGuildSelected
+		UIDropDownMenu_AddButton(info, level)
+
+		info.text = L["All-in-one"]
+		info.hasArrow = nil
+		info.func = OnAllInOneSelected
 		UIDropDownMenu_AddButton(info, level)
 		
 		DDM_AddCloseMenu()
@@ -336,7 +376,7 @@ function ns:DropDownFaction_Initialize(level)
 	elseif level == 2 then
 		for factionGroupIndex, factionGroup in ipairs(Factions[UIDROPDOWNMENU_MENU_VALUE]) do
 			info.text = factionGroup.name
-			info.func = DDM_OnClick
+			info.func = OnFactionChange
 			info.arg1 = UIDROPDOWNMENU_MENU_VALUE
 			info.arg2 = factionGroupIndex
 			UIDropDownMenu_AddButton(info, level)
@@ -349,26 +389,21 @@ function ns:Update()
 end
 
 function ns:OnEnter(frame)
-	local charName = frame.CharName
-	if not charName then return end
-	
-	local DS = DataStore
-	local realm, account = addon:GetCurrentRealm()
-	local character = DS:GetCharacter(charName, realm, account)
-	local factionGroup = Factions[currentXPack][currentFactionGroup]
-	local faction = factionGroup[ frame:GetParent():GetID() ].name
-	
-	local status, currentLevel, maxLevel, rate = DS:GetReputationInfo(character, faction)
+	local character = frame.key
+	if not character then return end
+
+	local faction = view[ frame:GetParent():GetID() ].name
+	local status, currentLevel, maxLevel, rate = DataStore:GetReputationInfo(character, faction)
 	if not status then return end
 	
 	AltoTooltip:SetOwner(frame, "ANCHOR_LEFT");
 	AltoTooltip:ClearLines();
-	AltoTooltip:AddLine(DS:GetColoredCharacterName(character) .. WHITE .. " @ " ..	TEAL .. faction,1,1,1);
+	AltoTooltip:AddLine(DataStore:GetColoredCharacterName(character) .. WHITE .. " @ " ..	TEAL .. faction,1,1,1);
 
 	rate = format("%d", floor(rate)) .. "%"
 	AltoTooltip:AddLine(format("%s: %d/%d (%s)", status, currentLevel, maxLevel, rate),1,1,1 )
 				
-	local bottom = DS:GetRawReputationInfo(character, faction)
+	local bottom = DataStore:GetRawReputationInfo(character, faction)
 	local suggestion = ns:GetSuggestion(faction, bottom)
 	if suggestion then
 		AltoTooltip:AddLine(" ",1,1,1);
@@ -393,14 +428,10 @@ function ns:OnEnter(frame)
 end
 
 function ns:OnClick(frame, button)
-	local charName = frame.CharName
-	if not charName then return end
-	
-	local realm, account = addon:GetCurrentRealm()
-	local character = DataStore:GetCharacter(charName, realm, account)
-	local factionGroup = Factions[currentXPack][currentFactionGroup]
-	local faction = factionGroup[ frame:GetParent():GetID() ].name
-	
+	local character = frame.key
+	if not character then return end
+
+	local faction = view[ frame:GetParent():GetID() ].name
 	local status, currentLevel, maxLevel, rate = DataStore:GetReputationInfo(character, faction)
 	if not status then return end
 	

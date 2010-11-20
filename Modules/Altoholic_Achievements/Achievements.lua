@@ -188,7 +188,7 @@ local UnsortedAchievements = {
 	[CAT_EVENTS_PILGRIMSBOUNTY] = "3579,3576:3577,3556:3557,3580:3581,3596:3597,3558,3582,3578,3559",
 	[CAT_EVENTS_WINTERVEIL] = "277,1690,4436:4437,1686:1685,1295,1282,1689,1687,273,1255:259,279,1688,252",
 	[CAT_EVENTS_ARGENTTOURNAMENT] = "3676,2773,2836,3736,3677,4596,2772",
-	[CAT_FEATS] = "411,412,414,415,416,418,419,420,424,425,426,428,429,430,431,432,433,434,435,436,437,438,439,440,441,442,443,444,445,446,447,448,449,450,451,452,454,456,457,458,459,460,461,462,463,464,465,466,467,468,469,470,471:453,472,473,662,663,664,665,683,684,725,729,871,879,880,881,882,883,884,885,886,887,888,980,1205,1292,1293,1400,1402,1404,1405,1406,1407,1408,1409,1410,1411,1412,1413,1414,1415,1416,1417,1418,1419,1420,1421,1422,1423,1424,1425,1426,1427,1436,1463,1636,1637,1705,1706,2018,2019,2079,2081,2116,2316,2336,2357,2358,2359,2398,2456,2496,3096,3117,3142,3259,3336,3356,3357,3436,3496,3536,3618,3636,3756,3757,3758,3896,4078,4079:4156,4400,4496,4576,4599,4600,4623,4625,4626,4627,4786,4790",
+	[CAT_FEATS] = "411,412,414,415,416,418,419,420,424,425,426,428,429,430,431,432,433,434,435,436,437,438,439,440,441,442,443,444,445,446,447,448,449,450,451,452,454,456,457,458,459,460,461,462,463,464,465,466,467,468,469,470,471:453,472,473,662,663,664,665,683,684,725,729,871,879,880,881,882,883,884,885,886,887,888,980,1205,1292,1293,1400,1402,1404,1405,1406,1407,1408,1409,1410,1411,1412,1413,1414,1415,1416,1417,1418,1419,1420,1421,1422,1423,1424,1425,1426,1427,1436,1463,1636,1637,1705,1706,2018,2019,2079,2081,2116,2316,2336,2357,2358,2359,2398,2456,2496,3096,3117,3142,3259,3336,3356,3357,3436,3496,3536,3618,3636,3756,3757,3758,3896,4078,4079:4156,4400,4496,4576,4599,4600,4623,4625,4626,4627,4786,4790,5512,4887,4824,5377,5378,4784:4785,4832,4782",
 
 
 	-- Cataclysm
@@ -322,9 +322,6 @@ BuildCategoryList = nil
 AddAchievementToCategory = nil
 SortByName = nil
 
-AltoholicTabAchievements_NotStarted:SetText("\124TInterface\\RaidFrame\\ReadyCheck-NotReady:14\124t" .. L["Not started"])
-AltoholicTabAchievements_Partial:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Waiting:14\124t" .. L["Started"])
-AltoholicTabAchievements_Completed:SetText("\124TInterface\\RaidFrame\\ReadyCheck-Ready:14\124t" .. COMPLETE)
 
 local function GetCategorySize(categoryID)
 	if type(AchievementsList[categoryID]) == "table" then
@@ -349,11 +346,8 @@ end
 local CRITERIA_COMPLETE_ICON = "\124TInterface\\AchievementFrame\\UI-Achievement-Criteria-Check:14\124t"
 
 local function ButtonOnEnter(frame)
-	if not frame.CharName then return end
-	
-	local DS = DataStore
-	local realm, account = addon:GetCurrentRealm()
-	local character = DS:GetCharacter(frame.CharName, realm, account)
+	local character = frame.key
+	if not character then return end
 	
 	local achievementID = frame.id
 	local _, achName, points, _, _, _, _, description, _, image, rewardText = GetAchievementInfo(achievementID);
@@ -363,12 +357,12 @@ local function ButtonOnEnter(frame)
 	
 	AltoTooltip:SetOwner(frame, "ANCHOR_LEFT");
 	AltoTooltip:ClearLines();
-	AltoTooltip:AddDoubleLine(DS:GetColoredCharacterName(character), achName)
+	AltoTooltip:AddDoubleLine(DataStore:GetColoredCharacterName(character), achName)
 	AltoTooltip:AddLine(WHITE .. description, 1, 1, 1, 1, 1);
 	AltoTooltip:AddLine(WHITE .. ACHIEVEMENT_TITLE .. ": " .. YELLOW .. points);
 	AltoTooltip:AddLine(" ");
 
-	local isStarted, isComplete = DS:GetAchievementInfo(character, achievementID)
+	local isStarted, isComplete = DataStore:GetAchievementInfo(character, achievementID)
 	
 	if isComplete then
 		AltoTooltip:AddLine(format("%s: %s", WHITE .. STATUS, GREEN .. COMPLETE ));
@@ -382,7 +376,7 @@ local function ButtonOnEnter(frame)
 				_, criteriaString = GetAchievementInfo(assetID);
 			end
 			
-			local isCriteriaStarted, isCriteriaComplete, quantity = DS:GetCriteriaInfo(character, achievementID, criteriaIndex)
+			local isCriteriaStarted, isCriteriaComplete, quantity = DataStore:GetCriteriaInfo(character, achievementID, criteriaIndex)
 
 			local icon = ""
 			local color = GRAY
@@ -440,14 +434,13 @@ local function ButtonOnEnter(frame)
 end
 
 local function ButtonOnClick(frame, button)
-	if not frame.CharName then return end
+	local character = frame.key
+	if not character then return end
 	
 	if ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
 		local chat = ChatEdit_GetLastActiveWindow()
 	
 		if chat:IsShown() then
-			local realm, account = addon:GetCurrentRealm()
-			local character = DataStore:GetCharacter(frame.CharName, realm, account)
 			local achievementID = frame.id
 
 			local link = DataStore:GetAchievementLink(character, achievementID)
@@ -476,7 +469,7 @@ function ns:Update()
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
 	local categorySize = GetCategorySize(currentCategoryID)
 	
-	local realm, account = addon:GetCurrentRealm()
+	local realm, account = addon.Tabs.Achievements:GetRealm()
 	local character
 	
 	AltoholicTabAchievementsStatus:SetText(format("%s: %s", ACHIEVEMENTS, GREEN..categorySize ))
@@ -496,10 +489,8 @@ function ns:Update()
 				local itemName = entry.. i .. "Item" .. j;
 				local itemButton = _G[itemName]
 				
-				local classButton = _G["AltoholicFrameClassesItem" .. j]
-				if classButton.CharName then
-					character = DataStore:GetCharacter(classButton.CharName, realm, account)
-					
+				character = addon:GetOption(format("Tabs.Achievements.%s.%s.Column%d", account, realm, j))
+				if character then
 					itemButton:SetScript("OnEnter", ButtonOnEnter)
 					itemButton:SetScript("OnClick", ButtonOnClick)
 					
@@ -527,12 +518,12 @@ function ns:Update()
 						_G[itemName .. "Name"]:SetText("\124TInterface\\RaidFrame\\ReadyCheck-NotReady:14\124t")
 					end
 					
-					itemButton.CharName = classButton.CharName
+					itemButton.key = character
 					itemButton.id = achievementID
 					itemButton:Show()
 				else
 					itemButton:Hide()
-					itemButton.CharName = nil
+					itemButton.key = nil
 					itemButton.id = nil
 				end
 			end

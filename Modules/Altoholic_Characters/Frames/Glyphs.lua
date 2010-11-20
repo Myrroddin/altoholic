@@ -35,7 +35,7 @@ local function DrawGlyph(id)
 	local name = parent .. "Glyph" .. id
 	local glyph = _G[name]
 	
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	local enabled, glyphType, spell, icon = DataStore:GetGlyphSocketInfo(character, currentTalentGroup, id)
 
 	local info = glyphSlotTexCoord[glyphType]
@@ -71,7 +71,7 @@ local function DrawGlyph(id)
 end
 
 function ns:Update()
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	
 	if currentTalentGroup == 1 then
 		AltoholicTabCharactersStatus:SetText(format("%s|r / %s", DataStore:GetColoredCharacterName(character), TALENT_SPEC_PRIMARY_GLYPH))
@@ -121,7 +121,7 @@ local glyphTypes = {
 
 function ns:Button_OnEnter(frame)
 	local id = frame:GetID()
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	local enabled, glyphType, spell, _, glyphID, tooltipIndex = DataStore:GetGlyphSocketInfo(character, currentTalentGroup, id)
 	if not glyphType then return end
 	
@@ -153,7 +153,7 @@ end
 
 function ns:Button_OnClick(frame, button)
 	local id = frame:GetID()
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	local enabled, glyphType, spell, _, glyphID = DataStore:GetGlyphSocketInfo(character, currentTalentGroup, id)
 
 	if not spell then return end

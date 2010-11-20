@@ -1,11 +1,15 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
 
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
+
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
 
+local view
+local isViewValid
+
 local currentTokenType
-local usedTokens
 
 addon.Currencies = {}
 
@@ -21,7 +25,7 @@ local function HashToSortedArray(hash)
 end
 
 local function GetUsedHeaders()
-	local realm, account = addon:GetCurrentRealm()
+	local realm, account = addon.Tabs.Characters:GetRealm()
 	local DS = DataStore
 	
 	local usedHeaders = {}
@@ -44,7 +48,7 @@ end
 local function GetUsedTokens(header)
 	-- get the list of tokens found under a specific header, across all alts
 
-	local realm, account = addon:GetCurrentRealm()
+	local realm, account = addon.Tabs.Characters:GetRealm()
 	local DS = DataStore
 	
 	local tokens = {}
@@ -54,11 +58,12 @@ local function GetUsedTokens(header)
 		local num = DS:GetNumCurrencies(character) or 0
 		for i = 1, num do
 			local isHeader, name = DS:GetCurrencyInfo(character, i)
+			
 			if isHeader then
-				if name == header then		-- the header we're searching for, set the flag
-					useData = true
-				else
+				if header and name ~= header then -- if a specific header (filter) was set, and it's not the one we chose, skip
 					useData = nil
+				else
+					useData = true		-- we'll use data in this category
 				end
 			else
 				if useData then		-- mark it as used
@@ -71,49 +76,48 @@ local function GetUsedTokens(header)
 	return HashToSortedArray(tokens)
 end
 
-local function DDM_Add(text, func, arg1, arg2)
-	-- tiny wrapper
-	local info = UIDropDownMenu_CreateInfo(); 
-	
-	info.text		= text
-	info.func		= func
-	info.arg1		= arg1
-	info.arg2		= arg2
-	info.checked	= nil
-	UIDropDownMenu_AddButton(info, 1); 
+local function BuildView()
+	view = GetUsedTokens(currentTokenType)
+	isViewValid = true
 end
 
-local function DDM_AddCloseMenu()
-	local info = UIDropDownMenu_CreateInfo(); 
-	
-	-- Close menu item
-	info.text = CLOSE
-	info.func = function() CloseDropDownMenus() end
-	info.checked = nil
-	info.notCheckable = 1
-	info.icon		= nil
-	UIDropDownMenu_AddButton(info, 1)
-end
+local DDM_Add = addon.Helpers.DDM_AddWithArgs
+local DDM_AddCloseMenu = addon.Helpers.DDM_AddCloseMenu
 
-local function DDM_OnClick(self, header)
+local function OnTokenChange(self, header)
 	currentTokenType = header
 	UIDropDownMenu_SetText(AltoholicFrameCurrencies_SelectCurrencies, currentTokenType)
-	usedTokens = GetUsedTokens(currentTokenType)
+
+	isViewValid = nil
+	ns:Update()
+end
+
+local function OnTokensAllInOne(self)
+	currentTokenType = nil
+	UIDropDownMenu_SetText(AltoholicFrameCurrencies_SelectCurrencies, L["All-in-one"])
+
+	isViewValid = nil
 	ns:Update()
 end
 
 local function Currencies_UpdateEx(self, offset, entry, desc)
+	if not isViewValid then
+		BuildView()
+	end
+	
 	local line
 	local size = desc:GetSize()
 	
 	local DS = DataStore
-	local realm, account = addon:GetCurrentRealm()
+	local realm, account = addon.Tabs.Characters:GetRealm()
 	local character
+	
+	AltoholicTabCharactersStatus:SetText("")
 	
 	for i=1, desc.NumLines do
 		line = i + offset
 		if line <= size then
-			local token = usedTokens[line]
+			local token = view[line]
 		
 			_G[entry..i.."Name"]:SetText(WHITE .. token)
 			_G[entry..i.."Name"]:SetJustifyH("LEFT")
@@ -122,10 +126,9 @@ local function Currencies_UpdateEx(self, offset, entry, desc)
 			for j = 1, 10 do	-- loop through the 10 alts
 				local itemName = entry.. i .. "Item" .. j;
 				local itemButton = _G[itemName]
-				local classButton = _G["AltoholicFrameClassesItem" .. j]
 
-				if classButton.CharName then	-- if there's an alt in this column..
-					character = DS:GetCharacter(classButton.CharName, realm, account)
+				character = addon:GetOption(format("Tabs.Characters.%s.%s.Column%d", account, realm, j))
+				if character then	-- if there's an alt in this column..
 					local _, _, count, icon = DS:GetCurrencyInfoByName(character, token)
 					itemButton.count = count
 				
@@ -133,7 +136,7 @@ local function Currencies_UpdateEx(self, offset, entry, desc)
 						local itemTexture = _G[itemName .. "_Background"]
 						itemTexture:SetTexture(icon)
 						itemTexture:SetVertexColor(0.5, 0.5, 0.5);	-- greyed out
-						itemButton.CharName = classButton.CharName
+						itemButton.key = character
 						
 						if count >= 100000 then
 							count = format("%2.1fM", count/1000000)
@@ -146,7 +149,7 @@ local function Currencies_UpdateEx(self, offset, entry, desc)
 						_G[itemName .. "Name"]:SetText(GREEN..count)
 						itemButton:Show()
 					else
-						itemButton.CharName = nil
+						itemButton.key = nil
 						itemButton:Hide()
 					end
 				else
@@ -163,14 +166,15 @@ local CurrenciesScrollFrame_Desc = {
 	NumLines = 8,
 	LineHeight = 41,
 	Frame = "AltoholicFrameCurrencies",
-	GetSize = function() return #usedTokens end,
+	GetSize = function() return #view end,
 	Update = Currencies_UpdateEx,
 }
 
 local function DropDown_Initialize()
 	for _, header in ipairs(GetUsedHeaders()) do		-- and add them to the DDM
-		DDM_Add(header, DDM_OnClick, header)
+		DDM_Add(header, nil, OnTokenChange, header)
 	end
+	DDM_Add(L["All-in-one"], nil, OnTokensAllInOne)
 	DDM_AddCloseMenu()
 end
 
@@ -179,17 +183,13 @@ function ns:Update()
 end
 
 function ns:OnEnter(frame)
-	local charName = frame.CharName
-	if not charName then return end
-	
-	local DS = DataStore
-	local realm, account = addon:GetCurrentRealm()
-	local character = DS:GetCharacter(charName, realm, account)
+	local character = frame.key
+	if not character then return end
 	
 	AltoTooltip:SetOwner(frame, "ANCHOR_LEFT");
 	AltoTooltip:ClearLines();
-	AltoTooltip:AddLine(DS:GetColoredCharacterName(character));
-	AltoTooltip:AddLine(usedTokens[frame:GetParent():GetID()], 1, 1, 1);
+	AltoTooltip:AddLine(DataStore:GetColoredCharacterName(character));
+	AltoTooltip:AddLine(view[frame:GetParent():GetID()], 1, 1, 1);
 	AltoTooltip:AddLine(GREEN..frame.count);
 	AltoTooltip:Show();
 end
@@ -202,6 +202,4 @@ function ns:SelectCurrencies_OnLoad(frame)
 	UIDropDownMenu_SetButtonWidth(frame, 20)
 	UIDropDownMenu_SetText(frame, currentTokenType)
 	UIDropDownMenu_Initialize(frame, DropDown_Initialize)
-
-	usedTokens = GetUsedTokens(currentTokenType)
 end

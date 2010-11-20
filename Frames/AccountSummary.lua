@@ -47,40 +47,16 @@ local function GetFactionTotals(f, line)
 	return level, money, played
 end
 
-local function DDM_Add(text, value, func, arg1)
-	-- tiny wrapper
-	local info = UIDropDownMenu_CreateInfo(); 
-	
-	info.text		= text
-	info.value		= value
-	info.func		= func
-	info.arg1		= arg1
-	info.checked	= nil
-	UIDropDownMenu_AddButton(info, 1); 
-end
-
-local function DDM_AddCloseMenu()
-	local info = UIDropDownMenu_CreateInfo(); 
-	
-	-- Close menu item
-	info.text = CLOSE
-	info.func = function() CloseDropDownMenus() end
-	info.checked = nil
-	info.notCheckable = 1
-	info.icon		= nil
-	UIDropDownMenu_AddButton(info, 1)
-end
+local DDM_Add = addon.Helpers.DDM_AddWithArgs
+local DDM_AddCloseMenu = addon.Helpers.DDM_AddCloseMenu
 
 addon.Summary = {}
 
 local ns = addon.Summary		-- ns = namespace
 
 local function ViewAltInfo(self, characterInfoLine)
-	local name, realm, account = Characters:GetInfo(characterInfoLine)
-	addon:SetCurrentCharacter(name, realm, account)
-	addon.Tabs.Characters:SetCurrent(name, realm, account)
-	
 	addon.Tabs:OnClick(2)
+	addon.Tabs.Characters:SetAlt(Characters:GetInfo(characterInfoLine))
 	addon.Tabs.Characters:ViewCharInfo(self.value)
 end
 
@@ -133,14 +109,13 @@ local function DeleteRealm_MsgBox_Handler(self, button, characterInfoLine)
 	DataStore:DeleteRealm(realm, account)
 
 	-- if the realm being deleted was the current ..
-	if addon:GetCurrentRealm() == realm and addon:GetCurrentAccount() == account then
+	local tc = addon.Tabs.Characters
+	if tc:GetRealm() == realm and tc:GetAccount() == account then
 		
 		-- reset to this player
-		local tc = addon.Tabs.Characters
 		local player = UnitName("player")
 		local realmName = GetRealmName()
-		addon:SetCurrentCharacter(player, realmName, THIS_ACCOUNT)
-		addon.Tabs.Characters:SetCurrent(player, realmName, THIS_ACCOUNT)
+		addon.Tabs.Characters:SetAlt(player, realmName, THIS_ACCOUNT)
 		addon.Containers:UpdateCache()
 		tc:ViewCharInfo(VIEW_BAGS)
 	end
@@ -424,15 +399,11 @@ function ns:Level_OnClick(frame, button)
 		ToggleDropDownMenu(1, nil, AltoholicFrameSummaryRightClickMenu, frame:GetName(), 0, -5);
 		return
 	elseif button == "LeftButton" and lineType == INFO_CHARACTER_LINE then
-	
-		local charName, realm, account = Characters:GetInfo(line)
-		addon:SetCurrentCharacter(charName, realm, account)
-		
 		addon.Tabs:OnClick(2)
 		
 		local tc = addon.Tabs.Characters
-		addon.Tabs.Characters:SetCurrent(charName, realm, account)
-		
+		tc:SetAlt(Characters:GetInfo(line))
+		tc:MenuItem_OnClick(AltoholicTabCharacters_Characters, "LeftButton")
 		addon.Containers:UpdateCache()
 		tc:ViewCharInfo(VIEW_BAGS)
 	end
