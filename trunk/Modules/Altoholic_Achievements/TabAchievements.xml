@@ -1,6 +1,17 @@
 ﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="TabAchievements.lua"></Script>
 	
+	<Button name="AltoTabAchievementsIconTemplate" inherits="AltoBagItemTemplate" virtual="true">
+		<Scripts>
+			<OnEnter>
+				Altoholic.Tabs.Achievements:Icon_OnEnter(self)
+			</OnEnter>
+			<OnLeave>
+				AltoTooltip:Hide()
+			</OnLeave>
+		</Scripts>
+	</Button>
+	
 	<Frame name="AltoholicTabAchievements" parent="AltoholicFrame" hidden="true">
 		<Size>
 			<AbsDimension x="758" y="447"/>
@@ -10,29 +21,13 @@
 		</Anchors>
 		<Layers>
 			<Layer level="OVERLAY">
-				<FontString name="$parent_NotStarted" inherits="GameFontNormalSmall" justifyH="LEFT">
-					<Size x="120" y="20" />
+				<FontString name="$parentText1" inherits="GameFontNormalSmall" justifyH="LEFT" text="GUILD_ROSTER_VIEW">
+					<Size>
+						<AbsDimension x="60" y="18"/>
+					</Size>
 					<Anchors>
 						<Anchor point="LEFT" relativeTo="AltoholicFrameSearchLabel" relativePoint="RIGHT" >
-							<Offset x="40" y="-3" />
-						</Anchor>
-					</Anchors>
-					<Color r="255" g="255" b="255" />
-				</FontString>
-				<FontString name="$parent_Partial" inherits="GameFontNormalSmall" justifyH="LEFT">
-					<Size x="120" y="20" />
-					<Anchors>
-						<Anchor point="TOPLEFT" relativeTo="$parent_NotStarted" relativePoint="BOTTOMLEFT" >
-							<Offset x="0" y="0" />
-						</Anchor>
-					</Anchors>
-					<Color r="255" g="255" b="255" />
-				</FontString>
-				<FontString name="$parent_Completed" inherits="GameFontNormalSmall" justifyH="LEFT">
-					<Size x="120" y="20" />
-					<Anchors>
-						<Anchor point="TOPLEFT" relativeTo="$parent_Partial" relativePoint="BOTTOMLEFT" >
-							<Offset x="0" y="0" />
+							<Offset x="60" y="-5" />
 						</Anchor>
 					</Anchors>
 					<Color r="255" g="255" b="255" />
@@ -49,6 +44,111 @@
 			</Layer>
 		</Layers>
 		<Frames>
+			<Frame name="$parent_SelectRealm" inherits="UIDropDownMenuTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentText1" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="-25" y="-2"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						UIDropDownMenu_SetWidth(self, 100) 
+						UIDropDownMenu_SetButtonWidth(self, 20)
+						
+						local realm = GetRealmName()
+						UIDropDownMenu_SetSelectedValue(self, "Default|".. realm)
+						UIDropDownMenu_SetText(self, realm)
+						UIDropDownMenu_Initialize(self, Altoholic.Tabs.Achievements.DropDownRealm_Initialize)
+					</OnLoad>
+				</Scripts>
+			</Frame>
+		
+			<!-- Menu Icons -->
+			<Button name="$parent_ClassIcon1" inherits="AltoTabAchievementsIconTemplate" id="1">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="370" y="-55" />
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_ClassIcon2" inherits="AltoTabAchievementsIconTemplate" id="2">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ClassIcon1" relativePoint="TOPRIGHT" >
+						<Offset x="5" y="0" />
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_ClassIcon3" inherits="AltoTabAchievementsIconTemplate" id="3">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ClassIcon2" relativePoint="TOPRIGHT" >
+						<Offset x="5" y="0" />
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_ClassIcon4" inherits="AltoTabAchievementsIconTemplate" id="4">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ClassIcon3" relativePoint="TOPRIGHT" >
+						<Offset x="5" y="0" />
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_ClassIcon5" inherits="AltoTabAchievementsIconTemplate" id="5">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ClassIcon4" relativePoint="TOPRIGHT" >
+						<Offset x="5" y="0" />
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_ClassIcon6" inherits="AltoTabAchievementsIconTemplate" id="6">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ClassIcon5" relativePoint="TOPRIGHT" >
+						<Offset x="5" y="0" />
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_ClassIcon7" inherits="AltoTabAchievementsIconTemplate" id="7">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ClassIcon6" relativePoint="TOPRIGHT" >
+						<Offset x="5" y="0" />
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_ClassIcon8" inherits="AltoTabAchievementsIconTemplate" id="8">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ClassIcon7" relativePoint="TOPRIGHT" >
+						<Offset x="5" y="0" />
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_ClassIcon9" inherits="AltoTabAchievementsIconTemplate" id="9">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ClassIcon8" relativePoint="TOPRIGHT" >
+						<Offset x="5" y="0" />
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_ClassIcon10" inherits="AltoTabAchievementsIconTemplate" id="10">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ClassIcon9" relativePoint="TOPRIGHT" >
+						<Offset x="5" y="0" />
+					</Anchor>
+				</Anchors>
+			</Button>
+		
+			<Frame name="$parentClassIconMenu1" inherits="AltoRightClickMenuTemplate" id="1" />
+			<Frame name="$parentClassIconMenu2" inherits="AltoRightClickMenuTemplate" id="2" />
+			<Frame name="$parentClassIconMenu3" inherits="AltoRightClickMenuTemplate" id="3" />
+			<Frame name="$parentClassIconMenu4" inherits="AltoRightClickMenuTemplate" id="4" />
+			<Frame name="$parentClassIconMenu5" inherits="AltoRightClickMenuTemplate" id="5" />
+			<Frame name="$parentClassIconMenu6" inherits="AltoRightClickMenuTemplate" id="6" />
+			<Frame name="$parentClassIconMenu7" inherits="AltoRightClickMenuTemplate" id="7" />
+			<Frame name="$parentClassIconMenu8" inherits="AltoRightClickMenuTemplate" id="8" />
+			<Frame name="$parentClassIconMenu9" inherits="AltoRightClickMenuTemplate" id="9" />
+			<Frame name="$parentClassIconMenu10" inherits="AltoRightClickMenuTemplate" id="10" />
+
+			<!-- Scroll frame items -->
 			<Button name="$parentMenuItem1" inherits="AltoMenuItemTemplate" id="1">
 				<Anchors>
 					<Anchor point="TOPLEFT">
@@ -236,13 +336,13 @@
 			</ScrollFrame>
 		</Frames>
 		<Scripts>
+			<OnLoad>
+				Altoholic.Tabs.Achievements:OnLoad()
+			</OnLoad>
 			<OnShow>
-				AltoholicFrameClasses:Show()
+				Altoholic.Tabs.Achievements:UpdateClassIcons()
 				Altoholic.Tabs.Achievements:Update()
 			</OnShow>
-			<OnHide>
-				AltoholicFrameClasses:Hide()
-			</OnHide>
 		</Scripts>
 	</Frame>
 </Ui>

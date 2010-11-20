@@ -697,7 +697,8 @@ local function BrowseRealm(realm, account, bothFactions)
 					local tab = DataStore:GetGuildBankTab(guild, tabID)
 					if tab.name then
 						for slotID = 1, 98 do
-							currentResultLocation = format("%s (%s - slot %d)", GUILD_BANK, tab.name, slotID)
+--							currentResultLocation = format("%s (%s - slot %d)", GUILD_BANK, tab.name, slotID)
+							currentResultLocation = format("%s, %s - col %d/row %d)", GUILD_BANK, tab.name, floor((slotID-1)/7)+1, ((slotID-1)%7)+1)
 							local id, link, count = DataStore:GetSlotInfo(tab, slotID)
 							if id then
 								link = link or id

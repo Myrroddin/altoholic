@@ -422,7 +422,7 @@ function ns:Update()
 	AltoholicTabCharactersStatus:SetText("")
 	
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
-	local realm, account = addon:GetCurrentRealm()
+	local realm, account = addon.Tabs.Characters:GetRealm()
 	local character
 	local DS = DataStore
 	
@@ -444,13 +444,12 @@ function ns:Update()
 			addon:CreateButtonBorder(itemButton)
 			itemButton.border:Hide()
 			
-			local classButton = _G["AltoholicFrameClassesItem" .. j]
-			if classButton.CharName then
-				character = DS:GetCharacter(classButton.CharName, realm, account)
+			character = addon:GetOption(format("Tabs.Characters.%s.%s.Column%d", account, realm, j))
+			if character then
 				
 				local item = DS:GetInventoryItem(character, line)
 				if item then
-					itemButton.CharName = classButton.CharName
+					itemButton.key = character
 					addon:SetItemButtonTexture(itemName, GetItemIcon(item));
 					
 					-- display the coloured border
@@ -464,14 +463,14 @@ function ns:Update()
 					itemCount:SetText(itemLevel);
 					itemCount:Show();
 				else
-					itemButton.CharName = nil
+					itemButton.key = nil
 					addon:SetItemButtonTexture(itemName, addon:GetEquipmentSlotIcon(line));
 				end
 				
 				itemButton:Show()
 			else
 				itemButton:Hide()
-				itemButton.CharName = nil
+				itemButton.key = nil
 			end
 		end
 		
@@ -483,12 +482,10 @@ function ns:Update()
 end
 
 function ns:OnEnter()
-	if not self.CharName then return end
-	
-	local DS = DataStore
-	local realm, account = addon:GetCurrentRealm()
-	local character = DS:GetCharacter(self.CharName, realm, account)
-	local item = DS:GetInventoryItem(character, self:GetParent():GetID())
+	local character = self.key
+	if not character then return end
+
+	local item = DataStore:GetInventoryItem(character, self:GetParent():GetID())
 	if not item then return end
 
 	GameTooltip:SetOwner(self, "ANCHOR_LEFT");
@@ -566,15 +563,13 @@ local function RightClickMenu_Initialize()
 end
 
 function ns:OnClick(button)
-	if not self.CharName then return end
-	
+	local character = self.key
+	if not character then return end
+
 	local slotID = self:GetParent():GetID()
 	if slotID == 0 then return end		-- class icon
 
-	local DS = DataStore
-	local realm, account = addon:GetCurrentRealm()
-	local character = DS:GetCharacter(self.CharName, realm, account)
-	local item = DS:GetInventoryItem(character, slotID)
+	local item = DataStore:GetInventoryItem(character, slotID)
 	if not item then return end
 	
 	local link
@@ -593,7 +588,7 @@ function ns:OnClick(button)
 		end
 		
 		addon.Search:SetCurrentItem( addon:GetIDFromLink(link) ) 		-- item ID of the item to find an upgrade for
-		local _, class = DS:GetCharacterClass(character)
+		local _, class = DataStore:GetCharacterClass(character)
 		addon.Search:SetClass(class)
 		
 		ToggleDropDownMenu(1, nil, AltoholicFrameEquipmentRightClickMenu, self:GetName(), 0, -5);

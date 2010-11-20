@@ -8,6 +8,20 @@
 			</OnEnter>
 		</Scripts>
 	</Button>
+	
+	<Button name="AltoGuildBankTabIconTemplate" inherits="AltoMenuIconTemplate" virtual="true">
+		<Scripts>
+			<OnClick>
+				Altoholic.Guild.Bank:TabIcon_OnClick(self, button)
+			</OnClick>
+			<OnEnter>
+				Altoholic.Guild.Bank:TabIcon_OnEnter(self)
+			</OnEnter>
+			<OnLeave>
+				AltoTooltip:Hide();
+			</OnLeave>
+		</Scripts>
+	</Button>
 		
 	<Frame name="AltoholicFrameGuildBank" parent="AltoholicTabGuild">
 		<Size>
@@ -124,6 +138,79 @@
 				</Anchors>
 			</Button>
 
+			<Button name="$parentTabButton1" inherits="AltoGuildBankTabIconTemplate" id="1">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="AltoholicFrame" relativePoint="TOPRIGHT" >
+						<Offset>
+							<AbsDimension x="0" y="-80"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentTabButton2" inherits="AltoGuildBankTabIconTemplate" id="2">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentTabButton1" relativePoint="BOTTOMLEFT" >
+						<Offset>
+							<AbsDimension x="0" y="-5"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentTabButton3" inherits="AltoGuildBankTabIconTemplate" id="3">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentTabButton2" relativePoint="BOTTOMLEFT" >
+						<Offset>
+							<AbsDimension x="0" y="-5"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentTabButton4" inherits="AltoGuildBankTabIconTemplate" id="4">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentTabButton3" relativePoint="BOTTOMLEFT" >
+						<Offset>
+							<AbsDimension x="0" y="-5"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentTabButton5" inherits="AltoGuildBankTabIconTemplate" id="5">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentTabButton4" relativePoint="BOTTOMLEFT" >
+						<Offset>
+							<AbsDimension x="0" y="-5"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentTabButton6" inherits="AltoGuildBankTabIconTemplate" id="6">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentTabButton5" relativePoint="BOTTOMLEFT" >
+						<Offset>
+							<AbsDimension x="0" y="-5"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentTabButton7" inherits="AltoGuildBankTabIconTemplate" id="7">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentTabButton6" relativePoint="BOTTOMLEFT" >
+						<Offset>
+							<AbsDimension x="0" y="-5"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentTabButton8" inherits="AltoGuildBankTabIconTemplate" id="8">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentTabButton7" relativePoint="BOTTOMLEFT" >
+						<Offset>
+							<AbsDimension x="0" y="-5"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			
 		</Frames>
 		<Scripts>
 			<OnLoad>

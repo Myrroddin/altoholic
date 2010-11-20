@@ -42,7 +42,7 @@ local ns = addon.TradeSkills.Recipes		-- ns = namespace
 
 -- *** Utility functions ***
 local function GetCurrentProfessionTable()
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	return DataStore:GetProfession(character, currentProfession)
 end
 
@@ -66,7 +66,7 @@ function ns:BuildView()
 	view = view or {}
 	wipe(view)
 
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	local profession = DataStore:GetProfession(character, currentProfession)
 	if not profession then return end
 	
@@ -141,7 +141,7 @@ function ns:Update()
 	local VisibleLines = 14
 	local entry = parent.."Entry"
 	
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	local profession = DataStore:GetProfession(character, currentProfession)
 	
 	_G[parent .. "Info"]:Show()
@@ -385,12 +385,12 @@ function ns:Link_OnClick(frame, button)
 		return
 	end
 	
-	if addon:GetCurrentRealm() ~= GetRealmName() then
+	if addon.Tabs.Characters:GetRealm() ~= GetRealmName() then
 		addon:Print(L["Cannot link another realm's tradeskill"])
 		return
 	end
 
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	local profession = DataStore:GetProfession(character, currentProfession)
 	local link = profession.FullLink
 
@@ -401,6 +401,6 @@ function ns:Link_OnClick(frame, button)
 	
 	local chat = ChatEdit_GetLastActiveWindow()
 	if chat:IsShown() then
-		chat:Insert(addon:GetCurrentCharacter() .. ": " .. link);
+		chat:Insert(addon.Tabs.Characters:GetAlt() .. ": " .. link);
 	end
 end

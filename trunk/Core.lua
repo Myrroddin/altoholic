@@ -4,8 +4,8 @@ _G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "A
 
 local addon = _G[addonName]
 
-addon.Version = "v4.0.003"
-addon.VersionNum = 400003
+addon.Version = "v4.0.004"
+addon.VersionNum = 400004
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local commPrefix = addonName
@@ -287,6 +287,14 @@ function addon.Tabs:OnClick(index)
 	
 	if index >= 2 and index <= 5 then
 		SafeLoadAddOn(format("%s_%s", addonName, tabList[index]))		-- make this part a bit more generic once we'll have more LoD parts
+		
+		local parentLevel = AltoholicFrame:GetFrameLevel()
+		local childName = format("%sTab%s", addonName, tabList[index])
+		local childLevel = _G[ childName ]:GetFrameLevel()
+		
+		if childLevel <= parentLevel then	-- if for any reason a child frame has a level lower or equal to its parent, fix it
+			_G[ childName ]:SetFrameLevel(parentLevel+1)
+		end
 	end
 	
 	ShowTab(tabList[index])

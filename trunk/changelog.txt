@@ -8,6 +8,26 @@ IMPORTANT NOTE: If you're upgrading from 3.x :
 - Make sure you delete the addon's databases in SavedVariables. ie: Altoholic.lua and all DataStore*.lua.
 - Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
 
+4.0.004 (20/11/2010)
+
+- Added an 'All-in-one' option to the reputations pane.
+- Added an 'All-in-one' option to the currencies pane.
+- Added buttons on the right side of the guild bank pane, for those who prefer this to the drop down menu (Yes, I love you that much !).
+- DataStore_Crafts: Fixed guild trade skills being scanned by mistake. It is advised to delete your DataStore_Crafts.lua in saved variables if you notice tooltip inconsistencies (like: alt x could learn a recipe for a profession he hasn't even learned).
+- Added the possibility to mouse over class icons in both the Characters & Achievements tabs in order to select another alt.
+	This allows you to change the order in which alts are displayed (order is saved across sessions).
+	Both tabs can have a different order.
+	The feature is currently limited to picking another alt on the same realm, but I intend to build on this approach and allow cross-realm comparisons. Consider the current implementation as a first throw.
+- Fixed a frame layering issue that could potentially keep some panes invisible.
+- Recipes are now color coded at the AH and at vendors. 
+	Green = At least one alt on this realm could learn it.
+	Yellow = At least one alt on this realm will be able to learn it.
+	Red = Useless to all characters on this realm.
+- Reworked the talent pane: it now displays two copies of the same talent tree. The leftmost tree is your alt's, and the rightmost tree is for a guild mate's alt of the same class. 
+	When you select a guild member to view, its data is sent across the guild channel and saved in the DB, just like when you are inspecting a player remotely. This also means you can check this tree again later if the player is offline.
+	The feature works with 2 users playing in different languages (tested in my guild with enGB + frFR clients).
+	Note: only players with version >= 4.0.004 will be listed, make sure to ask your guildmates to upgrade :)
+	
 4.0.003 (26/10/2010)
 
 - Fixed the LK Dungeon achievement list.

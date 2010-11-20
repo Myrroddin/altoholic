@@ -15,7 +15,7 @@ local ns = addon.Mail		-- ns = namespace
 
 local function SortByName(a, b, ascending)
 	local DS = DataStore
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	
 	local textA = DS:GetMailSubject(character, a) or ""
 	local textB = DS:GetMailSubject(character, b) or ""
@@ -29,7 +29,7 @@ end
 
 local function SortBySender(a, b, ascending)
 	local DS = DataStore
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	
 	local senderA = DS:GetMailSender(character, a)
 	local senderB = DS:GetMailSender(character, b)
@@ -43,7 +43,7 @@ end
 
 local function SortByExpiry(a, b, ascending)
 	local DS = DataStore
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	
 	local _, expiryA = DS:GetMailExpiry(character, a)
 	local _, expiryB = DS:GetMailExpiry(character, b)
@@ -63,7 +63,7 @@ function ns:BuildView(field, ascending)
 	wipe(self.view)
 	
 	local DS = DataStore
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	if not character then return end
 	
 	local numMails = DS:GetNumMails(character) or 0
@@ -84,19 +84,9 @@ function ns:Update()
 	local VisibleLines = 7
 	local frame = "AltoholicFrameMail"
 	local entry = frame.."Entry"
-	local player = addon:GetCurrentCharacter()
 	
 	local DS = DataStore
-	local character = addon.Tabs.Characters:GetCurrent()
-	
-	-- local lastVisit = DS:GetMailboxLastVisit(character)
-	-- if lastVisit ~= 0 then
-		-- local localDate = format(L["Last visit: %s by %s"], GREEN..date("%m/%d/%Y", lastVisit)..WHITE, GREEN..player)
-		-- AltoholicFrameMailInfo1:SetText(localDate .. WHITE .. " @ " .. date("%H:%M", lastVisit))
-		-- AltoholicFrameMailInfo1:Show()
-	-- else		-- never visited the mailbox
-		-- AltoholicFrameMailInfo1:Hide()
-	-- end
+	local character = addon.Tabs.Characters:GetAltKey()
 	
 	local numMails = DS:GetNumMails(character) or 0
 	AltoholicTabCharactersStatus:SetText(format("%s|r / %s", DataStore:GetColoredCharacterName(character), format(L["Mails %s(%d)"], GREEN, numMails)))
@@ -156,7 +146,7 @@ end
 
 function ns:OnEnter(self)
 	local DS = DataStore
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	local index = self:GetID()
 	local _, _, link, money, text = DS:GetMailInfo(character, index)
 						
@@ -184,7 +174,7 @@ end
 
 function ns:OnClick(self, button)
 	local DS = DataStore
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	local index = self:GetID()
 	local _, _, link = DS:GetMailInfo(character, index)
 

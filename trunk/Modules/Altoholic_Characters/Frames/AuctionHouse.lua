@@ -2,7 +2,6 @@ local addonName = "Altoholic"
 local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
@@ -18,7 +17,7 @@ local listType			-- "Auctions" or "Bids"
 
 local function SortByName(a, b)
 	local DS = DataStore
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 
 	local _, idA = DS:GetAuctionHouseItemInfo(character, listType, a)
 	local _, idB = DS:GetAuctionHouseItemInfo(character, listType, b)
@@ -36,7 +35,7 @@ end
 local function SortByPlayer(a, b)
 	-- sort by owner (for bids), or highBidder (for auctions), both the 4th return value
 	local DS = DataStore
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	
 	local _, _, _, nameA = DS:GetAuctionHouseItemInfo(character, listType, a)
 	local _, _, _, nameB = DS:GetAuctionHouseItemInfo(character, listType, b)
@@ -54,7 +53,7 @@ end
 local function SortByPrice(a, b)
 	-- sort by owner (for bids), or highBidder (for auctions), both the 4th return value
 	local DS = DataStore
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	
 	local _, _, _, _, _, priceA = DS:GetAuctionHouseItemInfo(character, listType, a)
 	local _, _, _, _, _, priceB = DS:GetAuctionHouseItemInfo(character, listType, b)
@@ -77,7 +76,7 @@ local function BuildView()
 	view = view or {}
 	wipe(view)
 	
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	if not character then return end
 	
 	local num
@@ -139,19 +138,8 @@ function ns:UpdateAuctions()
 	local frame = "AltoholicFrameAuctions"
 	local entry = frame.."Entry"
 
-	local player = addon:GetCurrentCharacter()
-
 	local DS = DataStore
-	local character = addon.Tabs.Characters:GetCurrent()
-	
-	-- local lastVisit = DS:GetAuctionHouseLastVisit(character)
-	-- if lastVisit ~= 0 then
-		-- local localDate = format(L["Last visit: %s by %s"], GREEN..date("%m/%d/%Y", lastVisit)..WHITE, GREEN..player)
-		-- AltoholicFrameAuctionsInfo1:SetText(localDate .. WHITE .. " @ " .. date("%H:%M", lastVisit))
-		-- AltoholicFrameAuctionsInfo1:Show()
-	-- else		-- never visited the AH
-		-- AltoholicFrameAuctionsInfo1:Hide()
-	-- end
+	local character = addon.Tabs.Characters:GetAltKey()
 	
 	local numAuctions = DS:GetNumAuctions(character) or 0
 	AltoholicTabCharactersStatus:SetText(format("%s|r / %s", DataStore:GetColoredCharacterName(character), format(L["Auctions %s(%d)"], GREEN, numAuctions)))
@@ -217,18 +205,8 @@ function ns:UpdateBids()
 	local frame = "AltoholicFrameAuctions"
 	local entry = frame.."Entry"
 	
-	local player = addon:GetCurrentCharacter()
 	local DS = DataStore
-	local character = addon.Tabs.Characters:GetCurrent()
-	
-	-- local lastVisit = DS:GetAuctionHouseLastVisit(character)
-	-- if lastVisit ~= 0 then
-		-- local localDate = format(L["Last visit: %s by %s"], GREEN..date("%m/%d/%Y", lastVisit)..WHITE, GREEN..player)
-		-- AltoholicFrameAuctionsInfo1:SetText(localDate .. WHITE .. " @ " .. date("%H:%M", lastVisit))
-		-- AltoholicFrameAuctionsInfo1:Show()
-	-- else		-- never visited the AH
-		-- AltoholicFrameAuctionsInfo1:Hide()
-	-- end
+	local character = addon.Tabs.Characters:GetAltKey()
 	
 	local numBids = DS:GetNumBids(character) or 0
 	AltoholicTabCharactersStatus:SetText(format("%s|r / %s", DataStore:GetColoredCharacterName(character), format(L["Bids %s(%d)"], GREEN, numBids)))
@@ -285,7 +263,7 @@ function ns:UpdateBids()
 end
 
 function ns:OnEnter(frame)
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	local _, id = DataStore:GetAuctionHouseItemInfo(character, listType, frame:GetID())
 	if not id then return end
 	
@@ -298,7 +276,7 @@ function ns:OnEnter(frame)
 end
 
 function ns:OnClick(frame, button)
-	local character = addon.Tabs.Characters:GetCurrent()
+	local character = addon.Tabs.Characters:GetAltKey()
 	local _, id = DataStore:GetAuctionHouseItemInfo(character, listType, frame:GetID())
 	if not id then return end
 
@@ -316,45 +294,4 @@ function ns:OnClick(frame, button)
 		end
 	end
 end
-
--- *** EVENT HANDLERS ***
-local function OnClose()
-	addon:UnregisterEvent("AUCTION_HOUSE_CLOSED")
-	ns:InvalidateView()
-end
-
-local function OnShow()
-	addon:RegisterEvent("AUCTION_HOUSE_CLOSED", OnClose)
-	
-	-- do not activate now, requires a few changes, and certainly the implementation of DataStore_Crafts
-	-- if not self.Orig_AuctionFrameBrowse_Update then
-		-- self.Orig_AuctionFrameBrowse_Update = AuctionFrameBrowse_Update
-		-- AuctionFrameBrowse_Update = addon.AuctionHouse.BrowseUpdateHook
-	-- end
-end
-
-addon:RegisterEvent("AUCTION_HOUSE_SHOW", OnShow)
-
-
-
--- function addon.AuctionHouse.BrowseUpdateHook()
-	-- local self = addon.AuctionHouse
-	-- self.Orig_AuctionFrameBrowse_Update()		-- Let default stuff happen first ..
-	
-	-- local offset = FauxScrollFrame_GetOffset(BrowseScrollFrame)
-	-- local link
-	-- for i = 1, NUM_BROWSE_TO_DISPLAY do			-- NUM_BROWSE_TO_DISPLAY = 8;
-		-- link = GetAuctionItemLink("list", i+offset)
-		-- if link then		-- if there's a valid item link in this slot ..
-			-- local itemID = addon:GetIDFromLink(link)
-			-- local _, _, _, _, _, itemType = GetItemInfo(itemID)
-			-- if itemType == BI["Recipe"] then		-- is it a recipe ?
-				-- local tex = _G["BrowseButton" .. i .. "ItemIconTexture"]
---				tex:SetVertexColor(1, 0, 0)
---				DEFAULT_CHAT_FRAME:AddMessage("found !")
-			-- end
-		-- end
-	-- end
--- end
-
 

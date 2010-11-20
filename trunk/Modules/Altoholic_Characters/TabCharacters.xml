@@ -61,6 +61,17 @@
 		</Scripts>
 	</Button>
 	
+	<Button name="AltoTabCharactersClassIconTemplate" inherits="AltoBagItemTemplate" virtual="true">
+		<Scripts>
+			<OnEnter>
+				Altoholic.Tabs.Characters:ClassIcon_OnEnter(self)
+			</OnEnter>
+			<OnLeave>
+				AltoTooltip:Hide()
+			</OnLeave>
+		</Scripts>
+	</Button>
+	
 	<Frame name="AltoholicTabCharacters" parent="AltoholicFrame" hidden="true">
 		<Size>
 			<AbsDimension x="758" y="447"/>
@@ -163,6 +174,89 @@
 			<Frame name="$parentRightClickMenu7" inherits="AltoRightClickMenuTemplate" id="7" />
 			<Frame name="$parentRightClickMenu8" inherits="AltoRightClickMenuTemplate" id="8" />
 
+			<!-- Class Icons -->
+			<Button name="$parent_ClassIcon1" inherits="AltoTabCharactersClassIconTemplate" id="1">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="370" y="-55" />
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_ClassIcon2" inherits="AltoTabCharactersClassIconTemplate" id="2">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ClassIcon1" relativePoint="TOPRIGHT" >
+						<Offset x="5" y="0" />
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_ClassIcon3" inherits="AltoTabCharactersClassIconTemplate" id="3">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ClassIcon2" relativePoint="TOPRIGHT" >
+						<Offset x="5" y="0" />
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_ClassIcon4" inherits="AltoTabCharactersClassIconTemplate" id="4">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ClassIcon3" relativePoint="TOPRIGHT" >
+						<Offset x="5" y="0" />
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_ClassIcon5" inherits="AltoTabCharactersClassIconTemplate" id="5">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ClassIcon4" relativePoint="TOPRIGHT" >
+						<Offset x="5" y="0" />
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_ClassIcon6" inherits="AltoTabCharactersClassIconTemplate" id="6">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ClassIcon5" relativePoint="TOPRIGHT" >
+						<Offset x="5" y="0" />
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_ClassIcon7" inherits="AltoTabCharactersClassIconTemplate" id="7">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ClassIcon6" relativePoint="TOPRIGHT" >
+						<Offset x="5" y="0" />
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_ClassIcon8" inherits="AltoTabCharactersClassIconTemplate" id="8">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ClassIcon7" relativePoint="TOPRIGHT" >
+						<Offset x="5" y="0" />
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_ClassIcon9" inherits="AltoTabCharactersClassIconTemplate" id="9">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ClassIcon8" relativePoint="TOPRIGHT" >
+						<Offset x="5" y="0" />
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_ClassIcon10" inherits="AltoTabCharactersClassIconTemplate" id="10">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ClassIcon9" relativePoint="TOPRIGHT" >
+						<Offset x="5" y="0" />
+					</Anchor>
+				</Anchors>
+			</Button>
+		
+			<Frame name="$parentClassIconMenu1" inherits="AltoRightClickMenuTemplate" id="1" />
+			<Frame name="$parentClassIconMenu2" inherits="AltoRightClickMenuTemplate" id="2" />
+			<Frame name="$parentClassIconMenu3" inherits="AltoRightClickMenuTemplate" id="3" />
+			<Frame name="$parentClassIconMenu4" inherits="AltoRightClickMenuTemplate" id="4" />
+			<Frame name="$parentClassIconMenu5" inherits="AltoRightClickMenuTemplate" id="5" />
+			<Frame name="$parentClassIconMenu6" inherits="AltoRightClickMenuTemplate" id="6" />
+			<Frame name="$parentClassIconMenu7" inherits="AltoRightClickMenuTemplate" id="7" />
+			<Frame name="$parentClassIconMenu8" inherits="AltoRightClickMenuTemplate" id="8" />
+			<Frame name="$parentClassIconMenu9" inherits="AltoRightClickMenuTemplate" id="9" />
+			<Frame name="$parentClassIconMenu10" inherits="AltoRightClickMenuTemplate" id="10" />
+			
 			<!-- Left Menu -->
 			<Frame name="$parent_SelectRealm" inherits="UIDropDownMenuTemplate">
 				<Anchors>
@@ -287,7 +381,6 @@
 				Altoholic.Tabs.Characters:OnShow()
 			</OnShow>
 			<OnHide>
-				AltoholicFrameClasses:Hide()
 				DropDownList1:Hide()
 			</OnHide>
 		</Scripts>
