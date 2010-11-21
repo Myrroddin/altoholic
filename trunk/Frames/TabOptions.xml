@@ -444,6 +444,48 @@
 		</Frames>
 	</Frame>
 	
+	<Frame name="AltoholicMiscOptions" hidden="true">
+		<Size>
+			<AbsDimension x="615" y="306"/>
+		</Size>
+		<Frames>
+			<CheckButton name="$parent_AHColorCoding" inherits="InterfaceOptionsSmallCheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="40" y="-40" />
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic:ToggleOption(self, "UI.AHColorCoding")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parent_VendorColorCoding" inherits="InterfaceOptionsSmallCheckButtonTemplate">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors> 
+					<Anchor point="TOP" relativeTo="$parent_AHColorCoding" relativePoint="BOTTOM" >
+						<Offset>
+							<AbsDimension  x="0" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>      
+				<Scripts>
+					<OnClick>
+						Altoholic:ToggleOption(self, "UI.VendorColorCoding")
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+		</Frames>
+	</Frame>
+	
 	<Frame name="AltoholicTooltipOptions" hidden="true">
 		<Size>
 			<AbsDimension x="615" y="306"/>

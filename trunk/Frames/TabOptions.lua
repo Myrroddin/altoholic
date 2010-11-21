@@ -128,6 +128,26 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "4.0.004b Changes",
+		bulletedList = {
+			"Added a temporary fix to the quest turn-in issue.",
+			"Fixed Auctioneer compatibility issue.",
+			"Added 2 options to enable/disable recipe coloring at the AH/vendors.",
+			"deDE: fixed an issue when opening the characters tab with a Shaman.",
+		},
+	},
+	{	name = "4.0.004 Changes",
+		bulletedList = {
+			"Added an 'All-in-one' option to the reputations pane.",
+			"Added an 'All-in-one' option to the currencies pane.",
+			"Added buttons on the right side of the guild bank pane, for those who prefer this to the drop down menu (Yes, I love you that much !).",
+			"DataStore_Crafts: Fixed guild trade skills being scanned by mistake. It is advised to delete your DataStore_Crafts.lua in saved variables if you notice tooltip inconsistencies (like: alt x could learn a recipe for a profession he hasn't even learned).",
+			"Added the possibility to mouse over class icons in both the Characters & Achievements tabs in order to select another alt.",
+			"Fixed a frame layering issue that could potentially keep some panes invisible.",
+			"Recipes are now color coded at the AH and at vendors.",
+			"Reworked the talent pane: it now displays two copies of the same talent tree. The leftmost tree is your alt's, and the rightmost tree is for a guild mate's alt of the same class.",
+		},
+	},
 	{	name = "4.0.003 Changes",
 		bulletedList = {
 			"Fixed the LK Dungeon achievement list.",
@@ -211,6 +231,7 @@ function addon:SetupOptions()
 	DataStore:AddOptionCategory(AltoholicMemoryOptions, L["Memory used"], addonName)
 	DataStore:AddOptionCategory(AltoholicSearchOptions, SEARCH, addonName)
 	DataStore:AddOptionCategory(AltoholicMailOptions, MAIL_LABEL, addonName)
+	DataStore:AddOptionCategory(AltoholicMiscOptions, MISCELLANEOUS, addonName)
 	DataStore:AddOptionCategory(AltoholicAccountSharingOptions, L["Account Sharing"], addonName)
 	DataStore:AddOptionCategory(AltoholicSharedContent, "Shared Content", addonName)
 	DataStore:AddOptionCategory(AltoholicTooltipOptions, L["Tooltip"], addonName)
@@ -306,6 +327,10 @@ function addon:SetupOptions()
 		L["Be informed when a guildmate sends a mail to one of my alts.\n\nMail content is directly visible without having to reconnect the character"])
 
 	AltoholicMailOptions_NameAutoCompleteText:SetText("Auto-complete recipient name" )
+		
+	AltoholicMiscOptions_AHColorCodingText:SetText(L["Use color-coding for recipes at the AH"])
+	AltoholicMiscOptions_VendorColorCodingText:SetText(L["Use color-coding for recipes at vendors"])
+		
 		
 	-- ** Account Sharing **
 	AltoholicAccountSharingOptions_AccSharingCommText:SetText(L["Account Sharing Enabled"])
@@ -417,6 +442,9 @@ function addon:RestoreOptionsToUI()
 	AltoholicMailOptions_GuildMailWarning:SetChecked(O.GuildMailWarning)
 	AltoholicMailOptions_NameAutoComplete:SetChecked(O.NameAutoComplete)
 
+	AltoholicMiscOptions_AHColorCoding:SetChecked(O["UI.AHColorCoding"])
+	AltoholicMiscOptions_VendorColorCoding:SetChecked(O["UI.VendorColorCoding"])
+	
 	AltoholicAccountSharingOptions_AccSharingComm:SetChecked(O.AccSharingHandlerEnabled)
 	
 	AltoholicTooltipOptionsSource:SetChecked(O.TooltipSource)
