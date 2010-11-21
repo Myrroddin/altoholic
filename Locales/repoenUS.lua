@@ -758,6 +758,9 @@ L["Scan mail body (marks it as read)"] = true
 L["New mail notification"] = true
 L["Be informed when a guildmate sends a mail to one of my alts.\n\nMail content is directly visible without having to reconnect the character"] = true
 
+L["Use color-coding for recipes at the AH"] = true
+L["Use color-coding for recipes at vendors"] = true
+
 -- ** Frame 4 : Minimap **
 L["Move to change the angle of the minimap icon"] = true
 L["Minimap Icon Angle"] = true

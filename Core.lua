@@ -139,6 +139,8 @@ local AddonDB_Defaults = {
 			CharacterTabViewBagsAllInOne = 0,
 			CharacterTabViewBagsRarity = 0,
 			
+			["UI.AHColorCoding"] = 1,			-- color coded recipes at the AH
+			["UI.VendorColorCoding"] = 1,		-- color coded recipes at vendors
 		},
 }}
 

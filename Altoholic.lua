@@ -201,6 +201,8 @@ local function AuctionFrameBrowse_UpdateHook()
 
 	Orig_AuctionFrameBrowse_Update()		-- Let default stuff happen first ..
 	
+	if addon:GetOption("UI.AHColorCoding") == 0 then return end
+	
 	local offset = FauxScrollFrame_GetOffset(BrowseScrollFrame)
 	local link
 	for i = 1, NUM_BROWSE_TO_DISPLAY do			-- NUM_BROWSE_TO_DISPLAY = 8;
@@ -213,12 +215,14 @@ local function AuctionFrameBrowse_UpdateHook()
 				local _, couldLearn, willLearn = addon:GetRecipeOwners(itemSubType, link, addon:GetRecipeLevel(link))
 				local tex = _G["BrowseButton" .. i .. "ItemIconTexture"]
 				
-				if #couldLearn == 0 and #willLearn == 0 then		-- nobody could learn the recipe, neither now nor later : red
-					tex:SetVertexColor(1, 0, 0)
-				elseif #couldLearn > 0 then							-- at least 1 could learn it : green (priority over "will learn")
-					tex:SetVertexColor(0, 1, 0)
-				elseif #willLearn > 0 then								-- nobody could learn it now, but some could later : yellow
-					tex:SetVertexColor(1, 1, 0)
+				if tex then
+					if #couldLearn == 0 and #willLearn == 0 then		-- nobody could learn the recipe, neither now nor later : red
+						tex:SetVertexColor(1, 0, 0)
+					elseif #couldLearn > 0 then							-- at least 1 could learn it : green (priority over "will learn")
+						tex:SetVertexColor(0, 1, 0)
+					elseif #willLearn > 0 then								-- nobody could learn it now, but some could later : yellow
+						tex:SetVertexColor(1, 1, 0)
+					end
 				end
 			end
 		end
@@ -231,6 +235,8 @@ local Orig_MerchantFrame_UpdateMerchantInfo
 local function MerchantFrame_UpdateMerchantInfoHook()
 	
 	Orig_MerchantFrame_UpdateMerchantInfo()		-- Let default stuff happen first ..
+	
+	if addon:GetOption("UI.VendorColorCoding") == 0 then return end
 	
    local numItems = GetMerchantNumItems()
 	local index, link
@@ -247,19 +253,21 @@ local function MerchantFrame_UpdateMerchantInfoHook()
 					
 					local _, couldLearn, willLearn = addon:GetRecipeOwners(itemSubType, link, addon:GetRecipeLevel(link))
 					local button = _G["MerchantItem" .. i .. "ItemButton"]
-					local r, g, b
-					
-					if #couldLearn == 0 and #willLearn == 0 then		-- nobody could learn the recipe, neither now nor later : red
-						r, g, b = 1, 0, 0
-					elseif #couldLearn > 0 then							-- at least 1 could learn it : green (priority over "will learn")
-						r, g, b = 0, 1, 0
-					elseif #willLearn > 0 then								-- nobody could learn it now, but some could later : yellow
-						r, g, b = 1, 1, 0
-					else
-						r, g, b = 1, 1, 1
+					if button then
+						local r, g, b
+						
+						if #couldLearn == 0 and #willLearn == 0 then		-- nobody could learn the recipe, neither now nor later : red
+							r, g, b = 1, 0, 0
+						elseif #couldLearn > 0 then							-- at least 1 could learn it : green (priority over "will learn")
+							r, g, b = 0, 1, 0
+						elseif #willLearn > 0 then								-- nobody could learn it now, but some could later : yellow
+							r, g, b = 1, 1, 0
+						else
+							r, g, b = 1, 1, 1
+						end
+						SetItemButtonTextureVertexColor(button, r, g, b)
+						SetItemButtonNormalTextureVertexColor(button, r, g, b)
 					end
-					SetItemButtonTextureVertexColor(button, r, g, b)
-					SetItemButtonNormalTextureVertexColor(button, r, g, b)
 				end
 			end
 

@@ -8,6 +8,13 @@ IMPORTANT NOTE: If you're upgrading from 3.x :
 - Make sure you delete the addon's databases in SavedVariables. ie: Altoholic.lua and all DataStore*.lua.
 - Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
 
+4.0.004b (21/11/2010)
+
+- Added a temporary fix to the quest turn-in issue. IT IS STILL MANDATORY TO CLEAN YOUR SAVED VARIABLES IF YOU HAVEN'T DONE IT SINCE 4.0 !
+- Fixed Auctioneer compatibility issue.
+- Added 2 options (Category: Miscellaneous) to enable/disable recipe coloring at the AH/vendors. 
+- deDE: fixed an issue when opening the characters tab with a Shaman.
+
 4.0.004 (20/11/2010)
 
 - Added an 'All-in-one' option to the reputations pane.
