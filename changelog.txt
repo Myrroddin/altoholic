@@ -8,6 +8,11 @@ IMPORTANT NOTE: If you're upgrading from 3.x :
 - Make sure you delete the addon's databases in SavedVariables. ie: Altoholic.lua and all DataStore*.lua.
 - Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
 
+4.0.004c (24/11/2010)
+
+- Updated achievement list for 4.0.3a. (some categories are not fully complete: LK Raid, Cata dungeons, Feats of Strength; coming soon)
+
+
 4.0.004b (21/11/2010)
 
 - Added a temporary fix to the quest turn-in issue. IT IS STILL MANDATORY TO CLEAN YOUR SAVED VARIABLES IF YOU HAVEN'T DONE IT SINCE 4.0 !
