@@ -256,11 +256,11 @@ local function GetItemCount(searchedID)
 					end
 					
 					if #tabCounters > 0 then
-						guildCount = DataStore:GetGuildBankItemCount(guildKey, searchedID)
+						guildCount = DataStore:GetGuildBankItemCount(guildKey, searchedID) or 0
 						AddCounterLine(GREEN..guildName, format("%s %s(%s%s)", ORANGE .. guildCount, WHITE, table.concat(tabCounters, ","), WHITE))
 					end
 				else
-					guildCount = DataStore:GetGuildBankItemCount(guildKey, searchedID)
+					guildCount = DataStore:GetGuildBankItemCount(guildKey, searchedID) or 0
 					if guildCount > 0 then
 						AddCounterLine(GREEN..guildName, format("%s(%s: %s%s)", WHITE, GUILD_BANK, TEAL..guildCount, WHITE))
 					end

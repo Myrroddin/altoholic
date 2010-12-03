@@ -587,7 +587,7 @@ function ns:DropDownMembers_Initialize(level)
 					local version = addon:GetGuildMemberVersion(member)
 					if version and version >= "v4.0.004" then		-- version found = altoholic user
 						-- add this players' main ?
-						playerLevel = select(4, DataStore:GetGuildMemberInfo(member))
+						playerLevel = select(4, DataStore:GetGuildMemberInfo(member)) or 0
 						englishClass = select(11, DataStore:GetGuildMemberInfo(member))
 						if playerLevel >= 10 and englishClass == currentClass and characterName ~= member then	-- only keep the right class, and skip alt already displayed in the left pane
 							list[member] = true
@@ -600,7 +600,7 @@ function ns:DropDownMembers_Initialize(level)
 								local altsTable = { strsplit("|", alts) }
 								
 								for _, altName in ipairs(altsTable) do
-									playerLevel = select(4, DataStore:GetGuildMemberInfo(altName))
+									playerLevel = select(4, DataStore:GetGuildMemberInfo(altName)) or 0
 									englishClass = select(11, DataStore:GetGuildMemberInfo(altName))
 									if playerLevel >= 10 and englishClass == currentClass then
 										list[altName] = true
