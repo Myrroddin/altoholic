@@ -73,7 +73,7 @@ end
 
 function ns:UpdateClassIcons()
 	local key = addon:GetOption(format("Tabs.Achievements.%s.%s.Column1", currentAccount, currentRealm))
-	if not key then	-- first time this realm is displayed
+	if not key then	-- first time this realm is displayed, or reset by player
 	
 		local index = 1
 
@@ -88,38 +88,53 @@ function ns:UpdateClassIcons()
 				break
 			end
 		end
+		
+		while index <= 10 do
+			addon:SetOption(format("Tabs.Achievements.%s.%s.Column%d", currentAccount, currentRealm, index), nil)
+			index = index + 1
+		end
 	end
 	
-	local itemName, itemButton
+	local itemName, itemButton, itemTexture
+	local class
+	
 	for i = 1, 10 do
 		itemName = parent .. "_ClassIcon" .. i
 		itemButton = _G[itemName]
 		
 		key = addon:GetOption(format("Tabs.Achievements.%s.%s.Column%d", currentAccount, currentRealm, i))
+		itemTexture = _G[itemName .. "IconTexture"]
+		addon:CreateButtonBorder(itemButton)
 		
 		if key then
-			local _, class = DataStore:GetCharacterClass(key)
+			_, class = DataStore:GetCharacterClass(key)
+		end
+		
+		if key and class then
 			local tc = CLASS_ICON_TCOORDS[class]
 		
-			local itemTexture = _G[itemName .. "IconTexture"]
 			itemTexture:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes");
 			itemTexture:SetTexCoord(tc[1], tc[2], tc[3], tc[4]);
-			itemTexture:SetWidth(36);
-			itemTexture:SetHeight(36);
-			itemTexture:SetAllPoints(itemButton);
-
-			addon:CreateButtonBorder(itemButton)
-		
+	
 			if DataStore:GetCharacterFaction(key) == "Alliance" then
 				itemButton.border:SetVertexColor(0.1, 0.25, 1, 0.5)
 			else
 				itemButton.border:SetVertexColor(1, 0, 0, 0.5)
 			end
-			itemButton.border:Show()
-			itemButton:Show()
-		else
-			itemButton:Hide()
+
+		else	-- no key ? display a question mark icon
+			itemTexture:SetTexture(ICON_PARTIAL)
+			itemTexture:SetTexCoord(0, 1, 0, 1)
+			
+			itemButton.border:SetVertexColor(0, 1, 0, 0.5)
 		end
+		
+		itemTexture:SetWidth(36)
+		itemTexture:SetHeight(36)
+		itemTexture:SetAllPoints(itemButton)
+		
+		itemButton.border:Show()
+		itemButton:Show()
 	end
 end
 
@@ -294,8 +309,13 @@ end
 
 -- ** Icon events **
 local function OnCharacterChange(self, id)
-	local key = self.value
-	if not key then return end
+	if not id then return end		-- no icon id ? exit
+	
+	local key = self.value		-- key is either a datastore character key, or nil (if "None" is selected by the player for this column)
+
+	if key == "empty" then		-- if the keyword "empty" is passed, save a nil value in the options
+		key = nil
+	end
 
 	addon:SetOption(format("Tabs.Achievements.%s.%s.Column%d", currentAccount, currentRealm, id), key)
 	ns:UpdateClassIcons()
@@ -347,6 +367,16 @@ local function ClassIcon_Initialize(self, level)
 		info.arg1		= id
 		UIDropDownMenu_AddButton(info, 1)
 	end
+	
+	DDM_AddTitle(" ")
+	
+	local info = UIDropDownMenu_CreateInfo()
+	info.text		= (id == 1) and RESET or NONE
+	info.value		= "empty"
+	info.func		= OnCharacterChange
+	info.checked	= (key == "")
+	info.arg1		= id
+	UIDropDownMenu_AddButton(info, 1)
 
 	DDM_AddCloseMenu()
 end

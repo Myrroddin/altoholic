@@ -80,6 +80,7 @@ local VIEW_TOKENS = 4
 local VIEW_ALL_COMPANIONS = 5
 local VIEW_ALL_MOUNTS = 6
 
+local ICON_QUESTIONMARK = "Interface\\RaidFrame\\ReadyCheck-Waiting"
 local ICON_CHARACTERS = "Interface\\Icons\\Achievement_GuildPerk_Everyones a Hero_rank2"
 local ICON_VIEW_EQUIP = "Interface\\Icons\\INV_Chest_Plate04"
 local ICON_VIEW_REP = "Interface\\Icons\\INV_BannerPVP_02"
@@ -485,38 +486,52 @@ function ns:UpdateClassIcons()
 				break
 			end
 		end
+		
+		while index <= 10 do
+			addon:SetOption(format("Tabs.Characters.%s.%s.Column%d", currentAccount, currentRealm, index), nil)
+			index = index + 1
+		end
 	end
 	
-	local itemName, itemButton
+	local itemName, itemButton, itemTexture
+	local class
+	
 	for i = 1, 10 do
 		itemName = parent .. "_ClassIcon" .. i
 		itemButton = _G[itemName]
 		
 		key = addon:GetOption(format("Tabs.Characters.%s.%s.Column%d", currentAccount, currentRealm, i))
+		itemTexture = _G[itemName .. "IconTexture"]
+		addon:CreateButtonBorder(itemButton)
 		
 		if key then
-			local _, class = DataStore:GetCharacterClass(key)
+			_, class = DataStore:GetCharacterClass(key)
+		end
+		
+		if key and class then
 			local tc = CLASS_ICON_TCOORDS[class]
 		
-			local itemTexture = _G[itemName .. "IconTexture"]
 			itemTexture:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes");
-			itemTexture:SetTexCoord(tc[1], tc[2], tc[3], tc[4]);
-			itemTexture:SetWidth(36);
-			itemTexture:SetHeight(36);
-			itemTexture:SetAllPoints(itemButton);
-
-			addon:CreateButtonBorder(itemButton)
+			itemTexture:SetTexCoord(tc[1], tc[2], tc[3], tc[4])
 		
 			if DataStore:GetCharacterFaction(key) == "Alliance" then
 				itemButton.border:SetVertexColor(0.1, 0.25, 1, 0.5)
 			else
 				itemButton.border:SetVertexColor(1, 0, 0, 0.5)
 			end
-			itemButton.border:Show()
-			itemButton:Show()
-		else
-			itemButton:Hide()
+		else	-- no key ? display a question mark icon
+			itemTexture:SetTexture(ICON_QUESTIONMARK)
+			itemTexture:SetTexCoord(0, 1, 0, 1)
+			
+			itemButton.border:SetVertexColor(0, 1, 0, 0.5)
 		end
+		
+		itemTexture:SetWidth(36)
+		itemTexture:SetHeight(36)
+		itemTexture:SetAllPoints(itemButton)
+		
+		itemButton.border:Show()
+		itemButton:Show()
 	end
 end
 
@@ -684,9 +699,14 @@ local function GetCharacterLoginText(character)
 end
 
 local function OnCharacterClassChange(self, id)
-	local key = self.value
-	if not key then return end
+	if not id then return end		-- no icon id ? exit
+	
+	local key = self.value		-- key is either a datastore character key, or nil (if "None" is selected by the player for this column)
 
+	if key == "empty" then		-- if the keyword "empty" is passed, save a nil value in the options
+		key = nil
+	end
+	
 	addon:SetOption(format("Tabs.Characters.%s.%s.Column%d", currentAccount, currentRealm, id), key)
 	ns:UpdateClassIcons()
 	ShowCategory(currentCategory)
@@ -1102,7 +1122,7 @@ local function ClassIcon_Initialize(self, level)
 	local key = addon:GetOption(format("Tabs.Characters.%s.%s.Column%d", currentAccount, currentRealm, id)) or ""
 	
 	for _, character in ipairs(nameList) do
-		local info = UIDropDownMenu_CreateInfo(); 
+		local info = UIDropDownMenu_CreateInfo()
 		
 		info.text		= DataStore:GetColoredCharacterName(character)
 		info.value		= character
@@ -1112,6 +1132,16 @@ local function ClassIcon_Initialize(self, level)
 		UIDropDownMenu_AddButton(info, 1)
 	end
 
+	DDM_AddTitle(" ")
+	
+	local info = UIDropDownMenu_CreateInfo()
+	info.text		= (id == 1) and RESET or NONE		-- reset on the first icon, none otherwise
+	info.value		= "empty"
+	info.func		= OnCharacterClassChange
+	info.checked	= (key == "")
+	info.arg1		= id
+	UIDropDownMenu_AddButton(info, 1)
+	
 	DDM_AddCloseMenu()
 end
 

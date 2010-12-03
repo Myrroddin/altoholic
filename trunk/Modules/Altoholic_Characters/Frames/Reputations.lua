@@ -25,6 +25,8 @@ local Factions = {
 			{ name = BZ["Gnomeregan"], icon = "Achievement_Character_Gnome_Female" },
 			{ name = BZ["Ironforge"], icon = "Achievement_Character_Dwarf_Male" },
 			{ name = BF["Stormwind"], icon = "Achievement_Character_Human_Male" },
+			{ name = BF["Gilneas"], icon = "Interface\\Glues\\CharacterCreate\\UI-CHARACTERCREATE-RACES", left = 0.625, right = 0.75, top = 0, bottom = 0.25 },
+			{ name = BF["Alliance"], icon = "INV_BannerPVP_02" },
 		},
 		{	-- [2]
 			name = FACTION_HORDE,
@@ -33,6 +35,8 @@ local Factions = {
 			{ name = BZ["Thunder Bluff"], icon = "Achievement_Character_Tauren_Male" },
 			{ name = BZ["Undercity"], icon = "Achievement_Character_Undead_Female" },
 			{ name = BZ["Silvermoon City"], icon = "Achievement_Character_Bloodelf_Male" },
+			{ name = BF["Bilgewater Cartel"], icon = "Interface\\Glues\\CharacterCreate\\UI-CHARACTERCREATE-RACES", left = 0.625, right = 0.75, top = 0.25, bottom = 0.5 },
+			{ name = BF["Horde"], icon = "INV_BannerPVP_01" },
 		},
 		{	-- [3]
 			name = L["Alliance Forces"],
@@ -138,14 +142,20 @@ local Factions = {
 			{ name = BF["The Oracles"], icon = "Achievement_Reputation_MurlocOracle" },
 		},
 	},
-	-- {	-- [4]
-		-- name = GetCategoryInfo(15072),	-- "Cataclysm"
-		-- {	-- [1]
-			-- name = OTHER,
-			-- { name = "Guardians of Hyjal", icon = "Achievement_Zone_mount hyjal" },
-			-- { name = "The Earthen Ring", icon = "Spell_Nature_EarthElemental_Totem" },
-		-- }
-	-- },
+	{	-- [4]
+		name = GetCategoryInfo(15072),	-- "Cataclysm"
+		{	-- [1]
+			name = OTHER,
+			{ name = BF["Guardians of Hyjal"], icon = "Achievement_Zone_mount hyjal" },
+			{ name = BF["The Earthen Ring"], icon = "Spell_Nature_EarthElemental_Totem" },
+			{ name = BF["Therazane"], icon = "inv_misc_tabard_therazane" },
+			{ name = BF["Wildhammer Clan"], icon = "inv_misc_tabard_wildhammerclan" },
+			{ name = BF["Ramkahen"], icon = "inv_misc_tabard_tolvir" },
+			{ name = BF["Baradin's Wardens"], icon = "inv_misc_tabard_baradinwardens" },
+			{ name = BF["Dragonmaw Clan"], icon = "inv_misc_tabard_dragonmawclan" },
+			{ name = BF["Hellscream's Reach"], icon = "inv_misc_tabard_hellscream" },
+		}
+	},
 	{	-- [5]
 		name = GUILD,
 		{	-- [1]
@@ -222,8 +232,7 @@ local lastRealm, lastAccount
 local function OnGuildSelected(self)
 	CloseDropDownMenus()
 	
-	-- currentXPack = 5		-- 5 for cata, 4 in the meantime
-	currentXPack = 4
+	currentXPack = 5
 	currentFactionGroup = 1
 	
 	local realm, account = addon.Tabs.Characters:GetRealm()
@@ -293,7 +302,14 @@ local function Reputations_UpdateEx(self, offset, entry, desc)
 				local itemName = entry.. i .. "Item" .. j;
 				local itemButton = _G[itemName]
 				local itemTexture = _G[itemName .. "_Background"]
-				itemTexture:SetTexture("Interface\\Icons\\"..faction.icon)
+				
+				if faction.left then		-- if it's not a full texture, use tcoords
+					itemTexture:SetTexture(faction.icon)
+					itemTexture:SetTexCoord(faction.left, faction.right, faction.top, faction.bottom)
+				else
+					itemTexture:SetTexture("Interface\\Icons\\"..faction.icon)
+					itemTexture:SetTexCoord(0, 1, 0, 1)
+				end
 
 				local status, rate
 				
@@ -352,8 +368,7 @@ function ns:DropDownFaction_Initialize(level)
 	local info = UIDropDownMenu_CreateInfo()
 	
 	if level == 1 then
---		for xpackIndex = 1, 4 do			4 for cata, 3 in the meantime
-		for xpackIndex = 1, 3 do
+		for xpackIndex = 1, 4 do
 			info.text = Factions[xpackIndex].name
 			info.hasArrow = 1
 			info.value = xpackIndex

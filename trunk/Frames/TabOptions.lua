@@ -128,6 +128,19 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "4.0.005 Changes",
+		bulletedList = {
+			"Fixed a Lua error when logging on with a mage.",
+			"Added Cataclysm factions.",
+			"Improved the menu when mousing over a class icon in the 'Characters' or 'Achievements' tabs. You can now choose to display no one in a given column (except the first), or to reset the icons (from the first column menu).",
+			"Fixed a compatibility issue with Auctioneer when coloring recipes at the AH (many thanks to Tirdal for taking care of this !).",
+		},
+	},
+	{	name = "4.0.004c Changes",
+		bulletedList = {
+			"Updated achievement list for 4.0.3a.",
+		},
+	},
 	{	name = "4.0.004b Changes",
 		bulletedList = {
 			"Added a temporary fix to the quest turn-in issue.",
@@ -162,31 +175,6 @@ local whatsnew = {
 			"The 'Talents & Glyphs' pane has been split into two specific panes. They both feel a bit emptier than before, but fear not, that empty space has a purpose that will be revealed soon :)",
 			"Fixed displaying enchants/gems on items in the search pane. (Thanks mixz !)",
 			"Brought back the count when mousing over a currency.",
-		},
-	},
-	{	name = "4.0.002 Changes",
-		bulletedList = {
-			"DataStore_Mails : fixed a potential conflict with other mail addons when sending a mail.",
-			"DataStore_Quests : fixed  auto history update.",
-			"DataStore_Talents : now tracking the list of known glyphs.",
-			"Glyph tooltip is now showing 'already know by/could be learned by' information.",
-			"Fixed account sharing not working.",
-		},
-	},
-	{	name = "4.0.001 Changes",
-		bulletedList = {
-			"The format of most DataStore databases has been reviewed in order to decrease memory consumption, as well as the amount of data to transfer during the account sharing process. As an example, I'm now at 2.6 Mb for 12 chars, down from 4.2Mb.",
-			"DataStore_Skills is gone.",
-			"Altoholic is now divided in 4 directories/addons, one for each tab, although 'Summary' and 'Guild bank' do not have their own directory yet (it will happen soon enough). Each tab is LoD.",
-			"Altoholic no longer has all the DataStore modules as dependencies. Only the main DataStore module and DataStore_Characters are mandatory. Note that the code to fully support disabled modules IS NOT fully implemented yet.",
-			"A lot of bugs that arose after an account sharing have been fixed. Unfortunately, I couldn't test this entirely on the beta realms, so a few may still be there.",
-			"Skills pane: The column related to the riding skill has been replaced by archaeology.",
-			"Guild skill pane: gone. This information is provided by the genuine guild UI.",
-			"Characters tab: The availability of data is now checked prior to enabling the icons. If a character has not visited the AH or his mailbox, or if specific info hasn't been shared, the icon will be greyed out.",
-			"Achievement lists have been updated.",
-			"The talent trees are working, but have a minor display issue (a 'cut' branch/arrow). This won't be fixed since it does not prevent the addon from running properly, and I'm about to modify this pane to add additional features anyway.",
-			"The glyph UI has been updated to show Prime glyphs. The list of glyphs added to the game's UI is not in Altoholic yet, but I plan to add that soon.",
-			"Currencies UI is also ok, but currencies count in the tooltip is temporarily disabled.",
 		},
 	},
 	{	name = "Earlier changes",

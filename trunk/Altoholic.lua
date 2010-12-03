@@ -197,30 +197,90 @@ end)
 
 local Orig_AuctionFrameBrowse_Update
 
-local function AuctionFrameBrowse_UpdateHook()
+-- local function AuctionFrameBrowse_UpdateHook()
+
+	-- Orig_AuctionFrameBrowse_Update()		-- Let default stuff happen first ..
+	
+	-- if addon:GetOption("UI.AHColorCoding") == 0 then return end
+	
+	-- local offset = FauxScrollFrame_GetOffset(BrowseScrollFrame)
+	-- local link
+	-- for i = 1, NUM_BROWSE_TO_DISPLAY do			-- NUM_BROWSE_TO_DISPLAY = 8;
+		-- link = GetAuctionItemLink("list", i+offset)
+		-- if link then		-- if there's a valid item link in this slot ..
+			-- local itemID = addon:GetIDFromLink(link)
+			-- local _, _, _, _, _, itemType, itemSubType = GetItemInfo(itemID)
+			-- if itemType == BI["Recipe"] and itemSubType ~= BI["Book"] then		-- is it a recipe ?
+				
+				-- local _, couldLearn, willLearn = addon:GetRecipeOwners(itemSubType, link, addon:GetRecipeLevel(link))
+				-- local tex = _G["BrowseButton" .. i .. "ItemIconTexture"]
+				
+				-- if tex then
+					-- if #couldLearn == 0 and #willLearn == 0 then		-- nobody could learn the recipe, neither now nor later : red
+						-- tex:SetVertexColor(1, 0, 0)
+					-- elseif #couldLearn > 0 then							-- at least 1 could learn it : green (priority over "will learn")
+						-- tex:SetVertexColor(0, 1, 0)
+					-- elseif #willLearn > 0 then								-- nobody could learn it now, but some could later : yellow
+						-- tex:SetVertexColor(1, 1, 0)
+					-- end
+				-- end
+			-- end
+		-- end
+	-- end
+	-- AltoTooltip:Hide()
+-- end
+
+-- Courtesy of Tirdal on WoWInterface
+function AuctionFrameBrowse_UpdateHook()
+
+	local AuctioneerCompactUI = false;
 
 	Orig_AuctionFrameBrowse_Update()		-- Let default stuff happen first ..
 	
 	if addon:GetOption("UI.AHColorCoding") == 0 then return end
 	
+	if IsAddOnLoaded("Auctioneer") and Auctioneer.ScanManager.IsScanning() then return end;
+
+	if IsAddOnLoaded("Auc-Advanced") then
+		if AucAdvanced.Scan.IsScanning() then return end;
+		if AucAdvanced.Settings.GetSetting("util.compactui.activated") then
+			AuctioneerCompactUI = true;
+		end
+	end
+
+
 	local offset = FauxScrollFrame_GetOffset(BrowseScrollFrame)
 	local link
 	for i = 1, NUM_BROWSE_TO_DISPLAY do			-- NUM_BROWSE_TO_DISPLAY = 8;
-		link = GetAuctionItemLink("list", i+offset)
+		local button = _G["BrowseButton"..i];
+		local trueID = 0;
+		-- Auctioneer Compatibility
+		if (AuctioneerCompactUI and button:IsVisible()) then
+			trueID = button.id;
+		else
+			trueID = button:GetID() + offset;
+		end
+		link = GetAuctionItemLink("list", trueID)
 		if link then		-- if there's a valid item link in this slot ..
 			local itemID = addon:GetIDFromLink(link)
 			local _, _, _, _, _, itemType, itemSubType = GetItemInfo(itemID)
 			if itemType == BI["Recipe"] and itemSubType ~= BI["Book"] then		-- is it a recipe ?
 				
 				local _, couldLearn, willLearn = addon:GetRecipeOwners(itemSubType, link, addon:GetRecipeLevel(link))
-				local tex = _G["BrowseButton" .. i .. "ItemIconTexture"]
-				
+				local tex
+
+				if (AuctioneerCompactUI) then
+					tex = button.Icon;
+				else
+					tex = _G["BrowseButton" .. i .. "ItemIconTexture"]
+				end
+
 				if tex then
-					if #couldLearn == 0 and #willLearn == 0 then		-- nobody could learn the recipe, neither now nor later : red
+					if #couldLearn == 0 and #willLearn == 0 then	-- nobody could learn the recipe, neither now nor later : red
 						tex:SetVertexColor(1, 0, 0)
-					elseif #couldLearn > 0 then							-- at least 1 could learn it : green (priority over "will learn")
+					elseif #couldLearn > 0 then			-- at least 1 could learn it : green (priority over "will learn")
 						tex:SetVertexColor(0, 1, 0)
-					elseif #willLearn > 0 then								-- nobody could learn it now, but some could later : yellow
+					elseif #willLearn > 0 then			-- nobody could learn it now, but some could later : yellow
 						tex:SetVertexColor(1, 1, 0)
 					end
 				end
@@ -377,6 +437,8 @@ local function OnChatMsgLoot(event, arg)
 	local id = addon:GetIDFromLink(link)
 	id = tonumber(id)
 	if not id then return end
+	
+	addon:RefreshTooltip()
 	
 	for itemID, duration in pairs(trackedItems) do
 		if itemID == id then
@@ -800,9 +862,12 @@ function addon:CreateButtonBorder(frame)
 end
 
 function addon:DrawCharacterTooltip(self, character)
+	local name = DS:GetColoredCharacterName(character)
+	if not name then return end
+
 	AltoTooltip:SetOwner(self, "ANCHOR_LEFT");
 	AltoTooltip:ClearLines();
-	AltoTooltip:AddDoubleLine(DS:GetColoredCharacterName(character), DS:GetColoredCharacterFaction(character))
+	AltoTooltip:AddDoubleLine(name, DS:GetColoredCharacterFaction(character))
 
 	AltoTooltip:AddLine(format("%s %s |r%s %s", L["Level"], 
 		GREEN..DS:GetCharacterLevel(character), DS:GetCharacterRace(character),	DS:GetCharacterClass(character)),1,1,1)
