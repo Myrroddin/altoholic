@@ -15,6 +15,8 @@
 		</Frames>
 		<Scripts>
 			<OnLoad>
+				local level = self:GetParent():GetFrameLevel()
+				self:SetFrameLevel(level + 1)
 				self:RegisterForClicks("LeftButtonDown", "RightButtonDown");
 			</OnLoad>
 			<OnEnter>
@@ -323,6 +325,10 @@
 			</Layer>
 		</Layers>
 		<Scripts>
+			<OnLoad>
+				local level = self:GetParent():GetFrameLevel()
+				self:SetFrameLevel(level + 1)
+			</OnLoad>
 			<OnLeave>
 				AltoTooltip:Hide();
 			</OnLeave>

@@ -248,7 +248,6 @@ function AuctionFrameBrowse_UpdateHook()
 		end
 	end
 
-
 	local offset = FauxScrollFrame_GetOffset(BrowseScrollFrame)
 	local link
 	for i = 1, NUM_BROWSE_TO_DISPLAY do			-- NUM_BROWSE_TO_DISPLAY = 8;
@@ -284,6 +283,11 @@ function AuctionFrameBrowse_UpdateHook()
 						tex:SetVertexColor(1, 1, 0)
 					end
 				end
+			
+			elseif AuctioneerCompactUI and button:IsVisible() then
+				-- Auctioneer retains the previous color for that offset icon.
+				-- Have to reset in case previous search was a recipe.
+				button.Icon:SetVertexColor(1,1,1);
 			end
 		end
 	end
@@ -431,14 +435,14 @@ local trackedItems = {
 local lootMsg = gsub(LOOT_ITEM_SELF, "%%s", "(.+)")
 
 local function OnChatMsgLoot(event, arg)
+	addon:RefreshTooltip()		-- any loot message should cause a refresh
+	
 	local _, _, link = strfind(arg, lootMsg)
 	if not link then return end
 		
 	local id = addon:GetIDFromLink(link)
 	id = tonumber(id)
 	if not id then return end
-	
-	addon:RefreshTooltip()
 	
 	for itemID, duration in pairs(trackedItems) do
 		if itemID == id then

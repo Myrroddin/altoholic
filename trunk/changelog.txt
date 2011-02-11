@@ -8,6 +8,15 @@ IMPORTANT NOTE: If you're upgrading from 3.x :
 - Make sure you delete the addon's databases in SavedVariables. ie: Altoholic.lua and all DataStore*.lua.
 - Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
 
+4.0.005b (11/02/2011)
+
+- Fixed a Lua error in the achievement pane.
+- Added a few missing achievements.
+- Fixed a frame layering issue that resulted in some panes remaining black.
+- Updated the recipe database.
+- Fixed tooltip counters not being updated when retrieving items from the mailbox.
+- Fixed a few minor bugs here and there.
+
 4.0.005 (3/12/2010)
 
 - Fixed a Lua error when logging on with a mage.

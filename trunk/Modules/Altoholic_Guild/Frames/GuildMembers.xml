@@ -107,6 +107,10 @@
 					</Anchors>
 				</ButtonText>
 				<Scripts>
+					<OnLoad>
+						local level = self:GetParent():GetFrameLevel()
+						self:SetFrameLevel(level + 1)
+					</OnLoad>
 					<OnEnter>
 						Altoholic.Guild.Members:Name_OnEnter(self)
 					</OnEnter>
@@ -141,6 +145,10 @@
 					</Anchors>
 				</ButtonText>
 				<Scripts>
+					<OnLoad>
+						local level = self:GetParent():GetFrameLevel()
+						self:SetFrameLevel(level + 1)
+					</OnLoad>
 					<OnClick>
 						Altoholic.Guild.Members:Level_OnClick(self, button)
 					</OnClick>
@@ -155,6 +163,12 @@
 				<HighlightFont style="GameFontHighlightSmallLeft"/>
 			</Button>
 		</Frames>
+		<Scripts>
+			<OnLoad>
+				local level = self:GetParent():GetFrameLevel()
+				self:SetFrameLevel(level + 1)
+			</OnLoad>
+		</Scripts>
 	</Button>
 
 	<Frame name="AltoholicFrameGuildMembers" parent="AltoholicTabGuild" hidden="true">
