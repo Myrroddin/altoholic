@@ -248,9 +248,10 @@ local function GetItemCount(searchedID)
 				if addon:GetOption("TooltipGuildBankCountPerTab") == 1 then
 					local tabCounters = {}
 					
-					for tabID = 1, 6 do 
-						local tabCount = DataStore:GetGuildBankTabItemCount(guildKey, tabID, searchedID)
-						if tabCount > 0 then
+					local tabCount
+					for tabID = 1, 8 do 
+						tabCount = DataStore:GetGuildBankTabItemCount(guildKey, tabID, searchedID)
+						if tabCount and tabCount > 0 then
 							table.insert(tabCounters,  format("%s: %s", WHITE .. DataStore:GetGuildBankTabName(guildKey, tabID), TEAL..tabCount))
 						end
 					end

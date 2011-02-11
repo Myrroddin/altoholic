@@ -38,6 +38,10 @@
 			</Layer>
 		</Layers>
 		<Scripts>
+			<OnLoad>
+				local level = self:GetParent():GetFrameLevel()
+				self:SetFrameLevel(level + 1)
+			</OnLoad>
 			<OnEnter>
 				Altoholic.Currencies:OnEnter(self)
 			</OnEnter>

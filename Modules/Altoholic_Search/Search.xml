@@ -116,6 +116,10 @@
 					</Anchor>
 				</Anchors>
 				<Scripts>
+					<OnLoad>
+						local level = self:GetParent():GetFrameLevel()
+						self:SetFrameLevel(level + 1)
+					</OnLoad>
 					<OnEnter>
 						-- local link = select(2, GetItemInfo(self:GetID()))
 						

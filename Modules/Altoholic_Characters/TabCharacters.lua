@@ -796,7 +796,10 @@ local function TalentsIcon_Initialize(self, level)
 	local treeID = 1
 	
 	local info = UIDropDownMenu_CreateInfo()
-	for tree in DataStore:GetClassTrees(class) do
+	local classTrees = DataStore:GetClassTrees(class)
+	if not classTrees then return end
+	
+	for tree in classTrees do
 		icon = DataStore:GetTreeInfo(class, tree)
 		points = DataStore:GetNumPointsSpent(currentCharacterKey, tree, 1)
 		
@@ -1148,7 +1151,7 @@ end
 
 function ns:OnLoad()
 	-- Menu Icons
-	-- mini easter egg, change the icon depending on the time of year :)
+	-- mini easter egg, change the character icon depending on the time of year :)
 	-- if you find this code, please don't spoil it :)
 	
 	local size = 30
@@ -1157,18 +1160,18 @@ function ns:OnLoad()
 	local icon = (faction == "Alliance") and ICON_CHARACTERS_ALLIANCE or ICON_CHARACTERS_HORDE
 	local bagIcon = ICON_VIEW_BAGS
 
-	-- uncomment this code for cataclysm
-	-- local LVMax = 80
-	-- local numLvMax = 0
-	-- for _, character in pairs(DataStore:GetCharacters()) do
-		-- if DataStore:GetCharacterLevel(character) == LVMax then
-			-- numLvMax = numLvMax + 1
-		-- end
-	-- end
+	-- bag icon gets better with more chars at lv max
+	local LVMax = 85
+	local numLvMax = 0
+	for _, character in pairs(DataStore:GetCharacters()) do
+		if DataStore:GetCharacterLevel(character) >= LVMax then
+			numLvMax = numLvMax + 1
+		end
+	end
 
-	-- if numLvMax > 0 then
-		-- bagIcon = BAG_ICONS[numLvMax]
-	-- end
+	if numLvMax > 0 then
+		bagIcon = BAG_ICONS[numLvMax]
+	end
 	
 	if (day >= 1215) or (day <= 102) then				-- winter veil
 		icon = (faction == "Alliance") and ICON_CHARACTERS_WINTERVEIL_ALLIANCE or ICON_CHARACTERS_WINTERVEIL_HORDE
