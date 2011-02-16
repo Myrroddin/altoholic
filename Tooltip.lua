@@ -436,11 +436,12 @@ local function ProcessTooltip(tooltip, name, link)
 		-- these are the cpu intensive parts of the update .. so do them only if necessary
 		cachedSource = nil
 		if addon:GetOption("TooltipSource") == 1 then
-			local Instance, Boss = addon.Loots:GetSource(itemID)
+			local domain, subDomain = addon.Loots:GetSource(itemID)
 			
 			cachedItemID = itemID			-- we have searched this ID ..
-			if Instance then
-				cachedSource = format("%s: %s, %s", GOLD..L["Source"], TEAL..Instance, Boss)
+			if domain then
+				subDomain = (subDomain) and format(", %s", subDomain) or ""
+				cachedSource = format("%s: %s%s", GOLD..L["Source"], TEAL..domain, subDomain)
 			end
 		end
 		

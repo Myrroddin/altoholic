@@ -881,6 +881,9 @@ function ns:GetSource(searchedID)
 	for _, provider in pairs(DataProviders) do
 		domain, subDomain = provider:GetSource(searchedID)
 		if domain and subDomain then
+			if type(subDomain == "boolean") and subDomain == true then	-- some items of no subdomain, like archeology stuff
+				subDomain = nil
+			end
 			return domain, subDomain
 		end
 	end
