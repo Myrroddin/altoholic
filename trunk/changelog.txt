@@ -8,6 +8,11 @@ IMPORTANT NOTE: If you're upgrading from 3.x :
 - Make sure you delete the addon's databases in SavedVariables. ie: Altoholic.lua and all DataStore*.lua.
 - Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
 
+
+4.0.005d (16/02/2001)
+
+- Fixed a tooltip issue when mousing over an archeology artifact (and probably some other items too).
+
 4.0.005c (15/02/2011)
 
 - Fixed all glyph related issues. There may remain issues with specific glyphs (1 or 2), if you spot one, please mention which glyph caused a problem.

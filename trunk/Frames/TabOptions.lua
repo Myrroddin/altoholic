@@ -73,7 +73,7 @@ local help = {
 		},
 		answers = {
 			"No. This is a restriction imposed by Blizzard. Your character must physically be at a mailbox to retrieve your mails.",
-			"Go into the 'Mail Options' and disable 'Scan mail body'.",
+			"Go into the 'Options -> DataStore -> DataStore_Mails' and disable 'Scan mail body'.",
 			"No. You will have to clear your mailbox to release mails that are queued server-side.",
 		}
 	},
