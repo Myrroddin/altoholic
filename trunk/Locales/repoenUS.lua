@@ -5,6 +5,9 @@ if not L then return end
 -- Note: since 2.4.004 and the support of LibBabble, certain lines are commented, but remain there for clarity (especially those concerning the menu)
 -- A lot of translations, especially those concerning the loot table, come from atlas loot, credit goes to their team for gathering this info, I (Thaoky) simply took what I needed.
 
+L["TIME_TO_NEXT_WARNING_TEXT"] = "Time until next warning"
+L["TIME_TO_NEXT_WARNING_TOOLTIP"] = "Minimum time before you get the next mail expiry warning."
+
 L["Death Knight"] = true
 
 -- note: these string are the ones found in item tooltips, make sure to respect the case when translating, and to distinguish them (like crit vs spell crit)

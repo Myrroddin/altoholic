@@ -9,7 +9,7 @@ local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
 
--- Simplified loot table containing item ID's only, based on AtlasLoot v5.09.00
+-- Simplified loot table containing item ID's only, based on AtlasLoot v6.02.00
 local lootTable = {
 			
 	-- to do: HardModeArena & HardModeArena2 from sets_en.lua
@@ -827,36 +827,36 @@ local lootTable = {
 		[BB["Valithria Dreamwalker"]] = { 50205, 50418, 50417, 50202, 50188, 50187, 50199, 50192, 50416, 50190,
 				50195, 50185, 50186, 50183, 50472, 50274, 49908 },
 		[BB["Sindragosa"]] = { 50421, 50424, 50360, 50361, 50423, 50274, 49908, 51026, 52027, 52026, 52025,	},
-		[BB["The Lich King"]] = {	},
+		[BB["The Lich King"]] = { 51799, 51801, 51800, 51797, 51803, 51795, 51798, 51796, 51802	},
 		[L["Trash Mobs"]] = { 50449, 50450, 50451, 50452, 50447, 50453, 50444 },
 	},
 	[BZ["Icecrown Citadel"] .. " (10)" .. L[" (Heroic)"]] = {
-		[BB["Lord Marrowgar"]] = {	},
-		[BB["Lady Deathwhisper"]] = {	},
-		[BB["Icecrown Gunship Battle"]] = {	},
-		[BB["Deathbringer Saurfang"]] = {	},
-		[BB["Festergut"]] = {	},
-		[BB["Rotface"]] = {	},
-		[BB["Professor Putricide"]] = {	},
-		[BB["Blood Princes"]] = {	},
-		[BB["Blood-Queen Lana'thel"]] = {	},
-		[BB["Valithria Dreamwalker"]] = {	},
-		[BB["Sindragosa"]] = {	},
-		[BB["The Lich King"]] = {	},
+		[BB["Lord Marrowgar"]] = { 51933, 51930, 51929, 51935, 51928, 51931, 51934, 50346, 51932, 51936, 51938, 51937 },
+		[BB["Lady Deathwhisper"]] = { 51918, 51921, 51923, 51925, 51920, 51926, 51919, 51924, 51917, 50343, 51922, 51927 },
+		[BB["Icecrown Gunship Battle"]] = { 51912, 51908, 51906, 51911, 51914, 51907, 51915, 51913, 50345, 51910, 51916, 51909 },
+		[BB["Deathbringer Saurfang"]] = { 51896, 51899, 51904, 51897, 51903, 51902, 51901, 51895, 51894, 51900, 51905, 51898 },
+		[BB["Festergut"]] = { 51888, 51883, 51882, 51885, 51889, 51891, 51886, 51892, 51890, 51884, 51893, 51887 },
+		[BB["Rotface"]] = { 51872, 51874, 51870, 51877, 51873, 51879, 51871, 51878, 51876, 51875, 51811, 51880 },
+		[BB["Professor Putricide"]] = { 51859, 51862, 51866, 51864, 51860, 51865, 51861, 51867, 51863, 50344, 51868, 51869 },
+		[BB["Blood Princes"]] = { 51848, 51851, 51850, 51856, 51853, 51847, 51854, 51849, 51855, 51858, 51857, 51852 },
+		[BB["Blood-Queen Lana'thel"]] = { 51837, 51839, 51841, 51840, 51844, 51835, 51836, 51842, 51843, 51846, 51845, 51838 },
+		[BB["Valithria Dreamwalker"]] = { 51826, 51823, 51825, 51830, 51827, 51829, 51824, 51832, 51831, 51833, 51828, 51834 },
+		[BB["Sindragosa"]] = { 51813, 51820, 51814, 51811, 51818, 51821, 51817, 51816, 51822, 51819, 51815, 51812 },
+		[BB["The Lich King"]] = { 51941, 51939, 51942, 51947, 51944, 51946, 51943, 51945, 51940 },
 	},
 	[BZ["Icecrown Citadel"] .. " (25)" .. L[" (Heroic)"]] = {
-		[BB["Lord Marrowgar"]] = {	},
-		[BB["Lady Deathwhisper"]] = {	},
-		[BB["Icecrown Gunship Battle"]] = {	},
-		[BB["Deathbringer Saurfang"]] = {	},
-		[BB["Festergut"]] = {	},
-		[BB["Rotface"]] = {	},
-		[BB["Professor Putricide"]] = {	},
-		[BB["Blood Princes"]] = {	},
-		[BB["Blood-Queen Lana'thel"]] = {	},
-		[BB["Valithria Dreamwalker"]] = {	},
-		[BB["Sindragosa"]] = {	},
-		[BB["The Lich King"]] = {	},
+		[BB["Lord Marrowgar"]] = { 50709, 50608	},
+		[BB["Lady Deathwhisper"]] = { 50641, 50648, 50638 },
+		[BB["Icecrown Gunship Battle"]] = { 50654 },
+		[BB["Deathbringer Saurfang"]] = { 50672	},
+		[BB["Festergut"]] = { 50692, 50695 },
+		[BB["Rotface"]] = { 50684, 50676, 50685	},
+		[BB["Professor Putricide"]] = { 50708, 50704 },
+		[BB["Blood Princes"]] = { 50603, 50710 },
+		[BB["Blood-Queen Lana'thel"]] = { 50727, 50725 },
+		[BB["Valithria Dreamwalker"]] = { 50621, 50631 },
+		[BB["Sindragosa"]] = { 52028, 52030, 52029, 50365, 50636, 50635, 50364, 50633 },
+		[BB["The Lich King"]] = { 50731, 50372, 50733, 50730, 50737, 50736, 50738, 50735, 50734 },
 	},
 	
 	-- [] = {

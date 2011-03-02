@@ -5,6 +5,9 @@ local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local GREEN		= "|cFF00FF00"
 
+local parent = "AltoholicTabSummary"
+local rcMenuName = parent .. "RightClickMenu"	-- name of right click menu frames (add a number at the end to get it)
+
 local THISREALM_THISACCOUNT = 1
 local THISREALM_ALLACCOUNTS = 2
 local ALLREALMS_THISACCOUNT = 3
@@ -247,4 +250,79 @@ function ns:AccountSharingButton_OnClick()
 		addon.Comm.Sharing:SetMode(1)
 	end
 	AltoAccountSharing:Show()
+end
+
+
+local DDM_Add = addon.Helpers.DDM_Add
+local DDM_AddTitle = addon.Helpers.DDM_AddTitle
+local DDM_AddCloseMenu = addon.Helpers.DDM_AddCloseMenu
+local NUM_RC_MENUS = 2
+
+-- ** Icon events **
+local function ShowOptionsCategory(self)
+	addon:ToggleUI()
+	InterfaceOptionsFrame_OpenToCategory(self.value)
+end
+
+-- ** Menu Icons **
+function ns:Icon_OnEnter(frame)
+	local currentMenuID = frame:GetID()
+	
+	-- hide all
+	for i = 1, NUM_RC_MENUS do
+		if i ~= currentMenuID and _G[ rcMenuName .. i ].visible then
+			ToggleDropDownMenu(1, nil, _G[ rcMenuName .. i ], frame:GetName(), 0, -5);	
+			_G[ rcMenuName .. i ].visible = false
+		end
+	end
+
+	-- show current
+	ToggleDropDownMenu(1, nil, _G[ rcMenuName .. currentMenuID ], frame:GetName(), 0, -5);	
+	_G[ rcMenuName .. currentMenuID ].visible = true
+end
+
+local function AltoholicOptionsIcon_Initialize(self, level)
+	DDM_AddTitle(format("%s: %s", GAMEOPTIONS_MENU, addonName))
+
+	DDM_Add(GENERAL, AltoholicGeneralOptions, ShowOptionsCategory)
+	DDM_Add(L["Calendar"], AltoholicCalendarOptions, ShowOptionsCategory)
+	DDM_Add(MAIL_LABEL, AltoholicMailOptions, ShowOptionsCategory)
+	DDM_Add(MISCELLANEOUS, AltoholicMiscOptions, ShowOptionsCategory)
+	DDM_Add(SEARCH, AltoholicSearchOptions, ShowOptionsCategory)
+	DDM_Add(L["Tooltip"], AltoholicTooltipOptions, ShowOptionsCategory)
+	
+	DDM_AddTitle(" ")	
+	DDM_AddTitle(OTHER)	
+	DDM_Add("What's new?", AltoholicWhatsNew, ShowOptionsCategory)
+	DDM_Add("Getting support", AltoholicSupport, ShowOptionsCategory)
+	DDM_Add(L["Memory used"], AltoholicMemoryOptions, ShowOptionsCategory)
+	DDM_Add(HELP_LABEL, AltoholicHelp, ShowOptionsCategory)
+	DDM_AddCloseMenu()
+end
+
+local addonList = {
+	"DataStore_Auctions",
+	"DataStore_Characters",
+	"DataStore_Inventory",
+	"DataStore_Mails",
+	"DataStore_Quests",
+}
+
+local function DataStoreOptionsIcon_Initialize(self, level)
+	DDM_AddTitle(format("%s: %s", GAMEOPTIONS_MENU, "DataStore"))
+	
+	for _, module in ipairs(addonList) do
+		if _G[module] then	-- only add loaded modules
+			DDM_Add(module, module, ShowOptionsCategory)
+		end
+	end
+	
+	DDM_AddTitle(" ")	
+	DDM_Add(HELP_LABEL, DataStoreHelp, ShowOptionsCategory)
+	DDM_AddCloseMenu()
+end
+
+function ns:OnLoad()
+	UIDropDownMenu_Initialize(_G[rcMenuName.."1"], AltoholicOptionsIcon_Initialize, "MENU")
+	UIDropDownMenu_Initialize(_G[rcMenuName.."2"], DataStoreOptionsIcon_Initialize, "MENU")
 end

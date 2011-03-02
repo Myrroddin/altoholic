@@ -4,8 +4,8 @@ _G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "A
 
 local addon = _G[addonName]
 
-addon.Version = "v4.0.005c"
-addon.VersionNum = 400005
+addon.Version = "v4.0.006"
+addon.VersionNum = 400006
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local commPrefix = addonName
@@ -139,8 +139,12 @@ local AddonDB_Defaults = {
 			CharacterTabViewBagsAllInOne = 0,
 			CharacterTabViewBagsRarity = 0,
 			
-			["UI.AHColorCoding"] = 1,			-- color coded recipes at the AH
-			["UI.VendorColorCoding"] = 1,		-- color coded recipes at vendors
+			["UI.Tabs.Guild.BankItemsRarity"] = 0,		-- rarity filter in the guild bank tab
+			
+			["UI.AHColorCoding"] = 1,						-- color coded recipes at the AH
+			["UI.VendorColorCoding"] = 1,					-- color coded recipes at vendors
+			["UI.Mail.LastExpiryWarning"] = 0,			-- Last time a mail expiry warning was triggered
+			["UI.Mail.TimeToNextWarning"] = 3,			-- Time before the warning is repeated ('3' = no warning for 3 hours)
 		},
 }}
 

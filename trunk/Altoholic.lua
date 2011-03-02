@@ -44,10 +44,7 @@ local function InitLocalization()
 		L["Enter an account name that will be\nused for |cFF00FF00display|r purposes only."],
 		L["This name can be anything you like,\nit does |cFF00FF00NOT|r have to be the real account name."],
 		L["This field |cFF00FF00cannot|r be left empty."])
-	
-	AltoholicTabSummary_Options.tooltip = format("%s:|r %s", WHITE..GAMEOPTIONS_MENU, addonName)
-	AltoholicTabSummary_OptionsDataStore.tooltip = format("%s:|r %s", WHITE..GAMEOPTIONS_MENU, "DataStore")
-	
+
 	AltoholicFrameTab1:SetText(L["Summary"])
 	AltoholicFrameTab2:SetText(L["Characters"])
 	AltoholicTabSummaryMenuItem1:SetText(L["Account Summary"])
@@ -196,39 +193,6 @@ SendMailNameEditBox:SetScript("OnChar", function(self, ...)
 end)
 
 local Orig_AuctionFrameBrowse_Update
-
--- local function AuctionFrameBrowse_UpdateHook()
-
-	-- Orig_AuctionFrameBrowse_Update()		-- Let default stuff happen first ..
-	
-	-- if addon:GetOption("UI.AHColorCoding") == 0 then return end
-	
-	-- local offset = FauxScrollFrame_GetOffset(BrowseScrollFrame)
-	-- local link
-	-- for i = 1, NUM_BROWSE_TO_DISPLAY do			-- NUM_BROWSE_TO_DISPLAY = 8;
-		-- link = GetAuctionItemLink("list", i+offset)
-		-- if link then		-- if there's a valid item link in this slot ..
-			-- local itemID = addon:GetIDFromLink(link)
-			-- local _, _, _, _, _, itemType, itemSubType = GetItemInfo(itemID)
-			-- if itemType == BI["Recipe"] and itemSubType ~= BI["Book"] then		-- is it a recipe ?
-				
-				-- local _, couldLearn, willLearn = addon:GetRecipeOwners(itemSubType, link, addon:GetRecipeLevel(link))
-				-- local tex = _G["BrowseButton" .. i .. "ItemIconTexture"]
-				
-				-- if tex then
-					-- if #couldLearn == 0 and #willLearn == 0 then		-- nobody could learn the recipe, neither now nor later : red
-						-- tex:SetVertexColor(1, 0, 0)
-					-- elseif #couldLearn > 0 then							-- at least 1 could learn it : green (priority over "will learn")
-						-- tex:SetVertexColor(0, 1, 0)
-					-- elseif #willLearn > 0 then								-- nobody could learn it now, but some could later : yellow
-						-- tex:SetVertexColor(1, 1, 0)
-					-- end
-				-- end
-			-- end
-		-- end
-	-- end
-	-- AltoTooltip:Hide()
--- end
 
 -- Courtesy of Tirdal on WoWInterface
 function AuctionFrameBrowse_UpdateHook()
@@ -428,8 +392,8 @@ local function OnChatMsgSystem(event, arg)
 end
 
 local trackedItems = {
-	[39878] = 590400, -- Mysterious Egg, 6 days 20 hours
-	[44717] = 590400, -- Disgusting Jar, 6 days 20 hours
+	[39878] = 259200, -- Mysterious Egg, 3 days
+	[44717] = 259200, -- Disgusting Jar, 3 days
 }
 
 local lootMsg = gsub(LOOT_ITEM_SELF, "%%s", "(.+)")
@@ -830,19 +794,18 @@ function addon:ListCharsOnQuest(questName, player, tooltip)
 	end
 end
 
-function Altoholic:UpdateSlider(name, text, field)
-	local s = _G[name]
-	_G[name .. "Text"]:SetText(text .. " (" .. s:GetValue() ..")");
+function addon:UpdateSlider(frame, text, field)
+	local name = frame:GetName()
+	local value = frame:GetValue()
 
-	if not Altoholic.db then return end
-	local a = Altoholic.db.global
-	if a == nil then return	end
-	
-	a.options[field] = s:GetValue()
-	self:MoveMinimapIcon()
+	_G[name .. "Text"]:SetText(format("%s (%d)", text, value))
+	if addon.db and addon.db.global then 
+		addon:SetOption(field, value)
+		addon:MoveMinimapIcon()
+	end
 end
 
-function Altoholic:ShowWidgetTooltip(frame)
+function addon:ShowWidgetTooltip(frame)
 	if not frame.tooltip then return end
 	
 	AltoTooltip:SetOwner(frame, "ANCHOR_LEFT");
@@ -921,6 +884,15 @@ function addon:MsgBox_OnClick(button)
 	msg:SetHeight(100)
 	AltoMsgBox_Text:SetHeight(28)
 end
+
+function addon:OnTimeToNextWarningChanged(frame)
+	local name = frame:GetName()
+	local timeToNext = frame:GetValue()
+
+	_G[name .. "Text"]:SetText(format("%s (%s)", L["TIME_TO_NEXT_WARNING_TEXT"], format(D_HOURS, timeToNext)))
+	addon:SetOption("UI.Mail.TimeToNextWarning", timeToNext)
+end
+
 
 -- ** Unsafe Items **
 function addon:SaveUnsafeItem(itemID)

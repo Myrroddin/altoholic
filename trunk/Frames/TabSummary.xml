@@ -251,7 +251,7 @@
 				</Scripts>
 			</Frame>
 			
-			<Button name="$parent_OptionsDataStore">
+			<Button name="$parent_OptionsDataStore" id="2">
 				<Size>
 					<AbsDimension x="36" y="36"/>
 				</Size>
@@ -269,18 +269,15 @@
 				</Layers>
 				<Scripts>
 					<OnEnter>
-						Altoholic:ShowWidgetTooltip(self)
+						Altoholic.Tabs.Summary:Icon_OnEnter(self)
 					</OnEnter>
-					<OnLeave>
-						AltoTooltip:Hide();
-					</OnLeave>
 					<OnClick>
 						Altoholic:ToggleUI()
 						InterfaceOptionsFrame_OpenToCategory("DataStore")
 					</OnClick>
 				</Scripts>
 			</Button>
-			<Button name="$parent_Options">
+			<Button name="$parent_Options" id="1">
 				<Size>
 					<AbsDimension x="36" y="36"/>
 				</Size>
@@ -298,11 +295,8 @@
 				</Layers>
 				<Scripts>
 					<OnEnter>
-						Altoholic:ShowWidgetTooltip(self)
+						Altoholic.Tabs.Summary:Icon_OnEnter(self)
 					</OnEnter>
-					<OnLeave>
-						AltoTooltip:Hide();
-					</OnLeave>
 					<OnClick>
 						Altoholic:ToggleUI()
 						InterfaceOptionsFrame_OpenToCategory("Altoholic")
@@ -337,7 +331,18 @@
 					</OnClick>
 				</Scripts>
 			</Button>
+				
+			<Frame name="$parentRightClickMenu1" inherits="AltoRightClickMenuTemplate" id="1" />
+			<Frame name="$parentRightClickMenu2" inherits="AltoRightClickMenuTemplate" id="2" />
 		</Frames>
+		<Scripts>
+			<OnLoad>
+				Altoholic.Tabs.Summary:OnLoad()
+			</OnLoad>
+			<OnHide>
+				DropDownList1:Hide()
+			</OnHide>
+		</Scripts>
 	</Frame>
 
 </Ui>
