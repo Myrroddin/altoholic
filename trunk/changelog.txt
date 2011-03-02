@@ -9,6 +9,24 @@ IMPORTANT NOTE: If you're upgrading from 3.x :
 - Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
 
 
+4.0.006 (02/03/2001)
+
+- DataStore_Characters : Added an option to request /played at logon or not.
+- DataStore_Characters : Added an option to hide real /played and return 0 instead.
+- Added an option to set the minimum time before you get the next mail expiry warning (from 1 to 12 hours, default : 3 hours).
+- Added a mouse over menu over both option icons in the summary tab. The intent is to make option categories as well as the help section a bit more visible.
+- Fixed a bug that prevented viewing imported guild banks.
+- Fixed the currency tab tooltips not displaying Blizzard's information before the counters.
+- Calendar events with the status 'invited' are now ignored.
+- Added a rarity filter in the guild bank pane.
+- Stopped listening to bag updates during a multi-sell at the AH. The whole thing slows down a bit too much. Bag updates are resumed at the end of the multi-sell. 
+	This means that counters for the item being sold will be invalid while the progress bar is active. (Thanks AnrDaemon)
+- Updated part of the loot table, leveling suggestions, and mining/herbalism nodes. (Thanks TwoTailedFox)
+- Changed Mysterious Egg's & Disgusting Jar's cooldowns to 3 days. (Thanks TwoTailedFox)
+- The recipes pane is now immediatelly refreshed after a successful profession scan.
+- Slightly modified the way colours are handled in the reputations pane. (Thanks Belechannas)
+- Achievements in the Classic, BC & LK dungeon categories are now sorted by dungeon difficulty (as in the game's UI).
+
 4.0.005d (16/02/2001)
 
 - Fixed a tooltip issue when mousing over an archeology artifact (and probably some other items too).
