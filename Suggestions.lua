@@ -52,8 +52,12 @@ addon.Suggestions = {
 		{ 405, "Up to 405: Duskweave Cowl" },
 		{ 410, "Up to 410: Duskweave Wristwraps" },
 		{ 415, "Up to 415: Duskweave Gloves" },
-		{ 425, "Up to 425: Ebonweave, Moonshroud, or Spellweave\nFrostweave Bag" },
-		{ 450, "Up to 450: Whatever makes you earn a point,\ndepending on your needs" }
+		{ 425, "Up to 425: Frostweave Bags" },
+		{ 450, "Up to 450: Bolts of Ebonweave Silk" },
+		{ 475, "Up to 475: Whatever earns a skill-up" },
+		{ 500, "Up to 500: Master's Spellthread, and other low-mats recipes" },
+		{ 515, "Up to 515: Swordguard Embroidary" },
+		{ 525, "Up to 525: Dreams and whatever earns a skill-up." },
 	},
 	[BI["Leatherworking"]] = {
 		{ 35, "Up to 35: Light Armour Kit" },
@@ -88,7 +92,7 @@ addon.Suggestions = {
 		{ 405, "Up to 405: Nerubian Leg Armor" },
 		{ 410, "Up to 410: Any Dark Chestpiece or Leggings" },
 		{ 425, "Up to 425: Any Fur Lining\nTradeskill bags" },
-		{ 450, "Up to 450: Whatever makes you earn a point,\ndepending on your needs" }
+		{ 450, "Up to 450: Whatever makes you earn a point,\ndepending on your needs" },
 	},
 	[BI["Engineering"]] = {
 		{ 40, "Up to 40: Rough Blasting Powder" },
@@ -122,7 +126,7 @@ addon.Suggestions = {
 		{ 375, "Up to 375: Cobalt Frag Bomb" },
 		{ 430, "Up to 430: Mana & Healing Injector Kit\nYou'll need them on the long run" },
 		{ 435, "Up to 435: Mana Injector Kit" },
-		{ 450, "Up to 450: Whatever makes you earn a point,\ndepending on your needs" }
+		{ 450, "Up to 450: Whatever makes you earn a point,\ndepending on your needs" },
 	},
 	[BI["Jewelcrafting"]] = {
 		{ 20, "Up to 20: Delicate Copper Wire" },
@@ -157,6 +161,9 @@ addon.Suggestions = {
 		{ 375, "Up to 375: Transmute diamonds\nWorld drops (blue quality)\nRevered with Sha'tar, Honor Hold, Thrallmar" },
 		{ 400, "Up to 400: Any green quality gem" },
 		{ 420, "Up to 420: Shadowmight ring" },
+		{ 450, "Up to 450: Icy Prisms" },
+		{ 475, "Up to 475: Prospect Ore for Gems" },
+		{ 525, "Up to 525: Recipes obtained from Jewelcrafter Dailies" },
 	},
 	[BI["Enchanting"]] = {
 		{ 2, "Up to 2: Runed Copper Rod" },
@@ -198,6 +205,11 @@ addon.Suggestions = {
 		{ 376, "Craft one Runed Eternium Rod" },
 		{ 380, "Up to 380: Enchant Chest - Super Stats" },
 		{ 390, "Up to 390: Enchant Weapon - Greater Potency" },
+		{ 425, "Up to 425: Craft one Runed Titanium Rod" },
+		{ 450, "Up to 450: Whatever earns a skill-up" },
+		{ 475, "Up to 475: Disenenchant all greens" },
+		{ 515, "Craft one Runed Elementium Rod" },
+		{ 525, "Up to 525: Trade in Shards for Recipes" },
 	},
 	[BI["Blacksmithing"]] = {	
 		{ 25, "Up to 25: Rough Sharpening Stones" },
@@ -241,6 +253,8 @@ addon.Suggestions = {
 		{ 430, "Up to 430: Daunting Handguards" },
 		{ 445, "Up to 445: Daunting Legplates" },
 		{ 450, "Up to 450: Any Epic" },
+		{ 500, "Up to 500: Any skill-up will do" },
+		{ 525, "Up to 525: Farm Ore for Recipes in Twilight Highlands" },
 	},
 	[BI["Alchemy"]] = {	
 		{ 60, "Up to 60: Minor Healing Potion" },
@@ -257,7 +271,7 @@ addon.Suggestions = {
 		{ 300, "Up to 300: Major Healing Potion" },
 		{ 315, "Up to 315: Volatile Healing Potion\nor Major Mana Potion" },
 		{ 350, "Up to 350: Mad Alchemists's Potion\nTurns yellow at 335, but cheap to make" },
-		{ 375, "Up to 375: Major Dreamless Sleep Potion\nSold in Allerian Stronghold (A)\nor Thunderlord Stronghold (H)" }
+		{ 375, "Up to 375: Major Dreamless Sleep Potion\nSold in Allerian Stronghold (A)\nor Thunderlord Stronghold (H)" },
 	},
 	[L["Mining"]] = {
 		{ 65, "Up to 65: Mine Copper\nAvailable in all starting zones" },
@@ -266,7 +280,12 @@ addon.Suggestions = {
 		{ 250, "Up to 250: Mine Mithril and Truesilver\nBlasted Lands, Searing Gorge, Badlands, The Hinterlands,\nWestern Plaguelands, Azshara, Winterspring, Felwood, Stonetalon Mountains, Tanaris" },
 		{ 300, "Up to 300: Mine Thorium \nUn’goro Crater, Azshara, Winterspring, Blasted Lands\nSearing Gorge, Burning Steppes, Eastern Plaguelands, Western Plaguelands" },
 		{ 330, "Up to 330: Mine Fel Iron\nHellfire Peninsula, Zangarmarsh" },
-		{ 375, "Up to 375: Mine Fel Iron and Adamantite\nTerrokar Forest, Nagrand\nBasically everywhere in Outland" }
+		{ 375, "Up to 375: Mine Fel Iron and Adamantite\nTerrokar Forest, Nagrand\nBasically everywhere in Outland" },
+		{ 400, "Up to 400: Mine Cobalt" },
+		{ 425, "Up to 450: Mine Saronite" },
+		{ 475, "Up to 475: Mine Obsidium" },
+		{ 500, "Up to 500: Mine Elementium" },
+		{ 525, "Up to 525: Smelt Hardened Elementium and Mine Pyrite" },
 	},
 	[L["Herbalism"]] = {
 		{ 50, "Up to 50: Collect Silverleaf and Peacebloom\nAvailable in all starting zones" },
@@ -283,10 +302,10 @@ addon.Suggestions = {
 		{ 285, "Up to 285: Collect Dreamfoil\nUn'goro Crater, Azshara" },
 		{ 300, "Up to 300: Collect Plagueblooms\nEastern & Western Plaguelands, Felwood\nor Icecaps in Winterspring" },
 		{ 330, "Up to 330: Collect Felweed\nHellfire Peninsula, Zangarmarsh" },
-		{ 375, "Up to 375: Any flower available in Outland\nFocus on Zangarmarsh & Terrokar Forest" }
+		{ 375, "Up to 375: Any flower available in Outland\nFocus on Zangarmarsh & Terrokar Forest" },
 	},
 	[L["Skinning"]] = {
-		{ 375, "Up to 375: Divide your current skill level by 5,\nand skin mobs of that level" }
+		{ 525, "Up to 525: Divide your current skill level by 5,\nand skin mobs of that level" },
 	},
 
 	-- source: http://www.elsprofessions.com/inscription/leveling.html
@@ -358,21 +377,21 @@ addon.Suggestions = {
 		{ 375, "Up to 375: Scroll of Agility VII" },
 		{ 380, "Up to 380: Glyph of Focus, Strangulate" },
 		{ 400, "Up to 400: Northrend Inscription Research" },
-		
-		{ 450, "Up to 450: Not yet implemented" }
+		{ 450, "Up to 450: Rare Darkmoon Cards" },
 	},
 
-	-- source: http://www.almostgaming.com/wowguides/world-of-warcraft-lockpicking-guide
 	[L["Lockpicking"]] = {
-		{ 85, "Up to 85: Thieves Training\nAtler Mill, Redridge Moutains (A)\nShip near Ratchet (H)" },
-		{ 150, "Up to 150: Chest near the boss of the poison quest\nWestfall (A) or The Barrens (H)" },
-		{ 185, "Up to 185: Murloc camps (Wetlands)" },
-		{ 225, "Up to 225: Sar'Theris Strand (Desolace)\n" },
-		{ 250, "Up to 250: Angor Fortress (Badlands)" },
-		{ 275, "Up to 275: Slag Pit (Searing Gorge)" },
-		{ 300, "Up to 300: Lost Rigger Cove (Tanaris)\nBay of Storms (Azshara)" },
-		{ 325, "Up to 325: Feralfen Village (Zangarmarsh)" },
-		{ 350, "Up to 350: Kil'sorrow Fortress (Nagrand)\nPickpocket the Boulderfists in Nagrand" }
+		{ 75, "Up to 75: Up to Level 15" },
+		{ 125, "Up to 125: Up to Level 25" },
+		{ 175, "Up to 175: Up to Level 35" },
+		{ 200, "Up to 250: Up to Level 40" },
+		{ 225, "Up to 225: Up to Level 45" },
+		{ 275, "Up to 275: Up to Level 55" },
+		{ 300, "Up to 300: Up to Level 60" },
+		{ 325, "Up to 325: Up to Level 65" },
+		{ 375, "Up to 375: Up to Level 70" },
+		{ 400, "Up to 400: Up to Level 80" },
+		{ 425, "Up to 425: Up to Level 85" },
 	},
 	
 	-- ** Secondary professions **
@@ -383,12 +402,16 @@ addon.Suggestions = {
 		{ 150, "Up to 150: Heavy Wool Bandages" },
 		{ 180, "Up to 180: Silk Bandages" },
 		{ 210, "Up to 210: Heavy Silk Bandages" },
-		{ 240, "Up to 240: Mageweave Bandages\nFirst Aid quest at level 35\nTheramore Isle (A) or Hammerfall (H)" },
+		{ 240, "Up to 240: Mageweave Bandages" },
 		{ 260, "Up to 260: Heavy Mageweave Bandages" },
 		{ 290, "Up to 290: Runecloth Bandages" },
-		{ 330, "Up to 330: Heavy Runecloth Bandages\nBuy Master First Aid book\nTemple of Telhamat (A) or Falcon Watch (H)" },
-		{ 360, "Up to 360: Netherweave Bandages\nBuy the book in the Temple of Telhamat (A) or in Falcon Watch (H)" },
-		{ 375, "Up to 375: Heavy Netherweave Bandages\nBuy the book in the Temple of Telhamat (A) or in Falcon Watch (H)" }
+		{ 330, "Up to 330: Heavy Runecloth Bandages" },
+		{ 360, "Up to 360: Netherweave Bandages" },
+		{ 375, "Up to 375: Heavy Netherweave Bandages" },
+		{ 400, "Up to 400: Frostweave Bandages" },
+		{ 425, "Up to 425: Heavy Frostweave Bandages" },
+		{ 475, "Up to 475: Embersilk Bandages" },
+		{ 525, "Up to 525: Heavy Embersilk Bandages" },
 	},
 	[BI["Cooking"]] = {
 		{ 40, "Up to 40: Spice Bread"	},
@@ -403,60 +426,75 @@ addon.Suggestions = {
 		{ 300, "Up to 300: Smoked Desert Dumplings\nQuest in Silithus" },
 		{ 325, "Up to 325: Ravager Dogs, Buzzard Bites" },
 		{ 350, "Up to 350: Roasted Clefthoof\nWarp Burger, Talbuk Steak" },
-		{ 375, "Up to 375: Crunchy Serpent\nMok'nathal Treats" }
+		{ 375, "Up to 375: Crunchy Serpent\nMok'nathal Treats" },
+		{ 400, "Up to 400: Any Trainer-learned Cooking Recipes" },
+		{ 450, "Up to 450: Dalaran Cooking Dailies" },
+		{ 525, "Up to 525: Stormwind & Orgrimmar Cooking Dailies" },
 	},	
 	-- source: http://www.wowguideonline.com/fishing.html
 	[BI["Fishing"]] = {
 		{ 50, "Up to 50: Any starting zone" },
 		{ 75, "Up to 75:\nThe Canals in Stormwind\nThe Pond in Orgrimmar" },
 		{ 150, "Up to 150: Hillsbrad Foothills' river" },
-		{ 225, "Up to 225: Expert Fishing book sold in Booty Bay\nFish in Desolace or Arathi Highlands" },
+		{ 225, "Up to 225: Expert Fishing" },
 		{ 250, "Up to 250: Hinterlands, Tanaris\n\n|cFFFFFFFFFishing quest in Dustwallow Marsh\n|cFFFFD700Savage Coast Blue Sailfin (Stranglethorn Vale)\nFeralas Ahi (Verdantis River, Feralas)\nSer'theris Striker (Northern Sartheris Strand, Desolace)\nMisty Reed Mahi Mahi (Swamp of Sorrows coastline)" },
 		{ 260, "Up to 260: Felwood" },
 		{ 300, "Up to 300: Azshara" },
-		{ 330, "Up to 330: Fish in Eastern Zangarmarsh\nArtisan Fishing Book at the Cenarion Expedition" },
+		{ 330, "Up to 330: Eastern Zangarmarsh" },
 		{ 345, "Up to 345: Western Zangarmarsh" },
 		{ 360, "Up to 360: Terrokar Forest" },
-		{ 375, "Up to 375: Terrokar Forest, in altitude\nFlying mount required" }
+		{ 375, "Up to 375: Terrokar Forest, in altitude\nFlying mount required" },
+		{ 400, "Up to 400: Borean Tundra" },
+		{ 450, "Up to 450: Dalaran Fishing Coins; Any Northrend Area" },
+		{ 525, "Up to 525: Any Cataclysm Zone\nStormwind & Orgrimmar Fishing Dailies" },
+	},
+
+	[BI["Archaeology"]] = {
+		{ 300, "Up to 300: Kalimdor\nEastern Kingdoms" },
+		{ 375, "Up to 375: Outland" },
+		{ 450, "Up to 450: Northrend" },
+		{ 525, "Up to 525: MountHyjal\nUldum\nTwilight Highlands" },
 	},
 	
-	-- suggested leveling zones, compiled by Thaoky, based on too many sources to list + my own leveling experience on Alliance side
+	-- suggested leveling zones, as defined by recommended quest levels, Updated for Cataclysm
 	["Leveling"] = {
 		{ 10, "Up to 10: Any starting zone" },
-		{ 20, "Up to 20: "  .. BZ["Loch Modan"] .. "\n" .. BZ["Westfall"] .. "\n" .. BZ["Darkshore"] .. "\n" .. BZ["Bloodmyst Isle"] 
-						.. "\n" .. BZ["Silverpine Forest"] .. "\n" .. BZ["The Barrens"] .. "\n" .. BZ["Ghostlands"]},
-		{ 25, "Up to 25: " .. BZ["Wetlands"] .. "\n" .. BZ["Redridge Mountains"] .. "\n" .. BZ["Ashenvale"] 
-						.. "\n" .. BZ["The Barrens"] .. "\n" .. BZ["Stonetalon Mountains"] .. "\n" .. BZ["Hillsbrad Foothills"] },
-		{ 28, "Up to 28: " .. BZ["Duskwood"] .. "\n" .. BZ["Wetlands"] .. "\n" .. BZ["Ashenvale"] 
-						.. "\n" .. BZ["Stonetalon Mountains"] .. "\n" .. BZ["Thousand Needles"] },
-		{ 31, "Up to 31: " .. BZ["Duskwood"] .. "\n" .. BZ["Thousand Needles"] .. "\n" .. BZ["Ashenvale"] },
-		{ 35, "Up to 35: " .. BZ["Thousand Needles"] .. "\n" .. BZ["Stranglethorn Vale"] .. "\n" .. BZ["Alterac Mountains"] 
-						.. "\n" .. BZ["Arathi Highlands"] .. "\n" .. BZ["Desolace"] },
-		{ 40, "Up to 40: " .. BZ["Stranglethorn Vale"] .. "\n" .. BZ["Desolace"] .. "\n" .. BZ["Badlands"]
-						.. "\n" .. BZ["Dustwallow Marsh"] .. "\n" .. BZ["Swamp of Sorrows"] },
-		{ 43, "Up to 43: " .. BZ["Tanaris"] .. "\n" .. BZ["Stranglethorn Vale"] .. "\n" .. BZ["Badlands"] 
-						.. "\n" .. BZ["Dustwallow Marsh"] .. "\n" .. BZ["Swamp of Sorrows"] },
-		{ 45, "Up to 45: " .. BZ["Tanaris"] .. "\n" .. BZ["Feralas"] .. "\n" .. BZ["The Hinterlands"] },
-		{ 48, "Up to 48: " .. BZ["Tanaris"] .. "\n" .. BZ["Feralas"] .. "\n" .. BZ["The Hinterlands"] .. "\n" .. BZ["Searing Gorge"] },
-		{ 51, "Up to 51: " .. BZ["Tanaris"] .. "\n" .. BZ["Azshara"] .. "\n" .. BZ["Blasted Lands"] 
-						.. "\n" .. BZ["Searing Gorge"] .. "\n" .. BZ["Un'Goro Crater"] .. "\n" .. BZ["Felwood"] },
-		{ 55, "Up to 55: " .. BZ["Un'Goro Crater"] .. "\n" .. BZ["Felwood"] .. "\n" .. BZ["Burning Steppes"]
-						.. "\n" .. BZ["Blasted Lands"] .. "\n" .. BZ["Western Plaguelands"] },
-		{ 58, "Up to 58: " .. BZ["Winterspring"] .. "\n" .. BZ["Burning Steppes"] .. "\n" .. BZ["Western Plaguelands"] 
-						.. "\n" .. BZ["Eastern Plaguelands"] .. "\n" .. BZ["Silithus"] },
-		{ 60, "Up to 60: " .. BZ["Winterspring"] .. "\n" .. BZ["Eastern Plaguelands"] .. "\n" .. BZ["Silithus"] },
-		{ 62, "Up to 62: " .. BZ["Hellfire Peninsula"] },
-		{ 64, "Up to 64: " .. BZ["Zangarmarsh"] .. "\n" .. BZ["Terokkar Forest"]},
-		{ 65, "Up to 65: " .. BZ["Terokkar Forest"] },
-		{ 66, "Up to 66: " .. BZ["Terokkar Forest"] .. "\n" .. BZ["Nagrand"]},
-		{ 67, "Up to 67: " .. BZ["Nagrand"]},
-		{ 68, "Up to 68: " .. BZ["Blade's Edge Mountains"]},
-		{ 70, "Up to 70: " .. BZ["Blade's Edge Mountains"] .. "\n" .. BZ["Netherstorm"] .. "\n" .. BZ["Shadowmoon Valley"]},
-		{ 72, "Up to 72: " .. BZ["Howling Fjord"] .. "\n" .. BZ["Borean Tundra"]},
-		{ 74, "Up to 74: " .. BZ["Grizzly Hills"] .. "\n" .. BZ["Dragonblight"]},
-		{ 76, "Up to 76: " .. BZ["Dragonblight"] .. "\n" .. BZ["Zul'Drak"]},
-		{ 78, "Up to 78: " .. BZ["Zul'Drak"] .. "\n" .. BZ["Sholazar Basin"]},
-		{ 80, "Up to 80: " .. BZ["The Storm Peaks"] .. "\n" .. BZ["Icecrown"]},
+		{ 15, "Up to 15: "  .. BZ["Westfall"]},
+		{ 16, "Up to 16: "  .. BZ["Ruins of Gilneas"]},
+		{ 20, "Up to 20: "  .. BZ["Azshara"] .. "\n" .. BZ["Loch Modan"] .. "\n" .. BZ["Bloodmyst Isle"]
+							.. "\n" .. BZ["Darkshore"] .. "\n" .. BZ["Silverpine Forest"] .. "\n" .. BZ["Northern Barrens"] 
+							.. "\n" .. BZ["Ghostlands"] .. "\n" .. BZ["Redridge Mountains"]},
+		{ 25, "Up to 25: " 	.. BZ["Duskwood"] .. "\n" .. BZ["Wetlands"] .. "\n" .. BZ["Ashenvale"] 
+							.. "\n" .. BZ["Hillsbrad Foothills"]},
+		{ 30, "Up to 30: " 	.. BZ["Arathi Highlands"] .. "\n" .. BZ["Northern Stranglethorn"] .. "\n" .. BZ["Stonetalon Mountains"]},
+		{ 35, "Up to 35: " 	.. BZ["The Cape of Stranglethorn"] .. "\n" .. BZ["Desolace"] .. "\n" .. BZ["The Hinterlands"]
+							.. "\n" .. BZ["Southern Barrens"]},
+		{ 40, "Up to 40: " 	.. BZ["Dustwallow Marsh"] .. "\n" .. BZ["Feralas"] .. "\n" .. BZ["Western Plaguelands"]},
+		{ 45, "Up to 45: " 	.. BZ["Eastern Plaguelands"] .. "\n" .. BZ["Thousand Needles"]},
+		{ 48, "Up to 48: "  .. BZ["Badlands"]},
+		{ 50, "Up to 50: " 	.. BZ["Tanaris"] .. "\n" .. BZ["Felwood"] .. "\n" .. BZ["Searing Gorge"]},
+		{ 52, "Up to 52: "	.. BZ["Burning Steppes"]},
+		{ 54, "Up to 54: " 	.. BZ["Swamp of Sorrows"]},
+		{ 55, "Up to 55: " 	.. BZ["Un'Goro Crater"] .. "\n" .. BZ["Winterspring"]},
+		{ 58, "Up to 58: " 	.. BZ["Blasted Lands"]},
+		{ 60, "Up to 60: " 	.. BZ["Deadwind Pass"] .. "\n" .. BZ["Moonglade"] .. "\n" .. BZ["Silithus"]},
+		{ 63, "Up to 63: " 	.. BZ["Hellfire Peninsula"]},
+		{ 64, "Up to 64: " 	.. BZ["Zangarmarsh"]},
+		{ 65, "Up to 65: " 	.. BZ["Terokkar Forest"]},
+		{ 67, "Up to 67: " 	.. BZ["Nagrand"]},
+		{ 68, "Up to 68: " 	.. BZ["Blade's Edge Mountains"]},
+		{ 70, "Up to 70: " 	.. BZ["Netherstorm"] .. "\n" .. BZ["Shadowmoon Valley"] .. "\n" .. BZ["Isle of Quel'Danas"] 
+							.. "\n" .. BZ["Deadwind Pass"]},
+		{ 72, "Up to 72: " 	.. BZ["Howling Fjord"] .. "\n" .. BZ["Borean Tundra"]},
+		{ 75, "Up to 75: " 	.. BZ["Dragonblight"] .. "\n" .. BZ["Grizzly Hills"]},
+		{ 76, "Up to 76: " 	.. BZ["Zul'Drak"]},
+		{ 78, "Up to 78: " 	.. BZ["Sholazar Basin"]},
+		{ 80, "Up to 80: " 	.. BZ["Crystalsong Forest"] .. "\n" .. BZ["The Storm Peaks"] .. "\n" .. BZ["Icecrown"]},
+		{ 82, "Up to 82: " 	.. BZ["Hyjal"] .. "\n" .. BZ["Vashj'ir"]},
+		{ 83, "Up to 83: " 	.. BZ["Deepholm"]},
+		{ 84, "Up to 84: "	.. BZ["Uldum"]},
+		{ 85, "Up to 85: "  .. BZ["Twilight Highlands"]},
+	
 	},
 
 }

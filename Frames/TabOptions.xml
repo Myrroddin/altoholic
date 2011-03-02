@@ -138,7 +138,7 @@
 				<Scripts>
 					<OnValueChanged>
 						local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
-						Altoholic:UpdateSlider(self:GetName(), L["Minimap Icon Angle"], "MinimapIconAngle")
+						Altoholic:UpdateSlider(self, L["Minimap Icon Angle"], "MinimapIconAngle")
 					</OnValueChanged>
 				</Scripts>
 			</Slider>
@@ -156,7 +156,7 @@
 				<Scripts>
 					<OnValueChanged>
 						local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
-						Altoholic:UpdateSlider(self:GetName(), L["Minimap Icon Radius"], "MinimapIconRadius")
+						Altoholic:UpdateSlider(self, L["Minimap Icon Radius"], "MinimapIconRadius")
 					</OnValueChanged>
 				</Scripts>
 			</Slider>
@@ -401,14 +401,32 @@
 			<AbsDimension x="615" y="306"/>
 		</Size>
 		<Frames>
+			<Slider name="$parent_SliderTimeToNextWarning" inherits="OptionsSliderTemplate"  minValue="1" maxValue="12" defaultValue="3" valueStep="1">
+				<Size>
+					<AbsDimension x="220" y="16"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="40" y="-40" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnValueChanged>
+						Altoholic:OnTimeToNextWarningChanged(self)
+					</OnValueChanged>
+				</Scripts>
+			</Slider>
+
 			<CheckButton name="$parent_GuildMailWarning" inherits="InterfaceOptionsSmallCheckButtonTemplate">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
 				<Anchors> 
-					<Anchor point="TOPLEFT">
+					<Anchor point="TOPLEFT" relativeTo="$parent_SliderTimeToNextWarning" relativePoint="BOTTOMLEFT" >
 						<Offset>
-							<AbsDimension x="40" y="-40" />
+							<AbsDimension x="0" y="-20" />
 						</Offset>
 					</Anchor>
 				</Anchors>      

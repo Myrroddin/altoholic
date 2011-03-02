@@ -93,10 +93,18 @@
 					</Anchor>
 				</Anchors>
 			</Button>
+			<Button name="$parent_RarityIcon" inherits="AltoGuildBankIconTemplate" id="4">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_UpdateIcon" relativePoint="TOPRIGHT" >
+						<Offset x="5" y="0" />
+					</Anchor>
+				</Anchors>
+			</Button>
 
 			<Frame name="$parentRightClickMenu1" inherits="AltoRightClickMenuTemplate" id="1" />
 			<Frame name="$parentRightClickMenu2" inherits="AltoRightClickMenuTemplate" id="2" />
 			<Frame name="$parentRightClickMenu3" inherits="AltoRightClickMenuTemplate" id="3" />
+			<Frame name="$parentRightClickMenu4" inherits="AltoRightClickMenuTemplate" id="4" />
 
 			<Button name="$parentEntry1" inherits="AltoContainerTemplate">
 				<Anchors>

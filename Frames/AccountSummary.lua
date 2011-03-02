@@ -461,6 +461,13 @@ function addon:AiLTooltip()
 	tooltip:AddDoubleLine(YELLOW .. "245-272", WHITE .. BZ["Trial of the Crusader"] .. " (25)")
 	tooltip:AddDoubleLine(YELLOW .. "251-271", WHITE .. BZ["Icecrown Citadel"] .. " (10)")
 	tooltip:AddDoubleLine(YELLOW .. "264-284", WHITE .. BZ["Icecrown Citadel"] .. " (25)")
+	tooltip:AddLine(" ",1,1,1);
+	
+	tooltip:AddLine(TEAL .. L["Level"] .. " 85",1,1,1);
+	tooltip:AddDoubleLine(YELLOW .. "333", format("%s%s: %s", WHITE, CALENDAR_TYPE_DUNGEON, PLAYER_DIFFICULTY1))
+	tooltip:AddDoubleLine(YELLOW .. "346", format("%s%s: %s", WHITE, CALENDAR_TYPE_DUNGEON, PLAYER_DIFFICULTY2))
+	tooltip:AddDoubleLine(YELLOW .. "359", format("%s%s: %s", WHITE, CALENDAR_TYPE_RAID, PLAYER_DIFFICULTY1))
+	tooltip:AddDoubleLine(YELLOW .. "372", format("%s%s: %s", WHITE, CALENDAR_TYPE_RAID, PLAYER_DIFFICULTY2))
 end
 
 function ns:RightClickMenu_OnLoad()

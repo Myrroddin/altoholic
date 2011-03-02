@@ -63,6 +63,13 @@ local GatheringNodes = {			-- Add herb/ore possession info to Plants/Mines, than
 	["Rich Saronite Deposit"]					= 36912, -- Saronite Ore
 	["Titanium Vein"]								= 36910, -- Titanium Ore
 
+	-- cata
+	["Obsidium Deposit"]					= 53038, -- Obsidium Ore
+	["Rich Obsidium Deposit"]				= 53038, -- Obsidium Ore
+	["Elementium Vein"]						= 52185, -- Elementium Ore
+	["Rich Elementium Vein"]				= 52185, -- Elementium Ore
+	["Pyrite Deposit"]						= 52183, -- Pyrite Ore
+	["Rich Pyrite Deposit"]					= 52183, -- Pyrite Ore
 	-- Herbs
 	[L["Ancient Lichen"]]       = 22790,
 	[L["Arthas' Tears"]]        =  8836,
@@ -116,6 +123,13 @@ local GatheringNodes = {			-- Add herb/ore possession info to Plants/Mines, than
 	["Talandra's Rose"]			= 36907,
 	["Frost Lotus"]				= 36908,
 	["Firethorn"]					= 39970,
+	["Cinderbloom"]				= 52983,
+	["Stormvine"]				= 52984,
+	["Azshara's Veil"]			= 52985,
+	["Heartblossom"]			= 52986,
+	["Twilight Jasmine"]		= 52987,
+	["Whiptail"]				= 52988,
+	["Deathspore Pod"]			= 52989,
 }
 
 -- *** Utility functions ***
@@ -560,13 +574,13 @@ local function OnGameTooltipCleared(tooltip, ...)
 end
 
 local function Hook_SetCurrencyToken(self,index,...)
+	Orig_GameTooltip_SetCurrencyToken(self, index, ...)
+	
 	if not index then return end
 
 	local currency = GetCurrencyListInfo(index)
 	if not currency then return end
 
-	GameTooltip:ClearLines();
-	GameTooltip:AddLine(currency,1,1,1);
 	GameTooltip:AddLine(" ",1,1,1);
 
 	local total = 0

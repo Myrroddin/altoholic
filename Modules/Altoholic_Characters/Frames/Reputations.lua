@@ -170,8 +170,10 @@ local VertexColors = {
 	[FACTION_STANDING_LABEL3] = { r = 0.6, g = 0.4, b = 0.13 },		-- unfriendly
 	[FACTION_STANDING_LABEL4] = { r = 0.6, g = 0.6, b = 0.0 },		-- neutral
 	[FACTION_STANDING_LABEL5] = { r = 0.0, g = 0.6, b = 0.0 },		-- friendly
-	[FACTION_STANDING_LABEL6] = { r = 0.0, g = 0.6, b = 0.4 },		-- honored
-	[FACTION_STANDING_LABEL7] = { r = 0.0, g = 0.6, b = 0.6 },		-- revered
+	-- [FACTION_STANDING_LABEL6] = { r = 0.0, g = 0.6, b = 0.4 },		-- honored
+	-- [FACTION_STANDING_LABEL7] = { r = 0.0, g = 0.6, b = 0.6 },		-- revered
+	[FACTION_STANDING_LABEL6] = { r = 0.0, g = 0.6, b = 0.6 },		-- honored
+	[FACTION_STANDING_LABEL7] = { r = 0.9, g = 0.3, b = 0.9 },		-- revered
 	[FACTION_STANDING_LABEL8] = { r = 1.0, g = 1.0, b = 1.0 },		-- exalted
 }
 
@@ -319,16 +321,18 @@ local function Reputations_UpdateEx(self, offset, entry, desc)
 				
 					if status and rate then 
 						local vc = VertexColors[status]
-						itemTexture:SetVertexColor(vc.r, vc.g, vc.b);
 						
 						local text
 						if status == FACTION_STANDING_LABEL8 then
+							itemTexture:SetDesaturated(0);
 							_G[itemName .. "Name"]:SetPoint("BOTTOMRIGHT", 5, 0)
 							text = ICON_EXALTED
 						else
+							itemTexture:SetDesaturated(1);
 							_G[itemName .. "Name"]:SetPoint("BOTTOMRIGHT", -5, 0)
 							text = format("%2d", floor(rate)) .. "%"
 						end
+						itemTexture:SetVertexColor(vc.r, vc.g, vc.b);
 						
 						local color = WHITE
 						if status == FACTION_STANDING_LABEL1 or status == FACTION_STANDING_LABEL2 then
@@ -433,8 +437,10 @@ function ns:OnEnter(frame)
 	AltoTooltip:AddLine(FACTION_STANDING_LABEL3, 0.93, 0.4, 0.13);
 	AltoTooltip:AddLine(FACTION_STANDING_LABEL4, 1.0, 1.0, 0.0);
 	AltoTooltip:AddLine(FACTION_STANDING_LABEL5, 0.0, 1.0, 0.0);
-	AltoTooltip:AddLine(FACTION_STANDING_LABEL6, 0.0, 1.0, 0.53);
-	AltoTooltip:AddLine(FACTION_STANDING_LABEL7, 0.0, 1.0, 0.8);
+	-- AltoTooltip:AddLine(FACTION_STANDING_LABEL6, 0.0, 1.0, 0.53);
+	-- AltoTooltip:AddLine(FACTION_STANDING_LABEL7, 0.0, 1.0, 0.8);
+	AltoTooltip:AddLine(FACTION_STANDING_LABEL6, 0.0, 1.0, 0.8);
+	AltoTooltip:AddLine(FACTION_STANDING_LABEL7, 1.0, 0.4, 1.0);
 	AltoTooltip:AddLine(format("%s = %s", ICON_EXALTED, FACTION_STANDING_LABEL8), 1, 1, 1);
 	
 	AltoTooltip:AddLine(" ",1,1,1);

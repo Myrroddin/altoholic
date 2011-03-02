@@ -387,7 +387,7 @@ function ns:ShowCharInfo(view)
 	elseif view == VIEW_KNOWN_GLYPHS then
 		addon.Spellbook:UpdateKnownGlyphs()
 	elseif view == VIEW_PROFESSION then
-		addon.TradeSkills.Recipes:BuildView()
+		addon.TradeSkills.Recipes:InvalidateView()
 		addon.TradeSkills.Recipes:Update()
 	end
 end
@@ -758,10 +758,11 @@ local function BagsIcon_Initialize(self, level)
 	
 	DDM_AddTitle(" ")
 	DDM_AddTitle("|r" ..RARITY)
-	DDM_Add(L["Any"], 0, OnRarityChange, nil, (addon:GetOption("CharacterTabViewBagsRarity") == 0))
+	local rarity = addon:GetOption("CharacterTabViewBagsRarity")
+	DDM_Add(L["Any"], 0, OnRarityChange, nil, (rarity == 0))
 	
 	for i = 2, 6 do		-- Quality: 0 = poor .. 5 = legendary
-		DDM_Add(ITEM_QUALITY_COLORS[i].hex .. _G["ITEM_QUALITY"..i.."_DESC"], i, OnRarityChange, nil, (addon:GetOption("CharacterTabViewBagsRarity") == i))
+		DDM_Add(ITEM_QUALITY_COLORS[i].hex .. _G["ITEM_QUALITY"..i.."_DESC"], i, OnRarityChange, nil, (rarity == i))
 	end
 	
 	DDM_AddCloseMenu()
@@ -1225,4 +1226,10 @@ function ns:OnLoad()
 	for i = 1, 10 do
 		UIDropDownMenu_Initialize(_G[classMenu..i], ClassIcon_Initialize, "MENU")
 	end
+	
+	addon:RegisterMessage("DATASTORE_RECIPES_SCANNED")
+end
+
+function addon:DATASTORE_RECIPES_SCANNED(event, sender, tradeskillName)
+	addon.TradeSkills.Recipes:InvalidateView()
 end

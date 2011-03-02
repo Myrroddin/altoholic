@@ -518,7 +518,15 @@ end
 
 function addon:DATASTORE_GLOBAL_MAIL_EXPIRY(event, threshold)
 	-- at least one mail has expired
-
+	
+	local lastWarning = addon:GetOption("UI.Mail.LastExpiryWarning")
+	local timeToNext = addon:GetOption("UI.Mail.TimeToNextWarning")
+	local now = time()
+	
+	if (now - lastWarning) < (timeToNext * 3600) then	-- has enough time passed ?
+		return		-- no ? exit !
+	end
+	
 	AltoMsgBox:SetHeight(130)
 	AltoMsgBox_Text:SetHeight(60)
 	addon:SetMsgBoxHandler(function(self, button)
@@ -533,6 +541,8 @@ function addon:DATASTORE_GLOBAL_MAIL_EXPIRY(event, threshold)
 		.. L["Refer to the activity pane for more details."].. "\n\n")
 		.. L["Do you want to view it now ?"])
 	AltoMsgBox:Show()
+	
+	addon:SetOption("UI.Mail.LastExpiryWarning", now)
 end
 
 function addon:DATASTORE_MAIL_EXPIRY(event, character, key, threshold, numExpiredMails)

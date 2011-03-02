@@ -43,9 +43,7 @@ function ns:OnLoad()
 	addon:RegisterMessage("DATASTORE_BANKTAB_REQUEST_ACK")
 	addon:RegisterMessage("DATASTORE_BANKTAB_REQUEST_REJECTED")
 	addon:RegisterMessage("DATASTORE_BANKTAB_UPDATE_SUCCESS")
-	-- addon:RegisterMessage("DATASTORE_GUILD_BANKTABS_UPDATED")
 	addon:RegisterMessage("DATASTORE_GUILD_MEMBER_OFFLINE")
-	-- addon:RegisterMessage("DATASTORE_GUILD_PROFESSION_RECEIVED")
 	
 	if IsInGuild() then
 		addon:RegisterEvent("GUILD_ROSTER_UPDATE", OnRosterUpdate);
@@ -99,7 +97,6 @@ end
 -- *** DataStore Event Handlers ***
 function addon:DATASTORE_GUILD_ALTS_RECEIVED(event, sender, alts)
 	addon.Guild.Members:InvalidateView()
-	-- addon.Guild.Professions:InvalidateView()
 end
 
 function addon:DATASTORE_BANKTAB_REQUEST_ACK(event, sender)
@@ -117,13 +114,4 @@ end
 
 function addon:DATASTORE_GUILD_MEMBER_OFFLINE(event, member)
 	addon.Guild.Members:InvalidateView()
-	-- addon.Guild.Professions:InvalidateView()
 end
-
--- function addon:DATASTORE_GUILD_BANKTABS_UPDATED(event, sender)
-	-- addon.Guild.BankTabs:InvalidateView()
--- end
-
--- function addon:DATASTORE_GUILD_PROFESSION_RECEIVED(event, sender, alt, data, index)
-	-- addon.Guild.Professions:InvalidateView()
--- end

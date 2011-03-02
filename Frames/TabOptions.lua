@@ -111,7 +111,7 @@ local support = {
 			format("%s\n%s|r\n%s\n%s",
 				"That would be a very good idea! :)\nFull resume is available on demand, send serious job proposals by mail:",
 				GREEN.."thaoky.altoholic@yahoo.com",
-				"Age: 34\nSector: IT\nReady to relocate about anywhere in the EU & the US.",
+				"Age: 35\nSector: IT\nReady to relocate about anywhere in the EU & the US.",
 				"Positions sought include (but are not limited to): Project Management, Solutions Architect, Software Development."
 			)
 		}
@@ -128,6 +128,29 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "4.0.006 Changes",
+		bulletedList = {
+			"DataStore_Characters : Added an option to request\n/played at logon or not.",
+			"DataStore_Characters : Added an option to hide real /played and return 0 instead.",
+			"Added an option to set the minimum time before you get the next mail expiry warning (from 1 to 12 hours, default : 3 hours).",
+			"Added a mouse over menu over both option icons in the summary tab. The intent is to make option categories as well as the help section a bit more visible.",
+			"Fixed a bug that prevented viewing imported guild banks.",
+			"Fixed the currency tab tooltips not displaying Blizzard's information before the counters.",
+			"Calendar events with the status 'invited' are now ignored.",
+			"Added a rarity filter in the guild bank pane.",
+			"Stopped listening to bag updates during a multi-sell at the AH. The whole thing slows down a bit too much. Bag updates are resumed at the end of the multi-sell. (Thanks AnrDaemon)",
+			"Updated part of the loot table, leveling suggestions, and mining/herbalism nodes. (Thanks TwoTailedFox)",
+			"Changed Mysterious Egg's & Disgusting Jar's cooldowns to 3 days. (Thanks TwoTailedFox)",
+			"The recipes pane is now immediatelly refreshed after a successful profession scan.",
+			"Slightly modified the way colours are handled in the reputations pane. (Thanks Belechannas)",
+			"Achievements in the Classic, BC & LK dungeon categories are now sorted by dungeon difficulty (as in the game's UI).",
+		},
+	},
+	{	name = "4.0.005d Changes",
+		bulletedList = {
+			"Fixed a tooltip issue when mousing over an archeology artifact (and probably some other items too).",
+		},
+	},
 	{	name = "4.0.005c Changes",
 		bulletedList = {
 			"Fixed all glyph related issues. There may remain issues with specific glyphs (1 or 2), if you spot one, please mention which glyph caused a problem.",
@@ -140,49 +163,6 @@ local whatsnew = {
 			"Fixed a minor bug when abandonning a profession.",
 			"Fixed a Lua error when linking a reputation.",
 			"Fixed a Lua error in DataStore to make Altoholic more tolerant to disabled DataStore modules.",
-		},
-	},
-	{	name = "4.0.005b Changes",
-		bulletedList = {
-			"Fixed a Lua error in the achievement pane.",
-			"Added a few missing achievements.",
-			"Fixed a frame layering issue that resulted in some panes remaining black.",
-			"Updated the recipe database.",
-			"Fixed tooltip counters not being updated when retrieving items from the mailbox.",
-			"Fixed a few minor bugs here and there.",
-		},
-	},
-	{	name = "4.0.005 Changes",
-		bulletedList = {
-			"Fixed a Lua error when logging on with a mage.",
-			"Added Cataclysm factions.",
-			"Improved the menu when mousing over a class icon in the 'Characters' or 'Achievements' tabs. You can now choose to display no one in a given column (except the first), or to reset the icons (from the first column menu).",
-			"Fixed a compatibility issue with Auctioneer when coloring recipes at the AH (many thanks to Tirdal for taking care of this !).",
-		},
-	},
-	{	name = "4.0.004c Changes",
-		bulletedList = {
-			"Updated achievement list for 4.0.3a.",
-		},
-	},
-	{	name = "4.0.004b Changes",
-		bulletedList = {
-			"Added a temporary fix to the quest turn-in issue.",
-			"Fixed Auctioneer compatibility issue.",
-			"Added 2 options to enable/disable recipe coloring at the AH/vendors.",
-			"deDE: fixed an issue when opening the characters tab with a Shaman.",
-		},
-	},
-	{	name = "4.0.004 Changes",
-		bulletedList = {
-			"Added an 'All-in-one' option to the reputations pane.",
-			"Added an 'All-in-one' option to the currencies pane.",
-			"Added buttons on the right side of the guild bank pane, for those who prefer this to the drop down menu (Yes, I love you that much !).",
-			"DataStore_Crafts: Fixed guild trade skills being scanned by mistake. It is advised to delete your DataStore_Crafts.lua in saved variables if you notice tooltip inconsistencies (like: alt x could learn a recipe for a profession he hasn't even learned).",
-			"Added the possibility to mouse over class icons in both the Characters & Achievements tabs in order to select another alt.",
-			"Fixed a frame layering issue that could potentially keep some panes invisible.",
-			"Recipes are now color coded at the AH and at vendors.",
-			"Reworked the talent pane: it now displays two copies of the same talent tree. The leftmost tree is your alt's, and the rightmost tree is for a guild mate's alt of the same class.",
 		},
 	},
 	{	name = "Earlier changes",
@@ -316,6 +296,11 @@ function addon:SetupOptions()
 	L["Include guild members' professions"] = nil
 	
 	-- ** Mail **
+	value = AltoholicMailOptions_SliderTimeToNextWarning:GetValue()
+	AltoholicMailOptions_SliderTimeToNextWarning.tooltipText = L["TIME_TO_NEXT_WARNING_TOOLTIP"]
+	AltoholicMailOptions_SliderTimeToNextWarningLow:SetText("1");
+	AltoholicMailOptions_SliderTimeToNextWarningHigh:SetText("12"); 
+	AltoholicMailOptions_SliderTimeToNextWarningText:SetText(format("%s (%s)", L["TIME_TO_NEXT_WARNING_TEXT"], format(D_HOURS, value)))
 	AltoholicMailOptions_GuildMailWarningText:SetText(L["New mail notification"])
 	L["New mail notification"] = nil
 		
@@ -435,6 +420,8 @@ function addon:RestoreOptionsToUI()
 	AltoholicSearchOptionsLootInfo:SetText(GREEN .. O.TotalLoots .. "|r " .. L["Loots"] .. " / "
 										.. GREEN .. O.UnknownLoots .. "|r " .. L["Unknown"])
 
+										
+	AltoholicMailOptions_SliderTimeToNextWarning:SetValue(O["UI.Mail.TimeToNextWarning"])
 	AltoholicMailOptions_GuildMailWarning:SetChecked(O.GuildMailWarning)
 	AltoholicMailOptions_NameAutoComplete:SetChecked(O.NameAutoComplete)
 

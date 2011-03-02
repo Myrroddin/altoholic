@@ -33,6 +33,7 @@ local RecipeColorNames = {
 
 local parent = "AltoholicFrameRecipes"
 local view
+local isViewValid
 local currentProfession
 local currentColor = SKILL_ANY
 local currentSlots = ALL_INVENTORY_SLOTS
@@ -61,8 +62,7 @@ function ns:GetRecipeColorName(index)
 	return RecipeColors[index]..RecipeColorNames[index]
 end
 
-
-function ns:BuildView()
+local function BuildView()
 	view = view or {}
 	wipe(view)
 
@@ -138,6 +138,10 @@ function ns:BuildView()
 end
 
 function ns:Update()
+	if not isViewValid then
+		BuildView()
+	end
+
 	local VisibleLines = 14
 	local entry = parent.."Entry"
 	
@@ -312,6 +316,13 @@ end
 
 function ns:GetCurrentSubClass()
 	return currentSubClass
+end
+
+function ns:InvalidateView()
+	isViewValid = nil
+	if AltoholicFrameRecipes:IsVisible() then
+		ns:Update()
+	end
 end
 
 

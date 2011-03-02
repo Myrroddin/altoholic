@@ -12,6 +12,15 @@ local ICON_GUILD = "Interface\\Icons\\Achievement_GuildPerk_Everyones a Hero_ran
 local ICON_GUILDBANK = "Interface\\Icons\\Achievement_GuildPerk_MobileBanking"
 local ICON_REMOTE_UPDATE = "Interface\\Icons\\Achievement_GuildPerk_Bartering"
 
+local rarityIcons = {
+	[0] = "Interface\\Icons\\item_cutmetagemb",
+	[2] = "Interface\\Icons\\inv_misc_uncutgemnormal1",
+	[3] = "Interface\\Icons\\inv_misc_uncutgemnormal2",
+	[4] = "Interface\\Icons\\inv_misc_uncutgemnormal4",
+	[5] = "Interface\\Icons\\inv_misc_uncutgemnormal",
+	[6] = "Interface\\Icons\\inv_misc_uncutgemnormal5",
+}
+
 local NUM_GUILDBANK_ROWS = 7
 local MAX_BANK_TABS = 8
 
@@ -123,6 +132,14 @@ local function OnBankTabRemoteUpdate(self)
 	DataStore:RequestGuildMemberBankTab(member, tabName)
 end
 
+local function OnRarityChange(self)
+	local rarity = self.value
+
+	addon:SetOption("UI.Tabs.Guild.BankItemsRarity", rarity)
+	addon:SetItemButtonTexture(parent .. "_RarityIcon", rarityIcons[rarity], 30, 30)
+	ns:Update()
+end
+
 function ns:Update()
 	local entry = parent .. "Entry"
 	if not currentGuildKey or not currentGuildBankTab then		-- no tab found ? exit
@@ -147,6 +164,8 @@ function ns:Update()
 	local money = DataStore:GetGuildBankMoney(currentGuildKey)
 	_G[parent .. "Info3"]:SetText(MONEY .. ": " .. addon:GetMoneyString(money or 0, WHITE))
 	
+	local rarity = addon:GetOption("UI.Tabs.Guild.BankItemsRarity")
+	
 	for rowIndex = 1, NUM_GUILDBANK_ROWS do
 	
 		local from = mod(rowIndex, NUM_GUILDBANK_ROWS)
@@ -154,7 +173,12 @@ function ns:Update()
 	
 		for columnIndex = 14, 1, -1 do
 			local itemName = entry..rowIndex .. "Item" .. columnIndex;
-			local itemButton = _G[itemName];
+			local itemButton = _G[itemName]
+			local itemTexture = _G[itemName.."IconTexture"]
+			
+			addon:CreateButtonBorder(itemButton)
+			itemButton.border:Hide()
+			itemTexture:SetDesaturated(0)
 			
 			local itemIndex = from + ((columnIndex - 1) * NUM_GUILDBANK_ROWS)
 			
@@ -162,6 +186,17 @@ function ns:Update()
 			
 			if itemID then
 				addon:SetItemButtonTexture(itemName, GetItemIcon(itemID));
+				
+				if rarity ~= 0 then
+					local _, _, itemRarity = GetItemInfo(itemID)
+					if itemRarity and itemRarity == rarity then
+						local r, g, b = GetItemQualityColor(itemRarity)
+						itemButton.border:SetVertexColor(r, g, b, 0.5)
+						itemButton.border:Show()
+					else
+						itemTexture:SetDesaturated(1)
+					end
+				end
 			else
 				addon:SetItemButtonTexture(itemName, "Interface\\PaperDoll\\UI-Backpack-EmptySlot");
 			end
@@ -225,8 +260,9 @@ local function GuildIcon_Initialize(self, level)
 		for account in pairs(DataStore:GetAccounts()) do
 			for realm in pairs(DataStore:GetRealms(account)) do
 				for guildName, guild in pairs(DataStore:GetGuilds(realm, account)) do
-					local money = DataStore:GetGuildBankMoney(guild)
-					if money then
+					-- this test is not necessary, if a guild key is in the db, there's essentially data.
+					-- local money = DataStore:GetGuildBankMoney(guild)
+					-- if money then
 						local text = format("%s / %s", WHITE..realm, GREEN..guildName)
 
 						if account ~= "Default" then
@@ -239,7 +275,7 @@ local function GuildIcon_Initialize(self, level)
 						info.value = guild		-- guild key
 						info.func = OnGuildChange
 						UIDropDownMenu_AddButton(info, level)
-					end
+					-- end
 				end
 			end
 		end
@@ -330,10 +366,25 @@ local function UpdateIcon_Initialize(self, level)
 	DDM_AddCloseMenu()
 end
 
+local function RarityIcon_Initialize(self, level)
+	local rarity = addon:GetOption("UI.Tabs.Guild.BankItemsRarity")
+	DDM_AddTitle("|r" ..RARITY)
+	DDM_Add(L["Any"], 0, OnRarityChange, nil, (rarity == 0))
+
+	for i = 2, 6 do		-- Quality: 0 = poor .. 5 = legendary
+		DDM_Add(ITEM_QUALITY_COLORS[i].hex .. _G["ITEM_QUALITY"..i.."_DESC"], i, OnRarityChange, nil, (rarity == i))
+	end
+	DDM_AddCloseMenu()
+end
+
 function ns:OnLoad()
 	addon:SetItemButtonTexture(parent .. "_GuildIcon", ICON_GUILD, 30, 30)
 	addon:SetItemButtonTexture(parent .. "_TabsIcon", ICON_GUILDBANK, 30, 30)
 	addon:SetItemButtonTexture(parent .. "_UpdateIcon", ICON_REMOTE_UPDATE, 30, 30)
+	
+	local rarity = addon:GetOption("UI.Tabs.Guild.BankItemsRarity")
+	
+	addon:SetItemButtonTexture(parent .. "_RarityIcon", rarityIcons[rarity], 30, 30)
 	
 	-- load the drop down with a guild
 	local currentRealm = GetRealmName()
@@ -371,6 +422,7 @@ function ns:OnLoad()
 	UIDropDownMenu_Initialize(_G[rcMenuName.."1"], GuildIcon_Initialize, "MENU")
 	UIDropDownMenu_Initialize(_G[rcMenuName.."2"], TabsIcon_Initialize, "MENU")
 	UIDropDownMenu_Initialize(_G[rcMenuName.."3"], UpdateIcon_Initialize, "MENU")
+	UIDropDownMenu_Initialize(_G[rcMenuName.."4"], RarityIcon_Initialize, "MENU")
 	
 	UpdateBankTabButtons()
 end
