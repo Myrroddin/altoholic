@@ -8,7 +8,7 @@
 ## Notes-zhCN: 能让你全面掌握你的所有角色的信息。
 
 ## Author: Thaoky (EU-Marécages de Zangar)
-## Version: 4.0.006
+## Version: 4.0.006b
 ## X-Category: Inventory, Tradeskill, Mail
 ## X-Localizations: enUS, frFR, zhCN, zhTW, deDE, koKR, esES, esMX, ruRU
 ## X-Website: http://wow.curse.com/downloads/wow-addons/details/altoholic.aspx
@@ -36,6 +36,7 @@ Altoholic.xml
 
 Frames\TabSummary.xml
 Frames\TabOptions.xml
+Frames\TabXelerated.xml
 
 Frames\AccountSharing.xml
 Frames\AccountSummary.xml

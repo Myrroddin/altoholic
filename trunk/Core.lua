@@ -4,7 +4,7 @@ _G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "A
 
 local addon = _G[addonName]
 
-addon.Version = "v4.0.006"
+addon.Version = "v4.0.006b"
 addon.VersionNum = 400006
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
@@ -255,6 +255,7 @@ local tabList = {
 	"Search",
 	"Guild",
 	"Achievements",
+	"Xelerated",
 }
 
 local function SafeLoadAddOn(name)

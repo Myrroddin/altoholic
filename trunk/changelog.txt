@@ -9,7 +9,11 @@ IMPORTANT NOTE: If you're upgrading from 3.x :
 - Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
 
 
-4.0.006 (02/03/2001)
+4.0.006b (01/04/2011)
+
+- DataStore_Reputations : Reverted a fix brought in r13, as it seems to slow down the game due to a conflict with a yet unidentified addon.
+ 
+4.0.006 (02/03/2011)
 
 - DataStore_Characters : Added an option to request /played at logon or not.
 - DataStore_Characters : Added an option to hide real /played and return 0 instead.
@@ -27,7 +31,7 @@ IMPORTANT NOTE: If you're upgrading from 3.x :
 - Slightly modified the way colours are handled in the reputations pane. (Thanks Belechannas)
 - Achievements in the Classic, BC & LK dungeon categories are now sorted by dungeon difficulty (as in the game's UI).
 
-4.0.005d (16/02/2001)
+4.0.005d (16/02/2011)
 
 - Fixed a tooltip issue when mousing over an archeology artifact (and probably some other items too).
 
