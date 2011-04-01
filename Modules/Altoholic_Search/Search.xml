@@ -237,6 +237,12 @@
 				<NormalFont style="GameFontNormalSmallLeft"/>
 			</Button>
 		</Frames>
+		<Scripts>
+			<OnLoad>
+				local level = self:GetParent():GetFrameLevel()
+				self:SetFrameLevel(level + 1)
+			</OnLoad>
+		</Scripts>
 		<HighlightTexture name="$parentHighlight" file="Interface\HelpFrame\HelpFrameButton-Highlight" alphaMode="ADD">
 			<Size>
 				<AbsDimension x="555" y="37"/>

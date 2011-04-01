@@ -128,6 +128,11 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "4.0.006b Changes",
+		bulletedList = {
+			"DataStore_Reputations : Reverted a fix brought in r13, as it seems to slow down the game due to a conflict with a yet unidentified addon.",
+		},
+	},
 	{	name = "4.0.006 Changes",
 		bulletedList = {
 			"DataStore_Characters : Added an option to request\n/played at logon or not.",
