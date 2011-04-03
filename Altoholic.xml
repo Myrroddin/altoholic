@@ -104,7 +104,7 @@
 			<OnLoad>
 				self:RegisterForDrag("LeftButton");
 				self.elapsed = 0;
-				PanelTemplates_SetNumTabs(AltoholicFrame, 6);
+				PanelTemplates_SetNumTabs(AltoholicFrame, 5);
 				PanelTemplates_SetTab(AltoholicFrame, 1);
 			</OnLoad>
 			<OnDragStart>
@@ -306,15 +306,6 @@
 			<Button name="$parentTab5" inherits="AltoTabTemplate" id="5" text="ACHIEVEMENT_BUTTON">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentTab4" relativePoint="TOPRIGHT">
-						<Offset>
-							<AbsDimension x="-8" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-			</Button>
-			<Button name="$parentTab6" inherits="AltoTabTemplate" id="6" text="X-Elerated">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentTab5" relativePoint="TOPRIGHT">
 						<Offset>
 							<AbsDimension x="-8" y="0"/>
 						</Offset>

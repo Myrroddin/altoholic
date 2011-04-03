@@ -36,7 +36,6 @@ Altoholic.xml
 
 Frames\TabSummary.xml
 Frames\TabOptions.xml
-Frames\TabXelerated.xml
 
 Frames\AccountSharing.xml
 Frames\AccountSummary.xml
