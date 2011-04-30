@@ -1,11 +1,11 @@
 ﻿local addonName = ...
 
-_G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0")
+_G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0", "AceTimer-3.0")
 
 local addon = _G[addonName]
 
-addon.Version = "v4.0.006b"
-addon.VersionNum = 400006
+addon.Version = "v4.1.001"
+addon.VersionNum = 401001
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local commPrefix = addonName
@@ -54,10 +54,6 @@ local AddonDB_Defaults = {
 		},
 		Characters = {
 			['*'] = {					-- ["Account.Realm.Name"] 
-				Friends = {},
-				SavedInstance = {},	-- raid timers
-				Calendar = {},
-				Timers = {},			-- goes in pair with Calendar, different table to prevent messing with Calendar, SavedInstance and ProfessionCooldowns, used for eggs among others
 				ConnectMMO = {},		-- Imported events come here
 			},
 		},
@@ -222,6 +218,7 @@ function addon:OnInitialize()
 	addon:RegisterMessage("DATASTORE_BANKTAB_REQUESTED")
 	addon:RegisterMessage("DATASTORE_GUILD_MAIL_RECEIVED")
 	addon:RegisterMessage("DATASTORE_GLOBAL_MAIL_EXPIRY")
+	addon:RegisterMessage("DATASTORE_CS_TIMEGAP_FOUND")
 end
 
 function addon:GetGuildMemberVersion(member)
@@ -255,8 +252,13 @@ local tabList = {
 	"Search",
 	"Guild",
 	"Achievements",
-	"Xelerated",
+	"Agenda",
 }
+
+local frameToID = {}
+for index, name in ipairs(tabList) do
+	frameToID[name] = index
+end
 
 local function SafeLoadAddOn(name)
 	if not IsAddOnLoaded(name) then
@@ -287,12 +289,16 @@ function addon.Tabs:HideAll()
 end
 
 function addon.Tabs:OnClick(index)
+	if type(index) == "string" then
+		index = frameToID[index]
+	end
+	
 	PanelTemplates_SetTab(_G[addonName.."Frame"], index);
 	self:HideAll()
 	self.current = index
 	self.Columns.prefix = addonName.."Tab"..tabList[index].."_Sort"
 	
-	if index >= 2 and index <= 5 then
+	if index >= 2 and index <= 6 then
 		local moduleName = format("%s_%s", addonName, tabList[index])
 		SafeLoadAddOn(moduleName)		-- make this part a bit more generic once we'll have more LoD parts
 		
@@ -386,7 +392,7 @@ function addon:CmdSearchBags(arg1, arg2)
 	-- arg 1 is a table, no idea of what it does, investigate later, only  arg2 matters at this point
 	
 	if string.len(arg2) == 0 then
-		DEFAULT_CHAT_FRAME:AddMessage("|cFF00FF9A" .. L["Altoholic:|r Usage = /altoholic search <item name>"])
+		addon:Print("|cFF00FF9A" .. L["Altoholic:|r Usage = /altoholic search <item name>"])
 		return
 	end
 	
@@ -394,6 +400,6 @@ function addon:CmdSearchBags(arg1, arg2)
 		AltoholicFrame:Show();
 	end
 	AltoholicFrame_SearchEditBox:SetText(strlower(arg2))
-	addon.Tabs:OnClick(3)
+	addon.Tabs:OnClick("Search")
 	addon.Search:FindItem();
 end	

@@ -1,16 +1,22 @@
 ﻿-- Simple task manager
 -- Written by : Thaoky, EU-Marécages de Zangar
 
-local addon = Altoholic
+local addonName = ...
+local addon = _G[addonName]
+
 addon.Tasks = {}
 
-function addon.Tasks:Init()
-	self.List = self.List or {}
-	wipe(self.List)
+local ns = addon.Tasks
+
+local taskList
+
+function ns:Init()
+	taskList = taskList or {}
+	wipe(taskList)
 end
 
-function addon.Tasks:OnUpdate(elapsed)
-	for name, task in pairs(self.List) do
+function ns:OnUpdate(elapsed)
+	for name, task in pairs(taskList) do
 		task.delay = task.delay - elapsed
 		if task.delay <= 0 then
 			if task.func then
@@ -19,38 +25,38 @@ function addon.Tasks:OnUpdate(elapsed)
 					-- if it does, keep it in the list, and execute it in every pass (set a delay of 0).
 					-- if necessary, reschedule by updating the delay
 					-- The function is responsible for returning the right value
-					self:Remove(name)
+					ns:Remove(name)
 				end
 			end
 		end
 	end
 end
 
-function addon.Tasks:Add(name, delay, func, owner)
-	if not self.List[name] then
-		self.List[name] = {}
+function ns:Add(name, delay, func, owner)
+	if not taskList[name] then
+		taskList[name] = {}
 	end
 
-	local p = self.List[name]
+	local p = taskList[name]
 	p.delay = delay						-- time before executing the task
 	p.func = func							-- function pointer to the task
 	p.owner = owner						-- owner (table or frame)
 end
 
-function addon.Tasks:Remove(name)
-	local p = self.List[name]
+function ns:Remove(name)
+	local p = taskList[name]
 	if p then
 		wipe(p)
-		self.List[name] = nil
+		taskList[name] = nil
 	end
 end
 
-function addon.Tasks:Get(name)
-	return self.List[name]
+function ns:Get(name)
+	return taskList[name]
 end
 
-function addon.Tasks:Reschedule(name, delay)
-	local p = self.List[name]
+function ns:Reschedule(name, delay)
+	local p = taskList[name]
 	if p then
 		p.delay = delay						-- time before executing the task
 	end	

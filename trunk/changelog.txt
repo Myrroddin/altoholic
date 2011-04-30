@@ -8,6 +8,16 @@ IMPORTANT NOTE: If you're upgrading from 3.x :
 - Make sure you delete the addon's databases in SavedVariables. ie: Altoholic.lua and all DataStore*.lua.
 - Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
 
+4.1.001 (30/04/2011)
+
+- Achievements, Pets & Mounts have been updated.
+- Suggestions localized to Korean (thanks Seashop !).
+- DataStore_Agenda : New module! It will manage the calendar, raid id, and friend list stored in Altoholic's DB until now. In the future, it will also take care of Notes & To-Do-Lists!
+- The Calendar pane has been moved from the 'Summary' tab to the new 'Agenda' tab. 
+This tab only contains the calendar at this point, but more will come asap. 
+No functional changes has been brought yet, but I reworked the code behind the calendar feature, which makes it more manageable than before (read: fixes will come quicker once I find time).
+
+Note: I have seen many reports regarding disconnects caused by DataStore_Achievements, this is under investigation.
 
 4.0.006b (01/04/2011)
 
