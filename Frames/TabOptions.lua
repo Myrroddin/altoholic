@@ -9,6 +9,7 @@ local addonList = {
 	"Altoholic_Search",
 	"Altoholic_Guild",
 	"Altoholic_Achievements",
+	"Altoholic_Agenda",
 }
 
 local WHITE		= "|cFFFFFFFF"
@@ -128,6 +129,14 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "4.1.001 Changes",
+		bulletedList = {
+			"Achievements, Pets & Mounts have been updated.",
+			"Suggestions localized to Korean (thanks Seashop !).",
+			"DataStore_Agenda : New module! It will manage the calendar, raid id, and friend list stored in Altoholic's DB until now. In the future, it will also take care of Notes & To-Do-Lists!",
+			"The Calendar pane has been moved from the 'Summary' tab to the new 'Agenda' tab.",
+		},
+	},
 	{	name = "4.0.006b Changes",
 		bulletedList = {
 			"DataStore_Reputations : Reverted a fix brought in r13, as it seems to slow down the game due to a conflict with a yet unidentified addon.",
@@ -149,25 +158,6 @@ local whatsnew = {
 			"The recipes pane is now immediatelly refreshed after a successful profession scan.",
 			"Slightly modified the way colours are handled in the reputations pane. (Thanks Belechannas)",
 			"Achievements in the Classic, BC & LK dungeon categories are now sorted by dungeon difficulty (as in the game's UI).",
-		},
-	},
-	{	name = "4.0.005d Changes",
-		bulletedList = {
-			"Fixed a tooltip issue when mousing over an archeology artifact (and probably some other items too).",
-		},
-	},
-	{	name = "4.0.005c Changes",
-		bulletedList = {
-			"Fixed all glyph related issues. There may remain issues with specific glyphs (1 or 2), if you spot one, please mention which glyph caused a problem.",
-			"Added missing achievements in some categories (LK Raid, Feats of Strength)",
-			"Added missing mounts.",
-			"Added missing pets.",
-			"Fixed a minor bug in the recipe tooltip, displaying an invalid list of crafters for recipes not in the addon's database.",
-			"Fixed a bug where pet owners were not displayed in the tooltip on deDE clients.",
-			"Fixed the old calendar events that kept being reported at login. You will see them displayed one last time the first time you log in with this version.",
-			"Fixed a minor bug when abandonning a profession.",
-			"Fixed a Lua error when linking a reputation.",
-			"Fixed a Lua error in DataStore to make Altoholic more tolerant to disabled DataStore modules.",
 		},
 	},
 	{	name = "Earlier changes",
@@ -385,8 +375,10 @@ function addon:SetupOptions()
 	L["Warn %d minutes before an event starts"] = nil
 	L["Display warnings in a dialog box"] = nil
 	
+	
+	-- à décommenter
 	for i = 1, 4 do 
-		UIDropDownMenu_Initialize(_G["AltoholicCalendarOptions_WarningType"..i], Altoholic.Calendar.WarningType_Initialize)
+		UIDropDownMenu_Initialize(_G["AltoholicCalendarOptions_WarningType"..i], Altoholic.Events.WarningType_Initialize)
 	end
 	UIDropDownMenu_SetText(AltoholicCalendarOptions_WarningType1, "Profession Cooldowns")
 	UIDropDownMenu_SetText(AltoholicCalendarOptions_WarningType2, "Dungeon Resets")

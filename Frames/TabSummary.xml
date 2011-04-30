@@ -69,44 +69,6 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentMenuItem5" inherits="AltoSummaryMenuItemTemplate" id="5">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem4" relativePoint="BOTTOMLEFT">
-						<Offset>
-							<AbsDimension x="0" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-			</Button>
-			<!--
-			<Button name="$parentMenuItem6" inherits="AltoSummaryMenuItemTemplate" id="6">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem5" relativePoint="BOTTOMLEFT">
-						<Offset>
-							<AbsDimension x="0" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-			</Button>
-			<Button name="$parentMenuItem7" inherits="AltoSummaryMenuItemTemplate" id="7">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem6" relativePoint="BOTTOMLEFT">
-						<Offset>
-							<AbsDimension x="0" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-			</Button>
-			<Button name="$parentMenuItem8" inherits="AltoSummaryMenuItemTemplate" id="8">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentMenuItem7" relativePoint="BOTTOMLEFT">
-						<Offset>
-							<AbsDimension x="0" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-			</Button>
-			-->
 			
 			<Button name="$parent_Sort1" inherits="AltoSortButtonTemplate" id="1">
 				<Size>

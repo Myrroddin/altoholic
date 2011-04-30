@@ -1019,11 +1019,14 @@
 					<OnClick>
 						Altoholic:ToggleOption(self, "WeekStartsMonday")
 						if self:GetChecked() then 
-							Altoholic.Calendar:SetFirstDayOfWeek(2)
+							Altoholic:SetFirstDayOfWeek(2)
 						else
-							Altoholic.Calendar:SetFirstDayOfWeek(1)
+							Altoholic:SetFirstDayOfWeek(1)
 						end
-						Altoholic.Calendar:Update()
+						
+						if IsAddOnLoaded("Altoholic_Agenda") then
+							Altoholic.Calendar:Update()
+						end
 					</OnClick>
 				</Scripts>
 			</CheckButton>

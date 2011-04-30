@@ -349,26 +349,24 @@ function ns:Level_OnEnter(frame)
 	end
 
 	-- parse saved instances
-	local c = addon:GetCharacterTableByLine(line)
-	
 	local bLineBreak = true
-	for Instance, InstanceInfo in pairs (c.SavedInstance) do
-		local InstanceName, InstanceID = strsplit("|", Instance)
+
+	local dungeons = DataStore:GetSavedInstances(character)
+	if dungeons then
+		for key, _ in pairs(dungeons) do
+			local hasExpired, expiresIn = DataStore:HasSavedInstanceExpired(character, key)
 			
-		local reset, lastcheck = strsplit("|", InstanceInfo)
-		reset = tonumber(reset)
-		lastcheck = tonumber(lastcheck)
-		local expiresIn = reset - (time() - lastcheck)
-		
-		if expiresIn > 0 then
-			if bLineBreak then
-				AltoTooltip:AddLine(" ",1,1,1);		-- add a line break only once
-				bLineBreak = nil
+			if hasExpired then
+				DataStore:DeleteSavedInstance(character, key)
+			else
+				if bLineBreak then
+					AltoTooltip:AddLine(" ",1,1,1);		-- add a line break only once
+					bLineBreak = nil
+				end
+				
+				local instanceName, instanceID = strsplit("|", key)
+				AltoTooltip:AddDoubleLine(format("%s (%sID: %s|r)", GOLD..instanceName, WHITE, GREEN..instanceID), addon:GetTimeString(expiresIn))
 			end
-			AltoTooltip:AddDoubleLine(GOLD .. InstanceName .. 
-				" (".. WHITE.."ID: " .. GREEN .. InstanceID .. "|r)", addon:GetTimeString(expiresIn))
-		else
-			c.SavedInstance[Instance] = nil
 		end
 	end
 	

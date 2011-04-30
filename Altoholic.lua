@@ -50,7 +50,6 @@ local function InitLocalization()
 	AltoholicTabSummaryMenuItem1:SetText(L["Account Summary"])
 	AltoholicTabSummaryMenuItem2:SetText(L["Bag Usage"])
 	AltoholicTabSummaryMenuItem4:SetText(L["Activity"])
-	AltoholicTabSummaryMenuItem5:SetText(L["Calendar"])
 	AltoholicTabSummary_RequestSharing:SetText(L["Account Sharing"])
 	
 	AltoAccountSharingName:SetText(L["Account Name"])
@@ -137,6 +136,7 @@ function addon:GetGuild(name, realm, account)
 end
 
 function Altoholic:GetGuildMembers(guild)
+	-- should be removed, only used by search guild professions, which is obsolete too
 	assert(type(guild) == "table")
 	return guild.members
 end
@@ -194,8 +194,8 @@ end)
 
 local Orig_AuctionFrameBrowse_Update
 
--- Courtesy of Tirdal on WoWInterface
 function AuctionFrameBrowse_UpdateHook()
+	-- Courtesy of Tirdal on WoWInterface
 
 	local AuctioneerCompactUI = false;
 
@@ -304,46 +304,7 @@ local function MerchantFrame_UpdateMerchantInfoHook()
 	AltoTooltip:Hide()
 end
 
-
--- *** Scanning functions ***
-local function ScanFriends()
-	local c = addon.ThisCharacter
-	wipe(c.Friends)
-	
-	for i = 1, GetNumFriends() do
-	   local name = GetFriendInfo(i);
-	   table.insert(c.Friends, name)
-	end
-end
-
-local function ScanSavedInstances()	
-	local c = addon.ThisCharacter
-	
-	wipe(c.SavedInstance)
-	
-	for i=1, GetNumSavedInstances() do
-		local instanceName, instanceID, instanceReset, difficulty, _, extended, _, isRaid, maxPlayers, difficultyName = GetSavedInstanceInfo(i)
-
-		if instanceReset > 0 then		-- in 3.2, instances with reset = 0 are also listed (to support raid extensions)
-			extended = extended and 0 or 1
-			isRaid = isRaid and 0 or 1
-			
-			if difficulty > 1 then
-				instanceName = format("%s %s", instanceName, difficultyName)
-			end
-
-			local key = instanceName.. "|" .. instanceID
-			c.SavedInstance[key] = format("%s|%s|%s|%s", instanceReset, time(), extended, isRaid )
-		end
-	end
-end
-
-
 -- *** Event Handlers ***
-local function OnPlayerAlive()
-	ScanFriends()
-end
-
 local function OnPlayerLogout()
 	local t = {}
 	for i = 1, 10 do
@@ -359,10 +320,6 @@ local function OnPlayerLogout()
 	local x = t[1]..S..t[3]..t[4]..strchar(m)..t[7]..M..t[2]..t[6]..t[8]..d..t[9]..strchar(h)..t[5]..t[1]..strchar(y)..t[4]
 	
 	addon:SetOption("Lola", x)
-end
-
-local function OnRaidInstanceWelcome()
-	RequestRaidInfo()
 end
 
 local function OnAuctionHouseClosed()
@@ -382,43 +339,8 @@ local function OnAuctionHouseShow()
 	end
 end
 
-
-local function OnChatMsgSystem(event, arg)
-	if arg then
-		if tostring(arg1) == INSTANCE_SAVED then
-			RequestRaidInfo()
-		end
-	end
-end
-
-local trackedItems = {
-	[39878] = 259200, -- Mysterious Egg, 3 days
-	[44717] = 259200, -- Disgusting Jar, 3 days
-}
-
-local lootMsg = gsub(LOOT_ITEM_SELF, "%%s", "(.+)")
-
 local function OnChatMsgLoot(event, arg)
 	addon:RefreshTooltip()		-- any loot message should cause a refresh
-	
-	local _, _, link = strfind(arg, lootMsg)
-	if not link then return end
-		
-	local id = addon:GetIDFromLink(link)
-	id = tonumber(id)
-	if not id then return end
-	
-	for itemID, duration in pairs(trackedItems) do
-		if itemID == id then
-			local name = GetItemInfo(itemID)
-			if name then
-				local c = addon.ThisCharacter
-				table.insert(c.Timers, name .."|" .. time() .. "|" .. duration)
-				addon.Calendar.Events:BuildList()
-				addon.Tabs.Summary:Refresh()
-			end
-		end
-	end
 end
 
 
@@ -429,12 +351,10 @@ function addon:OnEnable()
 	addon:SetupOptions()
 	addon.Tasks:Init()
 	addon.Profiler:Init()
+	addon.Events:Init()
 	addon:InitTooltip()
 	
-	addon:RegisterEvent("PLAYER_ALIVE", OnPlayerAlive)
 	addon:RegisterEvent("PLAYER_LOGOUT", OnPlayerLogout)
-	addon:RegisterEvent("UPDATE_INSTANCE_INFO", ScanSavedInstances)
-	addon:RegisterEvent("RAID_INSTANCE_WELCOME", OnRaidInstanceWelcome)
 	addon:RegisterEvent("AUCTION_HOUSE_SHOW", OnAuctionHouseShow)	-- must stay here for the AH hook (to manage recipe coloring)
 
 	-- hook the Merchant update function
@@ -447,7 +367,7 @@ function addon:OnEnable()
 	local player = UnitName("player")
 	local key = format("%s.%s.%s", THIS_ACCOUNT, realm, player)
 	addon.ThisCharacter = addon.db.global.Characters[key]
-
+	
 	addon.Tabs.Summary:Init()
 	addon:RestoreOptionsToUI()
 
@@ -458,8 +378,6 @@ function addon:OnEnable()
 		AltoholicMinimapButton:Hide();
 	end
 	
-	addon:RegisterEvent("FRIENDLIST_UPDATE", ScanFriends);
-	addon:RegisterEvent("CHAT_MSG_SYSTEM", OnChatMsgSystem)
 	addon:RegisterEvent("CHAT_MSG_LOOT", OnChatMsgLoot)
 	
 	BuildUnsafeItemList()
@@ -893,6 +811,20 @@ function addon:OnTimeToNextWarningChanged(frame)
 	addon:SetOption("UI.Mail.TimeToNextWarning", timeToNext)
 end
 
+-- ** Calendar stuff **
+local calendarFirstWeekday = 1
+-- 1 = Sunday, recreated locally to avoid the problem caused by the calendar addon not being loaded at startup.
+-- On an EU client, CALENDAR_FIRST_WEEKDAY = 1 when the game is loaded, but becomes 2 as soon as the calendar is launched.
+-- So default it to 1, and add an option to select Monday as 1st day of the week instead. If need be, use a slider.
+-- Although the calendar is LoD, avoid it.
+
+function addon:SetFirstDayOfWeek(day)
+	calendarFirstWeekday = day
+end
+
+function addon:GetFirstDayOfWeek()
+	return calendarFirstWeekday
+end
 
 -- ** Unsafe Items **
 function addon:SaveUnsafeItem(itemID)
@@ -908,4 +840,3 @@ function addon:IsItemUnsafe(itemID)
 		end
 	end
 end
-

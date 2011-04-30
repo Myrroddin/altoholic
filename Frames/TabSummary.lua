@@ -20,10 +20,6 @@ local childrenFrames = {
 	"BagUsage",
 	"Skills",
 	"Activity",
-	-- "GuildMembers",
-	-- "GuildProfessions",
-	-- "GuildBankTabs",
-	"Calendar",
 }
 
 local childrenObjects		-- these are the tables that actually contain the BuildView & Update methods. Not really OOP, but enough for our needs
@@ -86,15 +82,12 @@ function ns:Init()
 		addon.BagUsage,
 		addon.TradeSkills,
 		addon.Activity,
-		addon.Calendar,
 	}
 	
 	local f = AltoholicTabSummary_SelectLocation
 	UIDropDownMenu_SetSelectedValue(f, addon:GetOption("TabSummaryMode"))
 	UIDropDownMenu_SetText(f, select(addon:GetOption("TabSummaryMode"), locationLabels[THISREALM_THISACCOUNT], locationLabels[THISREALM_ALLACCOUNTS], locationLabels[ALLREALMS_THISACCOUNT], locationLabels[ALLREALMS_ALLACCOUNTS]))
 	UIDropDownMenu_Initialize(f, DropDownLocation_Initialize)
-	
-	addon.Calendar:Init()
 end
 
 function ns:MenuItem_OnClick(id)
@@ -103,12 +96,6 @@ function ns:MenuItem_OnClick(id)
 	end
 
 	ns:SetMode(id)
-	
-	-- if id == 5 then				-- specific treatment per frame goes here
-		-- if IsInGuild() then
-			-- GuildRoster()
-		-- end
-	-- end
 	
 	local f = _G[ "AltoholicFrame" .. childrenFrames[id]]
 	local o = childrenObjects[id]
@@ -119,7 +106,7 @@ function ns:MenuItem_OnClick(id)
 	f:Show()
 	o:Update()
 	
-	for i=1, 5 do 
+	for i=1, #childrenFrames do 
 		_G[ "AltoholicTabSummaryMenuItem"..i ]:UnlockHighlight();
 	end
 	_G[ "AltoholicTabSummaryMenuItem"..id ]:LockHighlight();
@@ -180,22 +167,6 @@ function ns:SetMode(mode)
 		Columns:Add(BIDS, 60, function(self) addon.Characters:Sort(self, "GetNumBids") end)
 		Columns:Add(L["Visited"], 60, function(self) addon.Characters:Sort(self, "GetAuctionHouseLastVisit") end)
 		Columns:Add(LASTONLINE, 90, function(self) addon.Characters:Sort(self, "GetLastLogout") end)
-
-	-- elseif currentMode == 6 then
-		-- Columns:Add(NAME, 60, function(self) addon.Guild.Professions:Sort(self, "name") end)
-		-- Columns:Add(LEVEL, 60, function(self) addon.Guild.Professions:Sort(self, "level") end)
-		-- Columns:Add(CLASS, 120, function(self) addon.Guild.Professions:Sort(self, "englishClass") end)
-		-- Columns:Add(L["Prof. 1"], 110, function(self) addon.Guild.Professions:Sort(self, "profLink", 1) end)
-		-- Columns:Add(L["Prof. 2"], 110, function(self) addon.Guild.Professions:Sort(self, "profLink", 2) end)
-		-- title = GetSpellInfo(2550)		-- cooking
-		-- Columns:Add(title, 110, function(self) addon.Guild.Professions:Sort(self, "profLink", 3) end)
-		
-	elseif currentMode == 5 then
-		AltoholicTabSummaryToggleView:Hide()
-		AltoholicTabSummary_SelectLocation:Hide()
-		AltoholicTabSummary_RequestSharing:Hide()
-		AltoholicTabSummary_Options:Hide()
-		AltoholicTabSummary_OptionsDataStore:Hide()
 	end
 end
 
@@ -208,9 +179,6 @@ function ns:Refresh()
 		addon.TradeSkills:Update()
 	elseif AltoholicFrameActivity:IsVisible() then
 		addon.Activity:Update()
-	elseif AltoholicFrameCalendar:IsVisible() then
-		addon.Calendar.Events:BuildList()
-		addon.Calendar:Update()
 	end
 end
 
