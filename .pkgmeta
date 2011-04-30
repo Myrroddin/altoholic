@@ -7,6 +7,7 @@ enable-nolib-creation: yes
 required-dependencies:
 	- datastore
 	- datastore_achievements
+	- datastore_agenda
 	- datastore_auctions
 	- datastore_characters
 	- datastore_containers
@@ -46,6 +47,7 @@ externals:
 
 move-folders:
     Altoholic/Modules/Altoholic_Achievements: Altoholic_Achievements
+    Altoholic/Modules/Altoholic_Agenda: Altoholic_Agenda
     Altoholic/Modules/Altoholic_Characters: Altoholic_Characters
     Altoholic/Modules/Altoholic_Guild: Altoholic_Guild
     Altoholic/Modules/Altoholic_Search: Altoholic_Search
