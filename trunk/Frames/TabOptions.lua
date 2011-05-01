@@ -129,6 +129,12 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "4.1.001b Changes",
+		bulletedList = {
+			"DataStore_Agenda: Fixed a typo & a few function flags not correctly initialized.",
+			"Fixed a Lua error when open the addon via Titan Panel.",
+		},
+	},
 	{	name = "4.1.001 Changes",
 		bulletedList = {
 			"Achievements, Pets & Mounts have been updated.",

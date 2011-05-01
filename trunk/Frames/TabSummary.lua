@@ -77,12 +77,12 @@ local function DropDownLocation_Initialize()
 end
 
 function ns:Init()
-	childrenObjects = {
-		addon.Summary,
-		addon.BagUsage,
-		addon.TradeSkills,
-		addon.Activity,
-	}
+	-- childrenObjects = {
+		-- addon.Summary,
+		-- addon.BagUsage,
+		-- addon.TradeSkills,
+		-- addon.Activity,
+	-- }
 	
 	local f = AltoholicTabSummary_SelectLocation
 	UIDropDownMenu_SetSelectedValue(f, addon:GetOption("TabSummaryMode"))
@@ -91,6 +91,13 @@ function ns:Init()
 end
 
 function ns:MenuItem_OnClick(id)
+	childrenObjects = childrenObjects or {
+		addon.Summary,
+		addon.BagUsage,
+		addon.TradeSkills,
+		addon.Activity,
+	}
+
 	for _, v in pairs(childrenFrames) do			-- hide all frames
 		_G[ "AltoholicFrame" .. v]:Hide()
 	end
