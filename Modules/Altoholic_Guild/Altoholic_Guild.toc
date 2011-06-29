@@ -1,8 +1,8 @@
-﻿## Interface: 40100
+﻿## Interface: 40200
 ## Title: Altoholic_Guild
 ## Notes: Altoholic's Guild UI
 ## Author: Thaoky (EU-Marécages de Zangar)
-## Version: 4.1.001
+## Version: 4.2.001
 ## Dependencies: Altoholic, DataStore, DataStore_Characters
 ## LoadOnDemand: 1
 ## X-Category: Interface Enhancements
