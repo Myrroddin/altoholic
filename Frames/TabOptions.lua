@@ -122,6 +122,24 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "4.3.002 Changes",
+		bulletedList = {
+			"Removed old, unused libraries from the package.",
+			"Fixed a few minor errors.",
+			"Fixed a Lua error when viewing Auctions/Bids (Auction API changed by Blizzard).",
+			"Added support for Tabards. (Characters tab, similar to pets/mounts view)",
+			"Fixed average item level not always being correctly calculated due to GetItemInfo not returning values at load time. Now using the game's value, which is always correct.",
+			"Fixed scanning guild reputation updates.",
+			"Fixed guild communication not working anymore.",
+		},
+	},
+	{	name = "4.3.001 Changes",
+		bulletedList = {
+			"Achievements, Pets & Mounts have been updated.",
+			"Added support for ptBR localization. Please use Curse to complete it missing translations: http://wow.curseforge.com/addons/altoholic/localization/",
+			"Datastore will now automatically clean orphan data in its modules (caused by failed account sharing, etc..)",
+		},
+	},
 	{	name = "4.2.002 Changes",
 		bulletedList = {
 			"Added several missing achievements.",

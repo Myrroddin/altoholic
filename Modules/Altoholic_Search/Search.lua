@@ -603,7 +603,9 @@ local function BrowseCharacter(character)
 	local containers = DataStore:GetContainers(character)
 	if containers then
 		for containerName, container in pairs(containers) do
-			if (containerName == "Bag100") then
+			if (containerName == "VoidStorage") then
+				currentResultLocation = VOID_STORAGE
+			elseif (containerName == "Bag100") then
 				currentResultLocation = L["Bank"]
 			elseif (containerName == "Bag-2") then
 				currentResultLocation = KEYRING

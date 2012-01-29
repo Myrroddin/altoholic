@@ -79,6 +79,7 @@ local VIEW_REP = 3
 local VIEW_TOKENS = 4
 local VIEW_ALL_COMPANIONS = 5
 local VIEW_ALL_MOUNTS = 6
+local VIEW_ALL_TABARDS = 7
 
 local ICON_QUESTIONMARK = "Interface\\RaidFrame\\ReadyCheck-Waiting"
 local ICON_CHARACTERS = "Interface\\Icons\\Achievement_GuildPerk_Everyones a Hero_rank2"
@@ -87,6 +88,7 @@ local ICON_VIEW_REP = "Interface\\Icons\\INV_BannerPVP_02"
 local ICON_VIEW_TOKENS = "Interface\\Icons\\Spell_Holy_SummonChampion"
 local ICON_VIEW_COMPANIONS = "Interface\\Icons\\INV_Box_Birdcage_01"
 local ICON_VIEW_MOUNTS = "Interface\\Icons\\Ability_Mount_RidingHorse"
+local ICON_VIEW_TABARDS = "Interface\\Icons\\inv_chest_cloth_30"
 
 addon.Tabs.Characters = {}
 
@@ -121,6 +123,7 @@ local function HideAll()
 	AltoholicFrameCurrencies:Hide()
 	AltoholicFrameGlyphs:Hide()
 	AltoholicFrameSpellbook:Hide()
+	AltoholicFrameTabards:Hide()
 	
 	-- hide class icons
 	for i = 1, 10 do
@@ -187,6 +190,9 @@ local function ShowCategory(id)
 	elseif id == VIEW_ALL_MOUNTS then
 		addon.Pets:SetAllInOneView("MOUNT")
 		addon.Pets:UpdatePetsAllInOne()
+	elseif id == VIEW_ALL_TABARDS then
+		AltoholicFrameTabards:Show()
+		addon.Tabards:Update()
 	end
 end
 
@@ -1221,7 +1227,9 @@ function ns:OnLoad()
 	_G[parent .. "_Pets"].text = COMPANIONS
 	addon:SetItemButtonTexture(parent .. "_Mounts", ICON_VIEW_MOUNTS, size, size)
 	_G[parent .. "_Mounts"].text = MOUNTS
-
+	addon:SetItemButtonTexture(parent .. "_Tabards", ICON_VIEW_TABARDS, size, size)
+	_G[parent .. "_Tabards"].text = "Tabards"
+	
 	-- Class Icons
 	for i = 1, 10 do
 		UIDropDownMenu_Initialize(_G[classMenu..i], ClassIcon_Initialize, "MENU")
