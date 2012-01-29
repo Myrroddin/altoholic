@@ -322,6 +322,13 @@
 					</Anchor>
 				</Anchors>
 			</Button>
+			<Button name="$parent_Tabards" inherits="AltoViewIconTemplate" id="7">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parent_Mounts" relativePoint="BOTTOMRIGHT" >
+						<Offset x="5" y="0" />
+					</Anchor>
+				</Anchors>
+			</Button>
 			
 			<Button name="$parent_Sort1" inherits="AltoSortButtonTemplate" id="1">
 				<Size>

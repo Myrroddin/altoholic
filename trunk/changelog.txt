@@ -8,6 +8,18 @@ IMPORTANT NOTE: If you're upgrading from 3.x :
 - Make sure you delete the addon's databases in SavedVariables. ie: Altoholic.lua and all DataStore*.lua.
 - Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
 
+4.3.002
+
+Four Year Anniversary Edition
+
+- Removed old, unused libraries from the package.
+- Fixed a few minor errors.
+- Fixed a Lua error when viewing Auctions/Bids (Auction API changed by Blizzard).
+- Added support for Tabards. (Characters tab, similar to pets/mounts view)
+- Fixed average item level not always being correctly calculated due to GetItemInfo not returning values at load time. Now using the game's value, which is always correct.
+- Fixed scanning guild reputation updates.
+- Fixed guild communication not working anymore.
+
 4.3.001 (10/12/2011)
 
 - Achievements, Pets & Mounts have been updated.
