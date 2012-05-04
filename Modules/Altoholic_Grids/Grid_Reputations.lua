@@ -11,8 +11,10 @@ local TEAL		= "|cFF00FF9A"
 local YELLOW	= "|cFFFFFF00"
 local DARK_RED = "|cFFF00000"
 
-local ICON_UNKNOWN = "\124TInterface\\RaidFrame\\ReadyCheck-NotReady:14\124t"
-local ICON_EXALTED = "\124TInterface\\RaidFrame\\ReadyCheck-Ready:14\124t"
+-- *** Reputations ***
+
+local ICON_NOTREADY = "\124TInterface\\RaidFrame\\ReadyCheck-NotReady:14\124t"
+local ICON_READY = "\124TInterface\\RaidFrame\\ReadyCheck-Ready:14\124t"
 
 local Factions = {
 	-- Factions reference table, based on http://www.wowwiki.com/Factions
@@ -171,8 +173,6 @@ local VertexColors = {
 	[FACTION_STANDING_LABEL3] = { r = 0.6, g = 0.4, b = 0.13 },		-- unfriendly
 	[FACTION_STANDING_LABEL4] = { r = 0.6, g = 0.6, b = 0.0 },		-- neutral
 	[FACTION_STANDING_LABEL5] = { r = 0.0, g = 0.6, b = 0.0 },		-- friendly
-	-- [FACTION_STANDING_LABEL6] = { r = 0.0, g = 0.6, b = 0.4 },		-- honored
-	-- [FACTION_STANDING_LABEL7] = { r = 0.0, g = 0.6, b = 0.6 },		-- revered
 	[FACTION_STANDING_LABEL6] = { r = 0.0, g = 0.6, b = 0.6 },		-- honored
 	[FACTION_STANDING_LABEL7] = { r = 0.9, g = 0.3, b = 0.9 },		-- revered
 	[FACTION_STANDING_LABEL8] = { r = 1.0, g = 1.0, b = 1.0 },		-- exalted
@@ -183,6 +183,8 @@ local isViewValid
 
 local currentXPack = 1					-- default to wow classic
 local currentFactionGroup = (UnitFactionGroup("player") == "Alliance") and 1 or 2	-- default to alliance or horde
+local currentFaction
+local currentDDMText
 
 local function BuildView()
 	view = view or {}
@@ -210,11 +212,6 @@ local function BuildView()
 	isViewValid = true
 end
 
-
-addon.Reputations = {}
-
-local ns = addon.Reputations		-- ns = namespace
-
 local DDM_AddCloseMenu = addon.Helpers.DDM_AddCloseMenu
 
 local function OnFactionChange(self, xpackIndex, factionGroupIndex)
@@ -224,10 +221,11 @@ local function OnFactionChange(self, xpackIndex, factionGroupIndex)
 	currentFactionGroup = factionGroupIndex
 	
 	local factionGroup = Factions[currentXPack][currentFactionGroup]
-	UIDropDownMenu_SetText(AltoholicFrameReputations_SelectFaction, factionGroup.name)
+	currentDDMText = factionGroup.name
+	addon.Tabs.Grids:SetViewDDMText(currentDDMText)
 	
 	isViewValid = nil
-	ns:Update()
+	addon.Tabs.Grids:Update()
 end
 
 local lastRealm, lastAccount
@@ -264,110 +262,23 @@ local function OnGuildSelected(self)
 	
 	lastRealm = realm
 	lastAccount = account
-	UIDropDownMenu_SetText(AltoholicFrameReputations_SelectFaction, GUILD)
+	currentDDMText = GUILD
+	addon.Tabs.Grids:SetViewDDMText(currentDDMText)
 	
 	isViewValid = nil
-	ns:Update()
+	addon.Tabs.Grids:Update()
 end
 
 local function OnAllInOneSelected(self)
 	currentXPack = nil
 	currentFactionGroup = nil
-	UIDropDownMenu_SetText(AltoholicFrameReputations_SelectFaction, L["All-in-one"])
+	currentDDMText = L["All-in-one"]
+	addon.Tabs.Grids:SetViewDDMText(currentDDMText)
 	isViewValid = nil
-	ns:Update()
+	addon.Tabs.Grids:Update()
 end
 
-local function Reputations_UpdateEx(self, offset, entry, desc)
-	if not isViewValid then
-		BuildView()
-	end
-	
-	local line
-	local size = desc:GetSize()
-	
-	local DS = DataStore
-	local realm, account = addon.Tabs.Characters:GetRealm()
-	local character
-
-	AltoholicTabCharactersStatus:SetText("")
-	
-	for i=1, desc.NumLines do
-		line = i + offset
-		if line <= size then
-			local faction = view[line]
-		
-			_G[entry..i.."Name"]:SetText(WHITE .. faction.name)
-			_G[entry..i.."Name"]:SetJustifyH("LEFT")
-			_G[entry..i.."Name"]:SetPoint("TOPLEFT", 15, 0)
-			
-			for j = 1, 10 do	-- loop through the 10 alts
-				local itemName = entry.. i .. "Item" .. j;
-				local itemButton = _G[itemName]
-				local itemTexture = _G[itemName .. "_Background"]
-				
-				if faction.left then		-- if it's not a full texture, use tcoords
-					itemTexture:SetTexture(faction.icon)
-					itemTexture:SetTexCoord(faction.left, faction.right, faction.top, faction.bottom)
-				else
-					itemTexture:SetTexture("Interface\\Icons\\"..faction.icon)
-					itemTexture:SetTexCoord(0, 1, 0, 1)
-				end
-
-				local status, rate
-				
-				character = addon:GetOption(format("Tabs.Characters.%s.%s.Column%d", account, realm, j))
-				if character then	-- if there's an alt in this column..
-					status, _, _, rate = DS:GetReputationInfo(character, faction.name)
-				
-					if status and rate then 
-						local vc = VertexColors[status]
-						
-						local text
-						if status == FACTION_STANDING_LABEL8 then
-							itemTexture:SetDesaturated(0);
-							_G[itemName .. "Name"]:SetPoint("BOTTOMRIGHT", 5, 0)
-							text = ICON_EXALTED
-						else
-							itemTexture:SetDesaturated(1);
-							_G[itemName .. "Name"]:SetPoint("BOTTOMRIGHT", -5, 0)
-							text = format("%2d", floor(rate)) .. "%"
-						end
-						itemTexture:SetVertexColor(vc.r, vc.g, vc.b);
-						
-						local color = WHITE
-						if status == FACTION_STANDING_LABEL1 or status == FACTION_STANDING_LABEL2 then
-							color = DARK_RED
-						end
-
-						itemButton.key = character
-						_G[itemName .. "Name"]:SetText(color..text)
-					else
-						itemTexture:SetVertexColor(0.3, 0.3, 0.3);	-- greyed out
-						_G[itemName .. "Name"]:SetPoint("BOTTOMRIGHT", 5, 0)
-						_G[itemName .. "Name"]:SetText(ICON_UNKNOWN)
-						itemButton.key = nil
-					end
-					itemButton:Show()				
-				else
-					itemButton:Hide()
-				end
-			end
-			_G[ entry..i ]:SetID(line)
-			_G[ entry..i ]:Show()
-		end
-	end
-end
-
-local ReputationsScrollFrame_Desc = {
-	NumLines = 8,
-	LineHeight = 41,
-	Frame = "AltoholicFrameReputations",
-	GetSize = function() return #view end,
-	Update = Reputations_UpdateEx,
-}
-
-function ns:DropDownFaction_Initialize(level)
+local function DropDown_Initialize(self, level)
 	if not level then return end
 
 	local info = UIDropDownMenu_CreateInfo()
@@ -404,68 +315,7 @@ function ns:DropDownFaction_Initialize(level)
 	end
 end
 
-function ns:Update()
-	addon:ScrollFrameUpdate(ReputationsScrollFrame_Desc)
-end
-
-function ns:OnEnter(frame)
-	local character = frame.key
-	if not character then return end
-
-	local faction = view[ frame:GetParent():GetID() ].name
-	local status, currentLevel, maxLevel, rate = DataStore:GetReputationInfo(character, faction)
-	if not status then return end
-	
-	AltoTooltip:SetOwner(frame, "ANCHOR_LEFT");
-	AltoTooltip:ClearLines();
-	AltoTooltip:AddLine(DataStore:GetColoredCharacterName(character) .. WHITE .. " @ " ..	TEAL .. faction,1,1,1);
-
-	rate = format("%d", floor(rate)) .. "%"
-	AltoTooltip:AddLine(format("%s: %d/%d (%s)", status, currentLevel, maxLevel, rate),1,1,1 )
-				
-	local bottom = DataStore:GetRawReputationInfo(character, faction)
-	local suggestion = ns:GetSuggestion(faction, bottom)
-	if suggestion then
-		AltoTooltip:AddLine(" ",1,1,1);
-		AltoTooltip:AddLine("Suggestion: ",1,1,1);
-		AltoTooltip:AddLine(TEAL .. suggestion,1,1,1);
-	end
-	
-	AltoTooltip:AddLine(" ",1,1,1);
-	AltoTooltip:AddLine(format("%s = %s", ICON_UNKNOWN, UNKNOWN), 0.8, 0.13, 0.13);
-	AltoTooltip:AddLine(FACTION_STANDING_LABEL1, 0.8, 0.13, 0.13);
-	AltoTooltip:AddLine(FACTION_STANDING_LABEL2, 1.0, 0.0, 0.0);
-	AltoTooltip:AddLine(FACTION_STANDING_LABEL3, 0.93, 0.4, 0.13);
-	AltoTooltip:AddLine(FACTION_STANDING_LABEL4, 1.0, 1.0, 0.0);
-	AltoTooltip:AddLine(FACTION_STANDING_LABEL5, 0.0, 1.0, 0.0);
-	-- AltoTooltip:AddLine(FACTION_STANDING_LABEL6, 0.0, 1.0, 0.53);
-	-- AltoTooltip:AddLine(FACTION_STANDING_LABEL7, 0.0, 1.0, 0.8);
-	AltoTooltip:AddLine(FACTION_STANDING_LABEL6, 0.0, 1.0, 0.8);
-	AltoTooltip:AddLine(FACTION_STANDING_LABEL7, 1.0, 0.4, 1.0);
-	AltoTooltip:AddLine(format("%s = %s", ICON_EXALTED, FACTION_STANDING_LABEL8), 1, 1, 1);
-	
-	AltoTooltip:AddLine(" ",1,1,1);
-	AltoTooltip:AddLine(GREEN .. L["Shift+Left click to link"]);
-	AltoTooltip:Show();
-end
-
-function ns:OnClick(frame, button)
-	local character = frame.key
-	if not character then return end
-
-	local faction = view[ frame:GetParent():GetID() ].name
-	local status, currentLevel, maxLevel, rate = DataStore:GetReputationInfo(character, faction)
-	if not status then return end
-	
-	if ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
-		local chat = ChatEdit_GetLastActiveWindow()
-		if chat:IsShown() then
-			chat:Insert(format(L["%s is %s with %s (%d/%d)"], DataStore:GetCharacterName(character), status, faction, currentLevel, maxLevel))
-		end
-	end	
-end
-
-function ns:GetSuggestion(faction, bottom)
+local function GetSuggestion(faction, bottom)
 	if not addon.FactionLeveling then return end
 	
 	local factionTable = addon.FactionLeveling[faction]
@@ -485,3 +335,141 @@ function ns:GetSuggestion(faction, bottom)
 		end
 	end
 end
+
+local callbacks = {
+	OnUpdate = function() 
+			if not isViewValid then
+				BuildView()
+			end
+		end,
+	GetSize = function() return #view end,
+	RowSetup = function(self, entry, row, dataRowID)
+			currentFaction = view[dataRowID]
+			
+			local rowName = entry .. row
+			_G[rowName.."Name"]:SetText(WHITE .. currentFaction.name)
+			_G[rowName.."Name"]:SetJustifyH("LEFT")
+			_G[rowName.."Name"]:SetPoint("TOPLEFT", 15, 0)
+		end,
+	ColumnSetup = function(self, entry, row, column, dataRowID, character)
+			local itemName = entry.. row .. "Item" .. column;
+			local itemTexture = _G[itemName .. "_Background"]
+			local itemButton = _G[itemName]
+			local itemText = _G[itemName .. "Name"]
+		
+			local faction = currentFaction
+			
+			if faction.left then		-- if it's not a full texture, use tcoords
+				itemTexture:SetTexture(faction.icon)
+				itemTexture:SetTexCoord(faction.left, faction.right, faction.top, faction.bottom)
+			else
+				itemTexture:SetTexture("Interface\\Icons\\"..faction.icon)
+				itemTexture:SetTexCoord(0, 1, 0, 1)
+			end		
+			
+			itemText:SetFontObject("GameFontNormalSmall")
+			itemText:SetJustifyH("CENTER")
+			itemText:SetPoint("BOTTOMRIGHT", 5, 0)
+			itemTexture:SetDesaturated(0)
+			
+			local status, _, _, rate = DataStore:GetReputationInfo(character, faction.name)
+			if status and rate then 
+				local text
+				if status == FACTION_STANDING_LABEL8 then
+					text = ICON_READY
+				else
+					itemTexture:SetDesaturated(1)
+					itemText:SetFontObject("NumberFontNormalSmall")
+					itemText:SetJustifyH("RIGHT")
+					itemText:SetPoint("BOTTOMRIGHT", 0, 0)
+					text = format("%2d", floor(rate)) .. "%"
+				end
+
+				local vc = VertexColors[status]
+				itemTexture:SetVertexColor(vc.r, vc.g, vc.b);
+				
+				local color = WHITE
+				if status == FACTION_STANDING_LABEL1 or status == FACTION_STANDING_LABEL2 then
+					color = DARK_RED
+				end
+
+				itemButton.key = character
+				itemText:SetText(color..text)
+			else
+				itemTexture:SetVertexColor(0.3, 0.3, 0.3);	-- greyed out
+				itemText:SetText(ICON_NOTREADY)
+				itemButton.key = nil
+			end
+		end,
+		
+	OnEnter = function(frame) 
+			local character = frame.key
+			if not character then return end
+
+			local faction = view[ frame:GetParent():GetID() ].name
+			local status, currentLevel, maxLevel, rate = DataStore:GetReputationInfo(character, faction)
+			if not status then return end
+			
+			AltoTooltip:SetOwner(frame, "ANCHOR_LEFT");
+			AltoTooltip:ClearLines();
+			AltoTooltip:AddLine(DataStore:GetColoredCharacterName(character) .. WHITE .. " @ " ..	TEAL .. faction,1,1,1);
+
+			rate = format("%d", floor(rate)) .. "%"
+			AltoTooltip:AddLine(format("%s: %d/%d (%s)", status, currentLevel, maxLevel, rate),1,1,1 )
+						
+			local bottom = DataStore:GetRawReputationInfo(character, faction)
+			local suggestion = GetSuggestion(faction, bottom)
+			if suggestion then
+				AltoTooltip:AddLine(" ",1,1,1)
+				AltoTooltip:AddLine("Suggestion: ",1,1,1)
+				AltoTooltip:AddLine(TEAL .. suggestion,1,1,1)
+			end
+			
+			AltoTooltip:AddLine(" ",1,1,1)
+			AltoTooltip:AddLine(format("%s = %s", ICON_NOTREADY, UNKNOWN), 0.8, 0.13, 0.13)
+			AltoTooltip:AddLine(FACTION_STANDING_LABEL1, 0.8, 0.13, 0.13)
+			AltoTooltip:AddLine(FACTION_STANDING_LABEL2, 1.0, 0.0, 0.0)
+			AltoTooltip:AddLine(FACTION_STANDING_LABEL3, 0.93, 0.4, 0.13)
+			AltoTooltip:AddLine(FACTION_STANDING_LABEL4, 1.0, 1.0, 0.0)
+			AltoTooltip:AddLine(FACTION_STANDING_LABEL5, 0.0, 1.0, 0.0)
+			AltoTooltip:AddLine(FACTION_STANDING_LABEL6, 0.0, 1.0, 0.8)
+			AltoTooltip:AddLine(FACTION_STANDING_LABEL7, 1.0, 0.4, 1.0)
+			AltoTooltip:AddLine(format("%s = %s", ICON_READY, FACTION_STANDING_LABEL8), 1, 1, 1)
+			
+			AltoTooltip:AddLine(" ",1,1,1)
+			AltoTooltip:AddLine(GREEN .. L["Shift+Left click to link"])
+			AltoTooltip:Show()
+			
+		end,
+	OnClick = function(frame, button)
+			local character = frame.key
+			if not character then return end
+
+			local faction = view[ frame:GetParent():GetID() ].name
+			local status, currentLevel, maxLevel, rate = DataStore:GetReputationInfo(character, faction)
+			if not status then return end
+			
+			if ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
+				local chat = ChatEdit_GetLastActiveWindow()
+				if chat:IsShown() then
+					chat:Insert(format(L["%s is %s with %s (%d/%d)"], DataStore:GetCharacterName(character), status, faction, currentLevel, maxLevel))
+				end
+			end
+		end,
+	OnLeave = function(self)
+			AltoTooltip:Hide() 
+		end,
+	InitViewDDM = function(frame, title) 
+			frame:Show()
+			title:Show()
+
+			currentDDMText = currentDDMText or ((UnitFactionGroup("player") == "Alliance") and FACTION_ALLIANCE or FACTION_HORDE)
+			
+			UIDropDownMenu_SetWidth(frame, 100) 
+			UIDropDownMenu_SetButtonWidth(frame, 20)
+			UIDropDownMenu_SetText(frame, currentDDMText)
+			UIDropDownMenu_Initialize(frame, DropDown_Initialize)
+		end,
+}
+
+addon.Tabs.Grids:RegisterGrid(2, callbacks)

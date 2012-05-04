@@ -813,7 +813,7 @@ function ns:FindItem(searchType, searchSubType)
 	filters:ClearFilters()
 	
 	if not AltoholicTabSearch:IsVisible() then
-		addon.Tabs:OnClick(3)
+		addon.Tabs:OnClick("Search")
 	end
 	
 	if ns:GetNumResults() == 0 then
@@ -941,7 +941,7 @@ function ns:FindEquipmentUpgrade()
 	AltoTooltip:Hide();	-- mandatory hide after processing	
 	
 	if not AltoholicTabSearch:IsVisible() then
-		addon.Tabs:OnClick(3)
+		addon.Tabs:OnClick("Search")
 	end
 	
 	if upgradeType ~= -1 then	-- not an item level upgrade

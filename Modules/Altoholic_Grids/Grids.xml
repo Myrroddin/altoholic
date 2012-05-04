@@ -1,7 +1,13 @@
 ﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
-	<Script file="Tabards.lua"></Script>
+	<Script file="Grid_Equipment.lua"></Script>
+	<Script file="Grid_Reputations.lua"></Script>
+	<Script file="Grid_Currencies.lua"></Script>
+	<Script file="Grid_Tabards.lua"></Script>
+	<Script file="Grid_Mounts.lua"></Script>
+	<Script file="Grid_Tradeskills.lua"></Script>
+	<Script file="Grid_Archeology.lua"></Script>
 	
-	<Frame name="AltoholicFrameTabards" parent="AltoholicTabCharacters" hidden="true">
+	<Frame name="AltoholicFrameGrids" parent="AltoholicTabGrids" hidden="true">
 		<Size>
 			<AbsDimension x="615" y="306"/>
 		</Size>
@@ -13,6 +19,11 @@
 			</Anchor>
 		</Anchors>
 		<Frames>
+			<Frame name="$parentRightClickMenu" inherits="UIDropDownMenuTemplate" id="1" hidden="true">
+				<Size>
+					<AbsDimension x="100" y="40"/>
+				</Size>
+			</Frame>
 			<ScrollFrame name="$parentScrollFrame" inherits="FauxScrollFrameTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" />
@@ -50,12 +61,12 @@
 				</Layers>
 				<Scripts>
 					<OnVerticalScroll>
-						FauxScrollFrame_OnVerticalScroll(self, offset, 41, Altoholic.Tabards.Update)
+						FauxScrollFrame_OnVerticalScroll(self, offset, 41, Altoholic.Tabs.Grids.Update)
 					</OnVerticalScroll>
 				</Scripts>
 			</ScrollFrame>
 			
-			<Button name="$parentEntry1" inherits="AltoIconListtEntryTemplate">
+			<Button name="$parentEntry1" inherits="AltoIconListtEntryTemplate" id="1">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentScrollFrame" relativePoint="TOPLEFT">
 						<Offset>
@@ -64,42 +75,42 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentEntry2" inherits="AltoIconListtEntryTemplate">
+			<Button name="$parentEntry2" inherits="AltoIconListtEntryTemplate" id="2">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentEntry1" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</Button>
-			<Button name="$parentEntry3" inherits="AltoIconListtEntryTemplate">
+			<Button name="$parentEntry3" inherits="AltoIconListtEntryTemplate" id="3">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentEntry2" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</Button>
-			<Button name="$parentEntry4" inherits="AltoIconListtEntryTemplate">
+			<Button name="$parentEntry4" inherits="AltoIconListtEntryTemplate" id="4">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentEntry3" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</Button>
-			<Button name="$parentEntry5" inherits="AltoIconListtEntryTemplate">
+			<Button name="$parentEntry5" inherits="AltoIconListtEntryTemplate" id="5">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentEntry4" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</Button>
-			<Button name="$parentEntry6" inherits="AltoIconListtEntryTemplate">
+			<Button name="$parentEntry6" inherits="AltoIconListtEntryTemplate" id="6">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentEntry5" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</Button>
-			<Button name="$parentEntry7" inherits="AltoIconListtEntryTemplate">
+			<Button name="$parentEntry7" inherits="AltoIconListtEntryTemplate" id="7">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentEntry6" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</Button>
-			<Button name="$parentEntry8" inherits="AltoIconListtEntryTemplate">
+			<Button name="$parentEntry8" inherits="AltoIconListtEntryTemplate" id="8">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentEntry7" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</Button>
 		</Frames>
 	</Frame>
-	
+
 </Ui>

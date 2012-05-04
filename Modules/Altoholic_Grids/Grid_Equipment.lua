@@ -76,7 +76,6 @@ local STAT_PRIEST_ONLY = L["Classes: Priest"] .. "$"
 local STAT_DK_ONLY = L["Classes: Death Knight"] .. "$"
 local STAT_RESIST = L["Resistance"]
 
-
 addon.Equipment = {}
 
 local ns = addon.Equipment		-- ns = namespace
@@ -414,113 +413,14 @@ function ns:GetInventoryTypeName(inv)
 	return slotNames[ inventoryTypes[inv] ]
 end
 
-function ns:Update()
-	local VisibleLines = 7
-	local frame = "AltoholicFrameEquipment"
-	local entry = frame.."Entry"
-	
-	AltoholicTabCharactersStatus:SetText("")
-	
-	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
-	local realm, account = addon.Tabs.Characters:GetRealm()
-	local character
-	local DS = DataStore
-	
-	for i=1, VisibleLines do
-		local line = i + offset
-		local e = slotTypeInfo[line]
 
-		_G[ entry..i.."Name" ]:SetText(e.color .. e.name)
-
-		for j = 1, 10 do
-			local itemName = entry.. i .. "Item" .. j;
-			local itemButton = _G[itemName]
-			itemButton:SetScript("OnEnter", ns.OnEnter)
-			itemButton:SetScript("OnClick", ns.OnClick)			
-			
-			local itemCount = _G[itemName .. "Count"]
-			itemCount:Hide();
-			
-			addon:CreateButtonBorder(itemButton)
-			itemButton.border:Hide()
-			
-			character = addon:GetOption(format("Tabs.Characters.%s.%s.Column%d", account, realm, j))
-			if character then
-				
-				local item = DS:GetInventoryItem(character, line)
-				if item then
-					itemButton.key = character
-					addon:SetItemButtonTexture(itemName, GetItemIcon(item));
-					
-					-- display the coloured border
-					local _, _, itemRarity, itemLevel = GetItemInfo(item)
-					if itemRarity and itemRarity >= 2 then
-						local r, g, b = GetItemQualityColor(itemRarity)
-						itemButton.border:SetVertexColor(r, g, b, 0.5)
-						itemButton.border:Show()
-					end
-					
-					itemCount:SetText(itemLevel);
-					itemCount:Show();
-				else
-					itemButton.key = nil
-					addon:SetItemButtonTexture(itemName, addon:GetEquipmentSlotIcon(line));
-				end
-				
-				itemButton:Show()
-			else
-				itemButton:Hide()
-				itemButton.key = nil
-			end
-		end
-		
-		_G[ entry..i ]:Show()
-		_G[ entry..i ]:SetID(line)
-	end
-
-	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], 19, VisibleLines, 41);
-end
-
-function ns:OnEnter()
-	local character = self.key
-	if not character then return end
-
-	local item = DataStore:GetInventoryItem(character, self:GetParent():GetID())
-	if not item then return end
-
-	GameTooltip:SetOwner(self, "ANCHOR_LEFT");
-	local link
-	if type(item) == "number" then
-		link = select(2, GetItemInfo(item))
-	else
-		link = item
-	end
-	
-	if not link then
-		GameTooltip:AddLine(L["Unknown link, please relog this character"],1,1,1);
-		GameTooltip:Show();
-		return
-	end
-	
-	GameTooltip:SetHyperlink(link);
-	GameTooltip:AddLine(" ");
-	GameTooltip:AddLine(GREEN .. L["Right-Click to find an upgrade"]);
-	GameTooltip:Show();
-end
-
-local function DDM_Add(text, value)
-	local info = UIDropDownMenu_CreateInfo()
-
-	info.text		= text
-	info.value		= value
-	info.func		= addon.Search.FindEquipmentUpgrade
-	UIDropDownMenu_AddButton(info, 1); 
-end
+local DDM_Add = addon.Helpers.DDM_Add
+local DDM_AddCloseMenu = addon.Helpers.DDM_AddCloseMenu
 
 local function RightClickMenu_Initialize()
-	local info = UIDropDownMenu_CreateInfo()
+	local searchCB = addon.Search.FindEquipmentUpgrade		-- search callback
 
-	DDM_Add(format("%s %s", L["Find Upgrade"], GREEN .. L["(based on iLvl)"]), -1)
+	DDM_Add(format("%s %s", L["Find Upgrade"], GREEN .. L["(based on iLvl)"]), -1, searchCB)
 	
 	local class = addon.Search:GetClass()
 
@@ -530,18 +430,18 @@ local function RightClickMenu_Initialize()
 		(class == CLASS_DEATHKNIGHT) or
 		(class == CLASS_PALADIN) then
 		
-		DDM_Add(format("%s %s(%s)", L["Find Upgrade"], GREEN, L["Tank"]), class .. "Tank")
+		DDM_Add(format("%s %s(%s)", L["Find Upgrade"], GREEN, L["Tank"]), class .. "Tank", searchCB)
 	end
 	
 	-- DPS upgrade
 	if class then
-		DDM_Add(format("%s %s(%s)", L["Find Upgrade"], GREEN, L["DPS"]), class .. "DPS")
+		DDM_Add(format("%s %s(%s)", L["Find Upgrade"], GREEN, L["DPS"]), class .. "DPS", searchCB)
 	end
 		
 	if class == CLASS_DRUID then
-		DDM_Add(format("%s %s(%s)", L["Find Upgrade"], GREEN, L["Balance"]), class .. "Balance")
+		DDM_Add(format("%s %s(%s)", L["Find Upgrade"], GREEN, L["Balance"]), class .. "Balance", searchCB)
 	elseif class == CLASS_SHAMAN then
-		DDM_Add(format("%s %s(%s)", L["Find Upgrade"], GREEN, L["Elemental Shaman"]), class .. "Elemental")
+		DDM_Add(format("%s %s(%s)", L["Find Upgrade"], GREEN, L["Elemental Shaman"]), class .. "Elemental", searchCB)
 	end
 		
 	-- Heal upgrade
@@ -550,59 +450,140 @@ local function RightClickMenu_Initialize()
 		(class == CLASS_DRUID) or
 		(class == CLASS_PALADIN) then
 		
-		DDM_Add(format("%s %s(%s)", L["Find Upgrade"], GREEN, L["Heal"]), class .. "Heal")
+		DDM_Add(format("%s %s(%s)", L["Find Upgrade"], GREEN, L["Heal"]), class .. "Heal", searchCB)
 	end
 	
-	-- Close menu item
-	info.text = CLOSE
-	info.func = function() CloseDropDownMenus() end
-	info.checked = nil
-	info.icon = nil
-	info.notCheckable = 1
-	UIDropDownMenu_AddButton(info, 1)
+	DDM_AddCloseMenu()
 end
 
-function ns:OnClick(button)
-	local character = self.key
-	if not character then return end
 
-	local slotID = self:GetParent():GetID()
-	if slotID == 0 then return end		-- class icon
+local callbacks = {
+	OnUpdate = function() end,
+	GetSize = function() return #slotTypeInfo end,
+	RowSetup = function(self, entry, row, dataRowID)
+			local e = slotTypeInfo[dataRowID]
+			
+			local rowName = entry .. row
+			_G[rowName.."Name"]:SetText(e.color .. e.name)
+			_G[rowName.."Name"]:SetJustifyH("RIGHT")
+			_G[rowName.."Name"]:SetPoint("TOPLEFT", 15, 0)
+		end,
+	ColumnSetup = function(self, entry, row, column, dataRowID, character)
+			local itemName = entry.. row .. "Item" .. column;
+			local itemTexture = _G[itemName .. "_Background"]
+			local itemButton = _G[itemName]
+			local itemText = _G[itemName .. "Name"]
+			
+			itemTexture:SetDesaturated(0)
+			itemTexture:SetVertexColor(1.0, 1.0, 1.0)
+			itemTexture:SetTexCoord(0, 1, 0, 1)
+			
+			itemText:SetFontObject("NumberFontNormalSmall")
+			itemText:SetJustifyH("RIGHT")
+			itemText:SetPoint("BOTTOMRIGHT", 0, 0)
+			
+			local item = DataStore:GetInventoryItem(character, dataRowID)
+			if item then
+				itemButton.key = character
+				
+				itemTexture:SetTexture(GetItemIcon(item))
+				
+				-- display the coloured border
+				local _, _, itemRarity, itemLevel = GetItemInfo(item)
+				if itemRarity and itemRarity >= 2 then
+					local r, g, b = GetItemQualityColor(itemRarity)
+					itemButton.border:SetVertexColor(r, g, b, 0.5)
+					itemButton.border:Show()
+				end
+				
 
-	local item = DataStore:GetInventoryItem(character, slotID)
-	if not item then return end
-	
-	local link
-	if type(item) == "number" then
-		link = select(2, GetItemInfo(item))
-	else
-		link = item
-	end
-	
-	if not link then return end
-	
-	if button == "RightButton" then
-		if not IsAddOnLoaded("Altoholic_Search") then
-			LoadAddOn("Altoholic_Search")
-			UIDropDownMenu_Initialize(AltoholicFrameEquipmentRightClickMenu, RightClickMenu_Initialize, "MENU");
-		end
+				_G[itemName .. "Name"]:SetText(itemLevel)
+			else
+				itemButton.key = nil
+				itemTexture:SetTexture(addon:GetEquipmentSlotIcon(dataRowID))
+				_G[itemName .. "Name"]:SetText("")
+			end
+			
+			itemButton.id = dataRowID
+		end,
 		
-		addon.Search:SetCurrentItem( addon:GetIDFromLink(link) ) 		-- item ID of the item to find an upgrade for
-		local _, class = DataStore:GetCharacterClass(character)
-		addon.Search:SetClass(class)
-		
-		ToggleDropDownMenu(1, nil, AltoholicFrameEquipmentRightClickMenu, self:GetName(), 0, -5);
-		return
-	end
-	
-	if ( button == "LeftButton" ) and ( IsControlKeyDown() ) then
-		DressUpItemLink(link);
-	elseif ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
-		local chat = ChatEdit_GetLastActiveWindow()
-		if chat:IsShown() then
-			chat:Insert(link);
-		else
-			AltoholicFrame_SearchEditBox:SetText(GetItemInfo(link))
-		end
-	end
-end
+	OnEnter = function(frame) 
+			local character = frame.key
+			if not character then return end
+
+			local item = DataStore:GetInventoryItem(character, frame.id)
+			if not item then return end
+
+			GameTooltip:SetOwner(frame, "ANCHOR_LEFT")
+			local link
+			if type(item) == "number" then
+				link = select(2, GetItemInfo(item))
+			else
+				link = item
+			end
+			
+			if not link then
+				GameTooltip:AddLine(L["Unknown link, please relog this character"],1,1,1)
+				GameTooltip:Show()
+				return
+			end
+			
+			GameTooltip:SetHyperlink(link)
+			GameTooltip:AddLine(" ")
+			GameTooltip:AddLine(GREEN .. L["Right-Click to find an upgrade"])
+			GameTooltip:Show()
+		end,
+	OnClick = function(frame, button)
+			local character = frame.key
+			if not character then return end
+
+			local slotID = frame:GetParent():GetID()
+			if slotID == 0 then return end		-- class icon
+
+			local item = DataStore:GetInventoryItem(character, slotID)
+			if not item then return end
+			
+			local link
+			if type(item) == "number" then
+				link = select(2, GetItemInfo(item))
+			else
+				link = item
+			end
+			
+			if not link then return end
+			
+			if button == "RightButton" then
+				if not IsAddOnLoaded("Altoholic_Search") then
+					LoadAddOn("Altoholic_Search")
+					UIDropDownMenu_Initialize(AltoholicFrameGridsRightClickMenu, RightClickMenu_Initialize, "MENU");
+				end
+				
+				addon.Search:SetCurrentItem( addon:GetIDFromLink(link) ) 		-- item ID of the item to find an upgrade for
+				local _, class = DataStore:GetCharacterClass(character)
+				addon.Search:SetClass(class)
+				
+				ToggleDropDownMenu(1, nil, AltoholicFrameGridsRightClickMenu, frame:GetName(), 0, -5);
+				return
+			end
+			
+			if ( button == "LeftButton" ) and ( IsControlKeyDown() ) then
+				DressUpItemLink(link)
+			elseif ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
+				local chat = ChatEdit_GetLastActiveWindow()
+				if chat:IsShown() then
+					chat:Insert(link)
+				else
+					AltoholicFrame_SearchEditBox:SetText(GetItemInfo(link))
+				end
+			end
+		end,
+	OnLeave = function(self)
+			GameTooltip:Hide() 
+		end,
+	InitViewDDM = function(frame, title) 
+			frame:Hide()
+			title:Hide()
+		end,
+}
+
+addon.Tabs.Grids:RegisterGrid(1, callbacks)
