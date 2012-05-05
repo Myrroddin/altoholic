@@ -13,6 +13,7 @@ Frames\AuctionHouse.xml
 Frames\Containers.xml
 Frames\Glyphs.xml
 Frames\Mails.xml
+Frames\Pets.xml
 Frames\Quests.xml
 Frames\Recipes.xml
 Frames\Spellbook.xml

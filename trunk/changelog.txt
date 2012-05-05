@@ -8,6 +8,13 @@ IMPORTANT NOTE: If you're upgrading from 3.x :
 - Make sure you delete the addon's databases in SavedVariables. ie: Altoholic.lua and all DataStore*.lua.
 - Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
 
+4.3.003b (05/05/2012)
+
+- Added a faction filter in Grids -> Mounts
+- Added an expansion pack filter in Grids -> Pets
+- Added the possibility to link a mount/pet in their respective grid view.
+- Fixed Pets.xml removed from a TOC file in previous version (oops !)
+
 4.3.003 (04/05/2012)
 
 - Average item level now scanned after PLAYER_ALIVE. Fixes AiL staying at 0.

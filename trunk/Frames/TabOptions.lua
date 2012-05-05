@@ -123,6 +123,14 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "4.3.003b Changes",
+		bulletedList = {
+			"Added a faction filter in Grids -> Mounts.",
+			"Added an expansion pack filter in Grids -> Pets.",
+			"Added the possibility to link a mount/pet in their respective grid view.",
+			"Fixed Pets.xml removed from a TOC file in previous version (oops !).",
+		},
+	},
 	{	name = "4.3.003 Changes",
 		bulletedList = {
 			"Average item level now scanned after PLAYER_ALIVE. Fixes AiL staying at 0.",

@@ -683,38 +683,6 @@ local function DropDown_Initialize(self, level)
 			end
 		end
 	end
-
-
-
-
-
-
-
-
-
-	-- ** old **
-	-- local spell, icon
-	-- local firstSecondarySkill = 10
-	
-	-- for i, xpack in pairs(xPacks) do
-		-- DDM_Add(xpack, i, OnXPackChange, nil, (i==currentXPack))
-	-- end
-	-- DDM_AddTitle("")
-	-- DDM_AddTitle(PRIMARY_SKILLS)
-	-- for i = 1, (firstSecondarySkill - 1) do
-		-- spell, _, icon = GetSpellInfo(tradeskills[i].id)
-		-- DDM_Add(spell, i, OnTradeSkillChange, icon, (i==currentTradeSkill))
-	-- end
-
-	
-	-- DDM_AddTitle("")
-	-- DDM_AddTitle(SECONDARY_SKILLS)
-	-- for i = firstSecondarySkill, #tradeskills do
-		-- spell, _, icon = GetSpellInfo(tradeskills[i].id)
-		-- DDM_Add(spell, i, OnTradeSkillChange, icon, (i==currentTradeSkill))
-	-- end
-	-- DDM_AddTitle("")
-	-- DDM_AddCloseMenu()
 end
 
 local function SortByCraftLevel(a, b)
