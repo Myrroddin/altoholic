@@ -261,7 +261,7 @@ for index, name in ipairs(tabList) do
 	frameToID[name] = index
 end
 
-local function SafeLoadAddOn(name)
+addon.SafeLoadAddOn = function(name)
 	if not IsAddOnLoaded(name) then
 		LoadAddOn(name)
 	end
@@ -301,7 +301,7 @@ function addon.Tabs:OnClick(index)
 	
 	if index >= 2 and index <= 7 then
 		local moduleName = format("%s_%s", addonName, tabList[index])
-		SafeLoadAddOn(moduleName)		-- make this part a bit more generic once we'll have more LoD parts
+		addon.SafeLoadAddOn(moduleName)		-- make this part a bit more generic once we'll have more LoD parts
 		
 		local parentLevel = AltoholicFrame:GetFrameLevel()
 		local childName = format("%sTab%s", addonName, tabList[index])
