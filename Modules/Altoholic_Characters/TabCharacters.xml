@@ -238,7 +238,7 @@
 						local realm = GetRealmName()
 						UIDropDownMenu_SetSelectedValue(self, "Default|".. realm)
 						UIDropDownMenu_SetText(self, realm)
-						UIDropDownMenu_Initialize(self, Altoholic.Tabs.Characters.DropDownRealm_Initialize)
+						Altoholic:DDM_Initialize(self, Altoholic.Tabs.Characters.DropDownRealm_Initialize)
 					</OnLoad>
 				</Scripts>
 			</Frame>

@@ -242,16 +242,10 @@ function ns:Icon_OnEnter(frame)
 	local currentMenuID = frame:GetID()
 	
 	-- hide all
-	for i = 1, 3 do
-		if i ~= currentMenuID and _G[ rcMenuName .. i ].visible then
-			ToggleDropDownMenu(1, nil, _G[ rcMenuName .. i ], frame:GetName(), 0, -5);	
-			_G[ rcMenuName .. i ].visible = false
-		end
-	end
+	CloseDropDownMenus()
 
 	-- show current
 	ToggleDropDownMenu(1, nil, _G[ rcMenuName .. currentMenuID ], frame:GetName(), 0, -5);	
-	_G[ rcMenuName .. currentMenuID ].visible = true
 end
 
 local function GuildIcon_Initialize(self, level)
@@ -419,10 +413,10 @@ function ns:OnLoad()
 		end
 	end
 	
-	UIDropDownMenu_Initialize(_G[rcMenuName.."1"], GuildIcon_Initialize, "MENU")
-	UIDropDownMenu_Initialize(_G[rcMenuName.."2"], TabsIcon_Initialize, "MENU")
-	UIDropDownMenu_Initialize(_G[rcMenuName.."3"], UpdateIcon_Initialize, "MENU")
-	UIDropDownMenu_Initialize(_G[rcMenuName.."4"], RarityIcon_Initialize, "MENU")
+	addon:DDM_Initialize(_G[rcMenuName.."1"], GuildIcon_Initialize)
+	addon:DDM_Initialize(_G[rcMenuName.."2"], TabsIcon_Initialize)
+	addon:DDM_Initialize(_G[rcMenuName.."3"], UpdateIcon_Initialize)
+	addon:DDM_Initialize(_G[rcMenuName.."4"], RarityIcon_Initialize)
 	
 	UpdateBankTabButtons()
 end

@@ -170,20 +170,16 @@ function ns:UpdateKnownGlyphs()
 	
 	local glyphText
 	if currentGlyphType == 1 then
-		glyphText = PRIME_GLYPHS
-	elseif currentGlyphType == 2 then
 		glyphText = MAJOR_GLYPHS
-	elseif currentGlyphType == 3 then
+	elseif currentGlyphType == 2 then
 		glyphText = MINOR_GLYPHS
 	end
 	
 	AltoholicTabCharactersStatus:SetText(format("%s|r / %s / %s", DataStore:GetColoredCharacterName(character), SPELLBOOK, glyphText))
 	
 	if currentGlyphType == 1 then
-		glyphText = PRIME_GLYPH
-	elseif currentGlyphType == 2 then
 		glyphText = MAJOR_GLYPH
-	elseif currentGlyphType == 3 then
+	elseif currentGlyphType == 2 then
 		glyphText = MINOR_GLYPH
 	end
 	

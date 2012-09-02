@@ -15,16 +15,6 @@ addon.Search = {}
 
 local ns = addon.Search		-- ns = namespace
 
--- not called anymore, was used only for LTL, and it's disabled until further notice, code kept commented for reference.
--- function ns:Init()
-	-- local _, build = GetBuildInfo()			-- ex: "10314"	string
-	-- local LTLBuild = LTL:GetBuildVersion()	-- ex: 10314		number
-	
-	-- if tonumber(build) ~= LTLBuild then		-- invalidate LTL if version is outdated, prevents scanning guild members' professions
-		-- LTL = nil
-	-- end
--- end
-
 local updateHandler
 
 function ns:Update()
@@ -135,7 +125,7 @@ local RealmScrollFrame_Desc = {
 				end,
 			GetCharacter = function(self, result)
 					local character = result.source
-					return DataStore:GetCharacterName(character), DataStore:GetClassColor(character)
+					return DataStore:GetCharacterName(character), DataStore:GetCharacterClassColor(character)
 				end,
 			GetRealm = function(self, result)
 					local character = result.source
@@ -187,7 +177,7 @@ local RealmScrollFrame_Desc = {
 					local _, _, name = strsplit(".", character)
 					
 					-- name, color
-					return name, DataStore:GetClassColor(character)
+					return name, DataStore:GetCharacterClassColor(character)
 				end,
 			GetRealm = function(self, result)
 					local character = result.char
@@ -221,7 +211,7 @@ local RealmScrollFrame_Desc = {
 				end,
 			GetCharacter = function(self, result)
 					local _, _, _, _, _, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(result.char)
-					return result.char, addon:GetClassColor(englishClass)
+					return result.char, DataStore:GetClassColor(englishClass)
 				end,
 			GetRealm = function(self, result)
 					return GetRealmName(), THIS_ACCOUNT, UnitFactionGroup("player")
@@ -717,18 +707,6 @@ local function BrowseRealm(realm, account, bothFactions)
 		currentResultType = nil
 		currentResultLocation = nil
 	end
-	
-	if addon:GetOption("IncludeGuildSkills") == 1 and string.len(currentValue) > 1 then	-- Check guild professions ?
-		local guild = addon:GetGuild()
-		if guild and LTL then	-- LTL won't be valid if there's a version mismatch (see :Init() )
-			ns.GuildMembers = {}
-			
-			for member, _ in pairs(addon:GetGuildMembers(guild)) do			-- add all known members into a table
-				table.insert(ns.GuildMembers, member)
-			end
-			addon.Tasks:Add("BrowseGuildProfessions", 0, ns.BrowseGuildProfessions, ns)
-		end
-	end
 end
 
 local ongoingSearch
@@ -842,44 +820,6 @@ function ns:FindItem(searchType, searchSubType)
 
 	ns:Update()
 	collectgarbage()
-end
-
-function ns:BrowseGuildProfessions()
-	if #ns.GuildMembers == 0 then	-- no more members ? kill the task
-		ns.GuildMembers = nil
-		ns:Update()
-		return
-	end
-	
-	-- The professions of 1 guild member will be scanned in each pass
-	local guild = addon:GetGuild()
-	local member = ns.GuildMembers[#ns.GuildMembers]	-- get the last item in the table
-	local t = {}
-	local skillID
-	
-	for _, v in pairs(guild.members[member]) do		-- browse all links ..
-		if type(v) == "string" and v:match("trade:") then							-- .. assuming they're valid of course
-			t, skillID = LTL:Decode(v)
-			if t then
-				for spellID, _ in pairs(t) do
-					local name = GetSpellInfo(spellID)
-					if string.find(strlower(name), currentValue, 1, true) then
-						ns:AddResult(	{
-							linetype = GUILD_CRAFT_LINE,
-							spellID = spellID,
-							char = member,
-							skillID = skillID,
-						} )
-
-					end
-				end
-			end
-		end
-	end
-	
-	table.remove(ns.GuildMembers)	-- kill the last item
-	addon.Tasks:Reschedule("BrowseGuildProfessions", 0.005)
-	return true
 end
 
 local currentClass				-- the current character class

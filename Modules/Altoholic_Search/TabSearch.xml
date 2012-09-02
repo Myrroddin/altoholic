@@ -282,7 +282,7 @@
 					<OnLoad>
 						UIDropDownMenu_SetWidth(self, 100) 
 						UIDropDownMenu_SetButtonWidth(self, 20)
-						UIDropDownMenu_Initialize(self, Altoholic.Tabs.Search.DropDownRarity_Initialize)
+						Altoholic:DDM_Initialize(self, Altoholic.Tabs.Search.DropDownRarity_Initialize)
 						UIDropDownMenu_SetSelectedValue(self, 0);
 						UIDropDownMenu_SetText(self, ITEM_QUALITY_COLORS[0].hex .. _G["ITEM_QUALITY0_DESC"])
 					</OnLoad>
@@ -302,7 +302,7 @@
 						
 						UIDropDownMenu_SetWidth(self, 80) 
 						UIDropDownMenu_SetButtonWidth(self, 20)
-						UIDropDownMenu_Initialize(self, Altoholic.Tabs.Search.DropDownSlot_Initialize)
+						Altoholic:DDM_Initialize(self, Altoholic.Tabs.Search.DropDownSlot_Initialize)
 						UIDropDownMenu_SetSelectedValue(self, 0);
 						UIDropDownMenu_SetText(self, L["Any"])
 					</OnLoad>
@@ -322,7 +322,7 @@
 						
 						UIDropDownMenu_SetWidth(self, 150) 
 						UIDropDownMenu_SetButtonWidth(self, 20)
-						UIDropDownMenu_Initialize(self, Altoholic.Tabs.Search.DropDownLocation_Initialize)
+						Altoholic:DDM_Initialize(self, Altoholic.Tabs.Search.DropDownLocation_Initialize)
 						UIDropDownMenu_SetSelectedValue(self, 2);
 						UIDropDownMenu_SetText(self, format("%s %s(%s)", L["This realm"], "|cFF00FF00", L["This faction"]))
 					</OnLoad>

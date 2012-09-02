@@ -327,16 +327,10 @@ function ns:Icon_OnEnter(frame)
 	local currentMenuID = frame:GetID()
 	
 	-- hide all
-	for i = 1, 8 do
-		if i ~= currentMenuID and _G[ classMenu .. i ].visible then
-			ToggleDropDownMenu(1, nil, _G[ classMenu .. i ], frame:GetName(), 0, -5);	
-			_G[ classMenu .. i ].visible = false
-		end
-	end
+	CloseDropDownMenus()
 
 	-- show current
-	ToggleDropDownMenu(1, nil, _G[ classMenu .. currentMenuID ], frame:GetName(), 0, -5);	
-	_G[ classMenu .. currentMenuID ].visible = true
+	ToggleDropDownMenu(nil, nil, _G[ classMenu .. currentMenuID ], frame:GetName(), 0, -5);	
 	
 	local key = addon:GetOption(format("Tabs.Achievements.%s.%s.Column%d", currentAccount, currentRealm, currentMenuID))
 	if key then
@@ -383,9 +377,8 @@ end
 
 function ns:OnLoad()
 	for i = 1, 10 do
-		UIDropDownMenu_Initialize(_G[classMenu..i], ClassIcon_Initialize, "MENU")
+		addon:DDM_Initialize(_G[classMenu..i], ClassIcon_Initialize)
 	end
-
 end
 
 local function OnAchievementEarned(event, id)

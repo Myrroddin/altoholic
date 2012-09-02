@@ -639,7 +639,7 @@ local AvailableContentScrollFrame_Desc = {
 		[CHARACTER_HEADER_LINE] = {
 			GetText = function(self, line)
 					local _, realm, name = strsplit(".", line.key)
-					name = Altoholic:GetClassColor(line.class) ..name
+					name = DataStore:GetClassColor(line.class) ..name
 					return format("%s|r / %s", WHITE..realm, name)
 				end,
 			GetOffset = function(self, line)

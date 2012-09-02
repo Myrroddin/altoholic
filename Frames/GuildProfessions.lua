@@ -258,7 +258,7 @@ function ns:Update()
 			
 			local classText = L["N/A"]
 			if class and englishClass then
-				classText = format("%s%s", addon:GetClassColor(englishClass), class)
+				classText = format("%s%s", DataStore:GetClassColor(englishClass), class)
 			end
 			
 			if lineType == HEADER_LINE then
@@ -355,7 +355,7 @@ function ns:OnEnter(self)
 	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
 	
 	local _, _, _, _, _, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(member)
-	AltoTooltip:AddLine(addon:GetClassColor(englishClass) .. member,1,1,1);
+	AltoTooltip:AddLine(DataStore:GetClassColor(englishClass) .. member,1,1,1);
 	
 	local skillName = GetSpellInfo(spellID)
 	AltoTooltip:AddLine(skillName,1,1,1);

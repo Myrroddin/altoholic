@@ -133,7 +133,7 @@
 						local realm = GetRealmName()
 						UIDropDownMenu_SetSelectedValue(self, "Default|".. realm)
 						UIDropDownMenu_SetText(self, realm)
-						UIDropDownMenu_Initialize(self, Altoholic.Tabs.Grids.DropDownRealm_Initialize)
+						Altoholic:DDM_Initialize(self, Altoholic.Tabs.Grids.DropDownRealm_Initialize)
 					</OnLoad>
 				</Scripts>
 			</Frame>

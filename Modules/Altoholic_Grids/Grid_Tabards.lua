@@ -15,10 +15,13 @@ local function BuildTabardList()
 	local tabardNames = {}	-- temp table, used to sort the list faster
 	local criteriaID
 	
-	-- do not use GetAchievementNumCriteria(1021) as it returns 1
-	for i = 1, 87 do
-		_, _, _, _, _, _, _, _, _, criteriaID = GetAchievementCriteriaInfo(1021, i)
-		tabardNames[criteriaID] = GetAchievementCriteriaInfo(criteriaID)
+	local TABARDS_ACHIEVEMENT_ID = 621
+	local NUM_TABARDS = 89
+	
+	-- do not use GetAchievementNumCriteria(621) as it returns 1
+	for i = 1, NUM_TABARDS do
+		_, _, _, _, _, _, _, _, _, criteriaID = GetAchievementCriteriaInfo(TABARDS_ACHIEVEMENT_ID, i)
+		tabardNames[criteriaID] = GetAchievementCriteriaInfoByID(TABARDS_ACHIEVEMENT_ID, criteriaID)
 		table.insert(tabardList, criteriaID)
 	end
 	
@@ -48,7 +51,7 @@ local callbacks = {
 	GetSize = function() return #tabardList end,
 	RowSetup = function(self, entry, row, dataRowID)
 			local tabardName
-			tabardName, _, _, _, _, _, _, currentItemID = GetAchievementCriteriaInfo( tabardList[dataRowID] )
+			tabardName, _, _, _, _, _, _, currentItemID = GetAchievementCriteriaInfoByID(621, tabardList[dataRowID] )
 			
 			if tabardName then
 				local rowName = entry .. row

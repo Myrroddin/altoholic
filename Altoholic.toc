@@ -1,4 +1,4 @@
-﻿## Interface: 40300
+﻿## Interface: 50001
 ## Title: Altoholic
 ## Title-zhCN: |cffeedd99 [物品] |r: 全角色统计 Altoholic
 

@@ -3,10 +3,25 @@ Altoholic Changelog (dates in dd/mm/yyyy)
 
 Join the #altoholic IRC channel on Freenode : irc://irc.freenode.net:6667/
 
-IMPORTANT NOTE: If you're upgrading from 3.x :
+IMPORTANT NOTE: If you're upgrading from 4.x :
 
 - Make sure you delete the addon's databases in SavedVariables. ie: Altoholic.lua and all DataStore*.lua.
 - Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
+
+5.0.001 (02/09/2012)
+
+- Added support for itIT. If you can help with the translations, please go here: http://wow.curseforge.com/addons/altoholic/localization/
+- Updated Achievement lists, please advise if you notice errors (especially for horde players).
+- Fixed many issues related to changes in MoP. Too much to list.
+- Talent pane is temporarily disabled. It will be back soon.
+- Changed all drop down definitions to prevent tainting (Thanks ckaotik !)
+- Fixed a Lua error in Grids->Reputations when selecting guild reputation.
+- Added missing Tol Barad achievement : Occu'thar (Thanks Daveo77)
+- Fixed a few UI issues related to account sharing.
+- Fixed searching item upgrades based on iLevel
+- Moved the sumary tab into its own module, this is in preparation of future new features. If you encounter a problem due to this, please roll back to 4.3.003b. (Should be ok though)
+- Fixed pets not sorted alphabetically in Grids->Pets.
+- Added back the All-in-one view in Grids->Pets.
 
 4.3.003b (05/05/2012)
 

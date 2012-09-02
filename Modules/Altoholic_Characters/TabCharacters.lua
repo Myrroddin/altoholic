@@ -100,6 +100,7 @@ local function HideAll()
 	AltoholicFrameTalents:Hide()
 	AltoholicFrameMail:Hide()
 	AltoholicFrameQuests:Hide()
+	AltoholicFramePets:Hide()
 	AltoholicFrameAuctions:Hide()
 	AltoholicFrameRecipes:Hide()
 	AltoholicFrameGlyphs:Hide()
@@ -296,6 +297,14 @@ function ns:SetMode(mode)
 	end
 end
 
+function ns:SetCurrentProfession(prof)
+	currentProfession = prof
+
+	if currentProfession then
+		addon.TradeSkills.Recipes:SetCurrentProfession(currentProfession)
+		ns:ViewCharInfo(VIEW_PROFESSION)
+	end
+end
 
 -- ** DB / Get **
 function ns:GetAccount()
@@ -383,12 +392,8 @@ end
 
 local function OnGlyphChange(self)
 	CloseDropDownMenus()
-	
-	local group = self.value
-	if group then
-		addon.Glyphs:SetCurrentGroup(group)
-		ns:ViewCharInfo(VIEW_GLYPHS)
-	end
+
+	ns:ViewCharInfo(VIEW_GLYPHS)
 end
 
 local function OnSpellTabChange(self)
@@ -411,12 +416,7 @@ end
 
 local function OnProfessionChange(self)
 	CloseDropDownMenus()
-	
-	currentProfession = self.value
-	if currentProfession then
-		addon.TradeSkills.Recipes:SetCurrentProfession(currentProfession)
-		ns:ViewCharInfo(VIEW_PROFESSION)
-	end
+	ns:SetCurrentProfession(self.value)
 end
 
 local function OnProfessionColorChange(self)
@@ -503,16 +503,10 @@ function ns:Icon_OnEnter(frame)
 	local currentMenuID = frame:GetID()
 	
 	-- hide all
-	for i = 1, 8 do
-		if i ~= currentMenuID and _G[ rcMenuName .. i ].visible then
-			ToggleDropDownMenu(1, nil, _G[ rcMenuName .. i ], frame:GetName(), 0, -5);	
-			_G[ rcMenuName .. i ].visible = false
-		end
-	end
+	CloseDropDownMenus()
 
 	-- show current
 	ToggleDropDownMenu(1, nil, _G[ rcMenuName .. currentMenuID ], frame:GetName(), 0, -5);	
-	_G[ rcMenuName .. currentMenuID ].visible = true
 end
 
 local function CharactersIcon_Initialize(self, level)
@@ -575,66 +569,10 @@ local function TalentsIcon_Initialize(self, level)
 	
 	DDM_AddTitle(format("%s & %s / %s", TALENTS, GLYPHS, DataStore:GetColoredCharacterName(currentCharacterKey)))
 	DDM_AddTitle(" ")
-	DDM_AddTitle(GOLD .. TALENT_SPEC_PRIMARY)
-
-	local _, class = DataStore:GetCharacterClass(currentCharacterKey)
-	local icon, points
-	local treeID = 1
-	
-	local info = UIDropDownMenu_CreateInfo()
-	local classTrees = DataStore:GetClassTrees(class)
-	if not classTrees then return end
-	
-	for tree in classTrees do
-		icon = DataStore:GetTreeInfo(class, tree)
-		points = DataStore:GetNumPointsSpent(currentCharacterKey, tree, 1)
-		
-		info.text = format("%s %s",WHITE..tree, GREEN..points)
-		info.value = 1
-		info.arg1 = treeID
-		info.checked = nil
-		info.func = OnTalentChange
-		info.icon = icon
-		UIDropDownMenu_AddButton(info, 1)
-		
-		treeID = treeID + 1
-	end
-	
-	info.text = WHITE..GLYPHS
-	info.value = 1
-	info.arg1 = nil
-	info.checked = nil
-	info.func = OnGlyphChange
-	info.icon = nil
-	UIDropDownMenu_AddButton(info, 1)
-
+	DDM_Add(TALENT_SPEC_PRIMARY, 1, OnTalentChange, nil, nil)
+	DDM_Add(TALENT_SPEC_SECONDARY, 2, OnTalentChange, nil, nil)
 	DDM_AddTitle(" ")
-	DDM_AddTitle(GOLD .. TALENT_SPEC_SECONDARY)
-	
-	info = UIDropDownMenu_CreateInfo()
-	treeID = 1
-	for tree in DataStore:GetClassTrees(class) do
-		icon = DataStore:GetTreeInfo(class, tree)
-		points = DataStore:GetNumPointsSpent(currentCharacterKey, tree, 2)
-		
-		info.text = format("%s %s",WHITE..tree, GREEN..points)
-		info.value = 2
-		info.arg1 = treeID
-		info.checked = nil
-		info.func = OnTalentChange
-		info.icon = icon
-		UIDropDownMenu_AddButton(info, 1)
-		
-		treeID = treeID + 1
-	end
-	
-	info.text = WHITE..GLYPHS
-	info.value = 2
-	info.arg1 = nil
-	info.checked = nil
-	info.func = OnGlyphChange
-	info.icon = nil
-	UIDropDownMenu_AddButton(info, 1)	
+	DDM_Add(GLYPHS, nil, OnGlyphChange)
 	
 	DDM_AddCloseMenu()
 end
@@ -723,9 +661,8 @@ local function SpellbookIcon_Initialize(self, level)
 	end
 	DDM_AddTitle(" ")
 	DDM_AddTitle(GLYPHS)
-	DDM_Add(PRIME_GLYPHS, 1, OnGlyphSpellsChange)
-	DDM_Add(MAJOR_GLYPHS, 2, OnGlyphSpellsChange)
-	DDM_Add(MINOR_GLYPHS, 3, OnGlyphSpellsChange)
+	DDM_Add(MAJOR_GLYPHS, 1, OnGlyphSpellsChange)
+	DDM_Add(MINOR_GLYPHS, 2, OnGlyphSpellsChange)
 	DDM_AddCloseMenu()
 end
 
@@ -943,14 +880,14 @@ function ns:OnLoad()
 	addon:SetItemButtonTexture(parent .. "_SpellbookIcon", ICON_VIEW_SPELLBOOK, size, size)
 	addon:SetItemButtonTexture(parent .. "_ProfessionsIcon", ICON_VIEW_PROFESSIONS, size, size)
 	
-	UIDropDownMenu_Initialize(_G[rcMenuName.."1"], CharactersIcon_Initialize, "MENU")
-	UIDropDownMenu_Initialize(_G[rcMenuName.."2"], BagsIcon_Initialize, "MENU")
-	UIDropDownMenu_Initialize(_G[rcMenuName.."3"], QuestsIcon_Initialize, "MENU")
-	UIDropDownMenu_Initialize(_G[rcMenuName.."4"], TalentsIcon_Initialize, "MENU")
-	UIDropDownMenu_Initialize(_G[rcMenuName.."5"], AuctionIcon_Initialize, "MENU")
-	UIDropDownMenu_Initialize(_G[rcMenuName.."6"], MailIcon_Initialize, "MENU")
-	UIDropDownMenu_Initialize(_G[rcMenuName.."7"], SpellbookIcon_Initialize, "MENU")
-	UIDropDownMenu_Initialize(_G[rcMenuName.."8"], ProfessionsIcon_Initialize, "MENU")
+	addon:DDM_Initialize(_G[rcMenuName.."1"], CharactersIcon_Initialize)
+	addon:DDM_Initialize(_G[rcMenuName.."2"], BagsIcon_Initialize)
+	addon:DDM_Initialize(_G[rcMenuName.."3"], QuestsIcon_Initialize)
+	addon:DDM_Initialize(_G[rcMenuName.."4"], TalentsIcon_Initialize)
+	addon:DDM_Initialize(_G[rcMenuName.."5"], AuctionIcon_Initialize)
+	addon:DDM_Initialize(_G[rcMenuName.."6"], MailIcon_Initialize)
+	addon:DDM_Initialize(_G[rcMenuName.."7"], SpellbookIcon_Initialize)
+	addon:DDM_Initialize(_G[rcMenuName.."8"], ProfessionsIcon_Initialize)
 	
 	-- Left Menu
 	_G[parent .. "Text1"]:SetText(L["Realm"])

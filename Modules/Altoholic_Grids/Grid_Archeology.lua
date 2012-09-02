@@ -22,7 +22,9 @@ local function DropDown_Initialize()
 	local numRaces = GetNumArchaeologyRaces()
 	local race, icon
 	
-	for i = 1, numRaces do
+	-- only show 9 until MoP is released
+	-- for i = 1, numRaces do
+	for i = 1, 9 do
 		race, icon = GetArchaeologyRaceInfo(i)
 		DDM_Add(race, i, OnRaceChange, icon, (i==currentRace))
 	end
@@ -98,7 +100,7 @@ local callbacks = {
 			UIDropDownMenu_SetWidth(frame, 100) 
 			UIDropDownMenu_SetButtonWidth(frame, 20)
 			UIDropDownMenu_SetText(frame, currentDDMText)
-			UIDropDownMenu_Initialize(frame, DropDown_Initialize)
+			addon:DDM_Initialize(frame, DropDown_Initialize)
 		end,
 }
 

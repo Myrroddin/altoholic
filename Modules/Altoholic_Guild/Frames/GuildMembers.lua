@@ -334,7 +334,7 @@ function ns:Update()
 			
 			local classText = L["N/A"]
 			if class and englishClass then
-				classText = format("%s%s", addon:GetClassColor(englishClass), class)
+				classText = format("%s%s", DataStore:GetClassColor(englishClass), class)
 			end
 			
 			local version = addon:GetGuildMemberVersion(member) or L["N/A"]
@@ -439,7 +439,7 @@ function ns:Name_OnEnter(self)
   
 	AltoTooltip:ClearLines();
 	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
-	AltoTooltip:AddLine(addon:GetClassColor(englishClass) .. member,1,1,1);
+	AltoTooltip:AddLine(DataStore:GetClassColor(englishClass) .. member,1,1,1);
 	AltoTooltip:AddLine(WHITE .. RANK_COLON .. "|r " .. rank .. GREEN .. " (".. rankIndex .. ")");
 	if zone then
 		AltoTooltip:AddLine(WHITE .. ZONE_COLON .. "|r " .. zone);
@@ -486,7 +486,7 @@ function ns:Level_OnEnter(self)
 	
 	AltoTooltip:ClearLines();
 	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
-	AltoTooltip:AddLine(addon:GetClassColor(englishClass) .. member,1,1,1);
+	AltoTooltip:AddLine(DataStore:GetClassColor(englishClass) .. member,1,1,1);
 	AltoTooltip:AddLine(WHITE .. L["Average Item Level"] ..": " .. GREEN.. format("%.1f", averageItemLvl),1,1,1);
 
 	addon:AiLTooltip()

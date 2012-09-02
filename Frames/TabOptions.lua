@@ -5,6 +5,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local addonList = {
 	"Altoholic",
+	"Altoholic_Summary",
 	"Altoholic_Characters",
 	"Altoholic_Search",
 	"Altoholic_Guild",
@@ -373,10 +374,8 @@ function addon:SetupOptions()
 	L["Warn %d minutes before an event starts"] = nil
 	L["Display warnings in a dialog box"] = nil
 	
-	
-	-- à décommenter
 	for i = 1, 4 do 
-		UIDropDownMenu_Initialize(_G["AltoholicCalendarOptions_WarningType"..i], Altoholic.Events.WarningType_Initialize)
+		addon:DDM_Initialize(_G["AltoholicCalendarOptions_WarningType"..i], Altoholic.Events.WarningType_Initialize)
 	end
 	UIDropDownMenu_SetText(AltoholicCalendarOptions_WarningType1, "Profession Cooldowns")
 	UIDropDownMenu_SetText(AltoholicCalendarOptions_WarningType2, "Dungeon Resets")
