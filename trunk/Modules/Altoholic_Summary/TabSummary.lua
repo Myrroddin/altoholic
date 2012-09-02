@@ -146,7 +146,7 @@ function ns:SetMode(mode)
 		Columns:Add(title, 65, function(self) addon.Characters:Sort(self, "GetCookingRank") end)
 		title = GetSpellInfo(3273)		-- First Aid
 		Columns:Add(title, 65, function(self) addon.Characters:Sort(self, "GetFirstAidRank") end)
-		title = GetSpellInfo(24303)	-- Fishing
+		title = GetSpellInfo(7620)	-- Fishing
 		Columns:Add(title, 65, function(self) addon.Characters:Sort(self, "GetFishingRank") end)
 		title = string.sub(GetSpellInfo(78670), 1, 4)	-- Archaeology
 		Columns:Add(title, 65, function(self) addon.Characters:Sort(self, "GetArchaeologyRank") end)

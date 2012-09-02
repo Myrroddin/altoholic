@@ -479,6 +479,8 @@ function ns:Level_OnEnter(self)
 	if id == 0 then return end
 	
 	local line = view[id]
+	if line.lineType == OFFLINEHEADER_LINE  then return end
+	
 	local member = line.name
 	local _, _, _, _, _, _, _, _, _, _, englishClass = DataStore:GetGuildMemberInfo(member)
 	local guild = DataStore:GetGuild()
