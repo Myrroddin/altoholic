@@ -518,7 +518,7 @@ local function OnRightTreePlayerChange(self, key, member)
 	if currentGuildMember then
 		currentGuildKey = DataStore:GetGuild()
 		DataStore:RequestGuildMemberTalents(currentGuildMember)
-		name = addon:GetClassColor(currentClass) .. currentGuildMember
+		name = DataStore:GetClassColor(currentClass) .. currentGuildMember
 	else
 		name = DataStore:GetColoredCharacterName(rightTreeKey)
 	end
@@ -533,7 +533,7 @@ local function OnOtherGuildMemberChange(self, guild, member)
 	currentGuildKey = guild
 	currentGuildMember = member
 	
-	local name = addon:GetClassColor(currentClass) .. currentGuildMember
+	local name = DataStore:GetClassColor(currentClass) .. currentGuildMember
 
 	local frame = _G[ parent .. "_SelectMember" ]
 	UIDropDownMenu_ClearAll(frame)
@@ -629,7 +629,7 @@ function ns:DropDownMembers_Initialize(level)
 					UIDropDownMenu_AddButton(info, level)
 				else
 					for _, member in ipairs(sortedList) do
-						info.text = addon:GetClassColor(currentClass) .. member
+						info.text = DataStore:GetClassColor(currentClass) .. member
 						info.checked = nil
 						info.func = OnRightTreePlayerChange
 						info.arg1 = nil		-- guild member, so no datastore key
@@ -649,7 +649,7 @@ function ns:DropDownMembers_Initialize(level)
 				for guildName, guild in pairs(DataStore:GetGuilds(realm)) do		-- all guilds on this realm
 					if not (realm == thisRealm and guildName == thisGuild) then
 						for _, member in pairs(DataStore:GetGuildTalentsByClass(guild, currentClass)) do
-							info.text = format("%s / %s / %s", WHITE..realm, GREEN..guildName..WHITE, addon:GetClassColor(currentClass) .. member)
+							info.text = format("%s / %s / %s", WHITE..realm, GREEN..guildName..WHITE, DataStore:GetClassColor(currentClass) .. member)
 							info.checked = nil
 							info.func = OnOtherGuildMemberChange
 							info.arg1 = guild		-- guild key

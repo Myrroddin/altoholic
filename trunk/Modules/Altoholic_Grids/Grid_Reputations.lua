@@ -236,7 +236,7 @@ local function OnGuildSelected(self)
 	currentXPack = 5
 	currentFactionGroup = 1
 	
-	local realm, account = addon.Tabs.Characters:GetRealm()
+	local realm, account = addon.Tabs.Grids:GetRealm()
 	
 	if not lastRealm or not lastAccount or lastRealm ~= realm or lastAccount ~= account then	-- realm/account changed ? rebuild view
 		-- get the guilds on this realm/account
@@ -468,7 +468,7 @@ local callbacks = {
 			UIDropDownMenu_SetWidth(frame, 100) 
 			UIDropDownMenu_SetButtonWidth(frame, 20)
 			UIDropDownMenu_SetText(frame, currentDDMText)
-			UIDropDownMenu_Initialize(frame, DropDown_Initialize)
+			addon:DDM_Initialize(frame, DropDown_Initialize)
 		end,
 }
 

@@ -4,8 +4,8 @@ _G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "A
 
 local addon = _G[addonName]
 
-addon.Version = "v4.3.003b"
-addon.VersionNum = 403003
+addon.Version = "v5.0.001"
+addon.VersionNum = 500001
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local commPrefix = addonName
@@ -261,7 +261,7 @@ for index, name in ipairs(tabList) do
 	frameToID[name] = index
 end
 
-addon.SafeLoadAddOn = function(name)
+local function SafeLoadAddOn(name)
 	if not IsAddOnLoaded(name) then
 		LoadAddOn(name)
 	end
@@ -299,9 +299,9 @@ function addon.Tabs:OnClick(index)
 	self.current = index
 	self.Columns.prefix = addonName.."Tab"..tabList[index].."_Sort"
 	
-	if index >= 2 and index <= 7 then
+	if index >= 1 and index <= 7 then
 		local moduleName = format("%s_%s", addonName, tabList[index])
-		addon.SafeLoadAddOn(moduleName)		-- make this part a bit more generic once we'll have more LoD parts
+		SafeLoadAddOn(moduleName)		-- make this part a bit more generic once we'll have more LoD parts
 		
 		local parentLevel = AltoholicFrame:GetFrameLevel()
 		local childName = format("%sTab%s", addonName, tabList[index])

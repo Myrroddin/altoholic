@@ -420,7 +420,7 @@
 						UIDropDownMenu_SetButtonWidth(self, 20)
 						-- UIDropDownMenu_SetText(self, L["Guild Members"])
 						UIDropDownMenu_SetText(self, "Compare with")
-						UIDropDownMenu_Initialize(self, Altoholic.Talents.DropDownMembers_Initialize)
+						Altoholic:DDM_Initialize(self, Altoholic.Talents.DropDownMembers_Initialize)
 					</OnLoad>
 				</Scripts>
 			</Frame>

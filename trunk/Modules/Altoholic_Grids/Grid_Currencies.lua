@@ -182,7 +182,7 @@ local callbacks = {
 			UIDropDownMenu_SetWidth(frame, 100) 
 			UIDropDownMenu_SetButtonWidth(frame, 20)
 			UIDropDownMenu_SetText(frame, currentDDMText)
-			UIDropDownMenu_Initialize(frame, DropDown_Initialize)
+			addon:DDM_Initialize(frame, DropDown_Initialize)
 		end,
 }
 

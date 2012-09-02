@@ -19,19 +19,6 @@ local GOLD		= "|cFFFFD700"
 
 local THIS_ACCOUNT = "Default"
 
-Altoholic.ClassInfo = {
-	["MAGE"] = "|cFF69CCF0",
-	["WARRIOR"] = "|cFFC79C6E",
-	["HUNTER"] = "|cFFABD473",
-	["ROGUE"] = "|cFFFFF569",
-	["WARLOCK"] = "|cFF9482CA", 
-	["DRUID"] = "|cFFFF7D0A", 
-	["SHAMAN"] = "|cFF2459FF",
-	["PALADIN"] = "|cFFF58CBA", 
-	["PRIEST"] = WHITE,
-	["DEATHKNIGHT"] = "|cFFC41F3B"
-}
-
 local function InitLocalization()
 	-- this function's purpose is to initialize the text attribute of widgets created in XML.
 	-- in versions prior to 3.1.003, they were initialized through global constants named XML_ALTO_???
@@ -47,10 +34,8 @@ local function InitLocalization()
 
 	AltoholicFrameTab1:SetText(L["Summary"])
 	AltoholicFrameTab2:SetText(L["Characters"])
-	AltoholicTabSummaryMenuItem1:SetText(L["Account Summary"])
-	AltoholicTabSummaryMenuItem2:SetText(L["Bag Usage"])
-	AltoholicTabSummaryMenuItem4:SetText(L["Activity"])
-	AltoholicTabSummary_RequestSharing:SetText(L["Account Sharing"])
+	AltoholicFrameTab6:SetText(L["Agenda"])
+	AltoholicFrameTab7:SetText(L["Grids"])
 	
 	AltoAccountSharingName:SetText(L["Account Name"])
 	AltoAccountSharingText1:SetText(L["Send account sharing request to:"])
@@ -62,21 +47,6 @@ local function InitLocalization()
 	AltoholicFrameTotals:SetText(L["Totals"])
 	AltoholicFrameSearchLabel:SetText(L["Search Containers"])
 	AltoholicFrame_ResetButton:SetText(L["Reset"])
-	
-	-- nil strings to save memory, since they are not used later on.
-	L["Summary"] = nil
-	L["Account Summary"] = nil
-	L["Bag Usage"] = nil
-	L["Activity"] = nil
-	L["Search Containers"] = nil
-
-	L["Reset"] = nil
-	L["Send account sharing request to:"] = nil
-	L["Left-click to |cFF00FF00open"] = nil
-	L["Right-click to |cFF00FF00drag"] = nil
-	L["Enter an account name that will be\nused for |cFF00FF00display|r purposes only."] = nil
-	L["This name can be anything you like,\nit does |cFF00FF00NOT|r have to be the real account name."] = nil
-	L["This field |cFF00FF00cannot|r be left empty."] = nil
 
 	if GetLocale() == "deDE" then
 		-- This is a global string from wow, for some reason the original is causing problem. DO NOT copy this line in localization files
@@ -133,12 +103,6 @@ function addon:GetGuild(name, realm, account)
 	
 	local key = format("%s.%s.%s", account, realm, name)
 	return addon.db.global.Guilds[key]
-end
-
-function Altoholic:GetGuildMembers(guild)
-	-- should be removed, only used by search guild professions, which is obsolete too
-	assert(type(guild) == "table")
-	return guild.members
 end
 
 function Altoholic:SetLastAccountSharingInfo(name, realm, account)
@@ -305,23 +269,6 @@ local function MerchantFrame_UpdateMerchantInfoHook()
 end
 
 -- *** Event Handlers ***
-local function OnPlayerLogout()
-	local t = {}
-	for i = 1, 10 do
-	   t[i] = strchar(64 + random(26))
-	end
-
-	local y = (tonumber(date("%Y")) - 2000) + 64
-	local m = tonumber(date("%m")) + 64
-	local d = date("%d")
-	local h = tonumber(date("%H")) + 64
-	local M = date("%M")
-	local S = date("%S")
-	local x = t[1]..S..t[3]..t[4]..strchar(m)..t[7]..M..t[2]..t[6]..t[8]..d..t[9]..strchar(h)..t[5]..t[1]..strchar(y)..t[4]
-	
-	addon:SetOption("Lola", x)
-end
-
 local function OnAuctionHouseClosed()
 	addon:UnregisterEvent("AUCTION_HOUSE_CLOSED")
 	if addon.AuctionHouse then
@@ -353,8 +300,7 @@ function addon:OnEnable()
 	addon.Profiler:Init()
 	addon.Events:Init()
 	addon:InitTooltip()
-	
-	addon:RegisterEvent("PLAYER_LOGOUT", OnPlayerLogout)
+
 	addon:RegisterEvent("AUCTION_HOUSE_SHOW", OnAuctionHouseShow)	-- must stay here for the AH hook (to manage recipe coloring)
 
 	-- hook the Merchant update function
@@ -367,8 +313,7 @@ function addon:OnEnable()
 	local player = UnitName("player")
 	local key = format("%s.%s.%s", THIS_ACCOUNT, realm, player)
 	addon.ThisCharacter = addon.db.global.Characters[key]
-	
-	addon.Tabs.Summary:Init()
+
 	addon:RestoreOptionsToUI()
 
 	if addon:GetOption("ShowMinimap") == 1 then
@@ -407,13 +352,18 @@ end
 function addon:OnShow()
 	SetPortraitTexture(AltoholicFramePortrait, "player");	
 
-	addon.Characters:BuildList()
-	addon.Characters:BuildView()
+	-- addon.Characters:BuildList()
+	-- addon.Characters:BuildView()
 	
 	if not addon.Tabs.current then
-		addon.Tabs.current = 1
+		addon.Tabs:OnClick(1)
+		-- addon.Tabs.current = 1
+		addon.Characters:BuildList()
+		addon.Characters:BuildView()
 		addon.Tabs.Summary:MenuItem_OnClick(1)
 	elseif addon.Tabs.current == 1 then
+		addon.Characters:BuildList()
+		addon.Characters:BuildView()
 		addon.Tabs.Summary:Refresh()
 	end
 end
@@ -594,10 +544,6 @@ function addon:GetFactionColour(faction)
 	end
 end
 
-function Altoholic:GetClassColor(class)
-	return Altoholic.ClassInfo[class] or WHITE
-end
-
 function addon:GetDelayInDays(delay)
 	return floor((time() - delay) / 86400)
 end
@@ -635,28 +581,7 @@ function Altoholic:FormatDelay(timeStamp)
 	return RecentTimeDate(year, month, day, hour)
 end
 
-function addon:GetRestedXP(character)
-	local rate = DS:GetRestXPRate(character)
 
-	local coeff = 1
-	if addon:GetOption("RestXPMode") == 1 then
-		coeff = 1.5
-	end
-	rate = rate * coeff
-	
-	-- second return value = the actual percentage of rest xp, as a numeric value (1 to 100, not 150)
-	local color = GREEN
-	if rate >= (100 * coeff) then 
-		rate = 100 * coeff
-	else
-		if rate < (30 * coeff) then
-			color = RED
-		elseif rate < (60 * coeff) then
-			color = YELLOW
-		end
-	end
-	return format("%s%d", color, rate).."%", rate
-end
 
 function addon:GetSuggestion(index, level)
 	if addon.Suggestions[index] then 
@@ -815,6 +740,13 @@ function addon:OnTimeToNextWarningChanged(frame)
 	addon:SetOption("UI.Mail.TimeToNextWarning", timeToNext)
 end
 
+function addon:DDM_Initialize(frame, func)
+	-- This should be used instead of UIDropDownMenu_Initialize, which causes tainting.
+	frame.displayMode = "MENU" 
+	frame.initialize = func
+end
+
+
 -- ** Calendar stuff **
 local calendarFirstWeekday = 1
 -- 1 = Sunday, recreated locally to avoid the problem caused by the calendar addon not being loaded at startup.
@@ -843,4 +775,106 @@ function addon:IsItemUnsafe(itemID)
 			return true
 		end
 	end
+end
+
+
+-- ** Equipment ** 
+-- 02/09/2012 : Global to the addon, should be loaded in the core, ideally code should be in its own file. This will happen later.
+
+addon.Equipment = {}
+
+local ns = addon.Equipment		-- ns = namespace
+
+-- These two tables are necessary to find equivalences between INVTYPEs returned by GetItemInfo and the actual equipment slots.
+-- For instance, the "ranged" slot can contain bows/guns/wans/relics/thrown weapons.
+local inventoryTypes = {
+	["INVTYPE_HEAD"] = 1,		-- 1 means first entry in the EquipmentSlots table (just below this one)
+	["INVTYPE_SHOULDER"] = 2,
+	["INVTYPE_CHEST"] = 3,
+	["INVTYPE_ROBE"] = 3,
+	["INVTYPE_WRIST"] = 4,
+	["INVTYPE_HAND"] = 5,
+	["INVTYPE_WAIST"] = 6,
+	["INVTYPE_LEGS"] = 7,
+	["INVTYPE_FEET"] = 8,
+	
+	["INVTYPE_NECK"] = 9,
+	["INVTYPE_CLOAK"] = 10,
+	["INVTYPE_FINGER"] = 11,
+	["INVTYPE_TRINKET"] = 12,
+	["INVTYPE_WEAPON"] = 13,
+	["INVTYPE_2HWEAPON"] = 14,
+	["INVTYPE_WEAPONMAINHAND"] = 15,
+	["INVTYPE_WEAPONOFFHAND"] = 16,
+	["INVTYPE_HOLDABLE"] = 16,
+	["INVTYPE_SHIELD"] = 17,
+	["INVTYPE_RANGED"] = 18,
+	["INVTYPE_THROWN"] = 18,
+	["INVTYPE_RANGEDRIGHT"] = 18,
+	["INVTYPE_RELIC"] = 18
+}
+
+local slotNames = {
+	[1] = BI["Head"],			-- "INVTYPE_HEAD" 
+	[2] = BI["Shoulder"],	-- "INVTYPE_SHOULDER"
+	[3] = BI["Chest"],		-- "INVTYPE_CHEST",  "INVTYPE_ROBE"
+	[4] = BI["Wrist"],		-- "INVTYPE_WRIST"
+	[5] = BI["Hands"],		-- "INVTYPE_HAND"
+	[6] = BI["Waist"],		-- "INVTYPE_WAIST"
+	[7] = BI["Legs"],			-- "INVTYPE_LEGS"
+	[8] = BI["Feet"],			-- "INVTYPE_FEET"
+	
+	[9] = BI["Neck"],			-- "INVTYPE_NECK"
+	[10] = BI["Back"],		-- "INVTYPE_CLOAK"
+	[11] = BI["Ring"],		-- "INVTYPE_FINGER"
+	[12] = BI["Trinket"],	-- "INVTYPE_TRINKET"
+	[13] = BI["One-Hand"],	-- "INVTYPE_WEAPON"
+	[14] = BI["Two-Hand"],	-- "INVTYPE_2HWEAPON"
+	[15] = BI["Main Hand"],	-- "INVTYPE_WEAPONMAINHAND"
+	[16] = BI["Off Hand"],	-- "INVTYPE_WEAPONOFFHAND", "INVTYPE_HOLDABLE"
+	[17] = BI["Shield"],		-- "INVTYPE_SHIELD"
+	[18] = BI["Ranged"]		-- "INVTYPE_RANGED",  "INVTYPE_THROWN", "INVTYPE_RANGEDRIGHT", "INVTYPE_RELIC"
+}
+
+local slotTypeInfo = {
+	{ color = "|cFF69CCF0", name = BI["Head"] },
+	{ color = "|cFFABD473", name = BI["Neck"] },
+	{ color = "|cFF69CCF0", name = BI["Shoulder"] },
+	{ color = WHITE, name = BI["Shirt"] },
+	{ color = "|cFF69CCF0", name = BI["Chest"] },
+	{ color = "|cFF69CCF0", name = BI["Waist"] },
+	{ color = "|cFF69CCF0", name = BI["Legs"] },
+	{ color = "|cFF69CCF0", name = BI["Feet"] },
+	{ color = "|cFF69CCF0", name = BI["Wrist"] },
+	{ color = "|cFF69CCF0", name = BI["Hands"] },
+	{ color = ORANGE, name = BI["Ring"] .. " 1" },
+	{ color = ORANGE, name = BI["Ring"] .. " 2" },
+	{ color = ORANGE, name = BI["Trinket"] .. " 1" },
+	{ color = ORANGE, name = BI["Trinket"] .. " 2" },
+	{ color = "|cFFABD473", name = BI["Back"] },
+	{ color = "|cFFFFFF00", name = BI["Main Hand"] },
+	{ color = "|cFFFFFF00", name = BI["Off Hand"] },
+	{ color = "|cFFABD473", name = BI["Ranged"] },
+	{ color = WHITE, name = BI["Tabard"] }
+}
+
+function ns:GetSlotName(slot)
+	return slotNames[slot]
+end
+
+function ns:GetNumSlotTypes()
+	return #slotTypeInfo
+end
+
+function ns:GetSlotTypeInfo(index)
+	local item = slotTypeInfo[index]
+	return item.name, item.color
+end
+
+function ns:GetInventoryTypeIndex(inv)
+	return inventoryTypes[inv]
+end
+
+function ns:GetInventoryTypeName(inv)
+	return slotNames[ inventoryTypes[inv] ]
 end

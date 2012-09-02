@@ -77,6 +77,10 @@ local petList = {
 	},
 }
 
+for _, list in pairs(petList) do
+	table.sort(list, SortPets)
+end
+
 local currentXPack = 1					-- default to wow classic
 
 local xPacks = {
@@ -89,7 +93,7 @@ local xPacks = {
 
 local function OnXPackChange(self)
 	currentXPack = self.value
-	currentDDMText = xPacks[currentXPack]
+	currentDDMText = (currentXPack <= #xPacks) and xPacks[currentXPack] or L["All-in-one"]
 	addon.Tabs.Grids:SetViewDDMText(currentDDMText)
 	addon.Tabs.Grids:Update()
 end
@@ -98,13 +102,14 @@ local function PetDropDown_Initialize()
 	for i, xpack in pairs(xPacks) do
 		DDM_Add(xpack, i, OnXPackChange, nil, (i==currentXPack))
 	end
+	DDM_Add(L["All-in-one"], 5, OnXPackChange, nil, (currentXPack==5))
 	
 	DDM_AddCloseMenu()
 end
 
 local companionsCallbacks = {
 	OnUpdate = function() 
-			spellList = petList[currentXPack]
+			spellList = (currentXPack <= #xPacks) and petList[currentXPack] or DataStore:GetCompanionList()
 		end,
 	GetSize = function() return #spellList end,
 	RowSetup = function(self, entry, row, dataRowID)
@@ -165,7 +170,7 @@ local companionsCallbacks = {
 			UIDropDownMenu_SetWidth(frame, 100) 
 			UIDropDownMenu_SetButtonWidth(frame, 20)
 			UIDropDownMenu_SetText(frame, currentDDMText)
-			UIDropDownMenu_Initialize(frame, PetDropDown_Initialize)
+			addon:DDM_Initialize(frame, PetDropDown_Initialize)
 		end,
 }
 
@@ -514,7 +519,7 @@ local mountsCallbacks = {
 			UIDropDownMenu_SetWidth(frame, 100) 
 			UIDropDownMenu_SetButtonWidth(frame, 20)
 			UIDropDownMenu_SetText(frame, factionLabels[currentFaction])
-			UIDropDownMenu_Initialize(frame, MountDropDown_Initialize)
+			addon:DDM_Initialize(frame, MountDropDown_Initialize)
 			RefreshMountList()
 		end,
 }

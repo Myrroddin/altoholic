@@ -39,7 +39,6 @@ local function FilterItemLevel()
 end
 
 local function FilterEquipmentSlot()
-	addon.SafeLoadAddOn("Altoholic_Grids")
 	if addon.Equipment:GetInventoryTypeIndex(searchedItem["itemEquipLoc"]) == filters["itemSlot"] then
 		return true		-- same slot as filter, keep the item
 	end

@@ -9,14 +9,6 @@
 	<Script file="Loots.lua"></Script>
 	<Script file="Events.lua"></Script>
 	<Script file="RecipeDB.lua"></Script>
-	<Script file="Suggestions.lua"></Script>
-	<Script file="Suggestions_ruRU.lua"></Script>
-	<Script file="Suggestions_deDE.lua"></Script>
-	<Script file="Suggestions_frFR.lua"></Script>
-	<Script file="Suggestions_zhCN.lua"></Script>
-	<Script file="Suggestions_zhTW.lua"></Script>
-	<Script file="Suggestions_koKR.lua"></Script>
-	<Script file="Characters.lua"></Script>
 	<Script file="Altoholic.lua"></Script>
 	
 	<GameTooltip name="AltoTooltip" inherits="GameTooltipTemplate" parent="UIParent" hidden="true" />
@@ -313,7 +305,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentTab6" inherits="AltoTabTemplate" id="6" text="Agenda">
+			<Button name="$parentTab6" inherits="AltoTabTemplate" id="6">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentTab5" relativePoint="TOPRIGHT">
 						<Offset>
@@ -322,7 +314,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentTab7" inherits="AltoTabTemplate" id="7" text="Grids">
+			<Button name="$parentTab7" inherits="AltoTabTemplate" id="7">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentTab6" relativePoint="TOPRIGHT">
 						<Offset>
