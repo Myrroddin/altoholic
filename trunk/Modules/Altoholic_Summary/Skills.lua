@@ -229,7 +229,7 @@ function ns:OnEnter(frame)
 	AltoTooltip:AddLine(GREEN..rank,1,1,1);
 	
 	if id <= 4 then	-- all skills except fishing & riding
-		if skillName ~= GetSpellInfo(2366) and skillName ~= GetSpellInfo(8613) then		-- no display for herbalism & skinning
+		if DataStore:GetProfessionSpellID(skillName) ~= 2366 and skillName ~= GetSpellInfo(8613) then		-- no display for herbalism & skinning
 			AltoTooltip:AddLine(" ");
 			
 			if not profession then
