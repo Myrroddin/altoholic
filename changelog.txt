@@ -8,6 +8,15 @@ IMPORTANT NOTE: If you're upgrading from 4.x :
 - Make sure you delete the addon's databases in SavedVariables. ie: Altoholic.lua and all DataStore*.lua.
 - Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
 
+5.0.001c (03/09/2012)
+
+- Fixed tooltip showing "No data" for herbalism in the Skills pane.. for good this time !
+- Fixed a Lua error when scanning glyphs.. for good this time too ! (Thanks Sylvannis)
+- Fixed a Lua error when clicking on glyphs, blaming DataStore_Crafts and/or DataStore_Achievements.
+
+- Note: About pets & mounts. I know that they are now account wide, but I will leave things as they are for a little while, that is at least until the expansion launches.
+I want to see how things actually turn out to see what has value or not, or what could be modified to remain useful.
+
 5.0.001b (02/09/2012)
 
 - Fixed a Lua error when trying to scan glyphs on a low level character.
