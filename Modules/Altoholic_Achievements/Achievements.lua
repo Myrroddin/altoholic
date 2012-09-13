@@ -413,7 +413,7 @@ function ns:Update()
 	local realm, account = addon.Tabs.Achievements:GetRealm()
 	local character
 		
-	local achStatus, achName, achImage, isStarted, isComplete
+	local achStatus
 	local isAccountBound
 	
 	AltoholicTabAchievementsStatus:SetText(format("%s: %s", ACHIEVEMENTS, GREEN..categorySize ))
@@ -424,8 +424,7 @@ function ns:Update()
 			local achievementID
 			local allianceID, hordeID = GetAchievementFactionInfo(currentCategoryID, line)
 			
-			_, achName, _, isComplete, _, _, _, _, flags = GetAchievementInfo(allianceID)		-- use the alliance name if a
-			isStarted = nil
+			local _, achName, _, isComplete, _, _, _, _, flags = GetAchievementInfo(allianceID)		-- use the alliance name if a
 
 			-- if not achName then 
 				-- DEFAULT_CHAT_FRAME:AddMessage(allianceID)
@@ -453,7 +452,7 @@ function ns:Update()
 						achievementID = allianceID
 					end
 					
-					isStarted, isComplete = DataStore:GetAchievementInfo(character, achievementID, isAccountBound)
+					local isStarted, isComplete = DataStore:GetAchievementInfo(character, achievementID, isAccountBound)
 
 					if isComplete then
 						itemTexture:SetVertexColor(1.0, 1.0, 1.0);
@@ -466,7 +465,7 @@ function ns:Update()
 						itemTexture:SetVertexColor(0.4, 0.4, 0.4);
 					end
 				
-					_, _, _, _, _, _, _, _, _, achImage = GetAchievementInfo(achievementID)
+					local _, _, _, _, _, _, _, _, _, achImage = GetAchievementInfo(achievementID)
 					itemTexture:SetTexture(achImage)
 					_G[itemName .. "Name"]:SetText(achStatus)
 					

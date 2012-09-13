@@ -394,10 +394,12 @@ local callbacks = {
 				end
 
 				itemButton.key = character
+				itemButton:SetID(dataRowID)
 				itemText:SetText(color..text)
 			else
 				itemTexture:SetVertexColor(0.3, 0.3, 0.3);	-- greyed out
 				itemText:SetText(ICON_NOTREADY)
+				itemButton:SetID(0)
 				itemButton.key = nil
 			end
 		end,
@@ -406,7 +408,7 @@ local callbacks = {
 			local character = frame.key
 			if not character then return end
 
-			local faction = view[ frame:GetParent():GetID() ].name
+			local faction = view[ frame:GetID() ].name
 			local status, currentLevel, maxLevel, rate = DataStore:GetReputationInfo(character, faction)
 			if not status then return end
 			

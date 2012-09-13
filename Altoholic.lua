@@ -48,10 +48,10 @@ local function InitLocalization()
 	AltoholicFrameSearchLabel:SetText(L["Search Containers"])
 	AltoholicFrame_ResetButton:SetText(L["Reset"])
 
-	if GetLocale() == "deDE" then
+	-- if GetLocale() == "deDE" then
 		-- This is a global string from wow, for some reason the original is causing problem. DO NOT copy this line in localization files
-		ITEM_MOD_SPELL_POWER = "Erh\195\182ht die Zaubermacht um %d."; 
-	end
+		-- ITEM_MOD_SPELL_POWER = "Erh\195\182ht die Zaubermacht um %d."; 
+	-- end
 end
 
 local function BuildUnsafeItemList()
