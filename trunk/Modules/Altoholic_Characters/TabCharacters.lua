@@ -698,7 +698,7 @@ local function ProfessionsIcon_Initialize(self, level)
 		-- rank = DataStore:GetArchaeologyRank(currentCharacterKey)
 		
 		-- Profession 1
-		local rank, professionName
+		local rank, professionName, _
 		rank, _, _, professionName = DataStore:GetProfession1(currentCharacterKey)
 		if last and rank then
 			DDM_Add(format("%s %s(%s)", professionName, GREEN, rank ), professionName, OnProfessionChange, nil, (professionName == (currentProfession or "")))

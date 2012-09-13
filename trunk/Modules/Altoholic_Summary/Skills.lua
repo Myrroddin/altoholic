@@ -147,7 +147,7 @@ function ns:Update()
 					
 					DisplaySecondarySkillLevel(_G[entry..i.."CookingNormalText"], "cooking", 2550, line)
 					DisplaySecondarySkillLevel(_G[entry..i.."FirstAidNormalText"], "firstaid", 3273, line)
-					DisplaySecondarySkillLevel(_G[entry..i.."FishingNormalText"], "fishing", 7620, line)
+					DisplaySecondarySkillLevel(_G[entry..i.."FishingNormalText"], "fishing", 131474, line)
 					DisplaySecondarySkillLevel(_G[entry..i.."RidingNormalText"], "archa", 78670, line)
 
 					
@@ -202,7 +202,7 @@ function ns:OnEnter(frame)
 	elseif id == 4 then
 		skillName = GetSpellInfo(3273)		-- First Aid
 	elseif id == 5 then
-		skillName = GetSpellInfo(7620)		-- Fishing
+		skillName = GetSpellInfo(131474)		-- Fishing
 	elseif id == 6 then
 		skillName = GetSpellInfo(78670)		-- Archaeology
 	end

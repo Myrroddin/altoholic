@@ -9,7 +9,7 @@
 ## Notes-koKR: 부캐들(alts)의 정보들을 제공해 줍니다.
 
 ## Author: Thaoky (EU-Marécages de Zangar)
-## Version: 5.0.001c
+## Version: 5.0.001d
 ## X-Category: Inventory, Tradeskill, Mail
 ## X-Localizations: enUS, frFR, zhCN, zhTW, deDE, koKR, esES, esMX, ruRU
 ## X-Website: http://wow.curse.com/downloads/wow-addons/details/altoholic.aspx
@@ -32,11 +32,5 @@ locale.xml
 AltoholicTemplates.xml
 Altoholic.xml
 
-Frames\TabSummary.xml
 Frames\TabOptions.xml
-
 Frames\AccountSharing.xml
-Frames\AccountSummary.xml
-Frames\Activity.xml
-Frames\BagUsage.xml
-Frames\Skills.xml

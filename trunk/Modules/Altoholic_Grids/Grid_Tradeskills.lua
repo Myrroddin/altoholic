@@ -670,7 +670,7 @@ local function DropDown_Initialize(self, level)
 		DDM_AddCloseMenu()
 	
 	elseif level == 2 then
-		local spell, icon
+		local spell, icon, _
 		local firstSecondarySkill = 10
 	
 		if UIDROPDOWNMENU_MENU_VALUE == 1 then				-- Primary professions
