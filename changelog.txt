@@ -8,6 +8,11 @@ IMPORTANT NOTE: If you're upgrading from 4.x :
 - Make sure you delete the addon's databases in SavedVariables. ie: Altoholic.lua and all DataStore*.lua.
 - Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
 
+5.0.003 (28/11/2012)
+
+- Re-fixed searching for heirlooms (Thanks JCinDE !).
+- Scanning tabards is temporarily disabled, as it triggers an error I cannot fix right now.
+
 5.0.002 (06/10/2012)
 
 - Integrated the Void Storage to the container's UI (Characters -> Containers).
@@ -16,7 +21,7 @@ IMPORTANT NOTE: If you're upgrading from 4.x :
 - Added Mists of Pandaria crafts for each professions (Grids -> Tradeskills).
 - Fixed a few Lua errors related to Battle Pets. They are temporarily NOT scanned at the Auction House.
 
-Some features related to Battle Pets are now fully working, this is on my (neverending) to-do-list.
+Some features related to Battle Pets are not fully working, this is on my (neverending) to-do-list.
 
 5.0.001d (13/09/2012)
 
