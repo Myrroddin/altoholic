@@ -8,6 +8,11 @@ IMPORTANT NOTE: If you're upgrading from 4.x :
 - Make sure you delete the addon's databases in SavedVariables. ie: Altoholic.lua and all DataStore*.lua.
 - Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
 
+5.1.001 (29/11/2012)
+
+- Fixed 5.0.003 archive, DataStore_Achievements was missing.
+- Fixed .Toc files not updated for 5.1 in previous release.
+
 5.0.003 (28/11/2012)
 
 - Re-fixed searching for heirlooms (Thanks JCinDE !).
