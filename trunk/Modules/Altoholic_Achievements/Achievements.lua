@@ -16,7 +16,6 @@ local ICON_READY = "\124TInterface\\RaidFrame\\ReadyCheck-Ready:14\124t"
 local ICON_WAITING = "\124TInterface\\RaidFrame\\ReadyCheck-Waiting:14\124t"
 local ICON_NOTREADY = "\124TInterface\\RaidFrame\\ReadyCheck-NotReady:14\124t"
 
-
 -- TODO:
 -- dungeons : lk raid + cata dungeon (cata raid is ok) + feats
 
@@ -436,7 +435,7 @@ function ns:Update()
 			_G[entry..i.."Name"]:SetJustifyH("LEFT")
 			_G[entry..i.."Name"]:SetPoint("TOPLEFT", 15, 0)
 			
-			for j = 1, 10 do
+			for j = 1, 11 do
 				local itemName = entry.. i .. "Item" .. j;
 				local itemButton = _G[itemName]
 				local itemTexture = _G[itemName .. "_Background"]
