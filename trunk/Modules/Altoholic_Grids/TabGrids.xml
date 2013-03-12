@@ -286,7 +286,14 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			
+
+			<Button name="$parent_Dailies" inherits="AltoTabGridsMenuIconTemplate" id="9">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="AltoholicTabGrids" relativePoint="BOTTOMLEFT" >
+						<Offset x="30" y="160" />
+					</Anchor>
+				</Anchors>
+			</Button>
 		</Frames>
 		<Scripts>
 			<OnLoad>

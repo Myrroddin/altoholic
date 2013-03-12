@@ -43,6 +43,7 @@ local ICON_VIEW_COMPANIONS = "Interface\\Icons\\INV_Box_Birdcage_01"
 local ICON_VIEW_MOUNTS = "Interface\\Icons\\Ability_Mount_RidingHorse"
 local ICON_VIEW_TRADESKILLS = "Interface\\Icons\\Ability_Repair"
 local ICON_VIEW_ARCHEOLOGY = "Interface\\Icons\\trade_archaeology"
+local ICON_VIEW_QUESTS = "Interface\\LFGFrame\\LFGIcon-Quest"
 
 addon.Tabs.Grids = {}
 
@@ -106,6 +107,12 @@ local function UpdateMenuIcons()
 		EnableIcon(parent .. "_Tabards")
 	else
 		DisableIcon(parent .. "_Tabards")
+	end
+
+	if DataStore_Quests then
+		EnableIcon(parent .. "_Dailies")
+	else
+		DisableIcon(parent .. "_Dailies")
 	end
 end
 
@@ -444,6 +451,9 @@ function ns:OnLoad()
 	_G[parent .. "_TradeSkills"].text = TRADESKILLS
 	addon:SetItemButtonTexture(parent .. "_Archeology", ICON_VIEW_ARCHEOLOGY, size, size)
 	_G[parent .. "_Archeology"].text = GetSpellInfo(78670)
+	
+	addon:SetItemButtonTexture(parent .. "_Dailies", ICON_VIEW_QUESTS, size, size)
+	_G[parent .. "_Dailies"].text = "Daily Quests"
 	
 	-- Class Icons
 	for column = 1, CHARS_PER_FRAME do

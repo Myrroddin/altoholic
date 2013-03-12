@@ -39,12 +39,16 @@ local function BuildTabardList()
 		criteriaID = tabardCriteriaIDs[i]
 		
 		name, _, _, _, _, _, _, itemID = GetAchievementCriteriaInfoByID(TABARDS_ACHIEVEMENT_ID, criteriaID)
+		
+		-- if the tabard name isn't available via the achievement data ..
 		if not name or name == "" then
-			name = GetItemInfo(itemID)
+			name = GetItemInfo(itemID) 		-- .. then get it via the item data
 		end
 		
-		tabardNames[criteriaID] = name
-		table.insert(tabardList, criteriaID)
+		if name then	-- if get item info takes too much time, name might not be valid yet, only add valid data
+			tabardNames[criteriaID] = name	
+			table.insert(tabardList, criteriaID)
+		end
 	end
 	
 	-- sort on tabard name
