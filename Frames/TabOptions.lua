@@ -124,6 +124,14 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "5.3.001 Changes",
+		bulletedList = {
+			"Fixed recipe colors at the Auction House (Thanks Elandril !).",
+			"Fixed a lua error when DataStore_Agenda is disabled.",
+			"Fixed profession cooldowns warnings, they are now hardcoded at 3 am (the game sometimes still returns midnight).",
+			"Added a total AiL per realm in the account summary.",
+		},
+	},
 	{	name = "5.2.001 Changes",
 		bulletedList = {
 			"Added new pane in the 'Grids' tab to track dailies across all alts. Dailies are stored in DataStore_Quests and reset at 3am.",
