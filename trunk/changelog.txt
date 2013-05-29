@@ -8,6 +8,16 @@ IMPORTANT NOTE: If you're upgrading from 4.x :
 - Make sure you delete the addon's databases in SavedVariables. ie: Altoholic.lua and all DataStore*.lua.
 - Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
 
+5.3.002 (29/05/2013)
+
+- Fixed skill levels reported as 0.
+
+Note: The problems does not fix itself with this new version. To fully fix it, you need to populate the database with new profession links.
+To do this, log all your alts one by one, open their tradeskills, and ONLY THEN, open the skills pane in Altoholic to see that this character's
+skill levels are ok. If not, it is merely a refresh issue.
+
+As I said, the problem comes from the format of the profession links which has been changed by Blizzard, reload the whole thing, and you will be fine.
+
 5.3.001 (28/05/2013)
 
 - Fixed recipe colors at the Auction House (Thanks Elandril !).
