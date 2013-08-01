@@ -8,6 +8,16 @@ IMPORTANT NOTE: If you're upgrading from 4.x :
 - Make sure you delete the addon's databases in SavedVariables. ie: Altoholic.lua and all DataStore*.lua.
 - Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
 
+5.3.003 (01/08/2013)
+
+- Added missing reputations (Thanks Daovan !)
+- The source of an item is no longer read/displayed in the tooltip if combat lockdown is active.
+- Fixed a risk of profile reset when DataStore_Agenda is disabled.
+- Updated glyphs (Thanks Zartsoft)
+- Implemented RGriedel's fix for profession cooldown, hopefully they should be correct for both US & EU now (Thanks RGriedel!)
+- Fixed a tainting issue in DataStore_Talents. (Thanks Warloxx!)
+
+
 5.3.002 (29/05/2013)
 
 - Fixed skill levels reported as 0.
