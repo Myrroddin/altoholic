@@ -8,6 +8,12 @@ IMPORTANT NOTE: If you're upgrading from 4.x :
 - Make sure you delete the addon's databases in SavedVariables. ie: Altoholic.lua and all DataStore*.lua.
 - Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
 
+5.4.001 (11/09/2013)
+
+- Added new 5.4 achievements.
+- Removed a call to GetArenaTeam in DataStore_Stats.
+
+
 5.3.003 (01/08/2013)
 
 - Added missing reputations (Thanks Daovan !)
