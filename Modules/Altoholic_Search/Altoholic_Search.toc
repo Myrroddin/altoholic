@@ -1,8 +1,8 @@
-﻿## Interface: 50300
+﻿## Interface: 50400
 ## Title: Altoholic_Search
 ## Notes: Altoholic's Search UI
 ## Author: Thaoky (EU-Marécages de Zangar)
-## Version: 5.3.001
+## Version: 5.4.001
 ## Dependencies: Altoholic, DataStore, DataStore_Characters
 ## LoadOnDemand: 1
 ## X-Category: Interface Enhancements

@@ -124,6 +124,12 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "5.4.001 Changes",
+		bulletedList = {
+			"Added new 5.4 achievements.",
+			"Removed a call to GetArenaTeam in DataStore_Stats.",
+		},
+	},
 	{	name = "5.3.003 Changes",
 		bulletedList = {
 			"Added missing reputations (Thanks Daovan !)",
