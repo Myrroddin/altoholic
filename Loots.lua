@@ -903,12 +903,10 @@ function ns:GetSource(searchedID)
 		end
 	end
 	
-	local spellID = LCI:GetRecipeLearnedSpell(searchedID)
-	if spellID then
-		local name = LCI:GetCraftProfession(spellID)
-		local learnedAt = LCL:GetCraftLearnedAtLevel(spellID)
-		
-		return name, learnedAt
+	local name, spellID = LCI:GetItemSource(searchedID)
+	
+	if name and spellID then
+		return name, LCL:GetCraftLearnedAtLevel(spellID)
 	end	
 	
 	return nil
