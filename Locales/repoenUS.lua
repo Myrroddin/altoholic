@@ -212,6 +212,13 @@ L["28 Slot"] = true
 L["Bank bag"] = true
 L["Unknown link, please relog this character"] = true
 
+--Currencies.lua
+L["Conquest"] = true
+L["Honor"] = true
+L["Valor"] = true
+L["Valor / Week"] = true
+L["Justice"] = true
+
 --Equipment.lua
 L["Find Upgrade"] = true
 L["(based on iLvl)"] = true
@@ -782,7 +789,8 @@ L["Show pets already known/learnable by"] = true
 L["Show item ID and item level"] = true
 L["Show counters on gathering nodes"] = true
 L["Show counters for both factions"] = true
-L["Show counters for all accounts"] = true
+L["Show counters for all accounts"] = 
+L["Show counters for connected realms"] = true
 L["Include guild bank count in the total count"] = true
 L["Detailed guild bank count"] = true
 

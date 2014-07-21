@@ -4,8 +4,8 @@ _G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "A
 
 local addon = _G[addonName]
 
-addon.Version = "v5.4.004"
-addon.VersionNum = 504004
+addon.Version = "v5.4.005"
+addon.VersionNum = 504005
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local commPrefix = addonName
@@ -115,6 +115,7 @@ local AddonDB_Defaults = {
 			TooltipGatheringNode = 1,		-- display counters when mousing over a gathering node (default:  on)
 			TooltipCrossFaction = 1,		-- display counters for both factions on a pve server
 			TooltipMultiAccount = 1,		-- display counters for all accounts on the same realm
+			TooltipConnectedRealms = 1,	-- display counters for characters on connected realms
 			
 			TooltipGuildBank = 1,
 			TooltipGuildBankCount = 1,		-- total count = alts + guildbank (1) or alts only (0)

@@ -20,6 +20,7 @@ local childrenFrames = {
 	"BagUsage",
 	"Skills",
 	"Activity",
+	"Currencies",
 }
 
 local childrenObjects		-- these are the tables that actually contain the BuildView & Update methods. Not really OOP, but enough for our needs
@@ -82,6 +83,7 @@ function ns:MenuItem_OnClick(id)
 		addon.BagUsage,
 		addon.TradeSkills,
 		addon.Activity,
+		addon.Currencies,
 	}
 
 	for _, v in pairs(childrenFrames) do			-- hide all frames
@@ -160,6 +162,16 @@ function ns:SetMode(mode)
 		Columns:Add(BIDS, 60, function(self) addon.Characters:Sort(self, "GetNumBids") end)
 		Columns:Add(L["Visited"], 60, function(self) addon.Characters:Sort(self, "GetAuctionHouseLastVisit") end)
 		Columns:Add(LASTONLINE, 90, function(self) addon.Characters:Sort(self, "GetLastLogout") end)
+	
+	elseif currentMode == 5 then
+		Columns:Add(NAME, 100, function(self) addon.Characters:Sort(self, "GetCharacterName") end)
+		Columns:Add(LEVEL, 60, function(self) addon.Characters:Sort(self, "GetCharacterLevel") end)
+		
+		Columns:Add(L["Justice"], 80, function(self) addon.Characters:Sort(self, "GetJusticePoints") end)
+		Columns:Add(L["Valor / Week"], 90, function(self) addon.Characters:Sort(self, "GetValorPointsPerWeek") end)
+		Columns:Add(L["Valor"], 80, function(self) addon.Characters:Sort(self, "GetValorPoints") end)
+		Columns:Add(L["Honor"], 80, function(self) addon.Characters:Sort(self, "GetHonorPoints") end)
+		Columns:Add(L["Conquest"], 80, function(self) addon.Characters:Sort(self, "GetConquestPoints") end)
 	end
 end
 
@@ -172,6 +184,8 @@ function ns:Refresh()
 		addon.TradeSkills:Update()
 	elseif AltoholicFrameActivity:IsVisible() then
 		addon.Activity:Update()
+	elseif AltoholicFrameCurrencies:IsVisible() then
+		addon.Currencies:Update()
 	end
 end
 

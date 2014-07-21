@@ -12,6 +12,7 @@ local TEAL		= "|cFF00FF9A"
 local GOLD		= "|cFFFFD700"
 
 local THIS_ACCOUNT = "Default"
+local THIS_REALM = GetRealmName()
 
 local Orig_GameTooltip_OnShow
 local Orig_GameTooltip_SetItem
@@ -204,10 +205,18 @@ local function GetCharacterItemCount(character, searchedID)
 	end
 	
 	if charCount > 0 then
-		local account, _, char = strsplit(".", character)
+		local account, realm, char = strsplit(".", character)
 		local name = DataStore:GetColoredCharacterName(character) or char		-- if for any reason this char isn't in DS_Characters.. use the name part of the key
-		if account ~= THIS_ACCOUNT then
-			name = name .. YELLOW .. " (" .. account .. ")"
+		
+		local isOtherAccount = (account ~= THIS_ACCOUNT)
+		local isOtherRealm = (realm ~= THIS_REALM)
+		
+		if isOtherAccount and isOtherRealm then		-- other account AND other realm
+			name = format("%s%s (%s / %s)", name, YELLOW, account, realm)
+		elseif isOtherAccount then							-- only other account
+			name = format("%s%s (%s)", name, YELLOW, account)
+		elseif isOtherRealm then							-- only other realm
+			name = format("%s%s (%s)", name, YELLOW, realm)
 		end
 		
 		local t = {}
@@ -225,15 +234,25 @@ local function GetCharacterItemCount(character, searchedID)
 end
 
 local function GetAccountItemCount(account, searchedID)
-	local realm = GetRealmName()		-- implicit: this realm only
 	local count = 0
 
-	for _, character in pairs(DataStore:GetCharacters(realm, account)) do
-		if addon:GetOption("TooltipCrossFaction") == 1 then
-			count = count + GetCharacterItemCount(character, searchedID)
-		else
-			if	DataStore:GetCharacterFaction(character) == UnitFactionGroup("player") then
+	local realms = {}
+	table.insert(realms, THIS_REALM)
+	
+	if addon:GetOption("TooltipConnectedRealms") == 1 then
+		for _, connectedRealm in pairs(DataStore:GetRealmsConnectedWith(THIS_REALM)) do
+			table.insert(realms, connectedRealm)
+		end
+	end
+
+	for _, realm in pairs(realms) do
+		for _, character in pairs(DataStore:GetCharacters(realm, account)) do
+			if addon:GetOption("TooltipCrossFaction") == 1 then
 				count = count + GetCharacterItemCount(character, searchedID)
+			else
+				if	DataStore:GetCharacterFaction(character) == UnitFactionGroup("player") then
+					count = count + GetCharacterItemCount(character, searchedID)
+				end
 			end
 		end
 	end
