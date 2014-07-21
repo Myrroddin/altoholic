@@ -3,7 +3,6 @@ local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local BF = LibStub("LibBabble-Faction-3.0"):GetLookupTable()
-local BZ = LibStub("LibBabble-Zone-3.0"):GetLookupTable()
 
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
@@ -22,10 +21,10 @@ local Factions = {
 		name = EXPANSION_NAME0,	-- "Classic"
 		{	-- [1]
 			name = FACTION_ALLIANCE,
-			{ name = BZ["Darnassus"], icon = "Achievement_Character_Nightelf_Female"	},
+			{ name = BF["Darnassus"], icon = "Achievement_Character_Nightelf_Female"	},
 			{ name = BF["Exodar"], icon = "Achievement_Character_Draenei_Male" },
-			{ name = BZ["Gnomeregan"], icon = "Achievement_Character_Gnome_Female" },
-			{ name = BZ["Ironforge"], icon = "Achievement_Character_Dwarf_Male" },
+			{ name = BF["Gnomeregan"], icon = "Achievement_Character_Gnome_Female" },
+			{ name = BF["Ironforge"], icon = "Achievement_Character_Dwarf_Male" },
 			{ name = BF["Stormwind"], icon = "Achievement_Character_Human_Male" },
 			{ name = BF["Gilneas"], icon = "Interface\\Glues\\CharacterCreate\\UI-CHARACTERCREATE-RACES", left = 0.625, right = 0.75, top = 0, bottom = 0.25 },
 			{ name = BF["Tushui Pandaren"], icon = "Interface\\Glues\\CharacterCreate\\UI-CHARACTERCREATE-RACES", left = 0.75, right = 0.875, top = 0, bottom = 0.25 },
@@ -34,10 +33,10 @@ local Factions = {
 		{	-- [2]
 			name = FACTION_HORDE,
 			{ name = BF["Darkspear Trolls"], icon = "Achievement_Character_Troll_Male" },
-			{ name = BZ["Orgrimmar"], icon = "Achievement_Character_Orc_Male" },
-			{ name = BZ["Thunder Bluff"], icon = "Achievement_Character_Tauren_Male" },
-			{ name = BZ["Undercity"], icon = "Achievement_Character_Undead_Female" },
-			{ name = BZ["Silvermoon City"], icon = "Achievement_Character_Bloodelf_Male" },
+			{ name = BF["Orgrimmar"], icon = "Achievement_Character_Orc_Male" },
+			{ name = BF["Thunder Bluff"], icon = "Achievement_Character_Tauren_Male" },
+			{ name = BF["Undercity"], icon = "Achievement_Character_Undead_Female" },
+			{ name = BF["Silvermoon City"], icon = "Achievement_Character_Bloodelf_Male" },
 			{ name = BF["Bilgewater Cartel"], icon = "Interface\\Glues\\CharacterCreate\\UI-CHARACTERCREATE-RACES", left = 0.625, right = 0.75, top = 0.25, bottom = 0.5 },
 			{ name = BF["Huojin Pandaren"], icon = "Interface\\Glues\\CharacterCreate\\UI-CHARACTERCREATE-RACES", left = 0.75, right = 0.875, top = 0.25, bottom = 0.5 },
 			{ name = BF["Horde"], icon = "INV_BannerPVP_01" },
@@ -56,10 +55,10 @@ local Factions = {
 		},
 		{	-- [5]
 			name = L["Steamwheedle Cartel"],
-			{ name = BZ["Booty Bay"], icon = "Achievement_Zone_Stranglethorn_01" },
-			{ name = BZ["Everlook"], icon = "Achievement_Zone_Winterspring" },
-			{ name = BZ["Gadgetzan"], icon = "Achievement_Zone_Tanaris_01" },
-			{ name = BZ["Ratchet"], icon = "Achievement_Zone_Barrens_01" },
+			{ name = BF["Booty Bay"], icon = "Achievement_Zone_Stranglethorn_01" },
+			{ name = BF["Everlook"], icon = "Achievement_Zone_Winterspring" },
+			{ name = BF["Gadgetzan"], icon = "Achievement_Zone_Tanaris_01" },
+			{ name = BF["Ratchet"], icon = "Achievement_Zone_Barrens_01" },
 		},
 		{	-- [6]
 			name = OTHER,
@@ -97,7 +96,7 @@ local Factions = {
 			{ name = BF["Thrallmar"], icon = "Spell_Misc_HellifrePVPThrallmarFavor" },
 		},
 		{	-- [2]
-			name = BZ["Shattrath City"],
+			name = GetMapNameByID(481),	-- "Shattrath City"
 			{ name = BF["Lower City"], icon = "Achievement_Zone_Terrokar" },
 			{ name = BF["Sha'tari Skyguard"], icon = "Ability_Hunter_Pet_NetherRay" },
 			{ name = BF["Shattered Sun Offensive"], icon = "INV_Shield_48" },
@@ -141,7 +140,7 @@ local Factions = {
 			{ name = BF["Warsong Offensive"], icon = "Achievement_Zone_BoreanTundra_03" },
 		},
 		{	-- [4]
-			name = BZ["Sholazar Basin"],
+			name = GetMapNameByID(493),	-- "Sholazar Basin"
 			{ name = BF["Frenzyheart Tribe"], icon = "Ability_Mount_WhiteDireWolf" },
 			{ name = BF["The Oracles"], icon = "Achievement_Reputation_MurlocOracle" },
 		},

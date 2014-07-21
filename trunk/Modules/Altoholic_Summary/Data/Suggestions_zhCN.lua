@@ -3,7 +3,6 @@ local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
-local BZ = LibStub("LibBabble-Zone-3.0"):GetLookupTable()
 local BF = LibStub("LibBabble-Faction-3.0"):GetLookupTable()
 
 if GetLocale() ~= "zhCN" then return end
@@ -316,44 +315,4 @@ addon.Suggestions = {
 		{ 360, "346~360: 泰罗卡森林" },
 		{ 375, "361~375: 泰罗卡森林,高地上：\n尤鲁恩湖, 裂石堡西北方\n艾雷诺湖, 奥蕾莉亚要塞东南方\n黑风湖, 斯克提斯地区\n需要飞行坐骑" }
 	},
-	
-	-- 建议升级地区，来源众多，不一一列举了
-	["Leveling"] = {
-		{ 10, "1~10级: 所有起始地区" },
-		{ 20, "11~20级: "  .. BZ["Loch Modan"] .. "\n" .. BZ["Westfall"] .. "\n" .. BZ["Darkshore"] .. "\n" .. BZ["Bloodmyst Isle"] 
-						.. "\n" .. BZ["Silverpine Forest"] .. "\n" .. BZ["The Barrens"] .. "\n" .. BZ["Ghostlands"]},
-		{ 25, "21~25级: " .. BZ["Wetlands"] .. "\n" .. BZ["Redridge Mountains"] .. "\n" .. BZ["Ashenvale"] 
-						.. "\n" .. BZ["The Barrens"] .. "\n" .. BZ["Stonetalon Mountains"] .. "\n" .. BZ["Hillsbrad Foothills"] },
-		{ 28, "26~28级: " .. BZ["Duskwood"] .. "\n" .. BZ["Wetlands"] .. "\n" .. BZ["Ashenvale"] 
-						.. "\n" .. BZ["Stonetalon Mountains"] .. "\n" .. BZ["Thousand Needles"] },
-		{ 31, "29~31级: " .. BZ["Duskwood"] .. "\n" .. BZ["Thousand Needles"] .. "\n" .. BZ["Ashenvale"] },
-		{ 35, "32~35级: " .. BZ["Thousand Needles"] .. "\n" .. BZ["Stranglethorn Vale"] .. "\n" .. BZ["Alterac Mountains"] 
-						.. "\n" .. BZ["Arathi Highlands"] .. "\n" .. BZ["Desolace"] },
-		{ 40, "36~40级: " .. BZ["Stranglethorn Vale"] .. "\n" .. BZ["Desolace"] .. "\n" .. BZ["Badlands"]
-						.. "\n" .. BZ["Dustwallow Marsh"] .. "\n" .. BZ["Swamp of Sorrows"] },
-		{ 43, "41~43级: " .. BZ["Tanaris"] .. "\n" .. BZ["Stranglethorn Vale"] .. "\n" .. BZ["Badlands"] 
-						.. "\n" .. BZ["Dustwallow Marsh"] .. "\n" .. BZ["Swamp of Sorrows"] },
-		{ 45, "44~45级: " .. BZ["Tanaris"] .. "\n" .. BZ["Feralas"] .. "\n" .. BZ["The Hinterlands"] },
-		{ 48, "46~48级: " .. BZ["Tanaris"] .. "\n" .. BZ["Feralas"] .. "\n" .. BZ["The Hinterlands"] .. "\n" .. BZ["Searing Gorge"] },
-		{ 51, "49~51级: " .. BZ["Tanaris"] .. "\n" .. BZ["Azshara"] .. "\n" .. BZ["Blasted Lands"] 
-						.. "\n" .. BZ["Searing Gorge"] .. "\n" .. BZ["Un'Goro Crater"] .. "\n" .. BZ["Felwood"] },
-		{ 55, "54~55级: " .. BZ["Un'Goro Crater"] .. "\n" .. BZ["Felwood"] .. "\n" .. BZ["Burning Steppes"]
-						.. "\n" .. BZ["Blasted Lands"] .. "\n" .. BZ["Western Plaguelands"] },
-		{ 58, "56~58级: " .. BZ["Winterspring"] .. "\n" .. BZ["Burning Steppes"] .. "\n" .. BZ["Western Plaguelands"] 
-						.. "\n" .. BZ["Eastern Plaguelands"] .. "\n" .. BZ["Silithus"] },
-		{ 60, "59~60级: " .. BZ["Winterspring"] .. "\n" .. BZ["Eastern Plaguelands"] .. "\n" .. BZ["Silithus"] },
-		{ 62, "61~62级: " .. BZ["Hellfire Peninsula"] },
-		{ 64, "63~64级: " .. BZ["Zangarmarsh"] .. "\n" .. BZ["Terokkar Forest"]},
-		{ 65, "65级: " .. BZ["Terokkar Forest"] },
-		{ 66, "66级: " .. BZ["Terokkar Forest"] .. "\n" .. BZ["Nagrand"]},
-		{ 67, "67级: " .. BZ["Nagrand"]},
-		{ 68, "68级: " .. BZ["Blade's Edge Mountains"]},
-		{ 70, "69~70级: " .. BZ["Blade's Edge Mountains"] .. "\n" .. BZ["Netherstorm"] .. "\n" .. BZ["Shadowmoon Valley"]},
-		{ 72, "72级: " .. BZ["Howling Fjord"] .. "\n" .. BZ["Borean Tundra"]},
-		{ 74, "74级: " .. BZ["Grizzly Hills"] .. "\n" .. BZ["Dragonblight"]},
-		{ 76, "76级: " .. BZ["Dragonblight"] .. "\n" .. BZ["Zul'Drak"]},
-		{ 78, "78级: " .. BZ["Zul'Drak"] .. "\n" .. BZ["Sholazar Basin"]},
-		{ 80, "80级: " .. BZ["The Storm Peaks"] .. "\n" .. BZ["Icecrown"]},
-	},
-
 }

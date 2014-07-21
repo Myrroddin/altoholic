@@ -3,7 +3,6 @@ local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
-local BZ = LibStub("LibBabble-Zone-3.0"):GetLookupTable()
 local BF = LibStub("LibBabble-Faction-3.0"):GetLookupTable()
 
 if GetLocale() ~= "deDE" then return end
@@ -310,45 +309,6 @@ addon.Suggestions = {
 		{ 345, "bis zu 345: Westliche Zangarmarschen" },
 		{ 360, "bis zu 360: Wälder von Terokkar" },
 		{ 375, "bis zu 375: Wälder von Terokkar, in der Hochebene\nFlugmount benötigt" }
-	},
-	
-	-- suggested leveling zones, compiled by Thaoky, based on too many sources to list + my own leveling experience on Alliance side
-	["Leveling"] = {
-		{ 10, "bis Level 10: Jedes Startgebiet" },
-		{ 20, "bis Level 20: "  .. BZ["Loch Modan"] .. "\n" .. BZ["Westfall"] .. "\n" .. BZ["Darkshore"] .. "\n" .. BZ["Bloodmyst Isle"] 
-						.. "\n" .. BZ["Silverpine Forest"] .. "\n" .. BZ["The Barrens"] .. "\n" .. BZ["Ghostlands"]},
-		{ 25, "bis Level 25: " .. BZ["Wetlands"] .. "\n" .. BZ["Redridge Mountains"] .. "\n" .. BZ["Ashenvale"] 
-						.. "\n" .. BZ["The Barrens"] .. "\n" .. BZ["Stonetalon Mountains"] .. "\n" .. BZ["Hillsbrad Foothills"] },
-		{ 28, "bis Level 28: " .. BZ["Duskwood"] .. "\n" .. BZ["Wetlands"] .. "\n" .. BZ["Ashenvale"] 
-						.. "\n" .. BZ["Stonetalon Mountains"] .. "\n" .. BZ["Thousand Needles"] },
-		{ 31, "bis Level 31: " .. BZ["Duskwood"] .. "\n" .. BZ["Thousand Needles"] .. "\n" .. BZ["Ashenvale"] },
-		{ 35, "bis Level 35: " .. BZ["Thousand Needles"] .. "\n" .. BZ["Stranglethorn Vale"] .. "\n" .. BZ["Alterac Mountains"] 
-						.. "\n" .. BZ["Arathi Highlands"] .. "\n" .. BZ["Desolace"] },
-		{ 40, "bis Level 40: " .. BZ["Stranglethorn Vale"] .. "\n" .. BZ["Desolace"] .. "\n" .. BZ["Badlands"]
-						.. "\n" .. BZ["Dustwallow Marsh"] .. "\n" .. BZ["Swamp of Sorrows"] },
-		{ 43, "bis Level 43: " .. BZ["Tanaris"] .. "\n" .. BZ["Stranglethorn Vale"] .. "\n" .. BZ["Badlands"] 
-						.. "\n" .. BZ["Dustwallow Marsh"] .. "\n" .. BZ["Swamp of Sorrows"] },
-		{ 45, "bis Level 45: " .. BZ["Tanaris"] .. "\n" .. BZ["Feralas"] .. "\n" .. BZ["The Hinterlands"] },
-		{ 48, "bis Level 48: " .. BZ["Tanaris"] .. "\n" .. BZ["Feralas"] .. "\n" .. BZ["The Hinterlands"] .. "\n" .. BZ["Searing Gorge"] },
-		{ 51, "bis Level 51: " .. BZ["Tanaris"] .. "\n" .. BZ["Azshara"] .. "\n" .. BZ["Blasted Lands"] 
-						.. "\n" .. BZ["Searing Gorge"] .. "\n" .. BZ["Un'Goro Crater"] .. "\n" .. BZ["Felwood"] },
-		{ 55, "bis Level 55: " .. BZ["Un'Goro Crater"] .. "\n" .. BZ["Felwood"] .. "\n" .. BZ["Burning Steppes"]
-						.. "\n" .. BZ["Blasted Lands"] .. "\n" .. BZ["Western Plaguelands"] },
-		{ 58, "bis Level 58: " .. BZ["Winterspring"] .. "\n" .. BZ["Burning Steppes"] .. "\n" .. BZ["Western Plaguelands"] 
-						.. "\n" .. BZ["Eastern Plaguelands"] .. "\n" .. BZ["Silithus"] },
-		{ 60, "bis Level 60: " .. BZ["Winterspring"] .. "\n" .. BZ["Eastern Plaguelands"] .. "\n" .. BZ["Silithus"] },
-		{ 62, "bis Level 62: " .. BZ["Hellfire Peninsula"] },
-		{ 64, "bis Level 64: " .. BZ["Zangarmarsh"] .. "\n" .. BZ["Terokkar Forest"]},
-		{ 65, "bis Level 65: " .. BZ["Terokkar Forest"] },
-		{ 66, "bis Level 66: " .. BZ["Terokkar Forest"] .. "\n" .. BZ["Nagrand"]},
-		{ 67, "bis Level 67: " .. BZ["Nagrand"]},
-		{ 68, "bis Level 68: " .. BZ["Blade's Edge Mountains"]},
-		{ 70, "bis Level 70: " .. BZ["Blade's Edge Mountains"] .. "\n" .. BZ["Netherstorm"] .. "\n" .. BZ["Shadowmoon Valley"]},
-		{ 72, "bis Level 72: " .. BZ["Howling Fjord"] .. "\n" .. BZ["Borean Tundra"]},
-		{ 74, "bis Level 74: " .. BZ["Grizzly Hills"] .. "\n" .. BZ["Dragonblight"]},
-		{ 76, "bis Level 76: " .. BZ["Dragonblight"] .. "\n" .. BZ["Zul'Drak"]},
-		{ 78, "bis Level 78: " .. BZ["Zul'Drak"] .. "\n" .. BZ["Sholazar Basin"]},
-		{ 80, "bis Level 80: " .. BZ["The Storm Peaks"] .. "\n" .. BZ["Icecrown"]},
 	},
 }
 

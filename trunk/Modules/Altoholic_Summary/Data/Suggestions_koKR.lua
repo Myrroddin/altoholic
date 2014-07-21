@@ -3,7 +3,6 @@ local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
-local BZ = LibStub("LibBabble-Zone-3.0"):GetLookupTable()
 local BF = LibStub("LibBabble-Faction-3.0"):GetLookupTable()
 
 if GetLocale() ~= "koKR" then return end
@@ -451,46 +450,4 @@ addon.Suggestions = {
 		{ 450, "450 까지: 노스렌드" },
 		{ 525, "525 까지: 하이잘 산\n울둠\n황혼의 고원" }
 	},
-	
-	-- suggested leveling zones, as defined by recommended quest levels, Updated for Cataclysm
-	["Leveling"] = {
-		{ 10, "10 까지: 모든 시작 지역" },
-		{ 15, "15 까지: "  .. BZ["Westfall"]},
-		{ 16, "16 까지: "  .. BZ["Ruins of Gilneas"]},
-		{ 20, "20 까지: "  .. BZ["Azshara"] .. "\n" .. BZ["Loch Modan"] .. "\n" .. BZ["Bloodmyst Isle"]
-							.. "\n" .. BZ["Darkshore"] .. "\n" .. BZ["Silverpine Forest"] .. "\n" .. BZ["Northern Barrens"] 
-							.. "\n" .. BZ["Ghostlands"] .. "\n" .. BZ["Redridge Mountains"]},
-		{ 25, "25 까지: " 	.. BZ["Duskwood"] .. "\n" .. BZ["Wetlands"] .. "\n" .. BZ["Ashenvale"] 
-							.. "\n" .. BZ["Hillsbrad Foothills"]},
-		{ 30, "30 까지: " 	.. BZ["Arathi Highlands"] .. "\n" .. BZ["Northern Stranglethorn"] .. "\n" .. BZ["Stonetalon Mountains"]},
-		{ 35, "35 까지: " 	.. BZ["The Cape of Stranglethorn"] .. "\n" .. BZ["Desolace"] .. "\n" .. BZ["The Hinterlands"]
-							.. "\n" .. BZ["Southern Barrens"]},
-		{ 40, "40 까지: " 	.. BZ["Dustwallow Marsh"] .. "\n" .. BZ["Feralas"] .. "\n" .. BZ["Western Plaguelands"]},
-		{ 45, "45 까지: " 	.. BZ["Eastern Plaguelands"] .. "\n" .. BZ["Thousand Needles"]},
-		{ 48, "48 까지: "  .. BZ["Badlands"]},
-		{ 50, "50 까지: " 	.. BZ["Tanaris"] .. "\n" .. BZ["Felwood"] .. "\n" .. BZ["Searing Gorge"]},
-		{ 52, "52 까지: "	.. BZ["Burning Steppes"]},
-		{ 54, "54 까지: " 	.. BZ["Swamp of Sorrows"]},
-		{ 55, "55 까지: " 	.. BZ["Un'Goro Crater"] .. "\n" .. BZ["Winterspring"]},
-		{ 58, "58 까지: " 	.. BZ["Blasted Lands"]},
-		{ 60, "60 까지: " 	.. BZ["Deadwind Pass"] .. "\n" .. BZ["Moonglade"] .. "\n" .. BZ["Silithus"]},
-		{ 63, "63 까지: " 	.. BZ["Hellfire Peninsula"]},
-		{ 64, "64 까지: " 	.. BZ["Zangarmarsh"]},
-		{ 65, "65 까지: " 	.. BZ["Terokkar Forest"]},
-		{ 67, "67 까지: " 	.. BZ["Nagrand"]},
-		{ 68, "68 까지: " 	.. BZ["Blade's Edge Mountains"]},
-		{ 70, "70 까지: " 	.. BZ["Netherstorm"] .. "\n" .. BZ["Shadowmoon Valley"] .. "\n" .. BZ["Isle of Quel'Danas"] 
-							.. "\n" .. BZ["Deadwind Pass"]},
-		{ 72, "72 까지: " 	.. BZ["Howling Fjord"] .. "\n" .. BZ["Borean Tundra"]},
-		{ 75, "75 까지: " 	.. BZ["Dragonblight"] .. "\n" .. BZ["Grizzly Hills"]},
-		{ 76, "76 까지: " 	.. BZ["Zul'Drak"]},
-		{ 78, "78 까지: " 	.. BZ["Sholazar Basin"]},
-		{ 80, "80 까지: " 	.. BZ["Crystalsong Forest"] .. "\n" .. BZ["The Storm Peaks"] .. "\n" .. BZ["Icecrown"]},
-		{ 82, "82 까지: " 	.. BZ["Hyjal"] .. "\n" .. BZ["Vashj'ir"]},
-		{ 83, "83 까지: " 	.. BZ["Deepholm"]},
-		{ 84, "84 까지: "	.. BZ["Uldum"]},
-		{ 85, "85 까지: "  .. BZ["Twilight Highlands"]}
-	
-	},
-
 }

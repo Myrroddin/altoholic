@@ -3,7 +3,6 @@ local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
-local BZ = LibStub("LibBabble-Zone-3.0"):GetLookupTable()
 local BF = LibStub("LibBabble-Faction-3.0"):GetLookupTable()
 
 -- temporary test, until all locales are done for the suggestions, test the ones that are done in order to use them instead of enUS, this test will be replaced later on.
@@ -457,46 +456,4 @@ addon.Suggestions = {
 		{ 450, "Up to 450: Northrend" },
 		{ 525, "Up to 525: MountHyjal\nUldum\nTwilight Highlands" },
 	},
-	
-	-- suggested leveling zones, as defined by recommended quest levels, Updated for Cataclysm
-	["Leveling"] = {
-		{ 10, "Up to 10: Any starting zone" },
-		{ 15, "Up to 15: "  .. BZ["Westfall"]},
-		{ 16, "Up to 16: "  .. BZ["Ruins of Gilneas"]},
-		{ 20, "Up to 20: "  .. BZ["Azshara"] .. "\n" .. BZ["Loch Modan"] .. "\n" .. BZ["Bloodmyst Isle"]
-							.. "\n" .. BZ["Darkshore"] .. "\n" .. BZ["Silverpine Forest"] .. "\n" .. BZ["Northern Barrens"] 
-							.. "\n" .. BZ["Ghostlands"] .. "\n" .. BZ["Redridge Mountains"]},
-		{ 25, "Up to 25: " 	.. BZ["Duskwood"] .. "\n" .. BZ["Wetlands"] .. "\n" .. BZ["Ashenvale"] 
-							.. "\n" .. BZ["Hillsbrad Foothills"]},
-		{ 30, "Up to 30: " 	.. BZ["Arathi Highlands"] .. "\n" .. BZ["Northern Stranglethorn"] .. "\n" .. BZ["Stonetalon Mountains"]},
-		{ 35, "Up to 35: " 	.. BZ["The Cape of Stranglethorn"] .. "\n" .. BZ["Desolace"] .. "\n" .. BZ["The Hinterlands"]
-							.. "\n" .. BZ["Southern Barrens"]},
-		{ 40, "Up to 40: " 	.. BZ["Dustwallow Marsh"] .. "\n" .. BZ["Feralas"] .. "\n" .. BZ["Western Plaguelands"]},
-		{ 45, "Up to 45: " 	.. BZ["Eastern Plaguelands"] .. "\n" .. BZ["Thousand Needles"]},
-		{ 48, "Up to 48: "  .. BZ["Badlands"]},
-		{ 50, "Up to 50: " 	.. BZ["Tanaris"] .. "\n" .. BZ["Felwood"] .. "\n" .. BZ["Searing Gorge"]},
-		{ 52, "Up to 52: "	.. BZ["Burning Steppes"]},
-		{ 54, "Up to 54: " 	.. BZ["Swamp of Sorrows"]},
-		{ 55, "Up to 55: " 	.. BZ["Un'Goro Crater"] .. "\n" .. BZ["Winterspring"]},
-		{ 58, "Up to 58: " 	.. BZ["Blasted Lands"]},
-		{ 60, "Up to 60: " 	.. BZ["Deadwind Pass"] .. "\n" .. BZ["Moonglade"] .. "\n" .. BZ["Silithus"]},
-		{ 63, "Up to 63: " 	.. BZ["Hellfire Peninsula"]},
-		{ 64, "Up to 64: " 	.. BZ["Zangarmarsh"]},
-		{ 65, "Up to 65: " 	.. BZ["Terokkar Forest"]},
-		{ 67, "Up to 67: " 	.. BZ["Nagrand"]},
-		{ 68, "Up to 68: " 	.. BZ["Blade's Edge Mountains"]},
-		{ 70, "Up to 70: " 	.. BZ["Netherstorm"] .. "\n" .. BZ["Shadowmoon Valley"] .. "\n" .. BZ["Isle of Quel'Danas"] 
-							.. "\n" .. BZ["Deadwind Pass"]},
-		{ 72, "Up to 72: " 	.. BZ["Howling Fjord"] .. "\n" .. BZ["Borean Tundra"]},
-		{ 75, "Up to 75: " 	.. BZ["Dragonblight"] .. "\n" .. BZ["Grizzly Hills"]},
-		{ 76, "Up to 76: " 	.. BZ["Zul'Drak"]},
-		{ 78, "Up to 78: " 	.. BZ["Sholazar Basin"]},
-		{ 80, "Up to 80: " 	.. BZ["Crystalsong Forest"] .. "\n" .. BZ["The Storm Peaks"] .. "\n" .. BZ["Icecrown"]},
-		{ 82, "Up to 82: " 	.. BZ["Hyjal"] .. "\n" .. BZ["Vashj'ir"]},
-		{ 83, "Up to 83: " 	.. BZ["Deepholm"]},
-		{ 84, "Up to 84: "	.. BZ["Uldum"]},
-		{ 85, "Up to 85: "  .. BZ["Twilight Highlands"]},
-	
-	},
-
 }
