@@ -124,6 +124,12 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "5.4.006 Changes",
+		bulletedList = {
+			"Fixed double item counts in the tooltip.",
+			"Improved the search functionality to be less restrictive.",
+		},
+	},
 	{	name = "5.4.005 Changes",
 		bulletedList = {
 			"Fixed bugs related to full names (name+realm) in the Guild tab.",

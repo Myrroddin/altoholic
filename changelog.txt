@@ -8,6 +8,15 @@ IMPORTANT NOTE: If you're upgrading from 4.x :
 - Make sure you delete the addon's databases in SavedVariables. ie: Altoholic.lua and all DataStore*.lua.
 - Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
 
+5.4.006 (22/07/2014)
+
+- Fixed double item counts in the tooltip.
+- Improved the search functionality to be less restrictive.
+- DataStore_Containers now triggers extra events for client addons.
+- DataStore_Inventory now triggers extra events for client addons.
+- DataStore_Auctions now triggers extra events for client addons.
+- DataStore_Mails now triggers extra events for client addons.
+
 5.4.005 (21/07/2014)
 
 - Fixed bugs related to full names (name+realm) in the Guild tab.
