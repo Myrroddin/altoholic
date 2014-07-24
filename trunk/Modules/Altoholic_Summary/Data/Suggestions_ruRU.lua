@@ -3,7 +3,6 @@ local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
-local BF = LibStub("LibBabble-Faction-3.0"):GetLookupTable()
 
 if GetLocale() ~= "ruRU" then return end
 
