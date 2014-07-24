@@ -718,8 +718,11 @@ function ns:FindItem(searchType, searchSubType)
 	
 	-- Set Filters
 	local value = AltoholicFrame_SearchEditBox:GetText() or ""
+	
 	currentValue = strlower(value)
 
+	filters:EnableFilter("Existence")	-- should be first in the list !
+	
 	if value ~= "" then
 		filters:SetFilterValue("itemName", currentValue)
 		filters:EnableFilter("Name")
@@ -753,9 +756,6 @@ function ns:FindItem(searchType, searchSubType)
 	
 	filters:SetFilterValue("itemRarity", UIDropDownMenu_GetSelectedValue(AltoholicTabSearch_SelectRarity))
 	filters:EnableFilter("Rarity")
-
-	filters:EnableFilter("Existence")
-	
 	
 	-- Start the search
 	local searchLocation = UIDropDownMenu_GetSelectedValue(AltoholicTabSearch_SelectLocation)

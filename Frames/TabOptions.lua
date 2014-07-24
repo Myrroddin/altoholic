@@ -124,6 +124,14 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "5.4.007 Changes",
+		bulletedList = {
+			"Added missing faction 'Emperor Shaohao'.",
+			"Altoholic: removed LibBabble-Faction",
+			"DataStore_Reputations: removed LibBabble-Faction.",
+			"Fixed lua error when using the search function.",
+		},
+	},
 	{	name = "5.4.006 Changes",
 		bulletedList = {
 			"Fixed double item counts in the tooltip.",

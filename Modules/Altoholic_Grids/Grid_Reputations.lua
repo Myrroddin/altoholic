@@ -2,7 +2,6 @@ local addonName = "Altoholic"
 local addon = _G[addonName]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-local BF = LibStub("LibBabble-Faction-3.0"):GetLookupTable()
 
 local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
@@ -12,6 +11,8 @@ local DARK_RED = "|cFFF00000"
 
 -- *** Reputations ***
 
+
+
 local ICON_NOTREADY = "\124TInterface\\RaidFrame\\ReadyCheck-NotReady:14\124t"
 local ICON_READY = "\124TInterface\\RaidFrame\\ReadyCheck-Ready:14\124t"
 
@@ -20,185 +21,186 @@ local Factions = {
 	{	-- [1]
 		name = EXPANSION_NAME0,	-- "Classic"
 		{	-- [1]
-			name = FACTION_ALLIANCE,
-			{ name = BF["Darnassus"], icon = "Achievement_Character_Nightelf_Female"	},
-			{ name = BF["Exodar"], icon = "Achievement_Character_Draenei_Male" },
-			{ name = BF["Gnomeregan"], icon = "Achievement_Character_Gnome_Female" },
-			{ name = BF["Ironforge"], icon = "Achievement_Character_Dwarf_Male" },
-			{ name = BF["Stormwind"], icon = "Achievement_Character_Human_Male" },
-			{ name = BF["Gilneas"], icon = "Interface\\Glues\\CharacterCreate\\UI-CHARACTERCREATE-RACES", left = 0.625, right = 0.75, top = 0, bottom = 0.25 },
-			{ name = BF["Tushui Pandaren"], icon = "Interface\\Glues\\CharacterCreate\\UI-CHARACTERCREATE-RACES", left = 0.75, right = 0.875, top = 0, bottom = 0.25 },
-			{ name = BF["Alliance"], icon = "INV_BannerPVP_02" },
+			name = FACTION_ALLIANCE,	-- 469
+			{ id = 69, icon = "Achievement_Character_Nightelf_Female" },	-- "Darnassus"
+			{ id = 930, icon = "Achievement_Character_Draenei_Male" },	--  name = "Exodar"
+			{ id = 54, icon = "Achievement_Character_Gnome_Female" },	-- "Gnomeregan"
+			{ id = 47, icon = "Achievement_Character_Dwarf_Male" },		-- "Ironforge"
+			{ id = 72, icon = "Achievement_Character_Human_Male" },		-- "Stormwind"
+			{ id = 1134, icon = "Interface\\Glues\\CharacterCreate\\UI-CHARACTERCREATE-RACES", left = 0.625, right = 0.75, top = 0, bottom = 0.25 },	-- "Gilneas"
+			{ id = 1353, icon = "Interface\\Glues\\CharacterCreate\\UI-CHARACTERCREATE-RACES", left = 0.75, right = 0.875, top = 0, bottom = 0.25 },	-- "Tushui Pandaren"
+			{ id = 469, icon = "INV_BannerPVP_02" },	-- "Alliance"
 		},
 		{	-- [2]
 			name = FACTION_HORDE,
-			{ name = BF["Darkspear Trolls"], icon = "Achievement_Character_Troll_Male" },
-			{ name = BF["Orgrimmar"], icon = "Achievement_Character_Orc_Male" },
-			{ name = BF["Thunder Bluff"], icon = "Achievement_Character_Tauren_Male" },
-			{ name = BF["Undercity"], icon = "Achievement_Character_Undead_Female" },
-			{ name = BF["Silvermoon City"], icon = "Achievement_Character_Bloodelf_Male" },
-			{ name = BF["Bilgewater Cartel"], icon = "Interface\\Glues\\CharacterCreate\\UI-CHARACTERCREATE-RACES", left = 0.625, right = 0.75, top = 0.25, bottom = 0.5 },
-			{ name = BF["Huojin Pandaren"], icon = "Interface\\Glues\\CharacterCreate\\UI-CHARACTERCREATE-RACES", left = 0.75, right = 0.875, top = 0.25, bottom = 0.5 },
-			{ name = BF["Horde"], icon = "INV_BannerPVP_01" },
+			{ id = 530, icon = "Achievement_Character_Troll_Male" },		-- "Darkspear Trolls"
+			{ id = 76, icon = "Achievement_Character_Orc_Male" },		-- "Orgrimmar"
+			{ id = 81, icon = "Achievement_Character_Tauren_Male" },		-- "Thunder Bluff"
+			{ id = 68, icon = "Achievement_Character_Undead_Female" },		-- "Undercity"
+			{ id = 911, icon = "Achievement_Character_Bloodelf_Male" },		-- "Silvermoon City"
+			{ id = 1133, icon = "Interface\\Glues\\CharacterCreate\\UI-CHARACTERCREATE-RACES", left = 0.625, right = 0.75, top = 0.25, bottom = 0.5 },	--  name = "Bilgewater Cartel"
+			{ id = 1352, icon = "Interface\\Glues\\CharacterCreate\\UI-CHARACTERCREATE-RACES", left = 0.75, right = 0.875, top = 0.25, bottom = 0.5 },	-- "Huojin Pandaren" 
+			{ id = 67, icon = "INV_BannerPVP_01" },	-- "Horde" 
 		},
 		{	-- [3]
-			name = L["Alliance Forces"],
-			{ name = BF["The League of Arathor"], icon = "Achievement_BG_winAB" },
-			{ name = BF["Silverwing Sentinels"], icon = "Achievement_BG_captureflag_WSG" },
-			{ name = BF["Stormpike Guard"], icon = "Achievement_BG_winAV" },
+			name = L["Alliance Forces"],	-- 891
+			{ id = 509, icon = "Achievement_BG_winAB" },	--  name = "The League of Arathor" 
+			{ id = 890, icon = "Achievement_BG_captureflag_WSG" },	-- "Silverwing Sentinels" 
+			{ id = 730, icon = "Achievement_BG_winAV" },		-- "Stormpike Guard"
 		},
 		{	-- [4]
 			name = L["Horde Forces"],
-			{ name = BF["The Defilers"], icon = "Achievement_BG_winAB" },
-			{ name = BF["Warsong Outriders"], icon = "Achievement_BG_captureflag_WSG" },
-			{ name = BF["Frostwolf Clan"], icon = "Achievement_BG_winAV" },
+			{ id = 510, icon = "Achievement_BG_winAB" },		-- "The Defilers" 
+			{ id = 889, icon = "Achievement_BG_captureflag_WSG" },	-- "Warsong Outriders" 
+			{ id = 729, icon = "Achievement_BG_winAV" },		-- "Frostwolf Clan" 
 		},
 		{	-- [5]
 			name = L["Steamwheedle Cartel"],
-			{ name = BF["Booty Bay"], icon = "Achievement_Zone_Stranglethorn_01" },
-			{ name = BF["Everlook"], icon = "Achievement_Zone_Winterspring" },
-			{ name = BF["Gadgetzan"], icon = "Achievement_Zone_Tanaris_01" },
-			{ name = BF["Ratchet"], icon = "Achievement_Zone_Barrens_01" },
+			{ id = 21, icon = "Achievement_Zone_Stranglethorn_01" },		-- "Booty Bay" 
+			{ id = 577, icon = "Achievement_Zone_Winterspring" },		-- "Everlook" 
+			{ id = 369, icon = "Achievement_Zone_Tanaris_01" },		-- "Gadgetzan" 
+			{ id = 470, icon = "Achievement_Zone_Barrens_01" },		-- "Ratchet" 
 		},
 		{	-- [6]
 			name = OTHER,
-			{ name = BF["Argent Dawn"], icon = "INV_Jewelry_Talisman_07" },
-			{ name = BF["Bloodsail Buccaneers"], icon = "INV_Helmet_66" },
-			{ name = BF["Brood of Nozdormu"], icon = "INV_Misc_Head_Dragon_Bronze" },
-			{ name = BF["Cenarion Circle"], icon = "Achievement_Zone_Silithus_01" },
-			{ name = BF["Darkmoon Faire"], icon = "INV_Misc_Ticket_Darkmoon_01" },
-			{ name = BF["Gelkis Clan Centaur"], icon = "INV_Misc_Head_Centaur_01" },
-			{ name = BF["Hydraxian Waterlords"], icon = "Spell_Frost_SummonWaterElemental_2" },
-			{ name = BF["Magram Clan Centaur"], icon = "INV_Misc_Head_Centaur_01" },
-			{ name = BF["Ravenholdt"], icon = "INV_ThrowingKnife_04" },
-			{ name = BF["Shen'dralar"], icon = "Achievement_Zone_Feralas" },
-			{ name = BF["Syndicate"], icon = "INV_Misc_ArmorKit_03" },
-			{ name = BF["Thorium Brotherhood"], icon = "INV_Ingot_Thorium" },
-			{ name = BF["Timbermaw Hold"], icon = "Achievement_Reputation_timbermaw" },
-			{ name = BF["Tranquillien"], icon = "Achievement_Zone_Ghostlands" },
-			{ name = BF["Wintersaber Trainers"], icon = "Ability_Mount_PinkTiger" },
-			{ name = BF["Zandalar Tribe"], icon = "INV_Bijou_Green" },
+			{ id = 529, icon = "INV_Jewelry_Talisman_07" },		-- "Argent Dawn" 
+			{ id = 87, icon = "INV_Helmet_66" },		-- "Bloodsail Buccaneers" 
+			{ id = 910, icon = "INV_Misc_Head_Dragon_Bronze" },		-- "Brood of Nozdormu" 
+			{ id = 609, icon = "Achievement_Zone_Silithus_01" },		-- "Cenarion Circle" 
+			{ id = 909, icon = "INV_Misc_Ticket_Darkmoon_01" },		-- "Darkmoon Faire" 
+			{ id = 92, icon = "INV_Misc_Head_Centaur_01" },			-- "Gelkis Clan Centaur" 
+			{ id = 749, icon = "Spell_Frost_SummonWaterElemental_2" },		-- "Hydraxian Waterlords" 
+			{ id = 93, icon = "INV_Misc_Head_Centaur_01" },		-- "Magram Clan Centaur" 
+			{ id = 349, icon = "INV_ThrowingKnife_04" },		-- "Ravenholdt" 
+			{ id = 809, icon = "Achievement_Zone_Feralas" },		-- "Shen'dralar" 
+			{ id = 70, icon = "INV_Misc_ArmorKit_03" },		-- "Syndicate" 
+			{ id = 59, icon = "INV_Ingot_Thorium" },		-- "Thorium Brotherhood" 
+			{ id = 576, icon = "Achievement_Reputation_timbermaw" },		-- "Timbermaw Hold" 
+			{ id = 922, icon = "Achievement_Zone_Ghostlands" },		-- "Tranquillien" 
+			{ id = 589, icon = "Ability_Mount_PinkTiger" },		-- "Wintersaber Trainers" 
+			{ id = 270, icon = "INV_Bijou_Green" },		-- "Zandalar Tribe" 
 		}
 	},
 	{	-- [2]
 		name = EXPANSION_NAME1,	-- "The Burning Crusade"
 		{	-- [1]
 			name = GetRealZoneText(530),	-- Outland
-			{ name = BF["Ashtongue Deathsworn"], icon = "Achievement_Reputation_AshtongueDeathsworn" },
-			{ name = BF["Cenarion Expedition"], icon = "Achievement_Reputation_GuardiansofCenarius" },
-			{ name = BF["The Consortium"], icon = "INV_Enchant_ShardPrismaticLarge" },
-			{ name = BF["Honor Hold"], icon = "Spell_Misc_HellifrePVPHonorHoldFavor" },
-			{ name = BF["Kurenai"], icon = "INV_Misc_Foot_Centaur" },
-			{ name = BF["The Mag'har"], icon = "Achievement_Zone_Nagrand_01" },
-			{ name = BF["Netherwing"], icon = "Ability_Mount_NetherdrakePurple" },
-			{ name = BF["Ogri'la"], icon = "Achievement_Reputation_Ogre" },
-			{ name = BF["Sporeggar"], icon = "INV_Mushroom_11" },
-			{ name = BF["Thrallmar"], icon = "Spell_Misc_HellifrePVPThrallmarFavor" },
+			{ id = 1012, icon = "Achievement_Reputation_AshtongueDeathsworn" },	-- "Ashtongue Deathsworn" 
+			{ id = 942, icon = "Achievement_Reputation_GuardiansofCenarius" },	-- "Cenarion Expedition" 
+			{ id = 933, icon = "INV_Enchant_ShardPrismaticLarge" },		-- "The Consortium" 
+			{ id = 946, icon = "Spell_Misc_HellifrePVPHonorHoldFavor" },	-- "Honor Hold" 
+			{ id = 978, icon = "INV_Misc_Foot_Centaur" },		-- "Kurenai" 
+			{ id = 941, icon = "Achievement_Zone_Nagrand_01" },	-- "The Mag'har" 
+			{ id = 1015, icon = "Ability_Mount_NetherdrakePurple" },		-- "Netherwing" 
+			{ id = 1038, icon = "Achievement_Reputation_Ogre" },		-- "Ogri'la" 
+			{ id = 970, icon = "INV_Mushroom_11" },	-- "Sporeggar" 
+			{ id = 947, icon = "Spell_Misc_HellifrePVPThrallmarFavor" },	-- "Thrallmar" 
 		},
 		{	-- [2]
 			name = GetMapNameByID(481),	-- "Shattrath City"
-			{ name = BF["Lower City"], icon = "Achievement_Zone_Terrokar" },
-			{ name = BF["Sha'tari Skyguard"], icon = "Ability_Hunter_Pet_NetherRay" },
-			{ name = BF["Shattered Sun Offensive"], icon = "INV_Shield_48" },
-			{ name = BF["The Aldor"], icon = "Achievement_Character_Draenei_Female" },
-			{ name = BF["The Scryers"], icon = "Achievement_Character_Bloodelf_Female" },
-			{ name = BF["The Sha'tar"], icon = "Achievement_Zone_Netherstorm_01" },
+			{ id = 1011, icon = "Achievement_Zone_Terrokar" },		-- "Lower City" 
+			{ id = 1031, icon = "Ability_Hunter_Pet_NetherRay" },		-- "Sha'tari Skyguard" 
+			{ id = 1077, icon = "INV_Shield_48" },		-- "Shattered Sun Offensive" 
+			{ id = 932, icon = "Achievement_Character_Draenei_Female" },	-- "The Aldor" 
+			{ id = 934, icon = "Achievement_Character_Bloodelf_Female" },		-- "The Scryers" 
+			{ id = 935, icon = "Achievement_Zone_Netherstorm_01" },		-- "The Sha'tar" 
 		},
 		{	-- [3]
 			name = OTHER,
-			{ name = BF["Keepers of Time"], icon = "Achievement_Zone_HillsbradFoothills" },
-			{ name = BF["The Scale of the Sands"], icon = "INV_Enchant_DustIllusion" },
-			{ name = BF["The Violet Eye"], icon = "Spell_Holy_MindSooth" },
+			{ id = 989, icon = "Achievement_Zone_HillsbradFoothills" },		-- "Keepers of Time" 
+			{ id = 990, icon = "INV_Enchant_DustIllusion" },	-- "The Scale of the Sands" 
+			{ id = 967, icon = "Spell_Holy_MindSooth" },		-- "The Violet Eye" 
 		}
 	},
 	{	-- [3]
 		name = EXPANSION_NAME2,	-- "Wrath of the Lich King"
 		{	-- [1]
 			name = GetRealZoneText(571),	-- Northrend
-			{ name = BF["Argent Crusade"], icon = "Achievement_Reputation_ArgentCrusader" },
-			{ name = BF["Kirin Tor"], icon = "Achievement_Reputation_KirinTor" },
-			{ name = BF["The Kalu'ak"], icon = "Achievement_Reputation_Tuskarr" },
-			{ name = BF["The Wyrmrest Accord"], icon = "Achievement_Reputation_WyrmrestTemple" },
-			{ name = BF["Knights of the Ebon Blade"], icon = "Achievement_Reputation_KnightsoftheEbonBlade" },
-			{ name = BF["The Sons of Hodir"], icon = "Achievement_Boss_Hodir_01" },
-			{ name = BF["The Ashen Verdict"], icon = "Achievement_Reputation_ArgentCrusader" },
+			{ id = 1106, icon = "Achievement_Reputation_ArgentCrusader" },		-- "Argent Crusade"
+			{ id = 1090, icon = "Achievement_Reputation_KirinTor" },		-- "Kirin Tor" 
+			{ id = 1073, icon = "Achievement_Reputation_Tuskarr" },	-- "The Kalu'ak" 
+			{ id = 1091, icon = "Achievement_Reputation_WyrmrestTemple" },		-- "The Wyrmrest Accord" 
+			{ id = 1098, icon = "Achievement_Reputation_KnightsoftheEbonBlade" },	-- "Knights of the Ebon Blade" 
+			{ id = 1119, icon = "Achievement_Boss_Hodir_01" },		-- "The Sons of Hodir" 
+			{ id = 1156, icon = "Achievement_Reputation_ArgentCrusader" },		-- "The Ashen Verdict" 
 		},
 		{	-- [2]
-			name = BF["Alliance Vanguard"],
-			{ name = BF["Alliance Vanguard"], icon = "Spell_Misc_HellifrePVPHonorHoldFavor" },
-			{ name = BF["Explorers' League"], icon = "Achievement_Zone_HowlingFjord_02" },
-			{ name = BF["The Frostborn"], icon = "Achievement_Zone_StormPeaks_01" },
-			{ name = BF["The Silver Covenant"], icon = "Achievement_Zone_CrystalSong_01" },
-			{ name = BF["Valiance Expedition"], icon = "Achievement_Zone_BoreanTundra_01" },
+			name = GetFactionInfoByID(1037), 	-- "Alliance Vanguard"
+			{ id = 1037, icon = "Spell_Misc_HellifrePVPHonorHoldFavor" },	-- "Alliance Vanguard" 
+			{ id = 1068, icon = "Achievement_Zone_HowlingFjord_02" },	-- "Explorers' League" 
+			{ id = 1126, icon = "Achievement_Zone_StormPeaks_01" },		-- "The Frostborn" 
+			{ id = 1094, icon = "Achievement_Zone_CrystalSong_01" },		-- "The Silver Covenant" 
+			{ id = 1050, icon = "Achievement_Zone_BoreanTundra_01" },	-- "Valiance Expedition" 	
 		},
 		{	-- [3]
-			name = BF["Horde Expedition"],
-			{ name = BF["Horde Expedition"], icon = "Spell_Misc_HellifrePVPThrallmarFavor" },
-			{ name = BF["The Hand of Vengeance"], icon = "Achievement_Zone_HowlingFjord_02" },
-			{ name = BF["The Sunreavers"], icon = "Achievement_Zone_CrystalSong_01" },
-			{ name = BF["The Taunka"], icon = "Achievement_Zone_BoreanTundra_02" },
-			{ name = BF["Warsong Offensive"], icon = "Achievement_Zone_BoreanTundra_03" },
+			name = GetFactionInfoByID(1052), 	-- "Horde Expedition"
+			{ id = 1052, icon = "Spell_Misc_HellifrePVPThrallmarFavor" },		-- "Horde Expedition" 
+			{ id = 1067, icon = "Achievement_Zone_HowlingFjord_02" },		-- "The Hand of Vengeance" 
+			{ id = 1124, icon = "Achievement_Zone_CrystalSong_01" },			-- "The Sunreavers" 
+			{ id = 1064, icon = "Achievement_Zone_BoreanTundra_02" },		-- "The Taunka" 
+			{ id = 1085, icon = "Achievement_Zone_BoreanTundra_03" },		-- "Warsong Offensive" 
 		},
 		{	-- [4]
 			name = GetMapNameByID(493),	-- "Sholazar Basin"
-			{ name = BF["Frenzyheart Tribe"], icon = "Ability_Mount_WhiteDireWolf" },
-			{ name = BF["The Oracles"], icon = "Achievement_Reputation_MurlocOracle" },
+			{ id = 1104, icon = "Ability_Mount_WhiteDireWolf" },		-- "Frenzyheart Tribe" 
+			{ id = 1105, icon = "Achievement_Reputation_MurlocOracle" },	-- "The Oracles" 
 		},
 	},
 	{	-- [4]
 		name = EXPANSION_NAME3,	-- "Cataclysm"
 		{	-- [1]
 			name = OTHER,
-			{ name = BF["Guardians of Hyjal"], icon = "Achievement_Zone_mount hyjal" },
-			{ name = BF["The Earthen Ring"], icon = "Spell_Nature_EarthElemental_Totem" },
-			{ name = BF["Therazane"], icon = "inv_misc_tabard_therazane" },
-			{ name = BF["Wildhammer Clan"], icon = "inv_misc_tabard_wildhammerclan" },
-			{ name = BF["Ramkahen"], icon = "inv_misc_tabard_tolvir" },
-			{ name = BF["Baradin's Wardens"], icon = "inv_misc_tabard_baradinwardens" },
-			{ name = BF["Dragonmaw Clan"], icon = "inv_misc_tabard_dragonmawclan" },
-			{ name = BF["Hellscream's Reach"], icon = "inv_misc_tabard_hellscream" },
-			{ name = BF["Avengers of Hyjal"], icon = "inv_neck_hyjaldaily_04" },
+			{ id = 1158, icon = "Achievement_Zone_mount hyjal" },		-- "Guardians of Hyjal" 
+			{ id = 1135, icon = "Spell_Nature_EarthElemental_Totem" },		-- "The Earthen Ring" 
+			{ id = 1171, icon = "inv_misc_tabard_therazane" },		-- "Therazane" 
+			{ id = 1174, icon = "inv_misc_tabard_wildhammerclan" },		-- "Wildhammer Clan" 
+			{ id = 1173, icon = "inv_misc_tabard_tolvir" },		-- "Ramkahen" 
+			{ id = 1177, icon = "inv_misc_tabard_baradinwardens" },		-- "Baradin's Wardens" 
+			{ id = 1172, icon = "inv_misc_tabard_dragonmawclan" },		-- "Dragonmaw Clan" 
+			{ id = 1178, icon = "inv_misc_tabard_hellscream" },		-- "Hellscream's Reach" 
+			{ id = 1204, icon = "inv_neck_hyjaldaily_04" },		-- "Avengers of Hyjal" 
 		}
 	},
 	{	-- [5]
 		name = EXPANSION_NAME4,	-- "Mists of Pandaria"
 		{	-- [1]
-			name = BF["The Anglers"],
-			{ name = BF["Nat Pagle"], icon = "achievement_faction_anglers" },
+			name = GetFactionInfoByID(1302), 	-- "The Anglers"
+			{ id = 1358, icon = "achievement_faction_anglers" },		-- "Nat Pagle" 
 		},
 		{	-- [2]
-			name = BF["The Tillers"],
-			{ name = BF["Chee Chee"], icon = "achievement_faction_tillers" },
-			{ name = BF["Ella"], icon = "achievement_faction_tillers" },
-			{ name = BF["Farmer Fung"], icon = "achievement_faction_tillers" },
-			{ name = BF["Fish Fellreed"], icon = "achievement_faction_tillers" },
-			{ name = BF["Gina Mudclaw"], icon = "achievement_faction_tillers" },
-			{ name = BF["Haohan Mudclaw"], icon = "achievement_faction_tillers" },
-			{ name = BF["Jogu the Drunk"], icon = "achievement_faction_tillers" },
-			{ name = BF["Old Hillpaw"], icon = "achievement_faction_tillers" },
-			{ name = BF["Sho"], icon = "achievement_faction_tillers" },
-			{ name = BF["Tina Mudclaw"], icon = "achievement_faction_tillers" },
+			name = GetFactionInfoByID(1272), 	-- "The Tillers"
+			{ id = 1277, icon = "achievement_faction_tillers" },		-- "Chee Chee" 
+			{ id = 1275, icon = "achievement_faction_tillers" },		-- "Ella" 
+			{ id = 1283, icon = "achievement_faction_tillers" },		-- "Farmer Fung" 
+			{ id = 1282, icon = "achievement_faction_tillers" },		-- "Fish Fellreed" 
+			{ id = 1281, icon = "achievement_faction_tillers" },		-- "Gina Mudclaw" 
+			{ id = 1279, icon = "achievement_faction_tillers" },		-- "Haohan Mudclaw" 
+			{ id = 1273, icon = "achievement_faction_tillers" },		-- "Jogu the Drunk" 
+			{ id = 1276, icon = "achievement_faction_tillers" },		-- "Old Hillpaw" 
+			{ id = 1278, icon = "achievement_faction_tillers" },		-- "Sho" 
+			{ id = 1280, icon = "achievement_faction_tillers" },		-- "Tina Mudclaw" 
 		},
 		{	-- [3]
 			name = OTHER,
-			{ name = BF["Dominance Offensive"], icon = "achievement_general_hordeslayer" },
-			{ name = BF["Forest Hozen"], icon = "inv_misc_fish_58" },
-			{ name = BF["Golden Lotus"], icon = "achievement_faction_goldenlotus" },
-			{ name = BF["Kirin Tor Offensive"], icon = "achievement_reputation_kirintor_offensive" },
-			{ name = BF["Operation: Shieldwall"], icon = "achievement_general_allianceslayer" },
-			{ name = BF["Order of the Cloud Serpent"], icon = "achievement_faction_serpentriders" },
-			{ name = BF["Pearlfin Jinyu"], icon = "inv_misc_fish_58" },
-			{ name = BF["Shado-Pan"], icon = "achievement_faction_shadopan" },
-			{ name = BF["Shado-Pan Assault"], icon = "achievement_faction_shadopan" },
-			{ name = BF["Shang Xi's Academy"], icon = "inv_misc_book_07" },
-			{ name = BF["Sunreaver Onslaught"], icon = "achievement_faction_sunreaveronslaught" },
-			{ name = BF["The Anglers"], icon = "achievement_faction_anglers" },
-			{ name = BF["The August Celestials"], icon = "achievement_faction_celestials" },
-			{ name = BF["The Black Prince"], icon = "inv_misc_head_dragon_black" },
-			{ name = BF["The Brewmasters"], icon = "inv_cask_02" },
-			{ name = BF["The Klaxxi"], icon = "achievement_faction_klaxxi" },
-			{ name = BF["The Lorewalkers"], icon = "achievement_faction_lorewalkers" },
-			{ name = BF["The Tillers"], icon = "achievement_faction_tillers" },
+			{ id = 1375, icon = "achievement_general_hordeslayer" },		-- "Dominance Offensive" 
+			{ id = 1228, icon = "inv_misc_fish_58" },		-- "Forest Hozen" 
+			{ id = 1269, icon = "achievement_faction_goldenlotus" },		-- "Golden Lotus" 
+			{ id = 1387, icon = "achievement_reputation_kirintor_offensive" },		-- "Kirin Tor Offensive" 
+			{ id = 1376, icon = "achievement_general_allianceslayer" },		-- "Operation: Shieldwall" 
+			{ id = 1271, icon = "achievement_faction_serpentriders" },		-- "Order of the Cloud Serpent" 
+			{ id = 1242, icon = "inv_misc_fish_58" },		-- "Pearlfin Jinyu" 
+			{ id = 1270, icon = "achievement_faction_shadopan" },		-- "Shado-Pan" 
+			{ id = 1435, icon = "achievement_faction_shadopan" },		-- "Shado-Pan Assault" 
+			{ id = 1216, icon = "inv_misc_book_07" },		-- "Shang Xi's Academy" 
+			{ id = 1388, icon = "achievement_faction_sunreaveronslaught" },		-- "Sunreaver Onslaught" 
+			{ id = 1302, icon = "achievement_faction_anglers" },		-- "The Anglers" 
+			{ id = 1341, icon = "achievement_faction_celestials" },		-- "The August Celestials" 
+			{ id = 1359, icon = "inv_misc_head_dragon_black" },		-- "The Black Prince" 
+			{ id = 1351, icon = "inv_cask_02" },		-- "The Brewmasters" 
+			{ id = 1337, icon = "achievement_faction_klaxxi" },		-- "The Klaxxi" 
+			{ id = 1345, icon = "achievement_faction_lorewalkers" },		-- "The Lorewalkers" 
+			{ id = 1272, icon = "achievement_faction_tillers" },		-- "The Tillers" 
+			{ id = 1492, icon = "ability_monk_quipunch" },		-- "Emperor Shaohao"
 		}
 	},
 	{	-- [6]
@@ -247,7 +249,7 @@ local function BuildView()
 		end
 		
 		table.sort(view, function(a,b) 	-- sort all factions alphabetically
-			return a.name < b.name
+			return GetFactionInfoByID(a.id) < GetFactionInfoByID(b.id)
 		end)
 	end
 	
@@ -298,7 +300,7 @@ local function OnGuildSelected(self)
 		
 		-- add them to the Factions table
 		for k, v in pairs(guilds) do
-			table.insert(Factions[currentXPack][currentFactionGroup], { name = k, icon = v } )
+			table.insert(Factions[currentXPack][currentFactionGroup], { id = k, icon = v } )
 		end
 	end
 	
@@ -359,7 +361,7 @@ end
 
 local function GetSuggestion(faction, bottom)
 	if not addon.FactionLeveling then return end
-	
+
 	local factionTable = addon.FactionLeveling[faction]
 	if not factionTable then return end
 	
@@ -389,7 +391,11 @@ local callbacks = {
 			currentFaction = view[dataRowID]
 			
 			local rowName = entry .. row
-			_G[rowName.."Name"]:SetText(WHITE .. currentFaction.name)
+
+			-- if the current xpack is 5, it's the guild, show only the id, don't resolve it
+			local faction = (currentXPack == 5) and currentFaction.id or GetFactionInfoByID(currentFaction.id)
+			
+			_G[rowName.."Name"]:SetText(WHITE .. faction)
 			_G[rowName.."Name"]:SetJustifyH("LEFT")
 			_G[rowName.."Name"]:SetPoint("TOPLEFT", 15, 0)
 		end,
@@ -414,7 +420,9 @@ local callbacks = {
 			itemText:SetPoint("BOTTOMRIGHT", 5, 0)
 			itemTexture:SetDesaturated(0)
 			
-			local status, _, _, rate = DataStore:GetReputationInfo(character, faction.name)
+			local factionName = (currentXPack == 5) and faction.id or GetFactionInfoByID(faction.id)
+			
+			local status, _, _, rate = DataStore:GetReputationInfo(character, factionName)
 			if status and rate then 
 				local text
 				if status == FACTION_STANDING_LABEL8 then
@@ -450,19 +458,21 @@ local callbacks = {
 			local character = frame.key
 			if not character then return end
 
-			local faction = view[ frame:GetID() ].name
-			local status, currentLevel, maxLevel, rate = DataStore:GetReputationInfo(character, faction)
+			local faction = view[ frame:GetID() ]
+			local factionName = (currentXPack == 5) and faction.id or GetFactionInfoByID(faction.id)
+			
+			local status, currentLevel, maxLevel, rate = DataStore:GetReputationInfo(character, factionName)
 			if not status then return end
 			
 			AltoTooltip:SetOwner(frame, "ANCHOR_LEFT");
 			AltoTooltip:ClearLines();
-			AltoTooltip:AddLine(DataStore:GetColoredCharacterName(character) .. WHITE .. " @ " ..	TEAL .. faction,1,1,1);
+			AltoTooltip:AddLine(DataStore:GetColoredCharacterName(character) .. WHITE .. " @ " ..	TEAL .. factionName,1,1,1);
 
 			rate = format("%d", floor(rate)) .. "%"
 			AltoTooltip:AddLine(format("%s: %d/%d (%s)", status, currentLevel, maxLevel, rate),1,1,1 )
 						
-			local bottom = DataStore:GetRawReputationInfo(character, faction)
-			local suggestion = GetSuggestion(faction, bottom)
+			local bottom = DataStore:GetRawReputationInfo(character, factionName)
+			local suggestion = GetSuggestion(faction.id, bottom)
 			if suggestion then
 				AltoTooltip:AddLine(" ",1,1,1)
 				AltoTooltip:AddLine("Suggestion: ",1,1,1)
@@ -489,14 +499,16 @@ local callbacks = {
 			local character = frame.key
 			if not character then return end
 
-			local faction = view[ frame:GetParent():GetID() ].name
-			local status, currentLevel, maxLevel, rate = DataStore:GetReputationInfo(character, faction)
+			local faction = view[ frame:GetParent():GetID() ]
+			local factionName = (currentXPack == 5) and faction.id or GetFactionInfoByID(faction.id)
+			
+			local status, currentLevel, maxLevel, rate = DataStore:GetReputationInfo(character, factionName)
 			if not status then return end
 			
 			if ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
 				local chat = ChatEdit_GetLastActiveWindow()
 				if chat:IsShown() then
-					chat:Insert(format(L["%s is %s with %s (%d/%d)"], DataStore:GetCharacterName(character), status, faction, currentLevel, maxLevel))
+					chat:Insert(format(L["%s is %s with %s (%d/%d)"], DataStore:GetCharacterName(character), status, factionName, currentLevel, maxLevel))
 				end
 			end
 		end,

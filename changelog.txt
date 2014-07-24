@@ -8,6 +8,13 @@ IMPORTANT NOTE: If you're upgrading from 4.x :
 - Make sure you delete the addon's databases in SavedVariables. ie: Altoholic.lua and all DataStore*.lua.
 - Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
 
+5.4.007 (xx/07/2014)
+
+- Added missing faction "Emperor Shaohao".
+- Altoholic: removed LibBabble-Faction
+- DataStore_Reputations: removed LibBabble-Faction.
+- Fixed lua error when using the search function.
+
 5.4.006 (22/07/2014)
 
 - Fixed double item counts in the tooltip.

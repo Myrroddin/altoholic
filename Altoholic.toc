@@ -18,7 +18,7 @@
 ## X-Credits: My guild (Odysseüs), all translators, the wowace community, and all users for their invaluable suggestions !
 ## Dependencies: DataStore, DataStore_Characters
 
-## OptionalDeps: Ace3, LibDataBroker-1.1, LibPeriodicTable-3.1, LibBabble-Boss-3.0, LibBabble-Inventory-3.0, LibBabble-Faction-3.0
+## OptionalDeps: Ace3, LibDataBroker-1.1, LibPeriodicTable-3.1, LibBabble-Boss-3.0, LibBabble-Inventory-3.0
 ## SavedVariables: AltoholicDB
 ## X-Category: Interface Enhancements
 
