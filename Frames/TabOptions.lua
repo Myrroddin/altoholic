@@ -124,6 +124,21 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "5.4.008 Changes",
+		bulletedList = {
+			"Fixed MoP factions showing up as numbers.",
+			"Suggested leveling zones are back in the account summary.",
+			"Added an option to reset links between merged realms (some realms were marked as linked though they were not) => DataStore dropdown in the Account Summary.",
+			"Added an option to completely reset the DataStore databases, without having to manually delete the files in the SavedVariables folder => DataStore dropdown in the Account Summary.",
+			"Added an option to remember the faction filter across sessions. (Grids -> Reputations).",
+			"Added an option to remember the currency filter across sessions. (Grids -> Currencies).",
+			"Added an option to remember the companion filter across sessions. (Grids -> Companions).",
+			"Added an option to remember the mount filter across sessions. (Grids -> Mounts).",
+			"Added an option to remember the tradeskills filter across sessions. (Grids -> Tradeskills).",
+			"Added an option to remember the archaeology filter across sessions. (Grids -> Archaeology).",
+			"Item counts for guilds on merged realms should now be visible too (sorry can't test this myself).",
+		},
+	},
 	{	name = "5.4.007 Changes",
 		bulletedList = {
 			"Added missing faction 'Emperor Shaohao'.",
@@ -151,18 +166,6 @@ local whatsnew = {
 		bulletedList = {
 			"Fixed showing the item source for crafts in the tooltip.",
 			"Fixed LibCraftInfo.",
-		},
-	},
-	{	name = "5.4.003 Changes",
-		bulletedList = {
-			"Created and added support for 3 new libraries : LibCraftInfo, LibCraftLevels, LibCraftReagents.",
-			"These libraries intend to replace the lost functionality caused by tables reset to zero in LibPeriodicTable.",
-			"I now have my own dataminer, so these tables should be easier to maintain when a patch hits.",
-			"I also cleaned up some hard coded tables to now use the libraries instead.",
-			"Overall, the addon now consumes a little bit more memory, but the data sources are way more complete than before.",
-			"Replaced the internal list of recipes by LibCraftInfo.",
-			"Fixed the Characters -> Profession pane no longer showing reagents due to LPT changes.",
-			"Fixed the Grids -> Tradeskills pane no longer correct due to LPT changes.",
 		},
 	},
 	{	name = "Earlier changes",

@@ -10,6 +10,8 @@ local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
 local YELLOW	= "|cFFFFFF00"
 
+local continents = { GetMapContinents() };		-- this gets localized names, also avoids hardcoding them.
+
 -- 以下为声望值、等级、技能等的建议
 addon.Suggestions = {
 
@@ -313,5 +315,98 @@ addon.Suggestions = {
 		{ 345, "331~345: 赞加沼泽西部" },
 		{ 360, "346~360: 泰罗卡森林" },
 		{ 375, "361~375: 泰罗卡森林,高地上：\n尤鲁恩湖, 裂石堡西北方\n艾雷诺湖, 奥蕾莉亚要塞东南方\n黑风湖, 斯克提斯地区\n需要飞行坐骑" }
+	},
+	
+	[BI["Archaeology"]] = {
+		{ 300, "1~300: " .. continents[1] .. "\n" .. continents[2]},
+		{ 375, "301~375: " .. continents[3]},
+		{ 450, "376~450: " .. continents[4]},
+		{ 525, "451~525: " .. GetMapNameByID(606) .. "\n" .. GetMapNameByID(720) .. "\n" .. GetMapNameByID(700)},
+		{ 600, "526~600: " .. continents[6]},
+	},
+	
+	-- suggested leveling zones, as defined by recommended quest levels. map id's : http://wowpedia.org/MapID
+	-- 建议升级地区，来源众多，不一一列举了
+	["Leveling"] = {
+		{ 10, "1~10级: 所有起始地区" },
+		
+		{ 15, "15级: " .. GetMapNameByID(39)},
+		{ 16, "16级: " .. GetMapNameByID(684)},
+		{ 20, "20级: " .. GetMapNameByID(181) .. "\n" .. GetMapNameByID(35) .. "\n" .. GetMapNameByID(476)
+							.. "\n" .. GetMapNameByID(42) .. "\n" .. GetMapNameByID(21) .. "\n" .. GetMapNameByID(11)
+							.. "\n" .. GetMapNameByID(463) .. "\n" .. GetMapNameByID(36)},
+		{ 25, "25级: " .. GetMapNameByID(34) .. "\n" .. GetMapNameByID(40) .. "\n" .. GetMapNameByID(43) 
+							.. "\n" .. GetMapNameByID(24)},
+		{ 30, "30级: " .. GetMapNameByID(16) .. "\n" .. GetMapNameByID(37) .. "\n" .. GetMapNameByID(81)},
+		{ 35, "35级: " .. GetMapNameByID(673) .. "\n" .. GetMapNameByID(101) .. "\n" .. GetMapNameByID(26)
+							.. "\n" .. GetMapNameByID(607)},
+		{ 40, "40级: " .. GetMapNameByID(141) .. "\n" .. GetMapNameByID(121) .. "\n" .. GetMapNameByID(22)},
+		{ 45, "45级: " .. GetMapNameByID(23) .. "\n" .. GetMapNameByID(61)},
+		{ 48, "48级: " .. GetMapNameByID(17)},
+		{ 50, "50级: " .. GetMapNameByID(161) .. "\n" .. GetMapNameByID(182) .. "\n" .. GetMapNameByID(28)},
+		{ 52, "52级: " .. GetMapNameByID(29)},
+		{ 54, "54级: " .. GetMapNameByID(38)},
+		{ 55, "55级: " .. GetMapNameByID(201) .. "\n" .. GetMapNameByID(281)},
+		{ 58, "58级: " .. GetMapNameByID(19)},
+		{ 60, "60级: " .. GetMapNameByID(32) .. "\n" .. GetMapNameByID(241) .. "\n" .. GetMapNameByID(261)},
+		
+		-- Outland
+		-- 465 Hellfire Peninsula 
+		-- 467 Zangarmarsh 
+		-- 478 Terokkar Forest 
+		-- 477 Nagrand 
+		-- 475 Blade's Edge Mountains 
+		-- 479 Netherstorm 
+		-- 473 Shadowmoon Valley 
+		
+		{ 63, "63级: " .. GetMapNameByID(465)},
+		{ 64, "64级: " .. GetMapNameByID(467)},
+		{ 65, "65级: " .. GetMapNameByID(478)},
+		{ 67, "67级: " .. GetMapNameByID(477)},
+		{ 68, "68级: " .. GetMapNameByID(475)},
+		{ 70, "70级: " .. GetMapNameByID(479) .. "\n" .. GetMapNameByID(473) .. "\n" .. GetMapNameByID(499) .. "\n" .. GetMapNameByID(32)},
+
+		-- Northrend
+		-- 491 Howling Fjord 
+		-- 486 Borean Tundra 
+		-- 488 Dragonblight 
+		-- 490 Grizzly Hills 
+		-- 496 Zul'Drak 
+		-- 493 Sholazar Basin 
+		-- 510 Crystalsong Forest 
+		-- 495 The Storm Peaks 
+		-- 492 Icecrown 
+		
+		{ 72, "72级: " .. GetMapNameByID(491) .. "\n" .. GetMapNameByID(486)},
+		{ 75, "75级: " .. GetMapNameByID(488) .. "\n" .. GetMapNameByID(490)},
+		{ 76, "76级: " .. GetMapNameByID(496)},
+		{ 78, "78级: " .. GetMapNameByID(493)},
+		{ 80, "80级: " .. GetMapNameByID(510) .. "\n" .. GetMapNameByID(495) .. "\n" .. GetMapNameByID(492)},
+		
+		-- Cataclysm
+		-- 606 Mount Hyjal 
+		-- 613 Vashj'ir 
+		-- 640 Deepholm 
+		-- 720 Uldum 
+		-- 700 Twilight Highlands 
+		
+		{ 82, "82级: " .. GetMapNameByID(606) .. "\n" .. GetMapNameByID(613)},
+		{ 83, "83级: " .. GetMapNameByID(640)},
+		{ 84, "84级: " .. GetMapNameByID(720)},
+		{ 85, "85级: " .. GetMapNameByID(700)},
+
+		-- Pandaria
+		-- 806 The Jade Forest 
+		-- 807 Valley of the Four Winds 
+		-- 857 Krasarang Wilds 
+		-- 809 Kun-Lai Summit 
+		-- 810 Townlong Steppes 
+		-- 858 Dread Wastes 
+		
+		{ 86, "86级: " .. GetMapNameByID(806)},
+		{ 87, "87级: " .. GetMapNameByID(807) .. "\n" .. GetMapNameByID(857)},
+		{ 88, "88级: " .. GetMapNameByID(809)},
+		{ 89, "89级: " .. GetMapNameByID(810)},
+		{ 90, "90级: " .. GetMapNameByID(858)},
 	},
 }

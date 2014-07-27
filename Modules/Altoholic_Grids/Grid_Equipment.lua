@@ -366,7 +366,6 @@ local function RightClickMenu_Initialize()
 	DDM_AddCloseMenu()
 end
 
-
 local callbacks = {
 	OnUpdate = function() end,
 	GetSize = function() return ns:GetNumSlotTypes() end,

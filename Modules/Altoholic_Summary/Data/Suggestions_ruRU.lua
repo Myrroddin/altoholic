@@ -10,6 +10,8 @@ local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
 local YELLOW	= "|cFFFFFF00"
 
+local continents = { GetMapContinents() };		-- this gets localized names, also avoids hardcoding them.
+
 -- This table contains a list of suggestions to get to the next level of reputation, craft or skill
 addon.Suggestions = {
 
@@ -396,5 +398,96 @@ addon.Suggestions = {
 		{ 345, "До 345: Рыбачьте на западе Зангартопи" },
 		{ 360, "До 360: Лес Тероккар" },
 		{ 375, "До 375: Лесу Тероккар, в Скеттисе\nНужено летающее верховое животное" }
+	},
+	
+	[BI["Archaeology"]] = {
+		{ 300, "До 300: " .. continents[1] .. "\n" .. continents[2]},
+		{ 375, "До 375: " .. continents[3]},
+		{ 450, "До 450: " .. continents[4]},
+		{ 525, "До 525: " .. GetMapNameByID(606) .. "\n" .. GetMapNameByID(720) .. "\n" .. GetMapNameByID(700)},
+		{ 600, "До 600: " .. continents[6]},
+	},
+	
+	-- suggested leveling zones, as defined by recommended quest levels. map id's : http://wowpedia.org/MapID
+	["Leveling"] = {
+		{ 10, "До 10: Любая начальная зона" },
+		{ 15, "До 15: " .. GetMapNameByID(39)},
+		{ 16, "До 16: " .. GetMapNameByID(684)},
+		{ 20, "До 20: " .. GetMapNameByID(181) .. "\n" .. GetMapNameByID(35) .. "\n" .. GetMapNameByID(476)
+							.. "\n" .. GetMapNameByID(42) .. "\n" .. GetMapNameByID(21) .. "\n" .. GetMapNameByID(11)
+							.. "\n" .. GetMapNameByID(463) .. "\n" .. GetMapNameByID(36)},
+		{ 25, "До 25: " .. GetMapNameByID(34) .. "\n" .. GetMapNameByID(40) .. "\n" .. GetMapNameByID(43) 
+							.. "\n" .. GetMapNameByID(24)},
+		{ 30, "До 30: " .. GetMapNameByID(16) .. "\n" .. GetMapNameByID(37) .. "\n" .. GetMapNameByID(81)},
+		{ 35, "До 35: " .. GetMapNameByID(673) .. "\n" .. GetMapNameByID(101) .. "\n" .. GetMapNameByID(26)
+							.. "\n" .. GetMapNameByID(607)},
+		{ 40, "До 40: " .. GetMapNameByID(141) .. "\n" .. GetMapNameByID(121) .. "\n" .. GetMapNameByID(22)},
+		{ 45, "До 45: " .. GetMapNameByID(23) .. "\n" .. GetMapNameByID(61)},
+		{ 48, "До 48: " .. GetMapNameByID(17)},
+		{ 50, "До 50: " .. GetMapNameByID(161) .. "\n" .. GetMapNameByID(182) .. "\n" .. GetMapNameByID(28)},
+		{ 52, "До 52: " .. GetMapNameByID(29)},
+		{ 54, "До 54: " .. GetMapNameByID(38)},
+		{ 55, "До 55: " .. GetMapNameByID(201) .. "\n" .. GetMapNameByID(281)},
+		{ 58, "До 58: " .. GetMapNameByID(19)},
+		{ 60, "До 60: " .. GetMapNameByID(32) .. "\n" .. GetMapNameByID(241) .. "\n" .. GetMapNameByID(261)},
+		
+		-- Outland
+		-- 465 Hellfire Peninsula 
+		-- 467 Zangarmarsh 
+		-- 478 Terokkar Forest 
+		-- 477 Nagrand 
+		-- 475 Blade's Edge Mountains 
+		-- 479 Netherstorm 
+		-- 473 Shadowmoon Valley 
+		
+		{ 63, "До 63: " .. GetMapNameByID(465)},
+		{ 64, "До 64: " .. GetMapNameByID(467)},
+		{ 65, "До 65: " .. GetMapNameByID(478)},
+		{ 67, "До 67: " .. GetMapNameByID(477)},
+		{ 68, "До 68: " .. GetMapNameByID(475)},
+		{ 70, "До 70: " .. GetMapNameByID(479) .. "\n" .. GetMapNameByID(473) .. "\n" .. GetMapNameByID(499) .. "\n" .. GetMapNameByID(32)},
+
+		-- Northrend
+		-- 491 Howling Fjord 
+		-- 486 Borean Tundra 
+		-- 488 Dragonblight 
+		-- 490 Grizzly Hills 
+		-- 496 Zul'Drak 
+		-- 493 Sholazar Basin 
+		-- 510 Crystalsong Forest 
+		-- 495 The Storm Peaks 
+		-- 492 Icecrown 
+		
+		{ 72, "До 72: " .. GetMapNameByID(491) .. "\n" .. GetMapNameByID(486)},
+		{ 75, "До 75: " .. GetMapNameByID(488) .. "\n" .. GetMapNameByID(490)},
+		{ 76, "До 76: " .. GetMapNameByID(496)},
+		{ 78, "До 78: " .. GetMapNameByID(493)},
+		{ 80, "До 80: " .. GetMapNameByID(510) .. "\n" .. GetMapNameByID(495) .. "\n" .. GetMapNameByID(492)},
+		
+		-- Cataclysm
+		-- 606 Mount Hyjal 
+		-- 613 Vashj'ir 
+		-- 640 Deepholm 
+		-- 720 Uldum 
+		-- 700 Twilight Highlands 
+		
+		{ 82, "До 82: " .. GetMapNameByID(606) .. "\n" .. GetMapNameByID(613)},
+		{ 83, "До 83: " .. GetMapNameByID(640)},
+		{ 84, "До 84: " .. GetMapNameByID(720)},
+		{ 85, "До 85: " .. GetMapNameByID(700)},
+
+		-- Pandaria
+		-- 806 The Jade Forest 
+		-- 807 Valley of the Four Winds 
+		-- 857 Krasarang Wilds 
+		-- 809 Kun-Lai Summit 
+		-- 810 Townlong Steppes 
+		-- 858 Dread Wastes 
+		
+		{ 86, "До 86: " .. GetMapNameByID(806)},
+		{ 87, "До 87: " .. GetMapNameByID(807) .. "\n" .. GetMapNameByID(857)},
+		{ 88, "До 88: " .. GetMapNameByID(809)},
+		{ 89, "До 89: " .. GetMapNameByID(810)},
+		{ 90, "До 90: " .. GetMapNameByID(858)},
 	},
 }

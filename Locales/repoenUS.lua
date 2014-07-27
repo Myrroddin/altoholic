@@ -191,6 +191,12 @@ L["Arena points: "] = true
 L["Honor points: "] = true
 L["Right-Click for options"] = true
 L["Average Item Level"] = true
+L["Reset all data"] = true
+L["Wipe database ?\nWarning: all information will be lost !"] = true
+L["Information saved in DataStore has been completely deleted !"]  = true
+L["Reset connected realms"] = true
+L["Reset connected realms ?"] = true
+L["Realm links successfully deleted"] = true
 
 -- AuctionHouse.lua
 L["%s has no auctions"] = true

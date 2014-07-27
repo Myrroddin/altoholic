@@ -8,7 +8,24 @@ IMPORTANT NOTE: If you're upgrading from 4.x :
 - Make sure you delete the addon's databases in SavedVariables. ie: Altoholic.lua and all DataStore*.lua.
 - Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
 
-5.4.007 (xx/07/2014)
+5.4.008 (xx/07/2014)
+
+- Fixed MoP factions showing up as numbers.
+- Suggested leveling zones are back in the account summary. 
+- Added an option to reset links between merged realms (some realms were marked as linked though they were not)
+	=> DataStore dropdown in the Account Summary
+- Added an option to completely reset the DataStore databases, without having to manually delete the files in the SavedVariables folder
+	=> DataStore dropdown in the Account Summary
+
+- Added an option to remember the faction filter across sessions. (Grids -> Reputations)
+- Added an option to remember the currency filter across sessions. (Grids -> Currencies)
+- Added an option to remember the companion filter across sessions. (Grids -> Companions)
+- Added an option to remember the mount filter across sessions. (Grids -> Mounts)
+- Added an option to remember the tradeskills filter across sessions. (Grids -> Tradeskills)
+- Added an option to remember the archaeology filter across sessions. (Grids -> Archaeology)
+- Item counts for guilds on merged realms should now be visible too (sorry can't test this myself).
+
+5.4.007 (24/07/2014)
 
 - Added missing faction "Emperor Shaohao".
 - Altoholic: removed LibBabble-Faction

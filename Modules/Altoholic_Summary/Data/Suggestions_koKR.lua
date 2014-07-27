@@ -10,6 +10,8 @@ local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
 local YELLOW	= "|cFFFFFF00"
 
+local continents = { GetMapContinents() };		-- this gets localized names, also avoids hardcoding them.
+
 -- This table contains a list of suggestions to get to the next level of reputation, craft or skill
 addon.Suggestions = {
 
@@ -444,9 +446,93 @@ addon.Suggestions = {
 	},
 	
 	[BI["Archaeology"]] = {
-		{ 300, "300 까지: 칼림도어\n동부 왕국" },
-		{ 375, "375 까지: 아웃랜드" },
-		{ 450, "450 까지: 노스렌드" },
-		{ 525, "525 까지: 하이잘 산\n울둠\n황혼의 고원" }
+		{ 300, "300 까지: " .. continents[1] .. "\n" .. continents[2]},
+		{ 375, "375 까지: " .. continents[3]},
+		{ 450, "450 까지: " .. continents[4]},
+		{ 525, "525 까지: " .. GetMapNameByID(606) .. "\n" .. GetMapNameByID(720) .. "\n" .. GetMapNameByID(700)},
+		{ 600, "600 까지: " .. continents[6]},
+	},
+		
+	-- suggested leveling zones, as defined by recommended quest levels. map id's : http://wowpedia.org/MapID
+	["Leveling"] = {
+		{ 10, "10 까지: 모든 시작 지역" },
+		{ 15, "15 까지: " .. GetMapNameByID(39)},
+		{ 16, "16 까지: " .. GetMapNameByID(684)},
+		{ 20, "20 까지: " .. GetMapNameByID(181) .. "\n" .. GetMapNameByID(35) .. "\n" .. GetMapNameByID(476)
+							.. "\n" .. GetMapNameByID(42) .. "\n" .. GetMapNameByID(21) .. "\n" .. GetMapNameByID(11)
+							.. "\n" .. GetMapNameByID(463) .. "\n" .. GetMapNameByID(36)},
+		{ 25, "25 까지: " .. GetMapNameByID(34) .. "\n" .. GetMapNameByID(40) .. "\n" .. GetMapNameByID(43) 
+							.. "\n" .. GetMapNameByID(24)},
+		{ 30, "30 까지: " .. GetMapNameByID(16) .. "\n" .. GetMapNameByID(37) .. "\n" .. GetMapNameByID(81)},
+		{ 35, "35 까지: " .. GetMapNameByID(673) .. "\n" .. GetMapNameByID(101) .. "\n" .. GetMapNameByID(26)
+							.. "\n" .. GetMapNameByID(607)},
+		{ 40, "40 까지: " .. GetMapNameByID(141) .. "\n" .. GetMapNameByID(121) .. "\n" .. GetMapNameByID(22)},
+		{ 45, "45 까지: " .. GetMapNameByID(23) .. "\n" .. GetMapNameByID(61)},
+		{ 48, "48 까지: " .. GetMapNameByID(17)},
+		{ 50, "50 까지: " .. GetMapNameByID(161) .. "\n" .. GetMapNameByID(182) .. "\n" .. GetMapNameByID(28)},
+		{ 52, "52 까지: " .. GetMapNameByID(29)},
+		{ 54, "54 까지: " .. GetMapNameByID(38)},
+		{ 55, "55 까지: " .. GetMapNameByID(201) .. "\n" .. GetMapNameByID(281)},
+		{ 58, "58 까지: " .. GetMapNameByID(19)},
+		{ 60, "60 까지: " .. GetMapNameByID(32) .. "\n" .. GetMapNameByID(241) .. "\n" .. GetMapNameByID(261)},
+		
+		-- Outland
+		-- 465 Hellfire Peninsula 
+		-- 467 Zangarmarsh 
+		-- 478 Terokkar Forest 
+		-- 477 Nagrand 
+		-- 475 Blade's Edge Mountains 
+		-- 479 Netherstorm 
+		-- 473 Shadowmoon Valley 
+		
+		{ 63, "63 까지: " .. GetMapNameByID(465)},
+		{ 64, "64 까지: " .. GetMapNameByID(467)},
+		{ 65, "65 까지: " .. GetMapNameByID(478)},
+		{ 67, "67 까지: " .. GetMapNameByID(477)},
+		{ 68, "68 까지: " .. GetMapNameByID(475)},
+		{ 70, "70 까지: " .. GetMapNameByID(479) .. "\n" .. GetMapNameByID(473) .. "\n" .. GetMapNameByID(499) .. "\n" .. GetMapNameByID(32)},
+
+		-- Northrend
+		-- 491 Howling Fjord 
+		-- 486 Borean Tundra 
+		-- 488 Dragonblight 
+		-- 490 Grizzly Hills 
+		-- 496 Zul'Drak 
+		-- 493 Sholazar Basin 
+		-- 510 Crystalsong Forest 
+		-- 495 The Storm Peaks 
+		-- 492 Icecrown 
+		
+		{ 72, "72 까지: " .. GetMapNameByID(491) .. "\n" .. GetMapNameByID(486)},
+		{ 75, "75 까지: " .. GetMapNameByID(488) .. "\n" .. GetMapNameByID(490)},
+		{ 76, "76 까지: " .. GetMapNameByID(496)},
+		{ 78, "78 까지: " .. GetMapNameByID(493)},
+		{ 80, "80 까지: " .. GetMapNameByID(510) .. "\n" .. GetMapNameByID(495) .. "\n" .. GetMapNameByID(492)},
+		
+		-- Cataclysm
+		-- 606 Mount Hyjal 
+		-- 613 Vashj'ir 
+		-- 640 Deepholm 
+		-- 720 Uldum 
+		-- 700 Twilight Highlands 
+		
+		{ 82, "82 까지: " .. GetMapNameByID(606) .. "\n" .. GetMapNameByID(613)},
+		{ 83, "83 까지: " .. GetMapNameByID(640)},
+		{ 84, "84 까지: " .. GetMapNameByID(720)},
+		{ 85, "85 까지: " .. GetMapNameByID(700)},
+
+		-- Pandaria
+		-- 806 The Jade Forest 
+		-- 807 Valley of the Four Winds 
+		-- 857 Krasarang Wilds 
+		-- 809 Kun-Lai Summit 
+		-- 810 Townlong Steppes 
+		-- 858 Dread Wastes 
+		
+		{ 86, "86 까지: " .. GetMapNameByID(806)},
+		{ 87, "87 까지: " .. GetMapNameByID(807) .. "\n" .. GetMapNameByID(857)},
+		{ 88, "88 까지: " .. GetMapNameByID(809)},
+		{ 89, "89 까지: " .. GetMapNameByID(810)},
+		{ 90, "90 까지: " .. GetMapNameByID(858)},
 	},
 }
