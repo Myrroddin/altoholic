@@ -193,6 +193,20 @@ local function WriteTotal(tooltip)
 	end
 end
 
+local function GetRealmsList()
+	-- returns the list of realms to check, either only this realm, or merged realms too.
+	local realms = {}
+	table.insert(realms, THIS_REALM)
+	
+	if addon:GetOption("TooltipConnectedRealms") == 1 then
+		for _, connectedRealm in pairs(DataStore:GetRealmsConnectedWith(THIS_REALM)) do
+			table.insert(realms, connectedRealm)
+		end
+	end
+	
+	return realms
+end
+
 local function GetCharacterItemCount(character, searchedID)
 	itemCounts[1], itemCounts[2], itemCounts[3] = DataStore:GetContainerItemCount(character, searchedID)
 	itemCounts[4] = DataStore:GetAuctionHouseItemCount(character, searchedID)
@@ -236,16 +250,7 @@ end
 local function GetAccountItemCount(account, searchedID)
 	local count = 0
 
-	local realms = {}
-	table.insert(realms, THIS_REALM)
-	
-	if addon:GetOption("TooltipConnectedRealms") == 1 then
-		for _, connectedRealm in pairs(DataStore:GetRealmsConnectedWith(THIS_REALM)) do
-			table.insert(realms, connectedRealm)
-		end
-	end
-
-	for _, realm in pairs(realms) do
+	for _, realm in pairs(GetRealmsList()) do
 		for _, character in pairs(DataStore:GetCharacters(realm, account)) do
 			if addon:GetOption("TooltipCrossFaction") == 1 then
 				count = count + GetCharacterItemCount(character, searchedID)
@@ -273,35 +278,37 @@ local function GetItemCount(searchedID)
 	end
 		
 	if addon:GetOption("TooltipGuildBank") == 1 then
-		for guildName, guildKey in pairs(DataStore:GetGuilds(GetRealmName())) do				-- this realm only
-			local altoGuild = addon:GetGuild(guildName)
-			if not altoGuild or (altoGuild and not altoGuild.hideInTooltip) then
-				local guildCount = 0
-				
-				if addon:GetOption("TooltipGuildBankCountPerTab") == 1 then
-					local tabCounters = {}
+		for _, realm in pairs(GetRealmsList()) do
+			for guildName, guildKey in pairs(DataStore:GetGuilds(realm)) do
+				local altoGuild = addon:GetGuild(guildName)
+				if not altoGuild or (altoGuild and not altoGuild.hideInTooltip) then
+					local guildCount = 0
 					
-					local tabCount
-					for tabID = 1, 8 do 
-						tabCount = DataStore:GetGuildBankTabItemCount(guildKey, tabID, searchedID)
-						if tabCount and tabCount > 0 then
-							table.insert(tabCounters,  format("%s: %s", WHITE .. DataStore:GetGuildBankTabName(guildKey, tabID), TEAL..tabCount))
+					if addon:GetOption("TooltipGuildBankCountPerTab") == 1 then
+						local tabCounters = {}
+						
+						local tabCount
+						for tabID = 1, 8 do 
+							tabCount = DataStore:GetGuildBankTabItemCount(guildKey, tabID, searchedID)
+							if tabCount and tabCount > 0 then
+								table.insert(tabCounters,  format("%s: %s", WHITE .. DataStore:GetGuildBankTabName(guildKey, tabID), TEAL..tabCount))
+							end
+						end
+						
+						if #tabCounters > 0 then
+							guildCount = DataStore:GetGuildBankItemCount(guildKey, searchedID) or 0
+							AddCounterLine(GREEN..guildName, format("%s %s(%s%s)", ORANGE .. guildCount, WHITE, table.concat(tabCounters, ","), WHITE))
+						end
+					else
+						guildCount = DataStore:GetGuildBankItemCount(guildKey, searchedID) or 0
+						if guildCount > 0 then
+							AddCounterLine(GREEN..guildName, format("%s(%s: %s%s)", WHITE, GUILD_BANK, TEAL..guildCount, WHITE))
 						end
 					end
-					
-					if #tabCounters > 0 then
-						guildCount = DataStore:GetGuildBankItemCount(guildKey, searchedID) or 0
-						AddCounterLine(GREEN..guildName, format("%s %s(%s%s)", ORANGE .. guildCount, WHITE, table.concat(tabCounters, ","), WHITE))
+						
+					if addon:GetOption("TooltipGuildBankCount") == 1 then
+						count = count + guildCount
 					end
-				else
-					guildCount = DataStore:GetGuildBankItemCount(guildKey, searchedID) or 0
-					if guildCount > 0 then
-						AddCounterLine(GREEN..guildName, format("%s(%s: %s%s)", WHITE, GUILD_BANK, TEAL..guildCount, WHITE))
-					end
-				end
-					
-				if addon:GetOption("TooltipGuildBankCount") == 1 then
-					count = count + guildCount
 				end
 			end
 		end

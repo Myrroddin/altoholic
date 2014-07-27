@@ -239,6 +239,41 @@ local function ShowOptionsCategory(self)
 	InterfaceOptionsFrame_OpenToCategory(self.value)
 end
 
+local function ResetAllData_MsgBox_Handler(self, button)
+	if not button then return end
+	
+	DataStore:ClearAllData()
+	addon:Print(L["Information saved in DataStore has been completely deleted !"])
+	
+	-- rebuild the main character table, and all the menus
+	addon.Characters:BuildList()
+	addon.Characters:BuildView()
+	ns:Refresh()
+end
+
+local function ResetAllData()
+	-- reset all data stored in datastore modules
+	addon:SetMsgBoxHandler(ResetAllData_MsgBox_Handler)
+	
+	AltoMsgBox_Text:SetText(L["Wipe database ?\nWarning: all information will be lost !"])
+	AltoMsgBox:Show()
+end
+
+local function ResetConnectedRealms_MsgBox_Handler(self, button)
+	if not button then return end
+	
+--	DataStore:ClearAllConnectedRealms()
+	addon:Print(L["Realm links successfully deleted"])
+end
+
+local function ResetConnectedRealms()
+	-- reset connected realms, only the links between realms, not the data from other alts
+	addon:SetMsgBoxHandler(ResetConnectedRealms_MsgBox_Handler)
+	
+	AltoMsgBox_Text:SetText(L["Reset connected realms ?"])
+	AltoMsgBox:Show()
+end
+
 -- ** Menu Icons **
 function ns:Icon_OnEnter(frame)
 	local currentMenuID = frame:GetID()
@@ -293,6 +328,9 @@ local function DataStoreOptionsIcon_Initialize(self, level)
 	end
 	
 	DDM_AddTitle(" ")	
+	
+	DDM_Add(L["Reset all data"], nil, ResetAllData)
+	DDM_Add(L["Reset connected realms"], nil, ResetConnectedRealms)
 	DDM_Add(HELP_LABEL, DataStoreHelp, ShowOptionsCategory)
 	DDM_AddCloseMenu()
 end

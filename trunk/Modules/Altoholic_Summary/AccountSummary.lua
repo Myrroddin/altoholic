@@ -170,9 +170,7 @@ function ns:Update()
 	local VisibleLines = 14
 	local frame = "AltoholicFrameSummary"
 	local entry = frame.."Entry"
-	
-
-	
+		
 	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
 	local DisplayedCount = 0
 	local VisibleCount = 0
@@ -365,14 +363,12 @@ function ns:Level_OnEnter(frame)
 		AltoTooltip:AddLine(format("%s: %s", L["Rest XP"], GREEN..restXP),1,1,1)
 	end
 
-	-- 21/07/2014: disabled with the removal of Babble-Zone
-	
-	-- local suggestion = addon:GetSuggestion("Leveling", DS:GetCharacterLevel(character))
-	-- if suggestion then
-		-- AltoTooltip:AddLine(" ",1,1,1);
-		-- AltoTooltip:AddLine(L["Suggested leveling zone: "],1,1,1);
-		-- AltoTooltip:AddLine(TEAL .. suggestion,1,1,1);
-	-- end
+	local suggestion = addon:GetSuggestion("Leveling", DS:GetCharacterLevel(character))
+	if suggestion then
+		AltoTooltip:AddLine(" ",1,1,1);
+		AltoTooltip:AddLine(L["Suggested leveling zone: "],1,1,1);
+		AltoTooltip:AddLine(TEAL .. suggestion,1,1,1);
+	end
 
 	-- parse saved instances
 	local bLineBreak = true

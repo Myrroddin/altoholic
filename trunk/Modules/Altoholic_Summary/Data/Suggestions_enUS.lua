@@ -15,6 +15,8 @@ local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
 local YELLOW	= "|cFFFFFF00"
 
+local continents = { GetMapContinents() };		-- this gets localized names, also avoids hardcoding them.
+
 -- This table contains a list of suggestions to get to the next level of reputation, craft or skill
 addon.Suggestions = {
 
@@ -450,9 +452,93 @@ addon.Suggestions = {
 	},
 
 	[BI["Archaeology"]] = {
-		{ 300, "Up to 300: Kalimdor\nEastern Kingdoms" },
-		{ 375, "Up to 375: Outland" },
-		{ 450, "Up to 450: Northrend" },
-		{ 525, "Up to 525: MountHyjal\nUldum\nTwilight Highlands" },
+		{ 300, "Up to 300: " .. continents[1] .. "\n" .. continents[2]},
+		{ 375, "Up to 375: " .. continents[3]},
+		{ 450, "Up to 450: " .. continents[4]},
+		{ 525, "Up to 525: " .. GetMapNameByID(606) .. "\n" .. GetMapNameByID(720) .. "\n" .. GetMapNameByID(700)},
+		{ 600, "Up to 600: " .. continents[6]},
+	},
+
+	-- suggested leveling zones, as defined by recommended quest levels. map id's : http://wowpedia.org/MapID
+	["Leveling"] = {
+		{ 10, "Up to 10: Any starting zone" },
+		{ 15, "Up to 15: " .. GetMapNameByID(39)},
+		{ 16, "Up to 16: " .. GetMapNameByID(684)},
+		{ 20, "Up to 20: " .. GetMapNameByID(181) .. "\n" .. GetMapNameByID(35) .. "\n" .. GetMapNameByID(476)
+							.. "\n" .. GetMapNameByID(42) .. "\n" .. GetMapNameByID(21) .. "\n" .. GetMapNameByID(11)
+							.. "\n" .. GetMapNameByID(463) .. "\n" .. GetMapNameByID(36)},
+		{ 25, "Up to 25: " .. GetMapNameByID(34) .. "\n" .. GetMapNameByID(40) .. "\n" .. GetMapNameByID(43) 
+							.. "\n" .. GetMapNameByID(24)},
+		{ 30, "Up to 30: " .. GetMapNameByID(16) .. "\n" .. GetMapNameByID(37) .. "\n" .. GetMapNameByID(81)},
+		{ 35, "Up to 35: " .. GetMapNameByID(673) .. "\n" .. GetMapNameByID(101) .. "\n" .. GetMapNameByID(26)
+							.. "\n" .. GetMapNameByID(607)},
+		{ 40, "Up to 40: " .. GetMapNameByID(141) .. "\n" .. GetMapNameByID(121) .. "\n" .. GetMapNameByID(22)},
+		{ 45, "Up to 45: " .. GetMapNameByID(23) .. "\n" .. GetMapNameByID(61)},
+		{ 48, "Up to 48: " .. GetMapNameByID(17)},
+		{ 50, "Up to 50: " .. GetMapNameByID(161) .. "\n" .. GetMapNameByID(182) .. "\n" .. GetMapNameByID(28)},
+		{ 52, "Up to 52: " .. GetMapNameByID(29)},
+		{ 54, "Up to 54: " .. GetMapNameByID(38)},
+		{ 55, "Up to 55: " .. GetMapNameByID(201) .. "\n" .. GetMapNameByID(281)},
+		{ 58, "Up to 58: " .. GetMapNameByID(19)},
+		{ 60, "Up to 60: " .. GetMapNameByID(32) .. "\n" .. GetMapNameByID(241) .. "\n" .. GetMapNameByID(261)},
+		
+		-- Outland
+		-- 465 Hellfire Peninsula 
+		-- 467 Zangarmarsh 
+		-- 478 Terokkar Forest 
+		-- 477 Nagrand 
+		-- 475 Blade's Edge Mountains 
+		-- 479 Netherstorm 
+		-- 473 Shadowmoon Valley 
+		
+		{ 63, "Up to 63: " .. GetMapNameByID(465)},
+		{ 64, "Up to 64: " .. GetMapNameByID(467)},
+		{ 65, "Up to 65: " .. GetMapNameByID(478)},
+		{ 67, "Up to 67: " .. GetMapNameByID(477)},
+		{ 68, "Up to 68: " .. GetMapNameByID(475)},
+		{ 70, "Up to 70: " .. GetMapNameByID(479) .. "\n" .. GetMapNameByID(473) .. "\n" .. GetMapNameByID(499) .. "\n" .. GetMapNameByID(32)},
+
+		-- Northrend
+		-- 491 Howling Fjord 
+		-- 486 Borean Tundra 
+		-- 488 Dragonblight 
+		-- 490 Grizzly Hills 
+		-- 496 Zul'Drak 
+		-- 493 Sholazar Basin 
+		-- 510 Crystalsong Forest 
+		-- 495 The Storm Peaks 
+		-- 492 Icecrown 
+		
+		{ 72, "Up to 72: " .. GetMapNameByID(491) .. "\n" .. GetMapNameByID(486)},
+		{ 75, "Up to 75: " .. GetMapNameByID(488) .. "\n" .. GetMapNameByID(490)},
+		{ 76, "Up to 76: " .. GetMapNameByID(496)},
+		{ 78, "Up to 78: " .. GetMapNameByID(493)},
+		{ 80, "Up to 80: " .. GetMapNameByID(510) .. "\n" .. GetMapNameByID(495) .. "\n" .. GetMapNameByID(492)},
+		
+		-- Cataclysm
+		-- 606 Mount Hyjal 
+		-- 613 Vashj'ir 
+		-- 640 Deepholm 
+		-- 720 Uldum 
+		-- 700 Twilight Highlands 
+		
+		{ 82, "Up to 82: " .. GetMapNameByID(606) .. "\n" .. GetMapNameByID(613)},
+		{ 83, "Up to 83: " .. GetMapNameByID(640)},
+		{ 84, "Up to 84: " .. GetMapNameByID(720)},
+		{ 85, "Up to 85: " .. GetMapNameByID(700)},
+
+		-- Pandaria
+		-- 806 The Jade Forest 
+		-- 807 Valley of the Four Winds 
+		-- 857 Krasarang Wilds 
+		-- 809 Kun-Lai Summit 
+		-- 810 Townlong Steppes 
+		-- 858 Dread Wastes 
+		
+		{ 86, "Up to 86: " .. GetMapNameByID(806)},
+		{ 87, "Up to 87: " .. GetMapNameByID(807) .. "\n" .. GetMapNameByID(857)},
+		{ 88, "Up to 88: " .. GetMapNameByID(809)},
+		{ 89, "Up to 89: " .. GetMapNameByID(810)},
+		{ 90, "Up to 90: " .. GetMapNameByID(858)},
 	},
 }
