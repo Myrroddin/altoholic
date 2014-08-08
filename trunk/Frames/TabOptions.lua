@@ -124,6 +124,18 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "5.4.009 Changes",
+		bulletedList = {
+			"Uncommented the code that actually deletes linked realms.",
+			"DataStore_Crafts: reworked the processing of events that actually trigger profession scanning.",
+			"DataStore_Mails: fixed some problems related to merged realms, it should now work without problems anymore.",
+			"DataStore_Mails: fixed issues where mail attachments (sent or returned) could be saved twice in the recipient's mailbox.",
+			"DataStore : Current character/guild key can now be used by character/guild based methods.",
+			"DataStore : added a few methods to support overriding methods.",
+			"DataStore_Quests : fixed tracking of completed quests.",
+			"Many minor fixes in DataStore_Achievements, Agenda, Containers, Crafts, Inventory, Mails, Talents.",
+		},
+	},
 	{	name = "5.4.008 Changes",
 		bulletedList = {
 			"Fixed MoP factions showing up as numbers.",
