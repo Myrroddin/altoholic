@@ -3,12 +3,24 @@ Altoholic Changelog (dates in dd/mm/yyyy)
 
 Join the #altoholic IRC channel on Freenode : irc://irc.freenode.net:6667/
 
-IMPORTANT NOTE: If you're upgrading from 4.x :
+5.4.009 (08/08/2014)
 
-- Make sure you delete the addon's databases in SavedVariables. ie: Altoholic.lua and all DataStore*.lua.
-- Make sure to delete the old addon directories (Altoholic & all DataStore modules) as many files have changed/moved. A patch like this one is always a good opportunity for a fresh install.
+- Uncommented the code that actually deletes linked realms.. silly me !
+- DataStore_Crafts: reworked the processing of events that actually trigger profession scanning. 
+Note: The current implementation is based (not 100%) on how professions are scanned in Ackis Recipe List (thanks Ackis :D).
+So far the tests I have made show a serious improvement, but the way events are triggered may not be 100% consistent, especially with regards to the TRADE_SKILL_UPDATE event.
+The addon should no longer miss scans (please report if you notice problems).
+- DataStore_Mails: fixed some problems related to merged realms, it should now work without problems anymore.
+- DataStore_Mails: fixed issues where mail attachments (sent or returned) could be saved twice in the recipient's mailbox.
 
-5.4.008 (xx/07/2014)
+Changes by ckaotik (Huge thanks !)
+- DataStore : Read addon version from .toc
+- DataStore : Current character/guild key can now be used by character/guild based methods
+- DataStore : added a few methods to support overriding methods
+- Many minor fixes in DataStore_Achievements, Agenda, Containers, Crafts, Inventory, Mails, Talents
+- DataStore_Quests : fixed tracking of completed quests
+
+5.4.008 (27/07/2014)
 
 - Fixed MoP factions showing up as numbers.
 - Suggested leveling zones are back in the account summary. 

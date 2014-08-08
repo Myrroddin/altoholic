@@ -262,7 +262,7 @@ end
 local function ResetConnectedRealms_MsgBox_Handler(self, button)
 	if not button then return end
 	
---	DataStore:ClearAllConnectedRealms()
+	DataStore:ClearAllConnectedRealms()
 	addon:Print(L["Realm links successfully deleted"])
 end
 
