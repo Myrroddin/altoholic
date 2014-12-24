@@ -11,8 +11,12 @@ local WHITE		= "|cFFFFFFFF"
 local GREEN		= "|cFF00FF00"
 local YELLOW	= "|cFFFFFF00"
 local GREY		= "|cFF808080"
-local GOLD		= "|cFFFFD700"
-local RED		= "|cFFFF0000"
+
+-- http://wow.gamepedia.com/Quality
+local RARITY_GREEN = "|cFF1EFF00"
+local RARITY_BLUE = "|cFF0070DD"
+local RARITY_PURPLE = "|cFFA335EE"
+local RARITY_ORANGE = "|cFFFF8000"
 
 local ICON_FACTION_HORDE = "Interface\\Icons\\INV_BannerPVP_01"
 local ICON_FACTION_ALLIANCE = "Interface\\Icons\\INV_BannerPVP_02"
@@ -24,14 +28,14 @@ local CURRENCY_ID_APEXIS = 823
 local CURRENCY_ID_GARRISON = 824
 local CURRENCY_ID_SOTF = 994		-- Seals of Tempered Fate (WoD)
 
-addon.Currencies = {}
+addon.GarrisonFollowers = {}
 
-local ns = addon.Currencies		-- ns = namespace
+local ns = addon.GarrisonFollowers		-- ns = namespace
 local Characters = addon.Characters
 
 function ns:Update()
 	local VisibleLines = 14
-	local frame = "AltoholicFrameCurrencies"
+	local frame = "AltoholicFrameGarrisonFollowers"
 	local entry = frame.."Entry"
 	
 	local DS = DataStore
@@ -81,11 +85,13 @@ function ns:Update()
 				end				
 				_G[entry..i.."Level"]:SetText("")
 				
-				_G[entry..i.."Currency1NormalText"]:SetText("")
-				_G[entry..i.."Currency2NormalText"]:SetText("")
-				_G[entry..i.."Currency3NormalText"]:SetText("")
-				_G[entry..i.."Currency4NormalText"]:SetText("")
-				_G[entry..i.."Currency5NormalText"]:SetText("")
+				_G[entry..i.."Stat1NormalText"]:SetText("")
+				_G[entry..i.."Stat2NormalText"]:SetText("")
+				_G[entry..i.."Stat3NormalText"]:SetText("")
+				_G[entry..i.."Stat4NormalText"]:SetText("")
+				_G[entry..i.."Stat5NormalText"]:SetText("")
+				_G[entry..i.."Stat6NormalText"]:SetText("")
+				_G[entry..i.."Stat7NormalText"]:SetText("")
 				
 				_G[ entry..i ]:SetID(line)
 				_G[ entry..i ]:Show()
@@ -110,36 +116,33 @@ function ns:Update()
 					_G[entry..i.."NameNormalText"]:SetText(icon .. format("%s (%s)", DS:GetColoredCharacterName(character), DS:GetCharacterClass(character)))
 					_G[entry..i.."Level"]:SetText(GREEN .. DS:GetCharacterLevel(character))
 				
-					-- Garrison resources
-					local amount, earnedThisWeek, weeklyMax, totalMax = DataStore:GetCurrencyTotals(character, CURRENCY_ID_GARRISON)
+					local amount = DataStore:GetNumFollowers(character) or 0
 					local color = (amount == 0) and GREY or WHITE
+					_G[entry..i.."Stat1NormalText"]:SetText(format("%s%s", color, amount))
 					
-					_G[entry..i.."Currency1NormalText"]:SetText(format("%s%s", color, amount))
-					
-					-- Apexis crystals
-					amount, earnedThisWeek, weeklyMax, totalMax = DataStore:GetCurrencyTotals(character, CURRENCY_ID_APEXIS)
+					amount = DataStore:GetNumFollowersAtLevel100(character) or 0
+					color = (amount == 0) and GREY or WHITE
+					_G[entry..i.."Stat2NormalText"]:SetText(format("%s%s", color, amount))
 
-					color = (amount == 0) and GREY or WHITE
-					_G[entry..i.."Currency2NormalText"]:SetWidth(100)
-					_G[entry..i.."Currency2NormalText"]:SetText(format("%s%s%s/%s%s", color, amount, WHITE, YELLOW, totalMax))
-					
-					-- Seals of Tempered Fate
-					amount, earnedThisWeek, weeklyMax, totalMax = DataStore:GetCurrencyTotals(character, CURRENCY_ID_SOTF)
-					color = (amount == 0) and GREY or WHITE
-					
-					_G[entry..i.."Currency3NormalText"]:SetText(format("%s%s%s/%s%s", color, amount, WHITE, YELLOW, totalMax))
-					
-					-- Honor points
-					amount, earnedThisWeek, weeklyMax, totalMax = DataStore:GetCurrencyTotals(character, CURRENCY_ID_HONOR)
-					color = (amount == 0) and GREY or WHITE
-					
-					_G[entry..i.."Currency4NormalText"]:SetText(format("%s%s%s/%s%s", color, amount, WHITE, YELLOW, totalMax))
-					
-					-- Conquest points
-					amount, earnedThisWeek, weeklyMax, totalMax = DataStore:GetCurrencyTotals(character, CURRENCY_ID_CONQUEST)
-					color = (earnedThisWeek == 0) and GREY or WHITE
-					
-					_G[entry..i.."Currency5NormalText"]:SetText(format("%s%s%s/%s%s", color, earnedThisWeek, WHITE, YELLOW, weeklyMax))
+					amount = DataStore:GetNumRareFollowers(character) or 0
+					color = (amount == 0) and GREY or RARITY_BLUE
+					_G[entry..i.."Stat3NormalText"]:SetText(format("%s%s", color, amount))
+
+					amount = DataStore:GetNumEpicFollowers(character) or 0
+					color = (amount == 0) and GREY or RARITY_PURPLE
+					_G[entry..i.."Stat4NormalText"]:SetText(format("%s%s", color, amount))
+
+					amount = DataStore:GetNumFollowersAtiLevel615(character) or 0
+					color = (amount == 0) and GREY or RARITY_GREEN
+					_G[entry..i.."Stat5NormalText"]:SetText(format("%s%s", color, amount))
+
+					amount = DataStore:GetNumFollowersAtiLevel630(character) or 0
+					color = (amount == 0) and GREY or RARITY_BLUE
+					_G[entry..i.."Stat6NormalText"]:SetText(format("%s%s", color, amount))
+
+					amount = DataStore:GetNumFollowersAtiLevel645(character) or 0
+					color = (amount == 0) and GREY or RARITY_PURPLE
+					_G[entry..i.."Stat7NormalText"]:SetText(format("%s%s", color, amount))
 
 				elseif (lineType == INFO_TOTAL_LINE) then
 					_G[entry..i.."Collapse"]:Hide()
@@ -148,11 +151,13 @@ function ns:Update()
 					_G[entry..i.."NameNormalText"]:SetWidth(200)
 					_G[entry..i.."NameNormalText"]:SetText(L["Totals"])
 					_G[entry..i.."Level"]:SetText(Characters:GetField(line, "level"))
-					_G[entry..i.."Currency1NormalText"]:SetText("")
-					_G[entry..i.."Currency2NormalText"]:SetText("")
-					_G[entry..i.."Currency3NormalText"]:SetText("")
-					_G[entry..i.."Currency4NormalText"]:SetText("")
-					_G[entry..i.."Currency5NormalText"]:SetText("")
+					_G[entry..i.."Stat1NormalText"]:SetText("")
+					_G[entry..i.."Stat2NormalText"]:SetText("")
+					_G[entry..i.."Stat3NormalText"]:SetText("")
+					_G[entry..i.."Stat4NormalText"]:SetText("")
+					_G[entry..i.."Stat5NormalText"]:SetText("")
+					_G[entry..i.."Stat6NormalText"]:SetText("")
+					_G[entry..i.."Stat7NormalText"]:SetText("")
 				end
 				_G[ entry..i ]:SetID(line)
 				_G[ entry..i ]:Show()
@@ -171,56 +176,3 @@ function ns:Update()
 
 	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleCount, VisibleLines, 18);
 end	
-
-function ns:OnEnter(self)
-	local line = self:GetParent():GetID()
-	local lineType = Characters:GetLineType(line)
-	if lineType ~= INFO_CHARACTER_LINE then		
-		return
-	end
-	
-	local DS = DataStore
-	local character = DS:GetCharacter(Characters:GetInfo(line))
-	
-	AltoTooltip:ClearLines();
-	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
-	
-	AltoTooltip:AddDoubleLine(DS:GetColoredCharacterName(character), DS:GetColoredCharacterFaction(character))
-	AltoTooltip:AddLine(format("%s %s |r%s %s", L["Level"], 
-		GREEN..DS:GetCharacterLevel(character), DS:GetCharacterRace(character),	DS:GetCharacterClass(character)),1,1,1)
-
-	local zone, subZone = DS:GetLocation(character)
-	AltoTooltip:AddLine(format("%s: %s |r(%s|r)", L["Zone"], GOLD..zone, GOLD..subZone),1,1,1)
-	
-	AltoTooltip:AddLine(EXPERIENCE_COLON .. " " 
-				.. GREEN .. DS:GetXP(character) .. WHITE .. "/" 
-				.. GREEN .. DS:GetXPMax(character) .. WHITE .. " (" 
-				.. GREEN .. DS:GetXPRate(character) .. "%"
-				.. WHITE .. ")",1,1,1);	
-	
-	local restXP = DS:GetRestXP(character)
-	if restXP and restXP > 0 then
-		AltoTooltip:AddLine(format("%s: %s", L["Rest XP"], GREEN..restXP),1,1,1)
-	end
-
-	AltoTooltip:AddLine(" ",1,1,1);
-	AltoTooltip:AddLine(GOLD..CURRENCY..":",1,1,1);
-	
-	local num = DS:GetNumCurrencies(character) or 0
-	for i = 1, num do
-		local isHeader, name, count = DS:GetCurrencyInfo(character, i)
-		name = name or ""
-		
-		if isHeader then
-			AltoTooltip:AddLine(YELLOW..name)
-		else
-			AltoTooltip:AddLine(format("  %s: %s", name, GREEN..count),1,1,1);
-		end
-	end
-	
-	if num == 0 then
-		AltoTooltip:AddLine(WHITE..NONE,1,1,1);
-	end
-	
-	AltoTooltip:Show();
-end
