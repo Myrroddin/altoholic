@@ -13,6 +13,7 @@ required-dependencies:
 	- datastore_containers
 	- datastore_crafts
 	- datastore_currencies
+	- datastore_garrisons
 	- datastore_inventory
 	- datastore_mails
 	- datastore_pets
