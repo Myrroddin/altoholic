@@ -124,6 +124,19 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "6.0.002 Changes",
+		bulletedList = {
+			"New DataStore module : DataStore_Garrisons ! You have to visit the missions table to scan followers.",
+			"Grids tab: added a pane for Garrison followers.",
+			"Grids tab: added a pane for Garrison buildings.",
+			"DataStore_Containers: now scanning the reagent bank at logon.",
+			"Account Summary : updated the currency pane to remove valor and justice tokens, and replace them with garrison resources, apexis crystals, and seals of tempered fate.",
+			"Account Summary : added a pane for Garrison followers.",
+			"Fixed a Lua error when talking to an enchanting follower in the garrison.",
+			"Fixed professions not being scanned entirely since 6.0 (Thanks Myrrodin & CKaotic), I did revert the part about followers though, to use IsNPCCrafting() instead.",
+			"A lot of minor fixes.",
+		},
+	},
 	{	name = "6.0.001 Changes",
 		bulletedList = {
 			"Added a pane in the Grids tab to track LFR lockouts across alts.",

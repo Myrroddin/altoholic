@@ -1,13 +1,13 @@
 ﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
-	<Script file="Currencies.lua"></Script>
+	<Script file="GarrisonFollowers.lua"></Script>
 
-	<Button name="AltoCurrenciesButtonTemplate" virtual="true">
+	<Button name="AltoGarrisonFollowersButtonTemplate" virtual="true">
 		<Size>
-			<AbsDimension x="80" y="18"/>
+			<AbsDimension x="60" y="18"/>
 		</Size>
 		<ButtonText name="$parentNormalText" justifyH="CENTER">
 			<Size>
-				<AbsDimension x="65" y="18"/>
+				<AbsDimension x="55" y="18"/>
 			</Size>
 			<Anchors>
 				<Anchor point="LEFT">
@@ -22,7 +22,7 @@
 		<HighlightFont style="GameFontHighlightSmallLeft"/>
 	</Button>
 	
-	<Button name="AltoCurrenciesTemplate" virtual="true">
+	<Button name="AltoGarrisonFollowersTemplate" virtual="true">
 		<Size>
 			<AbsDimension x="615" y="22"/>
 		</Size>
@@ -57,7 +57,7 @@
 				<Scripts>
 					<OnClick>
 						Altoholic.Characters:ToggleHeader(self)
-						Altoholic.Currencies:Update()
+						Altoholic.GarrisonFollowers:Update()
 					</OnClick>
 				</Scripts>
 				<NormalTexture name="$parentIcon" file="Interface\Buttons\UI-MinusButton-UP" />
@@ -87,21 +87,10 @@
 						</Anchor>
 					</Anchors>
 				</ButtonText>
-				<Scripts>
-					<OnEnter>
-						Altoholic.Currencies:OnEnter(self)
-					</OnEnter>
-					<OnLeave>
-						AltoTooltip:Hide();
-					</OnLeave>
-				</Scripts>
 				<NormalFont style="GameFontNormalSmallLeft"/>
 				<HighlightFont style="GameFontHighlightSmallLeft"/>
 			</Button>
-			<Button name="$parentCurrency1" inherits="AltoCurrenciesButtonTemplate" id="1">
-				<Size>
-					<AbsDimension x="60" y="18"/>
-				</Size>
+			<Button name="$parentStat1" inherits="AltoGarrisonFollowersButtonTemplate" id="1">
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" relativeTo="$parentLevel" relativePoint="BOTTOMRIGHT">
 						<Offset>
@@ -110,42 +99,54 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentCurrency2" inherits="AltoCurrenciesButtonTemplate" id="2">
-				<Size>
-					<AbsDimension x="100" y="18"/>
-				</Size>
+			<Button name="$parentStat2" inherits="AltoGarrisonFollowersButtonTemplate" id="2">
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" relativeTo="$parentCurrency1" relativePoint="BOTTOMRIGHT">
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentStat1" relativePoint="BOTTOMRIGHT">
 						<Offset>
 							<AbsDimension x="0" y="0"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentCurrency3" inherits="AltoCurrenciesButtonTemplate" id="3">
-				<Size>
-					<AbsDimension x="60" y="18"/>
-				</Size>
+			<Button name="$parentStat3" inherits="AltoGarrisonFollowersButtonTemplate" id="3">
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" relativeTo="$parentCurrency2" relativePoint="BOTTOMRIGHT">
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentStat2" relativePoint="BOTTOMRIGHT">
 						<Offset>
 							<AbsDimension x="0" y="0"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentCurrency4" inherits="AltoCurrenciesButtonTemplate" id="4">
+			<Button name="$parentStat4" inherits="AltoGarrisonFollowersButtonTemplate" id="4">
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" relativeTo="$parentCurrency3" relativePoint="BOTTOMRIGHT">
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentStat3" relativePoint="BOTTOMRIGHT">
 						<Offset>
 							<AbsDimension x="0" y="0"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentCurrency5" inherits="AltoCurrenciesButtonTemplate" id="5">
+			<Button name="$parentStat5" inherits="AltoGarrisonFollowersButtonTemplate" id="5">
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" relativeTo="$parentCurrency4" relativePoint="BOTTOMRIGHT">
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentStat4" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentStat6" inherits="AltoGarrisonFollowersButtonTemplate" id="6">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentStat5" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentStat7" inherits="AltoGarrisonFollowersButtonTemplate" id="7">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentStat6" relativePoint="BOTTOMRIGHT">
 						<Offset>
 							<AbsDimension x="0" y="0"/>
 						</Offset>
@@ -155,7 +156,7 @@
 		</Frames>
 	</Button>
 
-	<Frame name="AltoholicFrameCurrencies" parent="AltoholicTabSummary" hidden="true">
+	<Frame name="AltoholicFrameGarrisonFollowers" parent="AltoholicTabSummary" hidden="true">
 		<Size>
 			<AbsDimension x="615" y="306"/>
 		</Size>
@@ -204,12 +205,12 @@
 				</Layers>
 				<Scripts>
 					<OnVerticalScroll>
-						FauxScrollFrame_OnVerticalScroll(self, offset, 18, Altoholic.Currencies.Update)
+						FauxScrollFrame_OnVerticalScroll(self, offset, 18, Altoholic.GarrisonFollowers.Update)
 					</OnVerticalScroll>
 				</Scripts>
 			</ScrollFrame>
 			
-			<Button name="$parentEntry1" inherits="AltoCurrenciesTemplate">
+			<Button name="$parentEntry1" inherits="AltoGarrisonFollowersTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentScrollFrame" relativePoint="TOPLEFT">
 						<Offset>
@@ -218,67 +219,67 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Button name="$parentEntry2" inherits="AltoCurrenciesTemplate">
+			<Button name="$parentEntry2" inherits="AltoGarrisonFollowersTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentEntry1" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</Button>
-			<Button name="$parentEntry3" inherits="AltoCurrenciesTemplate">
+			<Button name="$parentEntry3" inherits="AltoGarrisonFollowersTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentEntry2" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</Button>
-			<Button name="$parentEntry4" inherits="AltoCurrenciesTemplate">
+			<Button name="$parentEntry4" inherits="AltoGarrisonFollowersTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentEntry3" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</Button>
-			<Button name="$parentEntry5" inherits="AltoCurrenciesTemplate">
+			<Button name="$parentEntry5" inherits="AltoGarrisonFollowersTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentEntry4" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</Button>
-			<Button name="$parentEntry6" inherits="AltoCurrenciesTemplate">
+			<Button name="$parentEntry6" inherits="AltoGarrisonFollowersTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentEntry5" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</Button>
-			<Button name="$parentEntry7" inherits="AltoCurrenciesTemplate">
+			<Button name="$parentEntry7" inherits="AltoGarrisonFollowersTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentEntry6" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</Button>
-			<Button name="$parentEntry8" inherits="AltoCurrenciesTemplate">
+			<Button name="$parentEntry8" inherits="AltoGarrisonFollowersTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentEntry7" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</Button>
-			<Button name="$parentEntry9" inherits="AltoCurrenciesTemplate">
+			<Button name="$parentEntry9" inherits="AltoGarrisonFollowersTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentEntry8" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</Button>
-			<Button name="$parentEntry10" inherits="AltoCurrenciesTemplate">
+			<Button name="$parentEntry10" inherits="AltoGarrisonFollowersTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentEntry9" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</Button>
-			<Button name="$parentEntry11" inherits="AltoCurrenciesTemplate">
+			<Button name="$parentEntry11" inherits="AltoGarrisonFollowersTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentEntry10" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</Button>
-			<Button name="$parentEntry12" inherits="AltoCurrenciesTemplate">
+			<Button name="$parentEntry12" inherits="AltoGarrisonFollowersTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentEntry11" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</Button>
-			<Button name="$parentEntry13" inherits="AltoCurrenciesTemplate">
+			<Button name="$parentEntry13" inherits="AltoGarrisonFollowersTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentEntry12" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</Button>
-			<Button name="$parentEntry14" inherits="AltoCurrenciesTemplate">
+			<Button name="$parentEntry14" inherits="AltoGarrisonFollowersTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentEntry13" relativePoint="BOTTOMLEFT" />
 				</Anchors>
