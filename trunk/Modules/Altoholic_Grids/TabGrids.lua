@@ -100,11 +100,10 @@ local function UpdateMenuIcons()
 	
 	if DataStore_Pets then
 		EnableIcon(parent .. "_Pets")
-		EnableIcon(parent .. "_Mounts")
 	else
 		DisableIcon(parent .. "_Pets")
-		DisableIcon(parent .. "_Mounts")
 	end
+	DisableIcon(parent .. "_Mounts")
 	
 	if DataStore_Achievements then
 		EnableIcon(parent .. "_Tabards")

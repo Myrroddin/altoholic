@@ -111,10 +111,12 @@ function ns:Update()
 					_G[entry..i.."Level"]:SetText(GREEN .. DS:GetCharacterLevel(character))
 				
 					-- Garrison resources
+					local uncollected = DataStore:GetUncollectedResources(character) or 0
+					
 					local amount, earnedThisWeek, weeklyMax, totalMax = DataStore:GetCurrencyTotals(character, CURRENCY_ID_GARRISON)
 					local color = (amount == 0) and GREY or WHITE
 					
-					_G[entry..i.."Currency1NormalText"]:SetText(format("%s%s", color, amount))
+					_G[entry..i.."Currency1NormalText"]:SetText(format("%s%s/%s+%s", color, amount, GREEN, uncollected))
 					
 					-- Apexis crystals
 					amount, earnedThisWeek, weeklyMax, totalMax = DataStore:GetCurrencyTotals(character, CURRENCY_ID_APEXIS)

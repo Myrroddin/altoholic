@@ -170,7 +170,7 @@ function ns:SetMode(mode)
 		Columns:Add(LEVEL, 60, function(self) addon.Characters:Sort(self, "GetCharacterLevel") end)
 		
 		local icon = "Interface\\Icons\\inv_garrison_resource"
-		Columns:Add("   " .. addon:TextureToFontstring(icon, 18, 18), 60, function(self) addon.Characters:Sort(self, "GetGarrisonResources") end)
+		Columns:Add("   " .. addon:TextureToFontstring(icon, 18, 18), 80, function(self) addon.Characters:Sort(self, "GetGarrisonResources") end)
 		
 		icon = "Interface\\Icons\\inv_apexis_draenor"
 		Columns:Add("        " .. addon:TextureToFontstring(icon, 18, 18), 100, function(self) addon.Characters:Sort(self, "GetApexisCrystals") end)
@@ -335,6 +335,7 @@ end
 local addonList = {
 	"DataStore_Auctions",
 	"DataStore_Characters",
+	"DataStore_Garrisons",
 	"DataStore_Inventory",
 	"DataStore_Mails",
 	"DataStore_Quests",
