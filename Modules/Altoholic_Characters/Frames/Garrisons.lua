@@ -184,17 +184,19 @@ function ns:Update()
 					rewardButton.Icon:SetTexture(GetItemIcon(reward.itemID))
 					
 					local iLvl = select(4, GetItemInfo(reward.itemID))
-					color = colors.white
-
-					if iLvl >= 645 then
-						color = colors.epic
-					elseif iLvl >= 630 then
-						color = colors.rare
-					elseif iLvl >= 615 then
-						color = colors.uncommon
+					if iLvl then	-- if the reward has an iLevel .. show it
+						color = colors.white
+						if iLvl >= 645 then
+							color = colors.epic
+						elseif iLvl >= 630 then
+							color = colors.rare
+						elseif iLvl >= 615 then
+							color = colors.uncommon
+						end
+						rewardButton.Quantity:SetText(format("%s%s", color, iLvl))
+					else
+						rewardButton.Quantity:SetText("")
 					end
-					
-					rewardButton.Quantity:SetText(format("%s%s", color, iLvl))
 					rewardButton.id = reward.itemID
 					rewardButton.title = nil
 					rewardButton.tooltip = nil
