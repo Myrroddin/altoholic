@@ -1,17 +1,11 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
+local colors = addon.Colors
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local LCI = LibStub("LibCraftInfo-1.0")
 
 local THIS_ACCOUNT = "Default"
-local WHITE		= "|cFFFFFFFF"
-local TEAL		= "|cFF00FF9A"
-local ORANGE	= "|cFFFF7F00"
-local GREEN		= "|cFF00FF00"
-local YELLOW	= "|cFFFFFF00"
-local GREY		= "|cFF808080"
-local GOLD		= "|cFFFFD700"
 
 local parentName = "AltoholicTabCharacters"
 local parent
@@ -37,6 +31,7 @@ local VIEW_COMPANIONS = 9
 local VIEW_SPELLS = 10
 local VIEW_KNOWN_GLYPHS = 11
 local VIEW_PROFESSION = 12
+local VIEW_GARRISONS = 13
 
 local ICON_CHARACTERS_ALLIANCE = "Interface\\Icons\\Achievement_Character_Gnome_Female"
 local ICON_CHARACTERS_HORDE = "Interface\\Icons\\Achievement_Character_Orc_Male"
@@ -99,6 +94,7 @@ local function HideAll()
 	AltoholicFrameRecipes:Hide()
 	AltoholicFrameGlyphs:Hide()
 	AltoholicFrameSpellbook:Hide()
+	AltoholicFrameGarrisonMissions:Hide()
 end
 
 local function EnableIcon(frame)
@@ -136,6 +132,7 @@ function ns:MenuItem_OnClick(frame, button)
 	menuIcons.MailIcon:Show()
 	menuIcons.SpellbookIcon:Show()
 	menuIcons.ProfessionsIcon:Show()
+	menuIcons.GarrisonIcon:Show()
 end
 
 -- ** realm selection **
@@ -148,7 +145,7 @@ local function OnRealmChange(self, account, realm)
 	
 	UIDropDownMenu_ClearAll(parent.SelectRealm);
 	UIDropDownMenu_SetSelectedValue(parent.SelectRealm, account .."|".. realm)
-	UIDropDownMenu_SetText(parent.SelectRealm, GREEN .. account .. ": " .. WHITE.. realm)
+	UIDropDownMenu_SetText(parent.SelectRealm, colors.green .. account .. ": " .. colors.white.. realm)
 	
 	if oldRealm and oldAccount then	-- clear the "select char" drop down if realm or account has changed
 		if (oldRealm ~= realm) or (oldAccount ~= account) then
@@ -165,11 +162,11 @@ function ns:DropDownRealm_Initialize()
 	if not currentAccount or not currentRealm then return end
 	
 	-- this account first ..
-	DDM_AddTitle(GOLD..L["This account"])
+	DDM_AddTitle(colors.gold..L["This account"])
 	for realm in pairs(DataStore:GetRealms()) do
 		local info = UIDropDownMenu_CreateInfo()
 
-		info.text = WHITE..realm
+		info.text = colors.white..realm
 		info.value = format("%s|%s", THIS_ACCOUNT, realm)
 		info.checked = nil
 		info.func = OnRealmChange
@@ -189,13 +186,13 @@ function ns:DropDownRealm_Initialize()
 	
 	if count > 0 then
 		DDM_AddTitle(" ")
-		DDM_AddTitle(GOLD..OTHER)
+		DDM_AddTitle(colors.gold..OTHER)
 		for account in pairs(accounts) do
 			if account ~= THIS_ACCOUNT then
 				for realm in pairs(DataStore:GetRealms(account)) do
 					local info = UIDropDownMenu_CreateInfo()
 
-					info.text = format("%s: %s", GREEN..account, WHITE..realm)
+					info.text = format("%s: %s", colors.green..account, colors.white..realm)
 					info.value = format("%s|%s", account, realm)
 					info.checked = nil
 					info.func = OnRealmChange
@@ -261,6 +258,10 @@ function ns:ShowCharInfo(view)
 	elseif view == VIEW_PROFESSION then
 		addon.TradeSkills.Recipes:InvalidateView()
 		addon.TradeSkills.Recipes:Update()
+	elseif view == VIEW_GARRISONS then
+		AltoholicFrameGarrisonMissions:Show()
+		addon.Garrisons:InvalidateView()
+		addon.Garrisons:Update()
 	end
 end
 
@@ -341,11 +342,14 @@ local function OnCharacterChange(self)
 	EnableIcon(menuIcons.MailIcon)
 	EnableIcon(menuIcons.SpellbookIcon)
 	EnableIcon(menuIcons.ProfessionsIcon)
+	EnableIcon(menuIcons.GarrisonIcon)
 	
 	if (not oldAlt) or (oldAlt == newAlt) then return end
 
 	currentProfession = nil
-	if currentView ~= VIEW_TALENTS and currentView < VIEW_SPELLS then
+	
+	if currentView ~= VIEW_TALENTS and currentView ~= VIEW_SPELLS and
+		currentView ~= VIEW_KNOWN_GLYPHS and currentView ~= VIEW_PROFESSION then
 		ns:ShowCharInfo(currentView)		-- this will show the same info from another alt (ex: containers/mail/ ..)
 	else
 		HideAll()
@@ -441,6 +445,11 @@ local function OnProfessionSubClassChange(self)
 	end
 end
 
+local function OnGarrisonMenuChange(self)
+	addon:SetOption("UI.Tabs.Characters.GarrisonMissions", self.value)
+	CloseDropDownMenus()
+	ns:ViewCharInfo(VIEW_GARRISONS)
+end
 
 local function OnViewChange(self)
 	if self.value then
@@ -475,26 +484,23 @@ local function OnClearMailboxEntries(self)
 	addon.Mail:Update()
 end
 
-
 local function GetCharacterLoginText(character)
 	local last = DataStore:GetLastLogout(character)
 	local _, _, name = strsplit(".", character)
 	
 	if last then
 		if name == UnitName("player") then
-			last = GREEN..GUILD_ONLINE_LABEL
+			last = colors.green..GUILD_ONLINE_LABEL
 		else
-			last = format("%s: %s", LASTONLINE, YELLOW..date("%m/%d/%Y %H:%M", last))
+			last = format("%s: %s", LASTONLINE, colors.yellow..date("%m/%d/%Y %H:%M", last))
 		end
 	else
 		last = format("%s: %s", LASTONLINE, RED..L["N/A"])
 	end
-	return format("%s %s(%s%s)", DataStore:GetColoredCharacterName(character), WHITE, last, WHITE)
+	return format("%s %s(%s%s)", DataStore:GetColoredCharacterName(character), colors.white, last, colors.white)
 end
 
-
 -- ** Menu Icons **
-
 local function CharactersIcon_Initialize(self, level)
 	DDM_AddTitle(L["Characters"])
 	local nameList = {}		-- we want to list characters alphabetically
@@ -576,18 +582,18 @@ local function AuctionIcon_Initialize(self, level)
 		local numAuctions = DataStore:GetNumAuctions(currentCharacterKey) or 0
 		local numBids = DataStore:GetNumBids(currentCharacterKey) or 0
 		
-		DDM_Add(format(L["Auctions %s(%d)"], GREEN, numAuctions), VIEW_AUCTIONS, OnViewChange, nil, (currentView == VIEW_AUCTIONS))
-		DDM_Add(format(L["Bids %s(%d)"], GREEN, numBids), VIEW_BIDS, OnViewChange, nil, (currentView == VIEW_BIDS))
+		DDM_Add(format(L["Auctions %s(%d)"], colors.green, numAuctions), VIEW_AUCTIONS, OnViewChange, nil, (currentView == VIEW_AUCTIONS))
+		DDM_Add(format(L["Bids %s(%d)"], colors.green, numBids), VIEW_BIDS, OnViewChange, nil, (currentView == VIEW_BIDS))
 	else
-		DDM_Add(format(L["Auctions %s(%d)"], GREY, 0), nil, nil)
-		DDM_Add(format(L["Bids %s(%d)"], GREY, 0), nil, nil)
+		DDM_Add(format(L["Auctions %s(%d)"], colors.grey, 0), nil, nil)
+		DDM_Add(format(L["Bids %s(%d)"], colors.grey, 0), nil, nil)
 	end
 	
 	-- actions
 	DDM_AddTitle(" ")
-	DDM_Add(WHITE .. L["Clear your faction's entries"], 1, OnClearAHEntries)
-	DDM_Add(WHITE .. L["Clear goblin AH entries"], 2, OnClearAHEntries)
-	DDM_Add(WHITE .. L["Clear all entries"], 3, OnClearAHEntries)
+	DDM_Add(colors.white .. L["Clear your faction's entries"], 1, OnClearAHEntries)
+	DDM_Add(colors.white .. L["Clear goblin AH entries"], 2, OnClearAHEntries)
+	DDM_Add(colors.white .. L["Clear all entries"], 3, OnClearAHEntries)
 	
 	DDM_AddTitle("|r ")
 	DDM_AddTitle(GAMEOPTIONS_MENU)
@@ -606,12 +612,12 @@ local function MailIcon_Initialize(self, level)
 	local last = DataStore:GetModuleLastUpdateByKey("DataStore_Mails", currentCharacterKey)
 	if DataStore_Mails and last then
 		local numMails = DataStore:GetNumMails(currentCharacterKey) or 0
-		DDM_Add(format(L["Mails %s(%d)"], GREEN, numMails), VIEW_MAILS, OnViewChange, nil, (currentView == VIEW_MAILS))
+		DDM_Add(format(L["Mails %s(%d)"], colors.green, numMails), VIEW_MAILS, OnViewChange, nil, (currentView == VIEW_MAILS))
 	else
-		DDM_Add(format(L["Mails %s(%d)"], GREY, 0), nil, nil)
+		DDM_Add(format(L["Mails %s(%d)"], colors.grey, 0), nil, nil)
 	end
 
-	DDM_Add(WHITE .. L["Clear all entries"], nil, OnClearMailboxEntries)
+	DDM_Add(colors.white .. L["Clear all entries"], nil, OnClearMailboxEntries)
 	DDM_AddTitle("|r ")
 	DDM_AddTitle(GAMEOPTIONS_MENU)
 	DDM_Add(MAIL_LABEL, nil, function() Altoholic:ToggleUI(); InterfaceOptionsFrame_OpenToCategory(AltoholicMailOptions) end)
@@ -639,9 +645,9 @@ local function SpellbookIcon_Initialize(self, level)
 		local pets = DataStore:GetPets(currentCharacterKey, "CRITTER")
 		local numPets = DataStore:GetNumPets(pets) or 0
 
-		DDM_Add(format(COMPANIONS .. " %s(%d)", GREEN, numPets), VIEW_COMPANIONS, OnViewChange, nil, (currentView == VIEW_COMPANIONS))
+		DDM_Add(format(COMPANIONS .. " %s(%d)", colors.green, numPets), VIEW_COMPANIONS, OnViewChange, nil, (currentView == VIEW_COMPANIONS))
 	else
-		DDM_Add(format(COMPANIONS .. " %s(%d)", GREY, numPets), nil, nil)
+		DDM_Add(format(COMPANIONS .. " %s(%d)", colors.grey, numPets), nil, nil)
 	end
 	DDM_AddTitle(" ")
 	DDM_AddTitle(GLYPHS)
@@ -666,17 +672,17 @@ local function ProfessionsIcon_Initialize(self, level)
 		-- Cooking
 		rank = DataStore:GetCookingRank(currentCharacterKey)
 		if last and rank then
-			DDM_Add(format("%s %s(%s)", PROFESSIONS_COOKING, GREEN, rank ), PROFESSIONS_COOKING, OnProfessionChange, nil, (PROFESSIONS_COOKING == (currentProfession or "")))
+			DDM_Add(format("%s %s(%s)", PROFESSIONS_COOKING, colors.green, rank ), PROFESSIONS_COOKING, OnProfessionChange, nil, (PROFESSIONS_COOKING == (currentProfession or "")))
 		else
-			DDM_Add(GREY..PROFESSIONS_COOKING, nil, nil)
+			DDM_Add(colors.grey..PROFESSIONS_COOKING, nil, nil)
 		end
 		
 		-- First Aid
 		rank = DataStore:GetFirstAidRank(currentCharacterKey)
 		if last and rank then
-			DDM_Add(format("%s %s(%s)", PROFESSIONS_FIRST_AID, GREEN, rank ), PROFESSIONS_FIRST_AID, OnProfessionChange, nil, (PROFESSIONS_FIRST_AID == (currentProfession or "")))
+			DDM_Add(format("%s %s(%s)", PROFESSIONS_FIRST_AID, colors.green, rank ), PROFESSIONS_FIRST_AID, OnProfessionChange, nil, (PROFESSIONS_FIRST_AID == (currentProfession or "")))
 		else
-			DDM_Add(GREY..PROFESSIONS_FIRST_AID, nil, nil)
+			DDM_Add(colors.grey..PROFESSIONS_FIRST_AID, nil, nil)
 		end
 		
 		-- rank = DataStore:GetArchaeologyRank(currentCharacterKey)
@@ -685,17 +691,17 @@ local function ProfessionsIcon_Initialize(self, level)
 		local rank, professionName, _
 		rank, _, _, professionName = DataStore:GetProfession1(currentCharacterKey)
 		if last and rank then
-			DDM_Add(format("%s %s(%s)", professionName, GREEN, rank ), professionName, OnProfessionChange, nil, (professionName == (currentProfession or "")))
+			DDM_Add(format("%s %s(%s)", professionName, colors.green, rank ), professionName, OnProfessionChange, nil, (professionName == (currentProfession or "")))
 		elseif professionName then
-			DDM_Add(GREY..professionName, nil, nil)
+			DDM_Add(colors.grey..professionName, nil, nil)
 		end
 		
 		-- Profession 2
 		rank, _, _, professionName = DataStore:GetProfession2(currentCharacterKey)
 		if last and rank then
-			DDM_Add(format("%s %s(%s)", professionName, GREEN, rank ), professionName, OnProfessionChange, nil, (professionName == (currentProfession or "")))
+			DDM_Add(format("%s %s(%s)", professionName, colors.green, rank ), professionName, OnProfessionChange, nil, (professionName == (currentProfession or "")))
 		elseif professionName then
-			DDM_Add(GREY..professionName, nil, nil)
+			DDM_Add(colors.grey..professionName, nil, nil)
 		end
 		
 		DDM_AddTitle(" ")
@@ -704,21 +710,21 @@ local function ProfessionsIcon_Initialize(self, level)
 		if currentProfession then		-- if a profession is visible, display filters
 			local info = UIDropDownMenu_CreateInfo()
 
-			info.text = WHITE..COLOR
+			info.text = colors.white..COLOR
 			info.hasArrow = 1
 			info.checked = nil
 			info.value = 1
 			info.func = nil
 			UIDropDownMenu_AddButton(info, level)
 
-			info.text = WHITE..TRADESKILL_FILTER_SLOTS
+			info.text = colors.white..TRADESKILL_FILTER_SLOTS
 			info.hasArrow = 1
 			info.checked = nil
 			info.value = 2
 			info.func = nil
 			UIDropDownMenu_AddButton(info, level)
 
-			info.text = WHITE..TRADESKILL_FILTER_SUBCLASS
+			info.text = colors.white..TRADESKILL_FILTER_SUBCLASS
 			info.hasArrow = 1
 			info.checked = nil
 			info.value = 3
@@ -726,9 +732,9 @@ local function ProfessionsIcon_Initialize(self, level)
 			UIDropDownMenu_AddButton(info, level)
 			
 		else		-- grey out filters
-			DDM_Add(GREY..COLOR, nil, nil)
-			DDM_Add(GREY..TRADESKILL_FILTER_SLOTS, nil, nil)
-			DDM_Add(GREY..TRADESKILL_FILTER_SUBCLASS, nil, nil)
+			DDM_Add(colors.grey..COLOR, nil, nil)
+			DDM_Add(colors.grey..TRADESKILL_FILTER_SLOTS, nil, nil)
+			DDM_Add(colors.grey..TRADESKILL_FILTER_SUBCLASS, nil, nil)
 		end
 
 		DDM_AddCloseMenu()
@@ -819,6 +825,21 @@ local function ProfessionsIcon_Initialize(self, level)
 	end
 end
 
+local function GarrisonIcon_Initialize(self, level)
+	if not DataStore_Garrisons then return end
+	
+	local currentCharacterKey = ns:GetAltKey()
+	if not currentCharacterKey then return end
+	
+	local currentMenu = addon:GetOption("UI.Tabs.Characters.GarrisonMissions")
+	local numAvailable = DataStore:GetNumAvailableMissions(currentCharacterKey)
+	local numActive = DataStore:GetNumActiveMissions(currentCharacterKey)
+	
+	DDM_AddTitle(GARRISON_LOCATION_TOOLTIP)
+	DDM_Add(format(GARRISON_LANDING_AVAILABLE, numAvailable), 1, OnGarrisonMenuChange, nil, (currentMenu == 1))
+	DDM_Add(format(GARRISON_LANDING_IN_PROGRESS, numActive), 2, OnGarrisonMenuChange, nil, (currentMenu == 2))
+end
+
 local menuIconCallbacks = {
 	CharactersIcon_Initialize,
 	BagsIcon_Initialize,
@@ -828,6 +849,7 @@ local menuIconCallbacks = {
 	MailIcon_Initialize,
 	SpellbookIcon_Initialize,
 	ProfessionsIcon_Initialize,
+	GarrisonIcon_Initialize,
 }
 
 function ns:Icon_OnEnter(frame)

@@ -1,11 +1,9 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
+local colors = addon.Colors
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
-local WHITE		= "|cFFFFFFFF"
-local GREEN		= "|cFF00FF00"
-local GOLD		= "|cFFFFD700"
 local THIS_ACCOUNT = "Default"
 
 local ICON_PARTIAL = "Interface\\RaidFrame\\ReadyCheck-Waiting"
@@ -210,7 +208,7 @@ function ns:Update()
 	local frame = AltoholicFrameGrids
 	frame:Show()
 		
-	local offset = FauxScrollFrame_GetOffset(frame.ScrollFrame)
+	local offset = addon.ScrollFrames:GetOffset(frame.ScrollFrame)
 	
 	ns:SetStatus("")
 	
@@ -254,7 +252,7 @@ function ns:Update()
 		end
 	end
 
-	FauxScrollFrame_Update(frame.ScrollFrame, size, numRows, 41)
+	addon.ScrollFrames:Update(frame.ScrollFrame, size, numRows, 41)
 end
 
 function ns:GetRealm()
@@ -280,7 +278,7 @@ local function OnRealmChange(self, account, realm)
 
 	UIDropDownMenu_ClearAll(parent.SelectRealm);
 	UIDropDownMenu_SetSelectedValue(parent.SelectRealm, account .."|".. realm)
-	UIDropDownMenu_SetText(parent.SelectRealm, GREEN .. account .. ": " .. WHITE.. realm)
+	UIDropDownMenu_SetText(parent.SelectRealm, colors.green .. account .. ": " .. colors.white.. realm)
 	
 	if oldRealm and oldAccount then	-- clear the "select char" drop down if realm or account has changed
 		if (oldRealm ~= realm) or (oldAccount ~= account) then
@@ -294,11 +292,11 @@ function ns:DropDownRealm_Initialize()
 	if not currentAccount or not currentRealm then return end
 
 	-- this account first ..
-	DDM_AddTitle(GOLD..L["This account"])
+	DDM_AddTitle(colors.gold..L["This account"])
 	for realm in pairs(DataStore:GetRealms()) do
 		local info = UIDropDownMenu_CreateInfo()
 
-		info.text = WHITE..realm
+		info.text = colors.white..realm
 		info.value = format("%s|%s", THIS_ACCOUNT, realm)
 		info.checked = nil
 		info.func = OnRealmChange
@@ -318,13 +316,13 @@ function ns:DropDownRealm_Initialize()
 	
 	if count > 0 then
 		DDM_AddTitle(" ")
-		DDM_AddTitle(GOLD..OTHER)
+		DDM_AddTitle(colors.gold..OTHER)
 		for account in pairs(accounts) do
 			if account ~= THIS_ACCOUNT then
 				for realm in pairs(DataStore:GetRealms(account)) do
 					local info = UIDropDownMenu_CreateInfo()
 
-					info.text = format("%s: %s", GREEN..account, WHITE..realm)
+					info.text = format("%s: %s", colors.green..account, colors.white..realm)
 					info.value = format("%s|%s", account, realm)
 					info.checked = nil
 					info.func = OnRealmChange

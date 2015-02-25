@@ -1,15 +1,8 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
+local colors = addon.Colors
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-
-local WHITE		= "|cFFFFFFFF"
-local GREEN		= "|cFF00FF00"
-local TEAL		= "|cFF00FF9A"
-local YELLOW	= "|cFFFFFF00"
-local ORANGE	= "|cFFFF7F00"
-local GRAY		= "|cFF909090"
-local CYAN		= "|cFF1CFAFE"
 
 local ICON_READY = "\124TInterface\\RaidFrame\\ReadyCheck-Ready:14\124t"
 local ICON_WAITING = "\124TInterface\\RaidFrame\\ReadyCheck-Waiting:14\124t"
@@ -381,14 +374,14 @@ local function ButtonOnEnter(frame)
 	AltoTooltip:SetOwner(frame, "ANCHOR_LEFT");
 	AltoTooltip:ClearLines();
 	AltoTooltip:AddDoubleLine(DataStore:GetColoredCharacterName(character), achName)
-	AltoTooltip:AddLine(WHITE .. description, 1, 1, 1, 1, 1);
-	AltoTooltip:AddLine(WHITE .. ACHIEVEMENT_TITLE .. ": " .. YELLOW .. points);
+	AltoTooltip:AddLine(colors.white .. description, 1, 1, 1, 1, 1);
+	AltoTooltip:AddLine(colors.white .. ACHIEVEMENT_TITLE .. ": " .. colors.yellow .. points);
 	AltoTooltip:AddLine(" ");
 
 	local isStarted, isComplete = DataStore:GetAchievementInfo(character, achievementID, isAccountBound)
 	
 	if isComplete then
-		AltoTooltip:AddLine(format("%s: %s", WHITE .. STATUS, GREEN .. COMPLETE ));
+		AltoTooltip:AddLine(format("%s: %s", colors.white .. STATUS, colors.green .. COMPLETE ));
 	elseif isStarted then
 		local numCompletedCriteria = 0
 		local numCriteria = GetAchievementNumCriteria(achievementID)
@@ -402,21 +395,21 @@ local function ButtonOnEnter(frame)
 			local isCriteriaStarted, isCriteriaComplete, quantity = DataStore:GetCriteriaInfo(character, achievementID, criteriaIndex, isAccountBound)
 
 			local icon = ""
-			local color = GRAY
+			local color = colors.grey
 
 			if isCriteriaComplete then
 				icon = CRITERIA_COMPLETE_ICON
 				numCompletedCriteria = numCompletedCriteria + 1
-				color = GREEN
+				color = colors.green
 			elseif isCriteriaStarted then
 				if tonumber(quantity) > 0 then
-					criteriaString = criteriaString .. WHITE
+					criteriaString = criteriaString .. colors.white
 				end
 				
 				if criteriaType == 62 or criteriaType == 67 then		-- this type is an amount of gold, format it as such, make something more generic later on if necessary
 					quantity = addon:GetMoneyString(tonumber(quantity))
 					reqQuantity = addon:GetMoneyString(tonumber(reqQuantity))
-					criteriaString = format(" - %s (%s/%s)", criteriaString, quantity..WHITE, reqQuantity..WHITE)
+					criteriaString = format(" - %s (%s/%s)", criteriaString, quantity..colors.white, reqQuantity..colors.white)
 				else
 					criteriaString = format(" - %s (%s/%s)", criteriaString, quantity, reqQuantity)
 				end
@@ -429,7 +422,7 @@ local function ButtonOnEnter(frame)
 		
 		if numCriteria > 1 then
 			AltoTooltip:AddLine(" ");
-			AltoTooltip:AddLine(format("%s: %s%d/%d", WHITE..STATUS, GREEN, numCompletedCriteria, numCriteria));
+			AltoTooltip:AddLine(format("%s: %s%d/%d", colors.white..STATUS, colors.green, numCompletedCriteria, numCriteria));
 		end
 	else
 		for i = 1, GetAchievementNumCriteria(achievementID) do	-- write all criterias in gray
@@ -438,20 +431,20 @@ local function ButtonOnEnter(frame)
 				_, criteriaString = GetAchievementInfo(assetID);
 			end
 		
-			AltoTooltip:AddLine(GRAY .. " - " .. criteriaString);
+			AltoTooltip:AddLine(colors.grey .. " - " .. criteriaString);
 		end
 	end
 	
 	if strlen(rewardText) > 0 then		-- not nil if empty, so test the length of the string
 		AltoTooltip:AddLine(" ");
-		AltoTooltip:AddLine(GREEN .. rewardText);
+		AltoTooltip:AddLine(colors.green .. rewardText);
 	end
 
 	if isStarted or isComplete then
 		AltoTooltip:AddLine(" ");
-		AltoTooltip:AddLine(GREEN .. L["Shift+Left click to link"]);
+		AltoTooltip:AddLine(colors.green .. L["Shift+Left click to link"]);
 	end
-	-- AltoTooltip:AddLine(GREEN .. "id : " .. achievementID);			-- debug
+	-- AltoTooltip:AddLine(colors.green .. "id : " .. achievementID);			-- debug
 	
 	AltoTooltip:Show();
 end
@@ -488,7 +481,7 @@ function ns:Update()
 	local numRows = 8
 	
 	local frame = AltoholicFrameAchievements
-	local offset = FauxScrollFrame_GetOffset(frame.ScrollFrame)
+	local offset = addon.ScrollFrames:GetOffset(frame.ScrollFrame)
 	
 	local categorySize = GetCategorySize(currentCategoryID)
 		
@@ -498,7 +491,7 @@ function ns:Update()
 	local isAccountBound
 	local itemButton
 	
-	AltoholicTabAchievements.Status:SetText(format("%s: %s", ACHIEVEMENTS, GREEN..categorySize ))
+	AltoholicTabAchievements.Status:SetText(format("%s: %s", ACHIEVEMENTS, colors.green..categorySize ))
 	
 	for rowIndex = 1, numRows do
 		local rowFrame = frame["Entry"..rowIndex]
@@ -517,7 +510,7 @@ function ns:Update()
 			
 			isAccountBound = ( bit.band(flags, ACHIEVEMENT_FLAGS_ACCOUNT) == ACHIEVEMENT_FLAGS_ACCOUNT ) 
 			
-			rowFrame.Name.Text:SetText((isAccountBound and CYAN or WHITE) .. achName)
+			rowFrame.Name.Text:SetText((isAccountBound and colors.cyan or colors.white) .. achName)
 			rowFrame.Name.Text:SetJustifyH("LEFT")
 			-- rowFrame.Name:SetPoint("TOPLEFT", 15, 0)
 			
@@ -569,5 +562,5 @@ function ns:Update()
 		end
 	end
 
-	FauxScrollFrame_Update(frame.ScrollFrame, categorySize, numRows, 41)
+	addon.ScrollFrames:Update(frame.ScrollFrame, categorySize, numRows, 41)
 end

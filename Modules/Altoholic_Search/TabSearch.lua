@@ -1,12 +1,8 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
+local colors = addon.Colors
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
-
-local WHITE		= "|cFFFFFFFF"
-local GREEN		= "|cFF00FF00"
-local RED		= "|cFFFF0000"
 
 local parentName = "AltoholicTabSearch"
 local parent
@@ -40,12 +36,7 @@ end
 local function Header_OnClick(frame)
 	local header = view[frame.itemTypeIndex]
 	header.isCollapsed = not header.isCollapsed
-	
-	-- if header.isCollapsed == true then
-		-- header.isCollapsed = false
-	-- else
-		-- header.isCollapsed = true
-	-- end
+
 	ns:Update()
 end
 
@@ -107,8 +98,8 @@ function ns:Update()
 	end
 	
 	local frame = AltoholicTabSearch
-	local scrollFrame = AltoholicSearchMenuScrollFrame
-	local offset = FauxScrollFrame_GetOffset(scrollFrame)
+	local scrollFrame = frame.ScrollFrame
+	local offset = addon.ScrollFrames:GetOffset(scrollFrame)
 	local menuButton
 	
 	for rowIndex = 1, numRows do
@@ -130,7 +121,7 @@ function ns:Update()
 			end			
 			
 			if p.linetype == 1 then
-				menuButton.Text:SetText(WHITE .. view[p.nameIndex].name)
+				menuButton.Text:SetText(colors.white .. view[p.nameIndex].name)
 				menuButton:SetScript("OnClick", Header_OnClick)
 				menuButton.itemTypeIndex = p.nameIndex
 			elseif p.linetype == 2 then
@@ -144,7 +135,7 @@ function ns:Update()
 		end
 	end
 	
-	FauxScrollFrame_Update( scrollFrame, #MenuCache, numRows, 20)
+	addon.ScrollFrames:Update( scrollFrame, #MenuCache, numRows, 20)
 end
 
 function ns:Reset()
@@ -188,25 +179,24 @@ function ns:DropDownRarity_Initialize()
 end 
 
 local slotNames = {		-- temporary workaround
-	[1] = BI["Head"],			-- "INVTYPE_HEAD" 
-	[2] = BI["Shoulder"],	-- "INVTYPE_SHOULDER"
-	[3] = BI["Chest"],		-- "INVTYPE_CHEST",  "INVTYPE_ROBE"
-	[4] = BI["Wrist"],		-- "INVTYPE_WRIST"
-	[5] = BI["Hands"],		-- "INVTYPE_HAND"
-	[6] = BI["Waist"],		-- "INVTYPE_WAIST"
-	[7] = BI["Legs"],			-- "INVTYPE_LEGS"
-	[8] = BI["Feet"],			-- "INVTYPE_FEET"
-	
-	[9] = BI["Neck"],			-- "INVTYPE_NECK"
-	[10] = BI["Back"],		-- "INVTYPE_CLOAK"
-	[11] = BI["Ring"],		-- "INVTYPE_FINGER"
-	[12] = BI["Trinket"],	-- "INVTYPE_TRINKET"
-	[13] = BI["One-Hand"],	-- "INVTYPE_WEAPON"
-	[14] = BI["Two-Hand"],	-- "INVTYPE_2HWEAPON"
-	[15] = BI["Main Hand"],	-- "INVTYPE_WEAPONMAINHAND"
-	[16] = BI["Off Hand"],	-- "INVTYPE_WEAPONOFFHAND", "INVTYPE_HOLDABLE"
-	[17] = BI["Shield"],		-- "INVTYPE_SHIELD"
-	[18] = BI["Ranged"]		-- "INVTYPE_RANGED",  "INVTYPE_THROWN", "INVTYPE_RANGEDRIGHT", "INVTYPE_RELIC"
+	[1] = INVTYPE_HEAD,
+	[2] = INVTYPE_SHOULDER,
+	[3] = INVTYPE_CHEST,
+	[4] = INVTYPE_WRIST,
+	[5] = INVTYPE_HAND,
+	[6] = INVTYPE_WAIST,
+	[7] = INVTYPE_LEGS,
+	[8] = INVTYPE_FEET,
+	[9] = INVTYPE_NECK,
+	[10] = INVTYPE_CLOAK,
+	[11] = INVTYPE_FINGER,
+	[12] = INVTYPE_TRINKET,
+	[13] = INVTYPE_WEAPON,
+	[14] = INVTYPE_2HWEAPON,
+	[15] = INVTYPE_WEAPONMAINHAND,
+	[16] = INVTYPE_WEAPONOFFHAND,
+	[17] = INVTYPE_SHIELD,
+	[18] = INVTYPE_RANGED
 }
 
 function ns:DropDownSlot_Initialize()
@@ -237,8 +227,8 @@ function ns:DropDownLocation_Initialize()
 	local info = UIDropDownMenu_CreateInfo();
 	local text = {
 		L["This character"],
-		format("%s %s(%s)", L["This realm"], GREEN, L["This faction"]),
-		format("%s %s(%s)", L["This realm"], GREEN, L["Both factions"]),
+		format("%s %s(%s)", L["This realm"], colors.green, L["This faction"]),
+		format("%s %s(%s)", L["This realm"], colors.green, L["Both factions"]),
 		L["All realms"],
 		L["All accounts"],
 		L["Loot tables"]
@@ -323,12 +313,12 @@ function ns:TooltipStats(frame)
 			diff = tonumber(diff)
 
 			if diff < 0 then
-				color = RED
+				color = colors.red
 			elseif diff > 0 then 
-				color = GREEN
+				color = colors.green
 				diff = "+" .. diff
 			else
-				color = WHITE
+				color = colors.white
 			end
 			AltoTooltip:AddLine(format("%s%s %s", color, diff, text))
 		end

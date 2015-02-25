@@ -1,16 +1,9 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
+local colors = addon.Colors
 
 local LCI = LibStub("LibCraftInfo-1.0")
 local LCL = LibStub("LibCraftLevels-1.0")
-
-local WHITE		= "|cFFFFFFFF"
-local GREEN		= "|cFF00FF00"
-local YELLOW	= "|cFFFFFF00"
-
-local RECIPE_GREY		= "|cFF808080"
-local RECIPE_GREEN	= "|cFF40C040"
-local RECIPE_ORANGE	= "|cFFFF8040"
 
 local ICON_NOTREADY = "\124TInterface\\RaidFrame\\ReadyCheck-NotReady:14\124t"
 local ICON_READY = "\124TInterface\\RaidFrame\\ReadyCheck-Ready:14\124t"
@@ -195,7 +188,7 @@ local callbacks = {
 			end
 			
 			local prof = GetSpellInfo(tradeskills[currentTradeSkill])
-			addon.Tabs.Grids:SetStatus(format("%s / %s", GREEN..prof, WHITE .. xPacks[currentXPack]))
+			addon.Tabs.Grids:SetStatus(format("%s / %s", colors.green..prof, colors.white .. xPacks[currentXPack]))
 		end,
 	OnUpdateComplete = function() end,
 	GetSize = function() return #currentList end,
@@ -204,24 +197,25 @@ local callbacks = {
 			local itemName = GetSpellInfo(spellID)
 			local text
 			
-			-- if not itemName then
+			if not itemName then
 				-- DEFAULT_CHAT_FRAME:AddMessage("spell : " .. spellID)
-			-- end
+				return
+			end
 			
 			currentItemID = LCI:GetCraftResultItem(spellID)
 			local orange, yellow, green, grey = LCL:GetCraftLevels(spellID)
 			
 			if orange then
 				text = format("%s\n%s %s %s %s",
-					WHITE..itemName, 
-					-- WHITE..spellID, 
-					RECIPE_ORANGE..orange, 
-					YELLOW..yellow, 
-					RECIPE_GREEN..green, 
-					RECIPE_GREY..grey )
+					colors.white..itemName, 
+					-- colors.white..spellID, 
+					colors.recipeOrange..orange, 
+					colors.yellow..yellow, 
+					colors.recipeGreen..green, 
+					colors.recipeGrey..grey )
 			end
 			
-			text = text or format("%s", WHITE..itemName)
+			text = text or format("%s", colors.white..itemName)
 
 			rowFrame.Name.Text:SetText(text)
 			rowFrame.Name.Text:SetJustifyH("LEFT")

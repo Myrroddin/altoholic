@@ -1,18 +1,12 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
+local colors = addon.Colors
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local INFO_REALM_LINE = 0
 local INFO_CHARACTER_LINE = 1
 local INFO_TOTAL_LINE = 2
-
-local WHITE		= "|cFFFFFFFF"
-local GREEN		= "|cFF00FF00"
-local YELLOW	= "|cFFFFFF00"
-local GREY		= "|cFF808080"
-local GOLD		= "|cFFFFD700"
-local RED		= "|cFFFF0000"
 
 local ICON_FACTION_HORDE = "Interface\\Icons\\INV_BannerPVP_01"
 local ICON_FACTION_ALLIANCE = "Interface\\Icons\\INV_BannerPVP_02"
@@ -29,7 +23,7 @@ function ns:Update()
 	
 	local DS = DataStore
 	
-	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
+	local offset = addon.ScrollFrames:GetOffset( _G[ frame.."ScrollFrame" ] );
 	local DisplayedCount = 0
 	local VisibleCount = 0
 	local DrawRealm
@@ -67,10 +61,10 @@ function ns:Update()
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 25, 0)
 				_G[entry..i.."NameNormalText"]:SetWidth(300)
 				if account == "Default" then	-- saved as default, display as localized.
-					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", realm, WHITE, GREEN, L["Default"]))
+					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", realm, colors.white, colors.green, L["Default"]))
 				else
 					local last = addon:GetLastAccountSharingInfo(realm, account)
-					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", realm, WHITE, GREEN, account, YELLOW, last or ""))
+					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", realm, colors.white, colors.green, account, colors.yellow, last or ""))
 				end				
 				_G[entry..i.."Level"]:SetText("")
 				_G[entry..i.."MailsNormalText"]:SetText("")
@@ -101,40 +95,40 @@ function ns:Update()
 					_G[entry..i.."Name"]:SetPoint("TOPLEFT", 10, 0)
 					_G[entry..i.."NameNormalText"]:SetWidth(170)
 					_G[entry..i.."NameNormalText"]:SetText(icon .. format("%s (%s)", DS:GetColoredCharacterName(character), DS:GetCharacterClass(character)))
-					_G[entry..i.."Level"]:SetText(GREEN .. DS:GetCharacterLevel(character))
+					_G[entry..i.."Level"]:SetText(colors.green .. DS:GetCharacterLevel(character))
 				
 					local color
 					local num = DS:GetNumMails(character) or 0
 					if num == 0 then
-						color = GREY
-						_G[entry..i.."MailsNormalText"]:SetText(GREY .. "0")
+						color = colors.grey
+						_G[entry..i.."MailsNormalText"]:SetText(colors.grey .. "0")
 					else
-						color = GREEN		-- green by default, red if at least one mail is about to expire
+						color = colors.green		-- green by default, red if at least one mail is about to expire
 						
 						local threshold = DataStore:GetOption("DataStore_Mails", "MailWarningThreshold")
 						if DS:GetNumExpiredMails(character, threshold) > 0 then
-							color = RED
+							color = colors.red
 						end
 					end
 					_G[entry..i.."MailsNormalText"]:SetText(color .. num)
 					
 					local lastVisit = DS:GetMailboxLastVisit(character)
-					_G[entry..i.."LastMailCheckNormalText"]:SetText(WHITE .. addon:FormatDelay(lastVisit))
+					_G[entry..i.."LastMailCheckNormalText"]:SetText(colors.white .. addon:FormatDelay(lastVisit))
 					
 					num = DS:GetNumAuctions(character) or 0
-					_G[entry..i.."AuctionsNormalText"]:SetText(((num == 0) and GREY or GREEN) .. num)
+					_G[entry..i.."AuctionsNormalText"]:SetText(((num == 0) and colors.grey or colors.green) .. num)
 
 					num = DS:GetNumBids(character) or 0
-					_G[entry..i.."BidsNormalText"]:SetText(((num == 0) and GREY or GREEN) .. num)
+					_G[entry..i.."BidsNormalText"]:SetText(((num == 0) and colors.grey or colors.green) .. num)
 					
 					lastVisit = DS:GetAuctionHouseLastVisit(character)
-					_G[entry..i.."LastAHCheckNormalText"]:SetText(WHITE .. addon:FormatDelay(lastVisit))
+					_G[entry..i.."LastAHCheckNormalText"]:SetText(colors.white .. addon:FormatDelay(lastVisit))
 
 					local player, realm, account = Characters:GetInfo(line)
 					if (player == UnitName("player")) and (realm == GetRealmName()) and (account == "Default") then
-						_G[entry..i.."LastLogoutNormalText"]:SetText(GREEN .. GUILD_ONLINE_LABEL)
+						_G[entry..i.."LastLogoutNormalText"]:SetText(colors.green .. GUILD_ONLINE_LABEL)
 					else
-						_G[entry..i.."LastLogoutNormalText"]:SetText(WHITE .. addon:FormatDelay(DS:GetLastLogout(character)))
+						_G[entry..i.."LastLogoutNormalText"]:SetText(colors.white .. addon:FormatDelay(DS:GetLastLogout(character)))
 					end
 				elseif (lineType == INFO_TOTAL_LINE) then
 					_G[entry..i.."Collapse"]:Hide()
@@ -165,7 +159,7 @@ function ns:Update()
 		i = i + 1
 	end
 
-	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleCount, VisibleLines, 18);
+	addon.ScrollFrames:Update( AltoholicFrameActivity.ScrollFrame, VisibleCount, VisibleLines, 18)
 end	
 
 function ns:OnEnter(self)
@@ -183,24 +177,24 @@ function ns:OnEnter(self)
 	
 	AltoTooltip:AddDoubleLine(DS:GetColoredCharacterName(character), DS:GetColoredCharacterFaction(character))
 	AltoTooltip:AddLine(format("%s %s |r%s %s", L["Level"], 
-		GREEN..DS:GetCharacterLevel(character), DS:GetCharacterRace(character),	DS:GetCharacterClass(character)),1,1,1)
+		colors.green..DS:GetCharacterLevel(character), DS:GetCharacterRace(character),	DS:GetCharacterClass(character)),1,1,1)
 
 	local zone, subZone = DS:GetLocation(character)
-	AltoTooltip:AddLine(format("%s: %s |r(%s|r)", L["Zone"], GOLD..zone, GOLD..subZone),1,1,1)
+	AltoTooltip:AddLine(format("%s: %s |r(%s|r)", L["Zone"], colors.gold..zone, colors.gold..subZone),1,1,1)
 	
 	AltoTooltip:AddLine(EXPERIENCE_COLON .. " " 
-				.. GREEN .. DS:GetXP(character) .. WHITE .. "/" 
-				.. GREEN .. DS:GetXPMax(character) .. WHITE .. " (" 
-				.. GREEN .. DS:GetXPRate(character) .. "%"
-				.. WHITE .. ")",1,1,1);	
+				.. colors.green .. DS:GetXP(character) .. colors.white .. "/" 
+				.. colors.green .. DS:GetXPMax(character) .. colors.white .. " (" 
+				.. colors.green .. DS:GetXPRate(character) .. "%"
+				.. colors.white .. ")",1,1,1);	
 	
 	local restXP = DS:GetRestXP(character)
 	if restXP and restXP > 0 then
-		AltoTooltip:AddLine(format("%s: %s", L["Rest XP"], GREEN..restXP),1,1,1)
+		AltoTooltip:AddLine(format("%s: %s", L["Rest XP"], colors.green..restXP),1,1,1)
 	end
 
 	AltoTooltip:AddLine(" ",1,1,1);
-	AltoTooltip:AddLine(GOLD..CURRENCY..":",1,1,1);
+	AltoTooltip:AddLine(colors.gold..CURRENCY..":",1,1,1);
 	
 	local num = DS:GetNumCurrencies(character) or 0
 	for i = 1, num do
@@ -208,14 +202,14 @@ function ns:OnEnter(self)
 		name = name or ""
 		
 		if isHeader then
-			AltoTooltip:AddLine(YELLOW..name)
+			AltoTooltip:AddLine(colors.yellow..name)
 		else
-			AltoTooltip:AddLine(format("  %s: %s", name, GREEN..count),1,1,1);
+			AltoTooltip:AddLine(format("  %s: %s", name, colors.green..count),1,1,1);
 		end
 	end
 	
 	if num == 0 then
-		AltoTooltip:AddLine(WHITE..NONE,1,1,1);
+		AltoTooltip:AddLine(colors.white..NONE,1,1,1);
 	end
 	
 	AltoTooltip:Show();
@@ -284,7 +278,7 @@ function ns:Mails_OnEnter(self)
 	AltoTooltip:ClearLines();
 	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
 	
-	AltoTooltip:AddDoubleLine(DS:GetColoredCharacterName(character), format("%sMails found: %s%d", WHITE, GREEN, num))
+	AltoTooltip:AddDoubleLine(DS:GetColoredCharacterName(character), format("%sMails found: %s%d", colors.white, colors.green, num))
 	
 	local numReturned, numDeleted, numExpired = 0, 0, 0
 	local closestReturn
@@ -324,22 +318,22 @@ function ns:Mails_OnEnter(self)
 	end
 
 	AltoTooltip:AddLine(" ");
-	AltoTooltip:AddLine(format("%s%d %swill be returned upon expiry", GREEN, numReturned, WHITE))
+	AltoTooltip:AddLine(format("%s%d %swill be returned upon expiry", colors.green, numReturned, colors.white))
 	if closestReturn then
-		AltoTooltip:AddLine(format("%sClosest return in %s%s", WHITE, GREEN, SecondsToTime(closestReturn)))
+		AltoTooltip:AddLine(format("%sClosest return in %s%s", colors.white, colors.green, SecondsToTime(closestReturn)))
 	end
 	
 	if numDeleted > 0 then
 		AltoTooltip:AddLine(" ");
-		AltoTooltip:AddLine(format("%s%d %swill be %sdeleted%s upon expiry", GREEN, numDeleted, WHITE, RED, WHITE))
+		AltoTooltip:AddLine(format("%s%d %swill be %sdeleted%s upon expiry", colors.green, numDeleted, colors.white, colors.red, colors.white))
 		if closestDelete then
-			AltoTooltip:AddLine(format("%sClosest deletion in %s%s", WHITE, GREEN, SecondsToTime(closestDelete)))
+			AltoTooltip:AddLine(format("%sClosest deletion in %s%s", colors.white, colors.green, SecondsToTime(closestDelete)))
 		end
 	end
 	
 	if numExpired > 0 then
 		AltoTooltip:AddLine(" ");
-		AltoTooltip:AddLine(format("%s%d %shave expired !", RED, numExpired, WHITE))
+		AltoTooltip:AddLine(format("%s%d %shave expired !", colors.red, numExpired, colors.white))
 	end
 	
 	AltoTooltip:Show();

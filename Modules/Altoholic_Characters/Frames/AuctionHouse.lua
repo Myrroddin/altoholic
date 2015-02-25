@@ -1,13 +1,8 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
+local colors = addon.Colors
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-
-local WHITE		= "|cFFFFFFFF"
-local GREEN		= "|cFF00FF00"
-local ORANGE	= "|cFFFF7F00"
-local RED		= "|cFFFF0000"
-local TEAL		= "|cFF00FF9A"
 
 local view
 local viewSortField = "name"
@@ -142,14 +137,19 @@ function ns:UpdateAuctions()
 	local character = addon.Tabs.Characters:GetAltKey()
 	
 	local numAuctions = DS:GetNumAuctions(character) or 0
-	AltoholicTabCharacters.Status:SetText(format("%s|r / %s", DataStore:GetColoredCharacterName(character), format(L["Auctions %s(%d)"], GREEN, numAuctions)))
+	AltoholicTabCharacters.Status:SetText(format("%s|r / %s", DataStore:GetColoredCharacterName(character), format(L["Auctions %s(%d)"], colors.green, numAuctions)))
 	
 	if numAuctions == 0 then		-- make sure the scroll frame is cleared !
-		addon:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
+		for i=1, VisibleLines do					-- Hides all entries of the scrollframe, and updates it accordingly
+			_G[ entry..i ]:Hide()
+		end
+
+		addon.ScrollFrames:Update( _G[ frame.."ScrollFrame" ], VisibleLines, VisibleLines, 41)
+		
 		return
 	end
 
-	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
+	local offset = addon.ScrollFrames:GetOffset( _G[ frame.."ScrollFrame" ] );
 	
 	for i=1, VisibleLines do
 		local line = i + offset
@@ -169,15 +169,15 @@ function ns:UpdateAuctions()
 				timeLeft = 1
 			end
 			
-			_G[ entry..i.."TimeLeft" ]:SetText( TEAL .. _G["AUCTION_TIME_LEFT"..timeLeft] 
+			_G[ entry..i.."TimeLeft" ]:SetText( colors.teal .. _G["AUCTION_TIME_LEFT"..timeLeft] 
 								.. " (" .. _G["AUCTION_TIME_LEFT"..timeLeft .. "_DETAIL"] .. ")")
 
 			local bidder = (isGoblin) and L["Goblin AH"] .. "\n" or ""
-			bidder = (highBidder) and WHITE .. highBidder or RED .. NO_BIDS
+			bidder = (highBidder) and colors.white .. highBidder or colors.red .. NO_BIDS
 			_G[ entry..i.."HighBidder" ]:SetText(bidder)
 			
 			_G[ entry..i.."Price" ]:SetText(addon:GetMoneyString(startPrice) .. "\n"  
-					.. GREEN .. BUYOUT .. ": " ..  addon:GetMoneyString(buyoutPrice))
+					.. colors.green .. BUYOUT .. ": " ..  addon:GetMoneyString(buyoutPrice))
 			_G[ entry..i.."ItemIconTexture" ]:SetTexture(GetItemIcon(itemID));
 			if count and count > 1 then
 				_G[ entry..i.."ItemCount" ]:SetText(count)
@@ -194,9 +194,9 @@ function ns:UpdateAuctions()
 	end
 	
 	if numAuctions < VisibleLines then
-		FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleLines, VisibleLines, 41);
+		addon.ScrollFrames:Update( _G[ frame.."ScrollFrame" ], VisibleLines, VisibleLines, 41);
 	else
-		FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], numAuctions, VisibleLines, 41);
+		addon.ScrollFrames:Update( _G[ frame.."ScrollFrame" ], numAuctions, VisibleLines, 41);
 	end
 end
 
@@ -209,14 +209,18 @@ function ns:UpdateBids()
 	local character = addon.Tabs.Characters:GetAltKey()
 	
 	local numBids = DS:GetNumBids(character) or 0
-	AltoholicTabCharacters.Status:SetText(format("%s|r / %s", DataStore:GetColoredCharacterName(character), format(L["Bids %s(%d)"], GREEN, numBids)))
+	AltoholicTabCharacters.Status:SetText(format("%s|r / %s", DataStore:GetColoredCharacterName(character), format(L["Bids %s(%d)"], colors.green, numBids)))
 	
 	if numBids == 0 then		-- make sure the scroll frame is cleared !
-		addon:ClearScrollFrame( _G[ frame.."ScrollFrame" ], entry, VisibleLines, 41)
+		for i=1, VisibleLines do					-- Hides all entries of the scrollframe, and updates it accordingly
+			_G[ entry..i ]:Hide()
+		end
+
+		addon.ScrollFrames:Update( _G[ frame.."ScrollFrame" ], VisibleLines, VisibleLines, 41)
 		return
 	end
 	
-	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
+	local offset = addon.ScrollFrames:GetOffset( _G[ frame.."ScrollFrame" ] );
 	
 	for i=1, VisibleLines do
 		local line = i + offset
@@ -229,17 +233,17 @@ function ns:UpdateBids()
 			itemRarity = itemRarity or 1
 			_G[ entry..i.."Name" ]:SetText("|c" .. select(4, GetItemQualityColor(itemRarity)) .. itemName)
 			
-			_G[ entry..i.."TimeLeft" ]:SetText( TEAL .. _G["AUCTION_TIME_LEFT"..timeLeft] 
+			_G[ entry..i.."TimeLeft" ]:SetText( colors.teal .. _G["AUCTION_TIME_LEFT"..timeLeft] 
 								.. " (" .. _G["AUCTION_TIME_LEFT"..timeLeft .. "_DETAIL"] .. ")")
 			
 			if isGoblin then
-				_G[ entry..i.."HighBidder" ]:SetText(L["Goblin AH"] .. "\n" .. WHITE .. ownerName)
+				_G[ entry..i.."HighBidder" ]:SetText(L["Goblin AH"] .. "\n" .. colors.white .. ownerName)
 			else
-				_G[ entry..i.."HighBidder" ]:SetText(WHITE .. ownerName)
+				_G[ entry..i.."HighBidder" ]:SetText(colors.white .. ownerName)
 			end
 			
-			_G[ entry..i.."Price" ]:SetText(ORANGE .. CURRENT_BID .. ": " .. addon:GetMoneyString(bidPrice) .. "\n"  
-					.. GREEN .. BUYOUT .. ": " ..  addon:GetMoneyString(buyoutPrice))
+			_G[ entry..i.."Price" ]:SetText(colors.orange .. CURRENT_BID .. ": " .. addon:GetMoneyString(bidPrice) .. "\n"  
+					.. colors.green .. BUYOUT .. ": " ..  addon:GetMoneyString(buyoutPrice))
 			_G[ entry..i.."ItemIconTexture" ]:SetTexture(GetItemIcon(itemID));
 			if count and count > 1 then
 				_G[ entry..i.."ItemCount" ]:SetText(count)
@@ -256,9 +260,9 @@ function ns:UpdateBids()
 	end
 	
 	if numBids < VisibleLines then
-		FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleLines, VisibleLines, 41);
+		addon.ScrollFrames:Update( _G[ frame.."ScrollFrame" ], VisibleLines, VisibleLines, 41);
 	else
-		FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], numBids, VisibleLines, 41);
+		addon.ScrollFrames:Update( _G[ frame.."ScrollFrame" ], numBids, VisibleLines, 41);
 	end
 end
 

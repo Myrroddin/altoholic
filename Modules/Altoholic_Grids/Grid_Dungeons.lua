@@ -1,11 +1,8 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
+local colors = addon.Colors
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-
-local WHITE		= "|cFFFFFFFF"
-local GREEN		= "|cFF00FF00"
-local RED		= "|cFFFF0000"
 
 -- *** Dungeons ***
 local ICON_NOTREADY = "\124TInterface\\RaidFrame\\ReadyCheck-NotReady:14\124t"
@@ -334,7 +331,7 @@ local callbacks = {
 	RowSetup = function(self, rowFrame, dataRowID)
 			local dungeonID = view[dataRowID].id
 
-			rowFrame.Name.Text:SetText(WHITE .. GetLFGDungeonInfo(dungeonID))
+			rowFrame.Name.Text:SetText(colors.white .. GetLFGDungeonInfo(dungeonID))
 			rowFrame.Name.Text:SetJustifyH("LEFT")
 		end,
 	RowOnEnter = function()	end,
@@ -358,12 +355,12 @@ local callbacks = {
 				button.Name:SetFontObject("NumberFontNormalLarge")
 
 				if view[dataRowID].bosses then
-					button.Name:SetText(GREEN..format("%s/%s", count, view[dataRowID].bosses))
+					button.Name:SetText(colors.green..format("%s/%s", count, view[dataRowID].bosses))
 				else
-					button.Name:SetText(GREEN..format("%s/%s", count, GetLFGDungeonNumEncounters(view[dataRowID].id)))
+					button.Name:SetText(colors.green..format("%s/%s", count, GetLFGDungeonNumEncounters(view[dataRowID].id)))
 				end
 				
-				-- button.Name:SetText(GREEN..count)
+				-- button.Name:SetText(colors.green..count)
 			else
 				button.Background:SetVertexColor(0.3, 0.3, 0.3)		-- greyed out
 				button.Name:SetJustifyH("CENTER")
@@ -395,9 +392,9 @@ local callbacks = {
 				local bossName = GetLFGDungeonEncounterInfo(dungeonID, i)
 				
 				if DataStore:IsBossAlreadyLooted(character, dungeonID, bossName) then
-					AltoTooltip:AddDoubleLine(bossName, RED..ERR_LOOT_GONE)
+					AltoTooltip:AddDoubleLine(bossName, colors.red..ERR_LOOT_GONE)
 				else
-					AltoTooltip:AddDoubleLine(bossName, GREEN..BOSS_ALIVE)
+					AltoTooltip:AddDoubleLine(bossName, colors.green..BOSS_ALIVE)
 				end
 			end
 			

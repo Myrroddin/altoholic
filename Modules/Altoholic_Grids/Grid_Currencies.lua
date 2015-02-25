@@ -1,10 +1,8 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
+local colors = addon.Colors
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-
-local WHITE		= "|cFFFFFFFF"
-local GREEN		= "|cFF00FF00"
 
 local view
 local isViewValid
@@ -114,7 +112,7 @@ local callbacks = {
 			local token = view[dataRowID]
 
 			if token then
-				rowFrame.Name.Text:SetText(WHITE .. token)
+				rowFrame.Name.Text:SetText(colors.white .. token)
 				rowFrame.Name.Text:SetJustifyH("LEFT")
 			end
 		end,
@@ -144,7 +142,7 @@ local callbacks = {
 					count = format("%2.1fk", count/1000)
 				end
 				
-				button.Name:SetText(GREEN..count)
+				button.Name:SetText(colors.green..count)
 				button:SetID(dataRowID)
 				button:Show()
 			else
@@ -162,7 +160,7 @@ local callbacks = {
 			AltoTooltip:AddLine(DataStore:GetColoredCharacterName(character))
 			-- AltoTooltip:AddLine(view[frame:GetParent():GetID()], 1, 1, 1)
 			AltoTooltip:AddLine(view[frame:GetID()], 1, 1, 1)
-			AltoTooltip:AddLine(GREEN..frame.count)
+			AltoTooltip:AddLine(colors.green..frame.count)
 			AltoTooltip:Show()
 		end,
 	OnClick = nil,

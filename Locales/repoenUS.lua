@@ -2,6 +2,17 @@
 
 if not L then return end
 
+-- Colors
+L["COLOR_RED"] = "Red"
+L["COLOR_GREY"] = "Grey"
+L["COLOR_GREEN"] = "Green"
+L["COLOR_YELLOW"] = "Yellow"
+L["COLOR_ORANGE"] = "Orange"
+
+L["ITEM_TYPE_RECIPE"] = "Recipe"
+L["ITEM_SUBTYPE_BOOK"] = "Book"
+
+
 -- Note: since 2.4.004 and the support of LibBabble, certain lines are commented, but remain there for clarity (especially those concerning the menu)
 -- A lot of translations, especially those concerning the loot table, come from atlas loot, credit goes to their team for gathering this info, I (Thaoky) simply took what I needed.
 
@@ -28,7 +39,6 @@ L["Resistance"] = true
 
 --skills
 L["Class Skills"] = true
-L["Professions"] = true
 L["Secondary Skills"] = true
 L["Fishing"] = true
 L["Riding"] = true
@@ -769,11 +779,8 @@ L["Include guild members' professions"] = true
 
 -- ** Frame 3 : Mail **
 L["Warn when mail expires in less days than this value"] = true
-L["Mail Expiry Warning"] = true
-L["Scan mail body (marks it as read)"] = true
 L["New mail notification"] = true
 L["Be informed when a guildmate sends a mail to one of my alts.\n\nMail content is directly visible without having to reconnect the character"] = true
-
 L["Use color-coding for recipes at the AH"] = true
 L["Use color-coding for recipes at vendors"] = true
 

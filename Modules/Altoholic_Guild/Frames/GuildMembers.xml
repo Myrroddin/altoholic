@@ -1,22 +1,5 @@
 ﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="GuildMembers.lua"></Script>
-
-	<Button name="AltoAltEquipmentTemplate" inherits="AltoItemButtonTemplate" virtual="true">
-		<Scripts>
-			<OnLoad>
-				self:RegisterForClicks("LeftButtonDown", "RightButtonDown");
-			</OnLoad>
-			<OnEnter>
-				Altoholic:Item_OnEnter(self)
-			</OnEnter>
-			<OnLeave>
-				GameTooltip:Hide();
-			</OnLeave>
-			<OnClick>
-				Altoholic:Item_OnClick(self, button)
-			</OnClick>
-		</Scripts>
-	</Button>
 	
 	<Button name="AltoGuildMembersTemplate" virtual="true">
 		<Size x="460" y="22" />
@@ -142,32 +125,10 @@
 			</OnLoad>
 		</Scripts>
 		<Frames>
-			<ScrollFrame name="$parentScrollFrame" parentKey="ScrollFrame" inherits="FauxScrollFrameTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" />
-					<Anchor point="BOTTOMRIGHT" />
-				</Anchors>
-				<Layers>
-					<Layer level="ARTWORK">
-						<Texture file="Interface\PaperDollInfoFrame\UI-Character-ScrollBar">
-							<Size x="31" y="256" />
-							<Anchors>
-								<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="-2" y="5" />
-							</Anchors>
-							<TexCoords left="0" right="0.484375" top="0" bottom="1.0"/>
-						</Texture>
-						<Texture file="Interface\PaperDollInfoFrame\UI-Character-ScrollBar">
-							<Size x="31" y="106" />
-							<Anchors>
-								<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="-2" y="0" />
-							</Anchors>
-							<TexCoords left="0.515625" right="1.0" top="0" bottom="0.4140625"/>
-						</Texture>
-					</Layer>
-				</Layers>
+			<ScrollFrame name="$parentScrollFrame" parentKey="ScrollFrame" inherits="AltoBaseScrollFrameTemplate">
 				<Scripts>
 					<OnVerticalScroll>
-						FauxScrollFrame_OnVerticalScroll(self, offset, 18, Altoholic.Guild.Members.Update)
+						Altoholic.ScrollFrames:OnVerticalScroll(self, offset, 18, Altoholic.Guild.Members.Update)
 					</OnVerticalScroll>
 				</Scripts>
 			</ScrollFrame>
@@ -245,101 +206,101 @@
 			</Button>
 
 			<!-- Equipment Icons on the right of the frame -->
-			<Button parentKey="Item1" inherits="AltoAltEquipmentTemplate">
+			<Button parentKey="Item1" inherits="AltoItemButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" x="470" y="-10" />
 				</Anchors>
 			</Button>
-			<Button parentKey="Item2" inherits="AltoAltEquipmentTemplate">
+			<Button parentKey="Item2" inherits="AltoItemButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.Item1" relativePoint="BOTTOMLEFT" x="0" y="-2" />
 				</Anchors>
 			</Button>
-			<Button parentKey="Item3" inherits="AltoAltEquipmentTemplate">
+			<Button parentKey="Item3" inherits="AltoItemButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.Item2" relativePoint="BOTTOMLEFT" x="0" y="-2" />
 				</Anchors>
 			</Button>
-			<Button parentKey="Item4" inherits="AltoAltEquipmentTemplate">
+			<Button parentKey="Item4" inherits="AltoItemButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.Item3" relativePoint="BOTTOMLEFT" x="0" y="-2" />
 				</Anchors>
 			</Button>
 			
-			<Button parentKey="Item5" inherits="AltoAltEquipmentTemplate">
+			<Button parentKey="Item5" inherits="AltoItemButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.Item1" relativePoint="TOPRIGHT" x="10" y="0" />
 				</Anchors>
 			</Button>
-			<Button parentKey="Item6" inherits="AltoAltEquipmentTemplate">
+			<Button parentKey="Item6" inherits="AltoItemButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.Item5" relativePoint="BOTTOMLEFT" x="0" y="-2" />
 				</Anchors>
 			</Button>
-			<Button parentKey="Item7" inherits="AltoAltEquipmentTemplate">
+			<Button parentKey="Item7" inherits="AltoItemButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.Item6" relativePoint="BOTTOMLEFT" x="0" y="-2" />
 				</Anchors>
 			</Button>
-			<Button parentKey="Item8" inherits="AltoAltEquipmentTemplate">
+			<Button parentKey="Item8" inherits="AltoItemButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.Item7" relativePoint="BOTTOMLEFT" x="0" y="-2" />
 				</Anchors>
 			</Button>
 			
-			<Button parentKey="Item9" inherits="AltoAltEquipmentTemplate">
+			<Button parentKey="Item9" inherits="AltoItemButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.Item5" relativePoint="TOPRIGHT" x="10" y="0" />
 				</Anchors>
 			</Button>
-			<Button parentKey="Item10" inherits="AltoAltEquipmentTemplate">
+			<Button parentKey="Item10" inherits="AltoItemButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.Item9" relativePoint="BOTTOMLEFT" x="0" y="-2" />
 				</Anchors>
 			</Button>
-			<Button parentKey="Item11" inherits="AltoAltEquipmentTemplate">
+			<Button parentKey="Item11" inherits="AltoItemButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.Item10" relativePoint="BOTTOMLEFT" x="0" y="-2" />
 				</Anchors>
 			</Button>
-			<Button parentKey="Item12" inherits="AltoAltEquipmentTemplate">
+			<Button parentKey="Item12" inherits="AltoItemButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.Item11" relativePoint="BOTTOMLEFT" x="0" y="-2" />
 				</Anchors>
 			</Button>
 			
-			<Button parentKey="Item13" inherits="AltoAltEquipmentTemplate">
+			<Button parentKey="Item13" inherits="AltoItemButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPRIGHT" relativeKey="$parent.Item8" relativePoint="BOTTOMLEFT" x="15" y="-10" />
 				</Anchors>
 			</Button>
-			<Button parentKey="Item14" inherits="AltoAltEquipmentTemplate">
+			<Button parentKey="Item14" inherits="AltoItemButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.Item8" relativePoint="BOTTOMRIGHT" x="-15" y="-10" />
 				</Anchors>
 			</Button>
-			<Button parentKey="Item15" inherits="AltoAltEquipmentTemplate">
+			<Button parentKey="Item15" inherits="AltoItemButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPRIGHT" relativeKey="$parent.Item13" relativePoint="TOPLEFT" x="0" y="0" />
 				</Anchors>
 			</Button>
-			<Button parentKey="Item16" inherits="AltoAltEquipmentTemplate">
+			<Button parentKey="Item16" inherits="AltoItemButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.Item14" relativePoint="TOPRIGHT" x="0" y="0" />
 				</Anchors>
 			</Button>
 			
-			<Button parentKey="Item18" inherits="AltoAltEquipmentTemplate">
+			<Button parentKey="Item18" inherits="AltoItemButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.Item8" relativePoint="BOTTOMLEFT" x="0" y="-56" />
 				</Anchors>
 			</Button>
-			<Button parentKey="Item17" inherits="AltoAltEquipmentTemplate">
+			<Button parentKey="Item17" inherits="AltoItemButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPRIGHT" relativeKey="$parent.Item18" relativePoint="TOPLEFT" x="0" y="0" />
 				</Anchors>
 			</Button>
-			<Button parentKey="Item19" inherits="AltoAltEquipmentTemplate">
+			<Button parentKey="Item19" inherits="AltoItemButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.Item18" relativePoint="TOPRIGHT" x="0" y="0" />
 				</Anchors>

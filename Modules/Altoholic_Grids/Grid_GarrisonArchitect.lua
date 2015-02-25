@@ -1,9 +1,6 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
-
-local WHITE		= "|cFFFFFFFF"
-local GREEN		= "|cFF00FF00"
-local GREY		= "|cFF808080"
+local colors = addon.Colors
 
 local BUILDING_ALCHEMY = "AlchemyLab"
 local BUILDING_BARN = "Barn"
@@ -143,7 +140,7 @@ local callbacks = {
 			local name = v.name or select(2, C_Garrison.GetBuildingInfo(v.id))
 			
 			if name then
-				rowFrame.Name.Text:SetText(WHITE .. name)
+				rowFrame.Name.Text:SetText(colors.white .. name)
 				rowFrame.Name.Text:SetJustifyH("LEFT")
 			end
 		end,
@@ -168,7 +165,7 @@ local callbacks = {
 				local tex = v.tex or select(4, C_Garrison.GetBuildingInfo(v.id))
 				
 				button.Background:SetTexture(tex)
-				button.Name:SetText(GREEN .. level)
+				button.Name:SetText(colors.green .. level)
 				button:Show()
 			else
 				button.buildingID = nil

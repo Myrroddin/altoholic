@@ -1,7 +1,6 @@
 ﻿local addonName = "Altoholic"
 local addon = _G[addonName]
-
-local WHITE		= "|cFFFFFFFF"
+local colors = addon.Colors
 
 local THIS_ACCOUNT = "Default"
 local INFO_REALM_LINE = 0
@@ -12,7 +11,6 @@ local THISREALM_THISACCOUNT = 1
 local THISREALM_ALLACCOUNTS = 2
 local ALLREALMS_THISACCOUNT = 3
 local ALLREALMS_ALLACCOUNTS = 4
-
 
 addon.Characters = {}
 
@@ -119,7 +117,7 @@ local function AddRealm(AccountName, RealmName)
 
 	-- 3) Add the totals
 	table.insert(characterList, { linetype = INFO_TOTAL_LINE + (realmCount*3),
-		level = WHITE .. realmLevels,
+		level = colors.white .. realmLevels,
 		money = realmMoney,
 		played = Altoholic:GetTimeString(realmPlayed),
 		bagSlots = realmBagSlots,
@@ -145,7 +143,7 @@ function ns:BuildList()
 	realmCount = 0 -- will be required for sorting purposes
 	ProcessRealms(AddRealm)
 	
-	AltoholicFrameTotalLv:SetText(format("%s |rLv", WHITE .. totalLevels))
+	AltoholicFrameTotalLv:SetText(format("%s |rLv", colors.white .. totalLevels))
 	AltoholicFrameTotalGold:SetText(format(GOLD_AMOUNT_TEXTURE, floor( totalMoney / 10000 ), 13, 13))
 	AltoholicFrameTotalPlayed:SetText(floor(totalPlayed / 86400) .. "|cFFFFD700d")
 end

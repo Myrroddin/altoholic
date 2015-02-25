@@ -1,10 +1,8 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
+local colors = addon.Colors
 
-local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-
-local WHITE		= "|cFFFFFFFF"
 
 local ICON_NOTREADY = "\124TInterface\\RaidFrame\\ReadyCheck-NotReady:14\124t"
 local ICON_READY = "\124TInterface\\RaidFrame\\ReadyCheck-Ready:14\124t"
@@ -136,7 +134,7 @@ local companionsCallbacks = {
 			petName, _, currentPetTexture = GetSpellInfo(currentSpellID)
 			
 			if petName then
-				rowFrame.Name.Text:SetText(WHITE .. petName)
+				rowFrame.Name.Text:SetText(colors.white .. petName)
 				rowFrame.Name.Text:SetJustifyH("LEFT")
 			end
 		end,

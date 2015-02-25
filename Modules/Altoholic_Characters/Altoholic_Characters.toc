@@ -1,4 +1,4 @@
-﻿## Interface: 60000
+﻿## Interface: 60100
 ## Title: Altoholic_Characters
 ## Notes: Altoholic's Characters UI
 ## Author: Thaoky (EU-Marécages de Zangar)
@@ -18,3 +18,4 @@ Frames\Quests.xml
 Frames\Recipes.xml
 Frames\Spellbook.xml
 Frames\Talents.xml
+Frames\Garrisons.xml

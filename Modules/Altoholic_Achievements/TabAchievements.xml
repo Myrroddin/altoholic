@@ -193,32 +193,10 @@
 					<Anchor point="TOPLEFT" relativeKey="$parent.MenuItem14" relativePoint="BOTTOMLEFT" x="0" y="0" />
 				</Anchors>
 			</Button>
-			<ScrollFrame name="$parentScrollFrame" parentKey="ScrollFrame" inherits="FauxScrollFrameTemplate">
-				<Size x="160" y="305" />
-				<Anchors>
-					<Anchor point="TOPRIGHT" relativePoint="TOPLEFT" x="158" y="-105" />
-				</Anchors>
-				<Layers>
-					<Layer level="ARTWORK">
-						<Texture file="Interface\PaperDollInfoFrame\UI-Character-ScrollBar">
-							<Size x="31" y="256" />
-							<Anchors>
-								<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="-2" y="5" />
-							</Anchors>
-							<TexCoords left="0" right="0.484375" top="0" bottom="1.0"/>
-						</Texture>
-						<Texture file="Interface\PaperDollInfoFrame\UI-Character-ScrollBar">
-							<Size x="31" y="106" />
-							<Anchors>
-								<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="-2" y="-2" />
-							</Anchors>
-							<TexCoords left="0.515625" right="1.0" top="0" bottom="0.4140625"/>
-						</Texture>
-					</Layer>
-				</Layers>
+			<ScrollFrame parentKey="ScrollFrame" inherits="AltoMenuScrollFrameTemplate">
 				<Scripts>
 					<OnVerticalScroll>
-						FauxScrollFrame_OnVerticalScroll(self, offset, 20, Altoholic.Tabs.Achievements.Update)
+						Altoholic.ScrollFrames:OnVerticalScroll(self, offset, 20, Altoholic.Tabs.Achievements.Update)
 					</OnVerticalScroll>
 					<OnShow>
 						Altoholic.Tabs.Achievements:Update();

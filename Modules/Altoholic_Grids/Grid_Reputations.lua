@@ -1,13 +1,8 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
+local colors = addon.Colors
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-
-local WHITE		= "|cFFFFFFFF"
-local GREEN		= "|cFF00FF00"
-local TEAL		= "|cFF00FF9A"
-local YELLOW	= "|cFFFFFF00"
-local DARK_RED = "|cFFF00000"
 
 -- *** Reputations ***
 local CAT_GUILD = 7
@@ -446,7 +441,7 @@ local callbacks = {
 	RowSetup = function(self, rowFrame, dataRowID)
 			currentFaction = view[dataRowID]
 
-			rowFrame.Name.Text:SetText(WHITE .. currentFaction.name)
+			rowFrame.Name.Text:SetText(colors.white .. currentFaction.name)
 			rowFrame.Name.Text:SetJustifyH("LEFT")
 		end,
 	RowOnEnter = function()	end,
@@ -483,9 +478,9 @@ local callbacks = {
 				local vc = VertexColors[status]
 				button.Background:SetVertexColor(vc.r, vc.g, vc.b);
 				
-				local color = WHITE
+				local color = colors.white
 				if status == FACTION_STANDING_LABEL1 or status == FACTION_STANDING_LABEL2 then
-					color = DARK_RED
+					color = colors.darkred
 				end
 
 				button.key = character
@@ -509,7 +504,7 @@ local callbacks = {
 			
 			AltoTooltip:SetOwner(frame, "ANCHOR_LEFT");
 			AltoTooltip:ClearLines();
-			AltoTooltip:AddLine(DataStore:GetColoredCharacterName(character) .. WHITE .. " @ " ..	TEAL .. faction,1,1,1);
+			AltoTooltip:AddLine(DataStore:GetColoredCharacterName(character) .. colors.white .. " @ " ..	colors.teal .. faction,1,1,1);
 
 			rate = format("%d", floor(rate)) .. "%"
 			AltoTooltip:AddLine(format("%s: %d/%d (%s)", status, currentLevel, maxLevel, rate),1,1,1 )
@@ -519,7 +514,7 @@ local callbacks = {
 			if suggestion then
 				AltoTooltip:AddLine(" ",1,1,1)
 				AltoTooltip:AddLine("Suggestion: ",1,1,1)
-				AltoTooltip:AddLine(TEAL .. suggestion,1,1,1)
+				AltoTooltip:AddLine(colors.teal .. suggestion,1,1,1)
 			end
 			
 			AltoTooltip:AddLine(" ",1,1,1)
@@ -534,7 +529,7 @@ local callbacks = {
 			AltoTooltip:AddLine(format("%s = %s", ICON_READY, FACTION_STANDING_LABEL8), 1, 1, 1)
 			
 			AltoTooltip:AddLine(" ",1,1,1)
-			AltoTooltip:AddLine(GREEN .. L["Shift+Left click to link"])
+			AltoTooltip:AddLine(colors.green .. L["Shift+Left click to link"])
 			AltoTooltip:Show()
 			
 		end,

@@ -1,11 +1,8 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
+local colors = addon.Colors
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-
-local WHITE		= "|cFFFFFFFF"
-local GREEN		= "|cFF00FF00"
-local GREY		= "|cFF808080"
 
 local OPTION_STATS = "UI.Tabs.Grids.Garrisons.CurrentStats"
 
@@ -150,7 +147,7 @@ local callbacks = {
 			end
 	
 			if name then
-				rowFrame.Name.Text:SetText(WHITE .. name)
+				rowFrame.Name.Text:SetText(colors.white .. name)
 				rowFrame.Name.Text:SetJustifyH("LEFT")
 			end
 		end,
@@ -180,7 +177,7 @@ local callbacks = {
 				button.IconBorder:Hide()
 				button.Background:SetTexture(icon)
 				button.Background:SetVertexColor(0.5, 0.5, 0.5)
-				button.Name:SetText(WHITE .. numFollowers)
+				button.Name:SetText(colors.white .. numFollowers)
 				button:Show()
 			else
 				-- button.key = nil

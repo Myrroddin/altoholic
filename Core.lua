@@ -4,8 +4,8 @@ _G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "A
 
 local addon = _G[addonName]
 
-addon.Version = "v6.0.004"
-addon.VersionNum = 600004
+addon.Version = "v6.1.001"
+addon.VersionNum = 601001
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local commPrefix = addonName
@@ -83,7 +83,8 @@ local AddonDB_Defaults = {
 			["UI.Tabs.Characters.ViewVoidStorage"] = true,
 			["UI.Tabs.Characters.ViewReagentBank"] = true,
 			["UI.Tabs.Characters.ViewBagsRarity"] = 0,						-- rarity level of items (not a boolean !)
-			
+			["UI.Tabs.Characters.GarrisonMissions"] = 1,						-- available missions = 1, active missions = 2
+						
 			-- ** Search tab options **
 			["UI.Tabs.Search.ItemInfoAutoQuery"] = false,
 			["UI.Tabs.Search.SortDescending"] = false,				-- display search results in the loot table in ascending (0) or descending (1) order ?
@@ -118,7 +119,6 @@ local AddonDB_Defaults = {
 			["UI.Tooltip.ShowItemCount"] = true,
 			["UI.Tooltip.ShowTotalItemCount"] = true,
 			["UI.Tooltip.ShowKnownRecipes"] = true,
-			["UI.Tooltip.ShowKnownPets"] = true,
 			["UI.Tooltip.ShowItemID"] = false,						-- display item id & item level in the tooltip (default: off)
 			["UI.Tooltip.ShowGatheringNodesCount"] = true,		-- display counters when mousing over a gathering node (default:  on)
 			["UI.Tooltip.ShowCrossFactionCount"] = true,			-- display counters for both factions on a pve server
@@ -160,6 +160,38 @@ local AddonDB_Defaults = {
 
 		},
 }}
+
+addon.Colors = {
+	white	= "|cFFFFFFFF",
+	red = "|cFFFF0000",
+	darkred = "|cFFF00000",
+	green = "|cFF00FF00",
+	orange = "|cFFFF7F00",
+	yellow = "|cFFFFFF00",
+	gold = "|cFFFFD700",
+	teal = "|cFF00FF9A",
+	cyan = "|cFF1CFAFE",
+	lightBlue = "|cFFB0B0FF",
+	battleNetBlue = "|cff82c5ff",
+	grey = "|cFF909090",
+	
+	-- classes
+	classMage = "|cFF69CCF0",
+	classHunter = "|cFFABD473",
+	
+	-- recipes
+	recipeGrey = "|cFF808080",
+	recipeGreen = "|cFF40C040",
+	recipeOrange = "|cFFFF8040",
+	
+	-- rarity : http://wow.gamepedia.com/Quality
+	common = "|cFFFFFFFF",
+	uncommon = "|cFF1EFF00",
+	rare = "|cFF0070DD",
+	epic = "|cFFA335EE",
+	legendary = "|cFFFF8000",
+	heirloom = "|cFFE6CC80",
+}
 
 -- ** LDB Launcher **
 LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject(addonName, {
@@ -259,8 +291,25 @@ function addon:ChatCommand(input)
 end
 
 addon.TradeSkills = {}
+addon.TradeSkills.Names = {
+	ALCHEMY = GetSpellInfo(2259),
+	ARCHAEOLOGY = GetSpellInfo(78670),
+	BLACKSMITHING = GetSpellInfo(3100),
+	COOKING = GetSpellInfo(2550),
+	ENCHANTING = GetSpellInfo(7411),
+	ENGINEERING = GetSpellInfo(4036),
+	FIRSTAID = GetSpellInfo(3273),
+	FISHING = GetSpellInfo(131474),
+	HERBALISM = GetSpellInfo(2366),
+	INSCRIPTION = GetSpellInfo(45357),
+	JEWELCRAFTING = GetSpellInfo(25229),
+	LEATHERWORKING = GetSpellInfo(2108),
+	MINING = GetSpellInfo(2575),
+	SKINNING = GetSpellInfo(8613),
+	SMELTING = GetSpellInfo(2656),
+	TAILORING = GetSpellInfo(3908),
+}
 addon.TradeSkills.Recipes = {}
-
 
 -- ** Tabs **
 local tabList = {
