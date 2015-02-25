@@ -1,17 +1,12 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
+local colors = addon.Colors
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local INFO_REALM_LINE = 0
 local INFO_CHARACTER_LINE = 1
 local INFO_TOTAL_LINE = 2
-
-local WHITE		= "|cFFFFFFFF"
-local GREEN		= "|cFF00FF00"
-local YELLOW	= "|cFFFFFF00"
-local GOLD		= "|cFFFFD700"
-local CYAN		= "|cFF1CFAFE"
 
 local ICON_FACTION_HORDE = "Interface\\Icons\\INV_BannerPVP_01"
 local ICON_FACTION_ALLIANCE = "Interface\\Icons\\INV_BannerPVP_02"
@@ -28,7 +23,7 @@ function ns:Update()
 	
 	local DS = DataStore
 		
-	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
+	local offset = addon.ScrollFrames:GetOffset( _G[ frame.."ScrollFrame" ] );
 	local DisplayedCount = 0
 	local VisibleCount = 0
 	local DrawRealm
@@ -66,10 +61,10 @@ function ns:Update()
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 25, 0)
 				_G[entry..i.."NameNormalText"]:SetWidth(300)
 				if account == "Default" then	-- saved as default, display as localized.
-					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", realm, WHITE, GREEN, L["Default"]))
+					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", realm, colors.white, colors.green, L["Default"]))
 				else
 					local last = addon:GetLastAccountSharingInfo(realm, account)
-					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", realm, WHITE, GREEN, account, YELLOW, last or ""))
+					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", realm, colors.white, colors.green, account, colors.yellow, last or ""))
 				end
 				_G[entry..i.."Level"]:SetText("")
 				_G[entry..i.."FreeBags"]:SetText("")
@@ -97,23 +92,23 @@ function ns:Update()
 					_G[entry..i.."Name"]:SetPoint("TOPLEFT", 10, 0)
 					_G[entry..i.."NameNormalText"]:SetWidth(170)
 					_G[entry..i.."NameNormalText"]:SetText(icon .. format("%s (%s)", DS:GetColoredCharacterName(character), DS:GetCharacterClass(character)))
-					_G[entry..i.."Level"]:SetText(GREEN .. DS:GetCharacterLevel(character))
+					_G[entry..i.."Level"]:SetText(colors.green .. DS:GetCharacterLevel(character))
 					_G[entry..i.."BagSlotsNormalText"]:SetJustifyH("LEFT")
 					_G[entry..i.."BankSlotsNormalText"]:SetJustifyH("LEFT")
 					
 					local last = DataStore:GetModuleLastUpdateByKey("DataStore_Containers", character)
 					if last then
-						_G[entry..i.."FreeBags"]:SetText(GREEN .. DS:GetNumFreeBagSlots(character))
-						_G[entry..i.."FreeBank"]:SetText(GREEN .. DS:GetNumFreeBankSlots(character))
+						_G[entry..i.."FreeBags"]:SetText(colors.green .. DS:GetNumFreeBagSlots(character))
+						_G[entry..i.."FreeBank"]:SetText(colors.green .. DS:GetNumFreeBankSlots(character))
 
 						-- Normal bags
 						_G[entry..i.."BagSlotsNormalText"]:SetText(format("%s/%s|r/%s|r/%s|r/%s |r(%s|r)",
 							DS:GetContainerSize(character, 0),
-							WHITE .. DS:GetContainerSize(character, 1),
-							WHITE .. DS:GetContainerSize(character, 2),
-							WHITE .. DS:GetContainerSize(character, 3),
-							WHITE .. DS:GetContainerSize(character, 4),
-							CYAN .. DS:GetNumBagSlots(character)))
+							colors.white .. DS:GetContainerSize(character, 1),
+							colors.white .. DS:GetContainerSize(character, 2),
+							colors.white .. DS:GetContainerSize(character, 3),
+							colors.white .. DS:GetContainerSize(character, 4),
+							colors.cyan .. DS:GetNumBagSlots(character)))
 						
 						-- Bank bags
 						if DS:GetNumBankSlots(character) < 28 then
@@ -121,18 +116,18 @@ function ns:Update()
 						else
 							_G[entry..i.."BankSlotsNormalText"]:SetText(format("%s/%s|r/%s|r/%s|r/%s|r/%s|r/%s|r/%s |r(%s|r)",
 								DS:GetContainerSize(character, 100),
-								WHITE .. DS:GetContainerSize(character, 5),
-								WHITE .. DS:GetContainerSize(character, 6),
-								WHITE .. DS:GetContainerSize(character, 7),
-								WHITE .. DS:GetContainerSize(character, 8),
-								WHITE .. DS:GetContainerSize(character, 9),
-								WHITE .. DS:GetContainerSize(character, 10),
-								WHITE .. DS:GetContainerSize(character, 11),
-								CYAN .. DS:GetNumBankSlots(character)))
+								colors.white .. DS:GetContainerSize(character, 5),
+								colors.white .. DS:GetContainerSize(character, 6),
+								colors.white .. DS:GetContainerSize(character, 7),
+								colors.white .. DS:GetContainerSize(character, 8),
+								colors.white .. DS:GetContainerSize(character, 9),
+								colors.white .. DS:GetContainerSize(character, 10),
+								colors.white .. DS:GetContainerSize(character, 11),
+								colors.cyan .. DS:GetNumBankSlots(character)))
 						end
 					else
-						_G[entry..i.."FreeBags"]:SetText(GREEN .. 0)
-						_G[entry..i.."FreeBank"]:SetText(GREEN .. 0)
+						_G[entry..i.."FreeBags"]:SetText(colors.green .. 0)
+						_G[entry..i.."FreeBank"]:SetText(colors.green .. 0)
 						_G[entry..i.."BagSlotsNormalText"]:SetText(UNKNOWN)
 						_G[entry..i.."BankSlotsNormalText"]:SetText(UNKNOWN)
 					end
@@ -144,11 +139,11 @@ function ns:Update()
 					_G[entry..i.."NameNormalText"]:SetWidth(200)
 					_G[entry..i.."NameNormalText"]:SetText(L["Totals"])
 					_G[entry..i.."Level"]:SetText(Characters:GetField(line, "level"))
-					_G[entry..i.."FreeBags"]:SetText(WHITE .. Characters:GetField(line, "freeBagSlots"))
-					_G[entry..i.."FreeBank"]:SetText(WHITE .. Characters:GetField(line, "freeBankSlots"))
-					_G[entry..i.."BagSlotsNormalText"]:SetText(WHITE .. Characters:GetField(line, "bagSlots") .. " |r" .. L["slots"])
+					_G[entry..i.."FreeBags"]:SetText(colors.white .. Characters:GetField(line, "freeBagSlots"))
+					_G[entry..i.."FreeBank"]:SetText(colors.white .. Characters:GetField(line, "freeBankSlots"))
+					_G[entry..i.."BagSlotsNormalText"]:SetText(colors.white .. Characters:GetField(line, "bagSlots") .. " |r" .. L["slots"])
 					_G[entry..i.."BagSlotsNormalText"]:SetJustifyH("CENTER")
-					_G[entry..i.."BankSlotsNormalText"]:SetText(WHITE .. Characters:GetField(line, "bankSlots") .. " |r" .. L["slots"])
+					_G[entry..i.."BankSlotsNormalText"]:SetText(colors.white .. Characters:GetField(line, "bankSlots") .. " |r" .. L["slots"])
 					_G[entry..i.."BankSlotsNormalText"]:SetJustifyH("CENTER")
 				end
 				_G[ entry..i ]:SetID(line)
@@ -166,15 +161,15 @@ function ns:Update()
 		i = i + 1
 	end
 
-	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleCount, VisibleLines, 18);
+	addon.ScrollFrames:Update( AltoholicFrameBagUsage.ScrollFrame, VisibleCount, VisibleLines, 18)
 end	
 
 local function WriteLine(size, free, link, bagtype)
 	AltoTooltip:AddLine(	format("%s |r%s (%s|r %s) %s %s",
-		GOLD..size, L["slots"], 
-		GREEN..free, L["free"],
+		colors.gold..size, L["slots"], 
+		colors.green..free, L["free"],
 		link or "",
-		(bagtype and strlen(bagtype) > 0) and (YELLOW .. "(" .. bagtype .. ")") or "") ,1,1,1);
+		(bagtype and strlen(bagtype) > 0) and (colors.yellow .. "(" .. bagtype .. ")") or "") ,1,1,1);
 end
 
 function ns:OnEnter(self)
@@ -196,7 +191,7 @@ function ns:OnEnter(self)
 	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
 	AltoTooltip:AddDoubleLine(DS:GetColoredCharacterName(character), DS:GetColoredCharacterFaction(character))
 	AltoTooltip:AddLine(format("%s %s |r%s %s", L["Level"], 
-		GREEN..DS:GetCharacterLevel(character), DS:GetCharacterRace(character),	DS:GetCharacterClass(character)),1,1,1)
+		colors.green..DS:GetCharacterLevel(character), DS:GetCharacterRace(character),	DS:GetCharacterClass(character)),1,1,1)
 	AltoTooltip:AddLine(" ",1,1,1);
 
 	local id = self:GetID()
@@ -232,6 +227,6 @@ function ns:OnEnter(self)
 	end
 	
 	AltoTooltip:AddLine(" ",1,1,1);
-	AltoTooltip:AddLine(CYAN .. numSlots .. " |r" .. L["slots"] .. " ("  .. GREEN .. numFree .. "|r " ..L["free"] .. ") ",1,1,1);
+	AltoTooltip:AddLine(colors.cyan .. numSlots .. " |r" .. L["slots"] .. " ("  .. colors.green .. numFree .. "|r " ..L["free"] .. ") ",1,1,1);
 	AltoTooltip:Show();	
 end

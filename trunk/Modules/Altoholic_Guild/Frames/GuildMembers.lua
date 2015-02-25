@@ -1,16 +1,11 @@
 ﻿local addonName = "Altoholic"
 local addon = _G[addonName]
+local colors = addon.Colors
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local parentName = "AltoholicTabGuild"
 local parent
-
-local WHITE		= "|cFFFFFFFF"
-local GRAY		= "|cFFBBBBBB"
-local GREEN		= "|cFF00FF00"
-local YELLOW	= "|cFFFFFF00"
-local LIGHTBLUE = "|cFFB0B0FF"
 
 local view
 local viewSortField = "name"
@@ -305,11 +300,11 @@ function ns:Update()
 		for rowIndex = 1, numRows do	
 			frame["Entry"..rowIndex]:Hide()
 		end
-		FauxScrollFrame_Update(scrollFrame, numRows, numRows, 18)
+		addon.ScrollFrames:Update(scrollFrame, numRows, numRows, 18)
 		return
 	end
 	
-	local offset = FauxScrollFrame_GetOffset( scrollFrame );
+	local offset = addon.ScrollFrames:GetOffset( scrollFrame );
 	local DisplayedCount = 0
 	local VisibleCount = 0
 	local DrawAlts
@@ -355,10 +350,10 @@ function ns:Update()
 			if v.lineType == NORMALPLAYER_LINE then
 				rowFrame.Collapse:Hide()
 				rowFrame.Name:SetPoint("TOPLEFT", 15, 0)
-				rowFrame.Name.Text:SetText(YELLOW..member)
-				rowFrame.Level:SetText(GREEN .. level)
-				rowFrame.AvgILevel.Text:SetText(YELLOW..format("%.1f", averageItemLvl))
-				rowFrame.Version:SetText(WHITE..version)
+				rowFrame.Name.Text:SetText(colors.yellow..member)
+				rowFrame.Level:SetText(colors.green .. level)
+				rowFrame.AvgILevel.Text:SetText(colors.yellow..format("%.1f", averageItemLvl))
+				rowFrame.Version:SetText(colors.white..version)
 				rowFrame.Class:SetText(classText)
 				
 				rowFrame.CharName = member
@@ -385,15 +380,15 @@ function ns:Update()
 				
 				rowFrame.Collapse:Show()
 				rowFrame.Name:SetPoint("TOPLEFT", 25, 0)
-				rowFrame.Name.Text:SetText(YELLOW..member)
-				rowFrame.Level:SetText(GREEN .. level)
+				rowFrame.Name.Text:SetText(colors.yellow..member)
+				rowFrame.Level:SetText(colors.green .. level)
 				if member == L["Offline Members"] then
 					rowFrame.AvgILevel.Text:SetText("")
 				else
-					rowFrame.AvgILevel.Text:SetText(YELLOW..format("%.1f", averageItemLvl))
+					rowFrame.AvgILevel.Text:SetText(colors.yellow..format("%.1f", averageItemLvl))
 				end
 				
-				rowFrame.Version:SetText(WHITE..version)
+				rowFrame.Version:SetText(colors.white..version)
 				rowFrame.Class:SetText(classText)
 				
 				rowFrame.CharName = member
@@ -408,13 +403,13 @@ function ns:Update()
 				rowFrame.Collapse:Hide()
 				rowFrame.Name:SetPoint("TOPLEFT", 15, 0)
 				if v.lineType == ALTO_ALT_LINE then
-					rowFrame.Name.Text:SetText(LIGHTBLUE..member)
+					rowFrame.Name.Text:SetText(colors.lightBlue..member)
 				else
-					rowFrame.Name.Text:SetText(GRAY..member)
+					rowFrame.Name.Text:SetText(colors.grey..member)
 				end
-				rowFrame.Level:SetText(GREEN .. level)
-				rowFrame.AvgILevel.Text:SetText(YELLOW..format("%.1f", averageItemLvl))
-				rowFrame.Version:SetText(WHITE..version)
+				rowFrame.Level:SetText(colors.green .. level)
+				rowFrame.AvgILevel.Text:SetText(colors.yellow..format("%.1f", averageItemLvl))
+				rowFrame.Version:SetText(colors.white..version)
 				rowFrame.Class:SetText(classText)
 				
 				rowFrame.CharName = member
@@ -432,7 +427,7 @@ function ns:Update()
 		frame["Entry"..rowIndex]:Hide()
 		rowIndex = rowIndex + 1
 	end
-	FauxScrollFrame_Update( scrollFrame, VisibleCount, numRows, 18);
+	addon.ScrollFrames:Update( scrollFrame, VisibleCount, numRows, 18);
 end
 
 function ns:Sort(self, field)
@@ -452,20 +447,20 @@ function ns:Name_OnEnter(self)
 	AltoTooltip:ClearLines();
 	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
 	AltoTooltip:AddLine(DataStore:GetClassColor(englishClass) .. member,1,1,1);
-	AltoTooltip:AddLine(WHITE .. RANK_COLON .. "|r " .. rank .. GREEN .. " (".. rankIndex .. ")");
+	AltoTooltip:AddLine(colors.white .. RANK_COLON .. "|r " .. rank .. colors.green .. " (".. rankIndex .. ")");
 	if zone then
-		AltoTooltip:AddLine(WHITE .. ZONE_COLON .. "|r " .. zone);
+		AltoTooltip:AddLine(colors.white .. ZONE_COLON .. "|r " .. zone);
 	end
 	
 	if note then
 		AltoTooltip:AddLine(" ",1,1,1);
-		AltoTooltip:AddLine(WHITE .. NOTE .. ":");
+		AltoTooltip:AddLine(colors.white .. NOTE .. ":");
 		AltoTooltip:AddLine(note);
 	end
 	
 	if officernote then
 		AltoTooltip:AddLine(" ",1,1,1);
-		AltoTooltip:AddLine(WHITE .. GUILD_OFFICER_NOTE .. ":");
+		AltoTooltip:AddLine(colors.white .. GUILD_OFFICER_NOTE .. ":");
 		AltoTooltip:AddLine(officernote);
 	end
 
@@ -501,11 +496,11 @@ function ns:Level_OnEnter(self)
 	AltoTooltip:ClearLines();
 	AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
 	AltoTooltip:AddLine(DataStore:GetClassColor(englishClass) .. member,1,1,1);
-	AltoTooltip:AddLine(WHITE .. L["Average Item Level"] ..": " .. GREEN.. format("%.1f", averageItemLvl),1,1,1);
+	AltoTooltip:AddLine(colors.white .. L["Average Item Level"] ..": " .. colors.green.. format("%.1f", averageItemLvl),1,1,1);
 
 	addon:AiLTooltip()
 	AltoTooltip:AddLine(" ",1,1,1);
-	AltoTooltip:AddLine(GREEN .. L["Left-click to see this character's equipment"],1,1,1);
+	AltoTooltip:AddLine(colors.green .. L["Left-click to see this character's equipment"],1,1,1);
 	AltoTooltip:Show();
 end
 

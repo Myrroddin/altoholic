@@ -1,18 +1,12 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
+local colors = addon.Colors
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local INFO_REALM_LINE = 0
 local INFO_CHARACTER_LINE = 1
 local INFO_TOTAL_LINE = 2
-
-local WHITE		= "|cFFFFFFFF"
-local GREEN		= "|cFF00FF00"
-local YELLOW	= "|cFFFFFF00"
-local GREY		= "|cFF808080"
-local GOLD		= "|cFFFFD700"
-local RED		= "|cFFFF0000"
 
 local ICON_FACTION_HORDE = "Interface\\Icons\\INV_BannerPVP_01"
 local ICON_FACTION_ALLIANCE = "Interface\\Icons\\INV_BannerPVP_02"
@@ -36,7 +30,7 @@ function ns:Update()
 	
 	local DS = DataStore
 	
-	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
+	local offset = addon.ScrollFrames:GetOffset( _G[ frame.."ScrollFrame" ] );
 	local DisplayedCount = 0
 	local VisibleCount = 0
 	local DrawRealm
@@ -74,10 +68,10 @@ function ns:Update()
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 25, 0)
 				_G[entry..i.."NameNormalText"]:SetWidth(300)
 				if account == "Default" then	-- saved as default, display as localized.
-					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", realm, WHITE, GREEN, L["Default"]))
+					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", realm, colors.white, colors.green, L["Default"]))
 				else
 					local last = addon:GetLastAccountSharingInfo(realm, account)
-					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", realm, WHITE, GREEN, account, YELLOW, last or ""))
+					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", realm, colors.white, colors.green, account, colors.yellow, last or ""))
 				end				
 				_G[entry..i.."Level"]:SetText("")
 				
@@ -108,40 +102,40 @@ function ns:Update()
 					_G[entry..i.."Name"]:SetPoint("TOPLEFT", 10, 0)
 					_G[entry..i.."NameNormalText"]:SetWidth(170)
 					_G[entry..i.."NameNormalText"]:SetText(icon .. format("%s (%s)", DS:GetColoredCharacterName(character), DS:GetCharacterClass(character)))
-					_G[entry..i.."Level"]:SetText(GREEN .. DS:GetCharacterLevel(character))
+					_G[entry..i.."Level"]:SetText(colors.green .. DS:GetCharacterLevel(character))
 				
 					-- Garrison resources
 					local uncollected = DataStore:GetUncollectedResources(character) or 0
 					
 					local amount, earnedThisWeek, weeklyMax, totalMax = DataStore:GetCurrencyTotals(character, CURRENCY_ID_GARRISON)
-					local color = (amount == 0) and GREY or WHITE
+					local color = (amount == 0) and colors.grey or colors.white
 					
-					_G[entry..i.."Currency1NormalText"]:SetText(format("%s%s/%s+%s", color, amount, GREEN, uncollected))
+					_G[entry..i.."Currency1NormalText"]:SetText(format("%s%s/%s+%s", color, amount, colors.green, uncollected))
 					
 					-- Apexis crystals
 					amount, earnedThisWeek, weeklyMax, totalMax = DataStore:GetCurrencyTotals(character, CURRENCY_ID_APEXIS)
 
-					color = (amount == 0) and GREY or WHITE
+					color = (amount == 0) and colors.grey or colors.white
 					_G[entry..i.."Currency2NormalText"]:SetWidth(100)
-					_G[entry..i.."Currency2NormalText"]:SetText(format("%s%s%s/%s%s", color, amount, WHITE, YELLOW, totalMax))
+					_G[entry..i.."Currency2NormalText"]:SetText(format("%s%s%s/%s%s", color, amount, colors.white, colors.yellow, totalMax))
 					
 					-- Seals of Tempered Fate
 					amount, earnedThisWeek, weeklyMax, totalMax = DataStore:GetCurrencyTotals(character, CURRENCY_ID_SOTF)
-					color = (amount == 0) and GREY or WHITE
+					color = (amount == 0) and colors.grey or colors.white
 					
-					_G[entry..i.."Currency3NormalText"]:SetText(format("%s%s%s/%s%s", color, amount, WHITE, YELLOW, totalMax))
+					_G[entry..i.."Currency3NormalText"]:SetText(format("%s%s%s/%s%s", color, amount, colors.white, colors.yellow, totalMax))
 					
 					-- Honor points
 					amount, earnedThisWeek, weeklyMax, totalMax = DataStore:GetCurrencyTotals(character, CURRENCY_ID_HONOR)
-					color = (amount == 0) and GREY or WHITE
+					color = (amount == 0) and colors.grey or colors.white
 					
-					_G[entry..i.."Currency4NormalText"]:SetText(format("%s%s%s/%s%s", color, amount, WHITE, YELLOW, totalMax))
+					_G[entry..i.."Currency4NormalText"]:SetText(format("%s%s%s/%s%s", color, amount, colors.white, colors.yellow, totalMax))
 					
 					-- Conquest points
 					amount, earnedThisWeek, weeklyMax, totalMax = DataStore:GetCurrencyTotals(character, CURRENCY_ID_CONQUEST)
-					color = (earnedThisWeek == 0) and GREY or WHITE
+					color = (earnedThisWeek == 0) and colors.grey or colors.white
 					
-					_G[entry..i.."Currency5NormalText"]:SetText(format("%s%s%s/%s%s", color, earnedThisWeek, WHITE, YELLOW, weeklyMax))
+					_G[entry..i.."Currency5NormalText"]:SetText(format("%s%s%s/%s%s", color, earnedThisWeek, colors.white, colors.yellow, weeklyMax))
 
 				elseif (lineType == INFO_TOTAL_LINE) then
 					_G[entry..i.."Collapse"]:Hide()
@@ -171,7 +165,7 @@ function ns:Update()
 		i = i + 1
 	end
 
-	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleCount, VisibleLines, 18);
+	addon.ScrollFrames:Update( AltoholicFrameCurrencies.ScrollFrame, VisibleCount, VisibleLines, 18)
 end	
 
 function ns:OnEnter(self)
@@ -189,24 +183,24 @@ function ns:OnEnter(self)
 	
 	AltoTooltip:AddDoubleLine(DS:GetColoredCharacterName(character), DS:GetColoredCharacterFaction(character))
 	AltoTooltip:AddLine(format("%s %s |r%s %s", L["Level"], 
-		GREEN..DS:GetCharacterLevel(character), DS:GetCharacterRace(character),	DS:GetCharacterClass(character)),1,1,1)
+		colors.green..DS:GetCharacterLevel(character), DS:GetCharacterRace(character),	DS:GetCharacterClass(character)),1,1,1)
 
 	local zone, subZone = DS:GetLocation(character)
-	AltoTooltip:AddLine(format("%s: %s |r(%s|r)", L["Zone"], GOLD..zone, GOLD..subZone),1,1,1)
+	AltoTooltip:AddLine(format("%s: %s |r(%s|r)", L["Zone"], colors.gold..zone, colors.gold..subZone),1,1,1)
 	
 	AltoTooltip:AddLine(EXPERIENCE_COLON .. " " 
-				.. GREEN .. DS:GetXP(character) .. WHITE .. "/" 
-				.. GREEN .. DS:GetXPMax(character) .. WHITE .. " (" 
-				.. GREEN .. DS:GetXPRate(character) .. "%"
-				.. WHITE .. ")",1,1,1);	
+				.. colors.green .. DS:GetXP(character) .. colors.white .. "/" 
+				.. colors.green .. DS:GetXPMax(character) .. colors.white .. " (" 
+				.. colors.green .. DS:GetXPRate(character) .. "%"
+				.. colors.white .. ")",1,1,1);	
 	
 	local restXP = DS:GetRestXP(character)
 	if restXP and restXP > 0 then
-		AltoTooltip:AddLine(format("%s: %s", L["Rest XP"], GREEN..restXP),1,1,1)
+		AltoTooltip:AddLine(format("%s: %s", L["Rest XP"], colors.green..restXP),1,1,1)
 	end
 
 	AltoTooltip:AddLine(" ",1,1,1);
-	AltoTooltip:AddLine(GOLD..CURRENCY..":",1,1,1);
+	AltoTooltip:AddLine(colors.gold..CURRENCY..":",1,1,1);
 	
 	local num = DS:GetNumCurrencies(character) or 0
 	for i = 1, num do
@@ -214,14 +208,14 @@ function ns:OnEnter(self)
 		name = name or ""
 		
 		if isHeader then
-			AltoTooltip:AddLine(YELLOW..name)
+			AltoTooltip:AddLine(colors.yellow..name)
 		else
-			AltoTooltip:AddLine(format("  %s: %s", name, GREEN..count),1,1,1);
+			AltoTooltip:AddLine(format("  %s: %s", name, colors.green..count),1,1,1);
 		end
 	end
 	
 	if num == 0 then
-		AltoTooltip:AddLine(WHITE..NONE,1,1,1);
+		AltoTooltip:AddLine(colors.white..NONE,1,1,1);
 	end
 	
 	AltoTooltip:Show();

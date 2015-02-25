@@ -1,4 +1,4 @@
-﻿## Interface: 60000
+﻿## Interface: 60100
 ## Title: Altoholic
 ## Title-zhCN: |cffeedd99 [物品] |r: 全角色统计 Altoholic
 
@@ -31,6 +31,7 @@ locale.xml
 
 AltoholicTemplates.xml
 Altoholic.xml
+ScrollFrames.xml
 
 Frames\TabOptions.xml
 Frames\AccountSharing.xml

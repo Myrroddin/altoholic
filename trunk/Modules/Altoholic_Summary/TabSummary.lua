@@ -1,9 +1,8 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
+local colors = addon.Colors
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-
-local GREEN		= "|cFF00FF00"
 
 local parent = "AltoholicTabSummary"
 local rcMenuName = parent .. "RightClickMenu"	-- name of right click menu frames (add a number at the end to get it)
@@ -33,10 +32,10 @@ addon.Tabs.Summary = {}
 local ns = addon.Tabs.Summary		-- ns = namespace
 
 local locationLabels = {
-	[THISREALM_THISACCOUNT] = format("%s %s(%s)", L["This realm"], GREEN, L["This account"]),
-	[THISREALM_ALLACCOUNTS] = format("%s %s(%s)", L["This realm"], GREEN, L["All accounts"]),
-	[ALLREALMS_THISACCOUNT] = format("%s %s(%s)", L["All realms"], GREEN, L["This account"]),
-	[ALLREALMS_ALLACCOUNTS] = format("%s %s(%s)", L["All realms"], GREEN, L["All accounts"]),
+	[THISREALM_THISACCOUNT] = format("%s %s(%s)", L["This realm"], colors.green, L["This account"]),
+	[THISREALM_ALLACCOUNTS] = format("%s %s(%s)", L["This realm"], colors.green, L["All accounts"]),
+	[ALLREALMS_THISACCOUNT] = format("%s %s(%s)", L["All realms"], colors.green, L["This account"]),
+	[ALLREALMS_ALLACCOUNTS] = format("%s %s(%s)", L["All realms"], colors.green, L["All accounts"]),
 }
 
 local function OnRealmFilterChange(self)

@@ -24,10 +24,10 @@ local function DropDown_Initialize()
 	local currentRace = addon:GetOption(OPTION_RACE)
 	
 	for i = 1, numRaces do
-		if i ~= 13 then	-- 13 = UNUSED
+		-- if i ~= 13 then	-- 13 = UNUSED
 			race, icon = GetArchaeologyRaceInfo(i)
 			DDM_Add(race, i, OnRaceChange, icon, (i==currentRace))
-		end
+		-- end
 	end
 
 	DDM_AddCloseMenu()

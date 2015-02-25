@@ -41,13 +41,13 @@ local function UpdateSpread()
 			frame["Entry"..i]:Hide()
 		end
 		
-		FauxScrollFrame_Update( scrollFrame, numRows, numRows, 41)
+		addon.ScrollFrames:Update(scrollFrame, numRows, numRows, 41)
 		return
 	end
 	
 	local character = Altoholic.Tabs.Characters:GetAltKey()
 	local DS = DataStore
-	local offset = FauxScrollFrame_GetOffset( scrollFrame );
+	local offset = addon.ScrollFrames:GetOffset(scrollFrame)
 	
 	AltoholicTabCharacters.Status:SetText(format("%s|r / %s", DataStore:GetColoredCharacterName(character), L["Containers"]))
 	
@@ -182,9 +182,9 @@ local function UpdateSpread()
 	end
 	
 	if #bagIndices < numRows then
-		FauxScrollFrame_Update( scrollFrame, numRows, numRows, 41);
+		addon.ScrollFrames:Update( scrollFrame, numRows, numRows, 41);
 	else
-		FauxScrollFrame_Update( scrollFrame, #bagIndices, numRows, 41);
+		addon.ScrollFrames:Update( scrollFrame, #bagIndices, numRows, 41);
 	end	
 end	
 
@@ -197,7 +197,7 @@ local function UpdateAllInOne()
 	local character = Altoholic.Tabs.Characters:GetAltKey()
 	AltoholicTabCharacters.Status:SetText(format("%s|r / %s / %s", DataStore:GetColoredCharacterName(character), L["Containers"], L["All-in-one"]))
 
-	local offset = FauxScrollFrame_GetOffset(scrollFrame)
+	local offset = addon.ScrollFrames:GetOffset(scrollFrame)
 	
 	local minSlotIndex = offset * 14
 	local currentSlotIndex = 0		-- this indexes the non-empty slots
@@ -309,7 +309,7 @@ local function UpdateAllInOne()
 		frame["Entry"..i]:Show()
 	end
 
-	FauxScrollFrame_Update( scrollFrame, ceil(currentSlotIndex / 14), numRows, 41);
+	addon.ScrollFrames:Update( scrollFrame, ceil(currentSlotIndex / 14), numRows, 41);
 end
 
 
@@ -317,7 +317,7 @@ function ns:SetView(isAllInOne)
 	if not isAllInOne then	-- not an all-in-one view
 		ns.Update = UpdateSpread
 		ns:UpdateCache()
-		FauxScrollFrame_SetOffset( AltoholicFrameContainers.ScrollFrame, 0)
+		addon.ScrollFrames:SetOffset( AltoholicFrameContainers.ScrollFrame, 0)
 	else
 		ns.Update = UpdateAllInOne
 	end

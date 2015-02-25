@@ -1,12 +1,8 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
+local colors = addon.Colors
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-
-local WHITE		= "|cFFFFFFFF"
-local TEAL		= "|cFF00FF9A"
-local GREEN		= "|cFF00FF00"
-local YELLOW	= "|cFFFFFF00"
 
 local parentName = "AltoholicTabGuild"
 local parent
@@ -24,7 +20,7 @@ local ns = addon.Tabs.Guild		-- ns = namespace
 
 local function OnRosterUpdate()
 	local _, onlineMembers = GetNumGuildMembers()
-	parent.MenuItem1.Text:SetText(format("%s %s(%d)", L["Guild Members"], GREEN, onlineMembers))
+	parent.MenuItem1.Text:SetText(format("%s %s(%d)", L["Guild Members"], colors.green, onlineMembers))
 	
 	addon.Guild.Members:InvalidateView()
 end

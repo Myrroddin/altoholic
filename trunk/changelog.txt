@@ -9,6 +9,24 @@ This means cleaning the following files in \WTF\Account\<your_account>\SavedVari
 There WILL be bugs if you use your old files without cleaning them first. 
 Some fixes to work around API changes are too time consuming, so cleaning is required. A meager price to pay once per expansion.
 
+6.1.001 (25/02/2015)
+
+- Added support for Garrison missions ! Warnings are not in yet, but available and active missions are now visible in the characters' tab.
+Note: Active missions can only be correctly tracked if the mission is started with this version of Altoholic, so currently active missions will be visible, but their expiration will not. Sorry, this info is not provided by the game, I have to "manually" keep track of it.
+- Fixed the spam of mail expiry warnings, this time for good (hopefully ! feedback appreciated on this one!).
+- Now refreshing the follower's pane immediately when the followers' list is updated.
+- Updated list of followers not recruited at the inn.
+- Updated list of archaeology projects with WoD projects.
+- Cleaned up the .pkgmeta of DataStore modules, my sources tell me this should prevent some problems with the Curse Client :) (Thanks Myrroddin !)
+- Removed "already known/could be learned by" information from tooltips for companions, as they have been account-wide for a while.
+- More code cleanup.
+
+Note: I made several attempts at fixing the double guild bank counters in the tooltip, thanks to all of you who sent me their SV files, the issue is now clear.
+Nevertheless, a complete perfect fix is not yet possible, as Blizzard does not provide the real/full realm name to which the guild actually belongs.
+The best I can get in my case is "MarécagedeZangar" when I actually expect "Marécage de Zangar", and that value is nowhere to be found in the API.
+Long story short, I have to come up with a way to work around this that does not force you guys to respect weird conditions to make it work..
+
+
 6.0.004 (09/01/2015)
 
 A massive code cleanup was performed, it should be mostly transparent for all of you, but code maintenance will be greatly improved for me.

@@ -1,5 +1,6 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
+local colors = addon.Colors
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
@@ -7,13 +8,6 @@ local INFO_REALM_LINE = 0
 local INFO_CHARACTER_LINE = 1
 local INFO_TOTAL_LINE = 2
 local THIS_ACCOUNT = "Default"
-
-local TEAL		= "|cFF00FF9A"
-local WHITE		= "|cFFFFFFFF"
-local GOLD		= "|cFFFFD700"
-local YELLOW	= "|cFFFFFF00"
-local GREEN		= "|cFF00FF00"
-local RED		= "|cFFFF0000"
 
 local VIEW_BAGS = 1
 local VIEW_QUESTS = 2
@@ -151,14 +145,14 @@ local function GetRestedXP(character)
 	rate = rate * coeff
 	
 	-- second return value = the actual percentage of rest xp, as a numeric value (1 to 100, not 150)
-	local color = GREEN
+	local color = colors.green
 	if rate >= (100 * coeff) then 
 		rate = 100 * coeff
 	else
 		if rate < (30 * coeff) then
-			color = RED
+			color = colors.red
 		elseif rate < (60 * coeff) then
-			color = YELLOW
+			color = colors.yellow
 		end
 	end
 
@@ -171,7 +165,7 @@ function ns:Update()
 	local frame = "AltoholicFrameSummary"
 	local entry = frame.."Entry"
 		
-	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
+	local offset = addon.ScrollFrames:GetOffset( _G[ frame.."ScrollFrame" ] );
 	local DisplayedCount = 0
 	local VisibleCount = 0
 	local DrawRealm
@@ -214,10 +208,10 @@ function ns:Update()
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 25, 0)
 				_G[entry..i.."NameNormalText"]:SetWidth(300)
 				if account == THIS_ACCOUNT then	-- saved as default, display as localized.
-					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", realm, WHITE, GREEN, L["Default"]))
+					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", realm, colors.white, colors.green, L["Default"]))
 				else
 					local last = addon:GetLastAccountSharingInfo(realm, account)
-					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", realm, WHITE, GREEN, account, YELLOW, last or ""))
+					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", realm, colors.white, colors.green, account, colors.yellow, last or ""))
 				end
 				_G[entry..i.."Level"]:SetText("")
 
@@ -247,20 +241,20 @@ function ns:Update()
 					_G[entry..i.."Name"]:SetPoint("TOPLEFT", 10, 0)
 					_G[entry..i.."NameNormalText"]:SetWidth(170)
 					_G[entry..i.."NameNormalText"]:SetText(icon .. format("%s (%s)", DS:GetColoredCharacterName(character), DS:GetCharacterClass(character)))
-					_G[entry..i.."Level"]:SetText(GREEN .. DS:GetCharacterLevel(character))
+					_G[entry..i.."Level"]:SetText(colors.green .. DS:GetCharacterLevel(character))
 
 					_G[entry..i.."Money"]:SetText(addon:GetMoneyString(DS:GetMoney(character)))
 					_G[entry..i.."Played"]:SetText(addon:GetTimeString(DS:GetPlayTime(character)))
-					_G[entry..i.."XP"]:SetText(GREEN .. DS:GetXPRate(character) .. "%")
+					_G[entry..i.."XP"]:SetText(colors.green .. DS:GetXPRate(character) .. "%")
 
 					if DS:GetCharacterLevel(character) == MAX_PLAYER_LEVEL then
-						_G[entry..i.."Rested"]:SetText(WHITE .. "0%")
+						_G[entry..i.."Rested"]:SetText(colors.white .. "0%")
 					else
 						_G[entry..i.."Rested"]:SetText(GetRestedXP(character))
 					end
 					
 					local AiL = DS:GetAverageItemLevel(character) or 0
-					_G[entry..i.."AvgILevelNormalText"]:SetText(YELLOW..format("%.1f", AiL))
+					_G[entry..i.."AvgILevelNormalText"]:SetText(colors.yellow..format("%.1f", AiL))
 					
 				elseif (lineType == INFO_TOTAL_LINE) then
 					_G[entry..i.."Collapse"]:Hide()
@@ -269,12 +263,12 @@ function ns:Update()
 					_G[entry..i.."NameNormalText"]:SetWidth(200)
 					_G[entry..i.."NameNormalText"]:SetText(L["Totals"])
 					_G[entry..i.."Level"]:SetText(Characters:GetField(line, "level"))
-					_G[entry..i.."Money"]:SetText(addon:GetMoneyString(Characters:GetField(line, "money"), WHITE))
+					_G[entry..i.."Money"]:SetText(addon:GetMoneyString(Characters:GetField(line, "money"), colors.white))
 					_G[entry..i.."Money"]:SetTextColor(1.0, 1.0, 1.0)
 					_G[entry..i.."Played"]:SetText(Characters:GetField(line, "played"))
 					_G[entry..i.."XP"]:SetText("")
 					_G[entry..i.."Rested"]:SetText("")
-					_G[entry..i.."AvgILevelNormalText"]:SetText(WHITE..format("%.1f", Characters:GetField(line, "realmAiL")))
+					_G[entry..i.."AvgILevelNormalText"]:SetText(colors.white..format("%.1f", Characters:GetField(line, "realmAiL")))
 				end
 				_G[ entry..i ]:SetID(line)
 				_G[ entry..i ]:Show()
@@ -290,7 +284,8 @@ function ns:Update()
 		_G[ entry..i ]:Hide()
 		i = i + 1
 	end
-	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleCount, VisibleLines, 18);
+	
+	addon.ScrollFrames:Update( AltoholicFrameSummary.ScrollFrame, VisibleCount, VisibleLines, 18)
 end
 
 function ns:Level_OnEnter(frame)
@@ -309,21 +304,21 @@ function ns:Level_OnEnter(frame)
 		local hLevels, hMoney, hPlayed = GetFactionTotals("Horde", line)
 		
 		AltoTooltip:AddLine(" ",1,1,1);
-		AltoTooltip:AddDoubleLine(WHITE..L["Levels"] , format("%s|r (%s %s|r, %s %s|r)", 
+		AltoTooltip:AddDoubleLine(colors.white..L["Levels"] , format("%s|r (%s %s|r, %s %s|r)", 
 			Characters:GetField(line, "level"),
-			addon:TextureToFontstring(ICON_FACTION_ALLIANCE, 18, 18), WHITE..aLevels,
-			addon:TextureToFontstring(ICON_FACTION_HORDE, 18, 18), WHITE..hLevels))
+			addon:TextureToFontstring(ICON_FACTION_ALLIANCE, 18, 18), colors.white..aLevels,
+			addon:TextureToFontstring(ICON_FACTION_HORDE, 18, 18), colors.white..hLevels))
 		
 		AltoTooltip:AddLine(" ",1,1,1);
-		AltoTooltip:AddDoubleLine(WHITE..MONEY, format("%s|r (%s %s|r, %s %s|r)", 
-			addon:GetMoneyString(Characters:GetField(line, "money"), WHITE, true),
+		AltoTooltip:AddDoubleLine(colors.white..MONEY, format("%s|r (%s %s|r, %s %s|r)", 
+			addon:GetMoneyString(Characters:GetField(line, "money"), colors.white, true),
 			addon:TextureToFontstring(ICON_FACTION_ALLIANCE, 18, 18), 
-			addon:GetMoneyString(aMoney, WHITE, true),
+			addon:GetMoneyString(aMoney, colors.white, true),
 			addon:TextureToFontstring(ICON_FACTION_HORDE, 18, 18), 
-			addon:GetMoneyString(hMoney, WHITE, true)))
+			addon:GetMoneyString(hMoney, colors.white, true)))
 		
 		AltoTooltip:AddLine(" ",1,1,1);
-		AltoTooltip:AddDoubleLine(WHITE..PLAYED , format("%s|r (%s %s|r, %s %s|r)",
+		AltoTooltip:AddDoubleLine(colors.white..PLAYED , format("%s|r (%s %s|r, %s %s|r)",
 			Characters:GetField(line, "played"),
 			addon:TextureToFontstring(ICON_FACTION_ALLIANCE, 18, 18),
 			addon:GetTimeString(aPlayed),
@@ -342,32 +337,32 @@ function ns:Level_OnEnter(frame)
 	
 	AltoTooltip:AddDoubleLine(DS:GetColoredCharacterName(character), DS:GetColoredCharacterFaction(character))
 	AltoTooltip:AddLine(format("%s %s |r%s %s", L["Level"], 
-		GREEN..DS:GetCharacterLevel(character), DS:GetCharacterRace(character),	DS:GetCharacterClass(character)),1,1,1)
+		colors.green..DS:GetCharacterLevel(character), DS:GetCharacterRace(character),	DS:GetCharacterClass(character)),1,1,1)
 
 	local zone, subZone = DS:GetLocation(character)
-	AltoTooltip:AddLine(format("%s: %s |r(%s|r)", L["Zone"], GOLD..zone, GOLD..subZone),1,1,1)
+	AltoTooltip:AddLine(format("%s: %s |r(%s|r)", L["Zone"], colors.gold..zone, colors.gold..subZone),1,1,1)
 	
 	local guildName = DS:GetGuildInfo(character)
 	if guildName then
-		AltoTooltip:AddLine(format("%s: %s", GUILD, GREEN..guildName),1,1,1)
+		AltoTooltip:AddLine(format("%s: %s", GUILD, colors.green..guildName),1,1,1)
 	end
 	
 	AltoTooltip:AddLine(EXPERIENCE_COLON .. " " 
-				.. GREEN .. DS:GetXP(character) .. WHITE .. "/" 
-				.. GREEN .. DS:GetXPMax(character) .. WHITE .. " (" 
-				.. GREEN .. DS:GetXPRate(character) .. "%"
-				.. WHITE .. ")",1,1,1);	
+				.. colors.green .. DS:GetXP(character) .. colors.white .. "/" 
+				.. colors.green .. DS:GetXPMax(character) .. colors.white .. " (" 
+				.. colors.green .. DS:GetXPRate(character) .. "%"
+				.. colors.white .. ")",1,1,1);	
 	
 	local restXP = DS:GetRestXP(character)
 	if restXP and restXP > 0 then
-		AltoTooltip:AddLine(format("%s: %s", L["Rest XP"], GREEN..restXP),1,1,1)
+		AltoTooltip:AddLine(format("%s: %s", L["Rest XP"], colors.green..restXP),1,1,1)
 	end
 
 	local suggestion = addon:GetSuggestion("Leveling", DS:GetCharacterLevel(character))
 	if suggestion then
 		AltoTooltip:AddLine(" ",1,1,1);
 		AltoTooltip:AddLine(L["Suggested leveling zone: "],1,1,1);
-		AltoTooltip:AddLine(TEAL .. suggestion,1,1,1);
+		AltoTooltip:AddLine(colors.teal .. suggestion,1,1,1);
 	end
 
 	-- parse saved instances
@@ -387,7 +382,7 @@ function ns:Level_OnEnter(frame)
 				end
 				
 				local instanceName, instanceID = strsplit("|", key)
-				AltoTooltip:AddDoubleLine(format("%s (%sID: %s|r)", GOLD..instanceName, WHITE, GREEN..instanceID), addon:GetTimeString(expiresIn))
+				AltoTooltip:AddDoubleLine(format("%s (%sID: %s|r)", colors.gold..instanceName, colors.white, colors.green..instanceID), addon:GetTimeString(expiresIn))
 			end
 		end
 	end
@@ -398,10 +393,10 @@ function ns:Level_OnEnter(frame)
 	-- local hk, dk, arena, honor = DS:GetStats(character, "PVP")
 	
 	-- AltoTooltip:AddLine(" ",1,1,1);
-	-- AltoTooltip:AddDoubleLine(WHITE.. L["Arena points: "] .. GREEN .. arena, "HK: " .. GREEN .. hk )
-	-- AltoTooltip:AddDoubleLine(WHITE.. L["Honor points: "] .. GREEN .. honor, "DK: " .. GREEN .. dk )
+	-- AltoTooltip:AddDoubleLine(colors.white.. L["Arena points: "] .. colors.green .. arena, "HK: " .. colors.green .. hk )
+	-- AltoTooltip:AddDoubleLine(colors.white.. L["Honor points: "] .. colors.green .. honor, "DK: " .. colors.green .. dk )
 	AltoTooltip:AddLine(" ",1,1,1);
-	AltoTooltip:AddLine(GREEN .. L["Right-Click for options"]);
+	AltoTooltip:AddLine(colors.green .. L["Right-Click for options"]);
 	AltoTooltip:Show();
 end
 
@@ -446,7 +441,7 @@ function ns:AIL_OnEnter(frame)
 	AltoTooltip:ClearLines();
 	AltoTooltip:SetOwner(frame, "ANCHOR_RIGHT");
 	AltoTooltip:AddLine(DS:GetColoredCharacterName(character),1,1,1);
-	AltoTooltip:AddLine(WHITE .. L["Average Item Level"] ..": " .. GREEN.. format("%.1f", DS:GetAverageItemLevel(character)),1,1,1);
+	AltoTooltip:AddLine(colors.white .. L["Average Item Level"] ..": " .. colors.green.. format("%.1f", DS:GetAverageItemLevel(character)),1,1,1);
 
 	addon:AiLTooltip()
 	AltoTooltip:Show();
@@ -456,53 +451,53 @@ function addon:AiLTooltip()
 	local tooltip = AltoTooltip
 	
 	tooltip:AddLine(" ",1,1,1);
-	-- tooltip:AddLine(TEAL .. L["Level"] .. " 60",1,1,1);
-	-- tooltip:AddDoubleLine(YELLOW .. "58-63", WHITE .. "Tier 0")
-	-- tooltip:AddDoubleLine(YELLOW .. "66", WHITE .. "Tier 1")
-	-- tooltip:AddDoubleLine(YELLOW .. "76", WHITE .. "Tier 2")
-	-- tooltip:AddDoubleLine(YELLOW .. "86-92", WHITE .. "Tier 3")
+	-- tooltip:AddLine(colors.teal .. L["Level"] .. " 60",1,1,1);
+	-- tooltip:AddDoubleLine(colors.yellow .. "58-63", colors.white .. "Tier 0")
+	-- tooltip:AddDoubleLine(colors.yellow .. "66", colors.white .. "Tier 1")
+	-- tooltip:AddDoubleLine(colors.yellow .. "76", colors.white .. "Tier 2")
+	-- tooltip:AddDoubleLine(colors.yellow .. "86-92", colors.white .. "Tier 3")
 	-- tooltip:AddLine(" ",1,1,1);
 	
-	-- tooltip:AddLine(TEAL .. L["Level"] .. " 70",1,1,1);
-	-- tooltip:AddDoubleLine(YELLOW .. "115", WHITE .. GetMapNameByID(799))	-- "Karazhan"
-	-- tooltip:AddDoubleLine(YELLOW .. "120", WHITE .. "Tier 4")
-	-- tooltip:AddDoubleLine(YELLOW .. "128", WHITE .. GetMapNameByID(781))	-- "Zul'Aman"
-	-- tooltip:AddDoubleLine(YELLOW .. "133", WHITE .. "Tier 5")
-	-- tooltip:AddDoubleLine(YELLOW .. "146-154", WHITE .. "Tier 6")
+	-- tooltip:AddLine(colors.teal .. L["Level"] .. " 70",1,1,1);
+	-- tooltip:AddDoubleLine(colors.yellow .. "115", colors.white .. GetMapNameByID(799))	-- "Karazhan"
+	-- tooltip:AddDoubleLine(colors.yellow .. "120", colors.white .. "Tier 4")
+	-- tooltip:AddDoubleLine(colors.yellow .. "128", colors.white .. GetMapNameByID(781))	-- "Zul'Aman"
+	-- tooltip:AddDoubleLine(colors.yellow .. "133", colors.white .. "Tier 5")
+	-- tooltip:AddDoubleLine(colors.yellow .. "146-154", colors.white .. "Tier 6")
 	-- tooltip:AddLine(" ",1,1,1);
 
-	tooltip:AddLine(TEAL .. L["Level"] .. " 80",1,1,1);
-	tooltip:AddDoubleLine(YELLOW .. "200", WHITE .. GetMapNameByID(535) .. " (10)")	-- "Naxxramas"
-	tooltip:AddDoubleLine(YELLOW .. "213", WHITE .. GetMapNameByID(535) .. " (25)")
-	tooltip:AddDoubleLine(YELLOW .. "200-219", WHITE .. GetMapNameByID(542))		-- "Trial of the Champion"
-	tooltip:AddDoubleLine(YELLOW .. "219", WHITE .. GetMapNameByID(529) .. " (10)")	-- "Ulduar"
-	tooltip:AddDoubleLine(YELLOW .. "226-239", WHITE .. GetMapNameByID(529) .. " (25)")
-	tooltip:AddDoubleLine(YELLOW .. "232-258", WHITE .. GetMapNameByID(543) .. " (10)")		-- "Trial of the Crusader"
-	tooltip:AddDoubleLine(YELLOW .. "245-272", WHITE .. GetMapNameByID(543) .. " (25)")
-	tooltip:AddDoubleLine(YELLOW .. "251-271", WHITE .. GetMapNameByID(604) .. " (10)")		-- "Icecrown Citadel"
-	tooltip:AddDoubleLine(YELLOW .. "264-284", WHITE .. GetMapNameByID(604) .. " (25)")
+	tooltip:AddLine(colors.teal .. L["Level"] .. " 80",1,1,1);
+	tooltip:AddDoubleLine(colors.yellow .. "200", colors.white .. GetMapNameByID(535) .. " (10)")	-- "Naxxramas"
+	tooltip:AddDoubleLine(colors.yellow .. "213", colors.white .. GetMapNameByID(535) .. " (25)")
+	tooltip:AddDoubleLine(colors.yellow .. "200-219", colors.white .. GetMapNameByID(542))		-- "Trial of the Champion"
+	tooltip:AddDoubleLine(colors.yellow .. "219", colors.white .. GetMapNameByID(529) .. " (10)")	-- "Ulduar"
+	tooltip:AddDoubleLine(colors.yellow .. "226-239", colors.white .. GetMapNameByID(529) .. " (25)")
+	tooltip:AddDoubleLine(colors.yellow .. "232-258", colors.white .. GetMapNameByID(543) .. " (10)")		-- "Trial of the Crusader"
+	tooltip:AddDoubleLine(colors.yellow .. "245-272", colors.white .. GetMapNameByID(543) .. " (25)")
+	tooltip:AddDoubleLine(colors.yellow .. "251-271", colors.white .. GetMapNameByID(604) .. " (10)")		-- "Icecrown Citadel"
+	tooltip:AddDoubleLine(colors.yellow .. "264-284", colors.white .. GetMapNameByID(604) .. " (25)")
 	tooltip:AddLine(" ",1,1,1);
 	
-	tooltip:AddLine(TEAL .. L["Level"] .. " 85",1,1,1);
-	tooltip:AddDoubleLine(YELLOW .. "333", format("%s%s: %s", WHITE, CALENDAR_TYPE_DUNGEON, PLAYER_DIFFICULTY1))
-	tooltip:AddDoubleLine(YELLOW .. "346", format("%s%s: %s", WHITE, CALENDAR_TYPE_DUNGEON, PLAYER_DIFFICULTY2))
-	tooltip:AddDoubleLine(YELLOW .. "359", format("%s%s: %s", WHITE, CALENDAR_TYPE_RAID, PLAYER_DIFFICULTY1))
-	tooltip:AddDoubleLine(YELLOW .. "372", format("%s%s: %s", WHITE, CALENDAR_TYPE_RAID, PLAYER_DIFFICULTY2))
+	tooltip:AddLine(colors.teal .. L["Level"] .. " 85",1,1,1);
+	tooltip:AddDoubleLine(colors.yellow .. "333", format("%s%s: %s", colors.white, CALENDAR_TYPE_DUNGEON, PLAYER_DIFFICULTY1))
+	tooltip:AddDoubleLine(colors.yellow .. "346", format("%s%s: %s", colors.white, CALENDAR_TYPE_DUNGEON, PLAYER_DIFFICULTY2))
+	tooltip:AddDoubleLine(colors.yellow .. "359", format("%s%s: %s", colors.white, CALENDAR_TYPE_RAID, PLAYER_DIFFICULTY1))
+	tooltip:AddDoubleLine(colors.yellow .. "372", format("%s%s: %s", colors.white, CALENDAR_TYPE_RAID, PLAYER_DIFFICULTY2))
 	
-	tooltip:AddLine(TEAL .. L["Level"] .. " 90",1,1,1);
-	tooltip:AddDoubleLine(YELLOW .. "358", format("%s%s: %s", WHITE, CALENDAR_TYPE_DUNGEON, PLAYER_DIFFICULTY1))
-	tooltip:AddDoubleLine(YELLOW .. "425", format("%s%s: %s", WHITE, GUILD_CHALLENGE_TYPE4, PLAYER_DIFFICULTY1))
-	tooltip:AddDoubleLine(YELLOW .. "435", format("%s%s: %s", WHITE, CALENDAR_TYPE_DUNGEON, PLAYER_DIFFICULTY2))
-	tooltip:AddDoubleLine(YELLOW .. "480", format("%s%s: %s", WHITE, GUILD_CHALLENGE_TYPE4, PLAYER_DIFFICULTY2))
+	tooltip:AddLine(colors.teal .. L["Level"] .. " 90",1,1,1);
+	tooltip:AddDoubleLine(colors.yellow .. "358", format("%s%s: %s", colors.white, CALENDAR_TYPE_DUNGEON, PLAYER_DIFFICULTY1))
+	tooltip:AddDoubleLine(colors.yellow .. "425", format("%s%s: %s", colors.white, GUILD_CHALLENGE_TYPE4, PLAYER_DIFFICULTY1))
+	tooltip:AddDoubleLine(colors.yellow .. "435", format("%s%s: %s", colors.white, CALENDAR_TYPE_DUNGEON, PLAYER_DIFFICULTY2))
+	tooltip:AddDoubleLine(colors.yellow .. "480", format("%s%s: %s", colors.white, GUILD_CHALLENGE_TYPE4, PLAYER_DIFFICULTY2))
 	tooltip:AddLine(" ",1,1,1);
-	tooltip:AddDoubleLine(YELLOW .. "460", format("%s%s: %s", WHITE, GetMapNameByID(896), PLAYER_DIFFICULTY3))	-- "Mogu'shan Vaults"
-	tooltip:AddDoubleLine(YELLOW .. "470", format("%s%s: %s", WHITE, GetMapNameByID(897), PLAYER_DIFFICULTY3))	-- "Heart of Fear"
-	tooltip:AddDoubleLine(YELLOW .. "470", format("%s%s: %s", WHITE, GetMapNameByID(886), PLAYER_DIFFICULTY3))	-- "Terrace of Endless Spring"
-	tooltip:AddDoubleLine(YELLOW .. "480", format("%s%s: %s", WHITE, GetMapNameByID(930), PLAYER_DIFFICULTY3))	-- "Throne of Thunder"
-	tooltip:AddDoubleLine(YELLOW .. "496", format("%s%s: %s", WHITE, GetMapNameByID(953), PLAYER_DIFFICULTY3))	-- "Siege of Ogrimmar"
-	tooltip:AddDoubleLine(YELLOW .. "510", format("%s%s: %s", WHITE, GetMapNameByID(953), "10"))
-	tooltip:AddDoubleLine(YELLOW .. "520", format("%s%s: %s", WHITE, GetMapNameByID(953), PLAYER_DIFFICULTY4))
-	tooltip:AddDoubleLine(YELLOW .. "530", format("%s%s: %s", WHITE, GetMapNameByID(953), "25"))
+	tooltip:AddDoubleLine(colors.yellow .. "460", format("%s%s: %s", colors.white, GetMapNameByID(896), PLAYER_DIFFICULTY3))	-- "Mogu'shan Vaults"
+	tooltip:AddDoubleLine(colors.yellow .. "470", format("%s%s: %s", colors.white, GetMapNameByID(897), PLAYER_DIFFICULTY3))	-- "Heart of Fear"
+	tooltip:AddDoubleLine(colors.yellow .. "470", format("%s%s: %s", colors.white, GetMapNameByID(886), PLAYER_DIFFICULTY3))	-- "Terrace of Endless Spring"
+	tooltip:AddDoubleLine(colors.yellow .. "480", format("%s%s: %s", colors.white, GetMapNameByID(930), PLAYER_DIFFICULTY3))	-- "Throne of Thunder"
+	tooltip:AddDoubleLine(colors.yellow .. "496", format("%s%s: %s", colors.white, GetMapNameByID(953), PLAYER_DIFFICULTY3))	-- "Siege of Ogrimmar"
+	tooltip:AddDoubleLine(colors.yellow .. "510", format("%s%s: %s", colors.white, GetMapNameByID(953), "10"))
+	tooltip:AddDoubleLine(colors.yellow .. "520", format("%s%s: %s", colors.white, GetMapNameByID(953), PLAYER_DIFFICULTY4))
+	tooltip:AddDoubleLine(colors.yellow .. "530", format("%s%s: %s", colors.white, GetMapNameByID(953), "25"))
 end
 
 function ns:RightClickMenu_OnLoad()
@@ -517,7 +512,7 @@ function ns:RightClickMenu_OnLoad()
 		local _, updatedWith = addon:GetLastAccountSharingInfo(realm, account)
 		
 		if updatedWith then
-			DDM_Add(format("Update from %s", GREEN..updatedWith), nil, UpdateRealm, characterInfoLine)
+			DDM_Add(format("Update from %s", colors.green..updatedWith), nil, UpdateRealm, characterInfoLine)
 		end
 		DDM_Add(L["Delete this Realm"], nil, DeleteRealm, characterInfoLine)
 		return

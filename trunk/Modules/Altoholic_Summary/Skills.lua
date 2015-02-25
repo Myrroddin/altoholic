@@ -1,25 +1,14 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
+local colors = addon.Colors
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-local BI = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 
 local INFO_REALM_LINE = 0
 local INFO_CHARACTER_LINE = 1
 local INFO_TOTAL_LINE = 2
 
 local SKILL_CAP = 700
-
-local WHITE		= "|cFFFFFFFF"
-local TEAL		= "|cFF00FF9A"
-local RED		= "|cFFFF0000"
-local ORANGE	= "|cFFFF7F00"
-local YELLOW	= "|cFFFFFF00"
-local GREEN		= "|cFF00FF00"
-
-local RECIPE_GREY		= "|cFF808080"
-local RECIPE_GREEN	= "|cFF40C040"
-local RECIPE_ORANGE	= "|cFFFF8040"
 
 local ICON_FACTION_HORDE = "Interface\\Icons\\INV_BannerPVP_01"
 local ICON_FACTION_ALLIANCE = "Interface\\Icons\\INV_BannerPVP_02"
@@ -43,7 +32,7 @@ function ns:Update()
 	
 	local DS = DataStore
 	
-	local offset = FauxScrollFrame_GetOffset( _G[ frame.."ScrollFrame" ] );
+	local offset = addon.ScrollFrames:GetOffset( _G[ frame.."ScrollFrame" ] );
 	local DisplayedCount = 0
 	local VisibleCount = 0
 	local DrawRealm
@@ -81,10 +70,10 @@ function ns:Update()
 				_G[entry..i.."Name"]:SetPoint("TOPLEFT", 25, 0)
 				_G[entry..i.."NameNormalText"]:SetWidth(300)
 				if account == "Default" then	-- saved as default, display as localized.
-					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", realm, WHITE, GREEN, L["Default"]))
+					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", realm, colors.white, colors.green, L["Default"]))
 				else
 					local last = addon:GetLastAccountSharingInfo(realm, account)
-					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", realm, WHITE, GREEN, account, YELLOW, last or ""))
+					_G[entry..i.."NameNormalText"]:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", realm, colors.white, colors.green, account, colors.yellow, last or ""))
 				end
 				_G[entry..i.."Level"]:SetText("")
 				_G[entry..i.."Skill1NormalText"]:SetText("")
@@ -115,7 +104,7 @@ function ns:Update()
 					_G[entry..i.."Name"]:SetPoint("TOPLEFT", 10, 0)
 					_G[entry..i.."NameNormalText"]:SetWidth(170)
 					_G[entry..i.."NameNormalText"]:SetText(icon .. format("%s (%s)", DS:GetColoredCharacterName(character), DS:GetCharacterClass(character)))
-					_G[entry..i.."Level"]:SetText(GREEN .. DS:GetCharacterLevel(character))
+					_G[entry..i.."Level"]:SetText(colors.green .. DS:GetCharacterLevel(character))
 
 					-- profession 1
 					local field = Characters:GetField(line, "spellID1")
@@ -180,7 +169,7 @@ function ns:Update()
 		i = i + 1
 	end
 
-	FauxScrollFrame_Update( _G[ frame.."ScrollFrame" ], VisibleCount, VisibleLines, 18);
+	addon.ScrollFrames:Update( AltoholicFrameSkills.ScrollFrame, VisibleCount, VisibleLines, 18)
 end	
 
 function ns:OnEnter(frame)
@@ -226,7 +215,7 @@ function ns:OnEnter(frame)
 	AltoTooltip:ClearLines();
 	AltoTooltip:SetOwner(frame, "ANCHOR_RIGHT");
 	AltoTooltip:AddLine(skillName,1,1,1);
-	AltoTooltip:AddLine(GREEN..rank,1,1,1);
+	AltoTooltip:AddLine(colors.green..rank,1,1,1);
 	
 	if id <= 4 then	-- all skills except fishing & riding
 		if DataStore:GetProfessionSpellID(skillName) ~= 2366 and skillName ~= GetSpellInfo(8613) then		-- no display for herbalism & skinning
@@ -244,25 +233,25 @@ function ns:OnEnter(frame)
 				local orange, yellow, green, grey = DS:GetNumRecipesByColor(profession)
 				
 				AltoTooltip:AddLine(orange+yellow+green+grey .. " " .. TRADESKILL_SERVICE_LEARN,1,1,1);
-				AltoTooltip:AddLine(format(WHITE .. "%d " .. RECIPE_GREEN .. "Green|r /" 
-					..	WHITE .. " %d " .. YELLOW .. "Yellow|r /" 
-					..	WHITE .. " %d " .. RECIPE_ORANGE .. "Orange", 
-					green, yellow, orange))
+				AltoTooltip:AddLine(format("%s%d %s%s|r / %s%d %s%s|r / %s%d %s%s",
+					colors.white, green, colors.recipeGreen, L["COLOR_GREEN"],
+					colors.white, yellow, colors.yellow, L["COLOR_YELLOW"],
+					colors.white, orange, colors.recipeOrange, L["COLOR_ORANGE"]))
 			end
 		end
 	end
 	
 	AltoTooltip:AddLine(" ");
-	AltoTooltip:AddLine(RECIPE_GREY .. L["Grey"] .. "|r " .. L["up to"] .. " " .. (floor(SKILL_CAP*0.25)-1),1,1,1);
-	AltoTooltip:AddLine(RED .. RED_GEM .. "|r " .. L["up to"] .. " " .. (floor(SKILL_CAP*0.50)-1),1,1,1);
-	AltoTooltip:AddLine(ORANGE .. BI["Orange"] .. "|r " .. L["up to"] .. " " .. (floor(SKILL_CAP*0.75)-1),1,1,1);
-	AltoTooltip:AddLine(YELLOW .. YELLOW_GEM .. "|r " .. L["up to"] .. " " .. (SKILL_CAP-1),1,1,1);
-	AltoTooltip:AddLine(GREEN .. BI["Green"] .. "|r " .. L["at"] .. " "..SKILL_CAP.." " .. L["and above"],1,1,1);
+	AltoTooltip:AddLine(colors.recipeGrey .. L["COLOR_GREY"] .. "|r " .. L["up to"] .. " " .. (floor(SKILL_CAP*0.25)-1),1,1,1);
+	AltoTooltip:AddLine(colors.red .. RED_GEM .. "|r " .. L["up to"] .. " " .. (floor(SKILL_CAP*0.50)-1),1,1,1);
+	AltoTooltip:AddLine(colors.orange .. L["COLOR_ORANGE"] .. "|r " .. L["up to"] .. " " .. (floor(SKILL_CAP*0.75)-1),1,1,1);
+	AltoTooltip:AddLine(colors.yellow .. YELLOW_GEM .. "|r " .. L["up to"] .. " " .. (SKILL_CAP-1),1,1,1);
+	AltoTooltip:AddLine(colors.green .. L["COLOR_GREEN"] .. "|r " .. L["at"] .. " "..SKILL_CAP.." " .. L["and above"],1,1,1);
 
 	if suggestion then
 		AltoTooltip:AddLine(" ",1,1,1);
 		AltoTooltip:AddLine(L["Suggestion"] .. ": ",1,1,1);
-		AltoTooltip:AddLine(TEAL .. suggestion,1,1,1);
+		AltoTooltip:AddLine(colors.teal .. suggestion,1,1,1);
 	end
 	
 	-- parse profession cooldowns
@@ -340,7 +329,7 @@ function ns:OnClick(frame, button)
 	addon.Tabs.Characters:SetCurrentProfession(skillName)
 end
 
-local skillColors = { RECIPE_GREY, RED, ORANGE, YELLOW, GREEN }
+local skillColors = { colors.recipeGrey, colors.red, colors.orange, colors.yellow, colors.green }
 
 function ns:GetColor(rank, skillCap)
 	skillCap = skillCap or SKILL_CAP
