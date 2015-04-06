@@ -82,25 +82,25 @@
 		</Anchors>
 		<Scripts>
 			<OnLoad>
-				self:RegisterForDrag("LeftButton");
-				self.elapsed = 0;
-				PanelTemplates_SetNumTabs(AltoholicFrame, 7);
-				PanelTemplates_SetTab(AltoholicFrame, 1);
+				self:RegisterForDrag("LeftButton")
+				self.elapsed = 0
+				PanelTemplates_SetNumTabs(AltoholicFrame, 7)
+				PanelTemplates_SetTab(AltoholicFrame, 1)
 			</OnLoad>
 			<OnDragStart>
-				self:StartMoving();
-				self.isMoving = true;
+				self:StartMoving()
+				self.isMoving = true
 			</OnDragStart>
 			<OnDragStop>
-				self:StopMovingOrSizing();
-				self.isMoving = false;
+				self:StopMovingOrSizing()
+				self.isMoving = false
 			</OnDragStop>
 			<OnShow>
-				Altoholic:OnShow();
-				PlaySound("UChatScrollButton");
+				Altoholic:OnShow()
+				PlaySound("UChatScrollButton")
 			</OnShow>
 			<OnHide>
-				PlaySound("UChatScrollButton");
+				PlaySound("UChatScrollButton")
 			</OnHide>
 		</Scripts>
 		<Layers>
@@ -160,26 +160,26 @@
 				<FontString name="$parentTotals" inherits="GameFontNormal" >
 					<Size x="60" y="24" />
 					<Anchors>
-						<Anchor point="BOTTOMRIGHT" x="-250" y="13" />
+						<Anchor point="BOTTOMRIGHT" x="-270" y="13" />
 					</Anchors>
 				</FontString>
 				<FontString name="$parentTotalLv" inherits="GameFontNormal" justifyH="RIGHT">
 					<Size x="80" y="24" />
 					<Anchors>
-						<Anchor point="BOTTOMRIGHT" x="-185" y="13" />
+						<Anchor point="BOTTOMRIGHT" x="-200" y="13" />
 					</Anchors>
 				</FontString>
 				<FontString name="$parentTotalGold" inherits="GameFontNormal" justifyH="RIGHT">
-					<Size x="80" y="24" />
+					<Size x="100" y="24" />
 					<Anchors>
-						<Anchor point="BOTTOMRIGHT" x="-100" y="13" />
+						<Anchor point="BOTTOMRIGHT" x="-120" y="13" />
 					</Anchors>
 					<Color r="255" g="255" b="255" />
 				</FontString>
 				<FontString name="$parentTotalPlayed" inherits="GameFontNormal" justifyH="RIGHT">
 					<Size x="80" y="24" />
 					<Anchors>
-						<Anchor point="BOTTOMRIGHT" x="-20" y="13" />
+						<Anchor point="BOTTOMRIGHT" x="-30" y="13" />
 					</Anchors>
 					<Color r="255" g="255" b="255" />
 				</FontString>

@@ -11,11 +11,6 @@ TabSummary.xml
 Characters.lua
 
 AccountSummary.xml
-Activity.xml
-BagUsage.xml
-Currencies.xml
-GarrisonFollowers.xml
-Skills.xml
 
 Data\Suggestions_enUS.lua
 Data\Suggestions_deDE.lua

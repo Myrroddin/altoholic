@@ -428,12 +428,12 @@ function ns:CheckExpiries(elapsed)
 		end
 	end
 	
-	if hasEventExpired then		-- if at least one event has expired, rebuild the list & refresh
+	if hasEventExpired then		-- if at least one event has expired, rebuild the list & Update
 		ClearExpiredEvents()
 		
 		-- should be removed, nothing to do here
 		-- nsEvents:BuildView()
-		-- Altoholic.Tabs.Summary:Refresh()
+		-- Altoholic.Summary:Update()
 	end
 end
 

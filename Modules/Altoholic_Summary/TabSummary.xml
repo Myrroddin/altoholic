@@ -219,6 +219,11 @@
 			<OnLoad>
 				Altoholic.Tabs.Summary:OnLoad()
 			</OnLoad>
+			<OnShow>
+				if Altoholic.Summary then
+					Altoholic.Summary:Update()
+				end
+			</OnShow>
 			<OnHide>
 				DropDownList1:Hide()
 			</OnHide>

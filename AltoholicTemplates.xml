@@ -261,7 +261,7 @@
 			</Anchors>
 		</ButtonText>
 		<NormalFont style="GameFontHighlightSmall"/>
-		<NormalTexture name="$parentArrow" file="Interface\Buttons\UI-SortArrow">
+		<NormalTexture parentKey="Arrow" file="Interface\Buttons\UI-SortArrow">
 			<Size x="9" y="8" />
 			<Anchors>
 				<Anchor point="LEFT" relativeTo="$parentText" relativePoint="RIGHT" x="3" y="-2" />
@@ -277,7 +277,7 @@
 		</HighlightTexture>
 		<Scripts>
 			<OnLoad>
-				_G[ self:GetName() .."Arrow" ]:Hide()
+				self.Arrow:Hide()
 			</OnLoad>
 		</Scripts>
 	</Button>

@@ -368,24 +368,18 @@ end
 
 function addon:ToggleUI()
 	if (AltoholicFrame:IsVisible()) then
-		AltoholicFrame:Hide();
+		AltoholicFrame:Hide()
 	else
-		AltoholicFrame:Show();
+		AltoholicFrame:Show()
 	end
 end
 
 function addon:OnShow()
-	SetPortraitTexture(AltoholicFramePortrait, "player");	
+	SetPortraitTexture(AltoholicFramePortrait, "player")
 	
 	if not addon.Tabs.current then
-		addon.Tabs:OnClick(1)
-		addon.Characters:BuildList()
-		addon.Characters:BuildView()
-		addon.Tabs.Summary:MenuItem_OnClick(1)
-	elseif addon.Tabs.current == 1 then
-		addon.Characters:BuildList()
-		addon.Characters:BuildView()
-		addon.Tabs.Summary:Refresh()
+		addon.Tabs:OnClick("Summary")
+		addon.Tabs.Summary:MenuItem_OnClick(addon:GetOption("UI.Tabs.Summary.CurrentMode"))
 	end
 end
 

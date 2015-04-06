@@ -14,18 +14,7 @@ local THISREALM_ALLACCOUNTS = 2
 local ALLREALMS_THISACCOUNT = 3
 local ALLREALMS_ALLACCOUNTS = 4
 
-local currentMode
-
-local childrenFrames = {
-	"Summary",
-	"BagUsage",
-	"Skills",
-	"Activity",
-	"Currencies",
-	"GarrisonFollowers",
-}
-
-local childrenObjects		-- these are the tables that actually contain the BuildView & Update methods. Not really OOP, but enough for our needs
+local NUM_MENU_ITEMS = 6
 
 addon.Tabs.Summary = {}
 
@@ -42,9 +31,8 @@ local function OnRealmFilterChange(self)
 	UIDropDownMenu_SetSelectedValue(AltoholicTabSummary_SelectLocation, self.value);
 	
 	addon:SetOption(OPTION_REALMS, self.value)
-	addon.Characters:BuildList()
-	addon.Characters:BuildView()
-	ns:Refresh()
+	addon.Characters:InvalidateView()
+	addon.Summary:Update()
 end
 
 local function DropDownLocation_Initialize()
@@ -80,136 +68,13 @@ local function DropDownLocation_Initialize()
 end
 
 function ns:MenuItem_OnClick(id)
-	childrenObjects = childrenObjects or {
-		addon.Summary,
-		addon.BagUsage,
-		addon.TradeSkills,
-		addon.Activity,
-		addon.Currencies,
-		addon.GarrisonFollowers,
-	}
-
-	for _, v in pairs(childrenFrames) do			-- hide all frames
-		_G[ "AltoholicFrame" .. v]:Hide()
-	end
-
-	ns:SetMode(id)
+	addon.Summary:SetMode(id)
+	addon.Summary:Update()
 	
-	local f = _G[ "AltoholicFrame" .. childrenFrames[id]]
-	local o = childrenObjects[id]
-	
-	if o.BuildView then
-		o:BuildView()
-	end
-	f:Show()
-	o:Update()
-	
-	for i=1, #childrenFrames do 
+	for i=1, NUM_MENU_ITEMS do 
 		AltoholicTabSummary["MenuItem"..i]:UnlockHighlight()
 	end
 	AltoholicTabSummary["MenuItem"..id]:LockHighlight()
-end
-
-function ns:SetMode(mode)
-	currentMode = mode
-	
-	AltoholicTabSummaryStatus:SetText("")
-	AltoholicTabSummaryToggleView:Show()
-	AltoholicTabSummary_SelectLocation:Show()
-	AltoholicTabSummary_RequestSharing:Show()
-	AltoholicTabSummary_Options:Show()
-	AltoholicTabSummary_OptionsDataStore:Show()
-	
-	local Columns = addon.Tabs.Columns
-	Columns:Init()
-	
-	local title
-
-	if currentMode == 1 then
-		Columns:Add(NAME, 100, function(self) addon.Characters:Sort(self, "GetCharacterName") end)
-		Columns:Add(LEVEL, 60, function(self) addon.Characters:Sort(self, "GetCharacterLevel")	end)
-		Columns:Add(MONEY, 115, function(self)	addon.Characters:Sort(self, "GetMoney") end)
-		Columns:Add(PLAYED, 105, function(self) addon.Characters:Sort(self, "GetPlayTime") end)
-		Columns:Add(XP, 55, function(self) addon.Characters:Sort(self, "GetXPRate") end)
-		Columns:Add(TUTORIAL_TITLE26, 70, function(self) addon.Characters:Sort(self, "GetRestXPRate") end)
-		Columns:Add("AiL", 55, function(self) addon.Characters:Sort(self, "GetAverageItemLevel")	end)
-	
-	elseif currentMode == 2 then
-		Columns:Add(NAME, 100, function(self) addon.Characters:Sort(self, "GetCharacterName") end)
-		Columns:Add(LEVEL, 60, function(self) addon.Characters:Sort(self, "GetCharacterLevel") end)
-		Columns:Add(L["Bags"], 120, function(self) addon.Characters:Sort(self, "GetNumBagSlots") end)
-		Columns:Add(L["free"], 50, function(self) addon.Characters:Sort(self, "GetNumFreeBagSlots") end)
-		Columns:Add(L["Bank"], 190, function(self) addon.Characters:Sort(self, "GetNumBankSlots") end)
-		Columns:Add(L["free"], 50, function(self)	addon.Characters:Sort(self, "GetNumFreeBankSlots")	end)
-		
-	elseif currentMode == 3 then
-		Columns:Add(NAME, 100, function(self) addon.Characters:Sort(self, "GetCharacterName") end)
-		Columns:Add(LEVEL, 60, function(self) addon.Characters:Sort(self, "GetCharacterLevel") end)
-		Columns:Add(L["Prof. 1"], 65, function(self) addon.Characters:Sort(self, "skillName1") end)
-		Columns:Add(L["Prof. 2"], 65, function(self) addon.Characters:Sort(self, "skillName2") end)
-		title = GetSpellInfo(2550)		-- cooking
-		Columns:Add(title, 65, function(self) addon.Characters:Sort(self, "GetCookingRank") end)
-		title = GetSpellInfo(3273)		-- First Aid
-		Columns:Add(title, 65, function(self) addon.Characters:Sort(self, "GetFirstAidRank") end)
-		title = GetSpellInfo(131474)	-- Fishing
-		Columns:Add(title, 65, function(self) addon.Characters:Sort(self, "GetFishingRank") end)
-		title = string.sub(GetSpellInfo(78670), 1, 4)	-- Archaeology
-		Columns:Add(title, 65, function(self) addon.Characters:Sort(self, "GetArchaeologyRank") end)
-		
-	elseif currentMode == 4 then
-		Columns:Add(NAME, 100, function(self) addon.Characters:Sort(self, "GetCharacterName") end)
-		Columns:Add(LEVEL, 60, function(self) addon.Characters:Sort(self, "GetCharacterLevel") end)
-		Columns:Add(L["Mails"], 60, function(self) addon.Characters:Sort(self, "GetNumMails") end)
-		Columns:Add(L["Visited"], 60, function(self) addon.Characters:Sort(self, "GetMailboxLastVisit") end)
-		Columns:Add(AUCTIONS, 70, function(self) addon.Characters:Sort(self, "GetNumAuctions") end)
-		Columns:Add(BIDS, 60, function(self) addon.Characters:Sort(self, "GetNumBids") end)
-		Columns:Add(L["Visited"], 60, function(self) addon.Characters:Sort(self, "GetAuctionHouseLastVisit") end)
-		Columns:Add(LASTONLINE, 90, function(self) addon.Characters:Sort(self, "GetLastLogout") end)
-	
-	elseif currentMode == 5 then
-		Columns:Add(NAME, 100, function(self) addon.Characters:Sort(self, "GetCharacterName") end)
-		Columns:Add(LEVEL, 60, function(self) addon.Characters:Sort(self, "GetCharacterLevel") end)
-		
-		local icon = "Interface\\Icons\\inv_garrison_resource"
-		Columns:Add("   " .. addon:TextureToFontstring(icon, 18, 18), 80, function(self) addon.Characters:Sort(self, "GetGarrisonResources") end)
-		
-		icon = "Interface\\Icons\\inv_apexis_draenor"
-		Columns:Add("        " .. addon:TextureToFontstring(icon, 18, 18), 100, function(self) addon.Characters:Sort(self, "GetApexisCrystals") end)
-		
-		icon = "Interface\\Icons\\ability_animusorbs"
-		Columns:Add("   " .. addon:TextureToFontstring(icon, 18, 18), 60, function(self) addon.Characters:Sort(self, "GetSealsOfFate") end)
-		Columns:Add(L["Honor"], 80, function(self) addon.Characters:Sort(self, "GetHonorPoints") end)
-		Columns:Add(L["Conquest"], 80, function(self) addon.Characters:Sort(self, "GetConquestPoints") end)
-
-	elseif currentMode == 6 then
-		Columns:Add(NAME, 100, function(self) addon.Characters:Sort(self, "GetCharacterName") end)
-		Columns:Add(LEVEL, 60, function(self) addon.Characters:Sort(self, "GetCharacterLevel") end)
-		
-		Columns:Add("   #", 60, function(self) addon.Characters:Sort(self, "GetNumFollowers") end)
-		Columns:Add("Lv 100", 60, function(self) addon.Characters:Sort(self, "GetNumFollowersAtLevel100") end)
-		Columns:Add("Rare", 60, function(self) addon.Characters:Sort(self, "GetNumRareFollowers") end)
-		Columns:Add("Epic", 60, function(self) addon.Characters:Sort(self, "GetNumEpicFollowers") end)
-		Columns:Add("> 615", 60, function(self) addon.Characters:Sort(self, "GetNumFollowersAtiLevel615") end)
-		Columns:Add("> 630", 60, function(self) addon.Characters:Sort(self, "GetNumFollowersAtiLevel630") end)
-		Columns:Add("> 645", 60, function(self) addon.Characters:Sort(self, "GetNumFollowersAtiLevel645") end)
-		
-	end
-end
-
-function ns:Refresh()
-	if AltoholicFrameSummary:IsVisible() then
-		addon.Summary:Update()
-	elseif AltoholicFrameBagUsage:IsVisible() then
-		addon.BagUsage:Update()
-	elseif AltoholicFrameSkills:IsVisible() then
-		addon.TradeSkills:Update()
-	elseif AltoholicFrameActivity:IsVisible() then
-		addon.Activity:Update()
-	elseif AltoholicFrameCurrencies:IsVisible() then
-		addon.Currencies:Update()
-	elseif AltoholicFrameGarrisonFollowers:IsVisible() then
-		addon.GarrisonFollowers:Update()
-	end
 end
 
 function ns:ToggleView(frame)
@@ -221,10 +86,8 @@ function ns:ToggleView(frame)
 		AltoholicTabSummaryToggleView:SetNormalTexture("Interface\\Buttons\\UI-MinusButton-Up"); 
 	end
 
-	if (currentMode >= 1) and (currentMode <= 4) then
-		addon.Characters:ToggleView(frame)
-		ns:Refresh()
-	end
+	addon.Characters:ToggleView(frame)
+	addon.Summary:Update()
 end
 
 function ns:AccountSharingButton_OnEnter(self)
@@ -269,9 +132,8 @@ local function ResetAllData_MsgBox_Handler(self, button)
 	addon:Print(L["Information saved in DataStore has been completely deleted !"])
 	
 	-- rebuild the main character table, and all the menus
-	addon.Characters:BuildList()
-	addon.Characters:BuildView()
-	ns:Refresh()
+	addon.Characters:InvalidateView()
+	addon.Summary:Update()
 end
 
 local function ResetAllData()
