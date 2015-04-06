@@ -327,6 +327,10 @@ function ns:SetAlt(alt, realm, account)
 	UIDropDownMenu_SetSelectedValue(parent.SelectRealm, account .."|".. realm)
 end
 
+function ns:SetAltKey(key)
+	local account, realm, char = strsplit(".", key)
+	ns:SetAlt(char, realm, account)
+end
 
 -- ** Icon events **
 local function OnCharacterChange(self)

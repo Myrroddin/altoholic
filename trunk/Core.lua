@@ -4,8 +4,8 @@ _G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "A
 
 local addon = _G[addonName]
 
-addon.Version = "v6.1.001"
-addon.VersionNum = 601001
+addon.Version = "v6.1.002"
+addon.VersionNum = 601002
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local commPrefix = addonName
@@ -74,6 +74,8 @@ local AddonDB_Defaults = {
 		options = {
 			-- ** Summary tab options **
 			["UI.Tabs.Summary.ShowRestXP150pc"] = false,						-- display max rest xp in normal 100% mode or in level equivalent 150% mode ?
+			["UI.Tabs.Summary.CurrentMode"] = 1,								-- current mode (1 = account summary, 2 = bags, ...)
+			["UI.Tabs.Summary.CurrentColumn"] = "Name",						-- current column (default = "Name")
 			["UI.Tabs.Summary.CurrentRealms"] = 2,								-- selected realms (current/all in current/all accounts)
 			
 			-- ** Character tab options **
@@ -394,16 +396,14 @@ function addon.Tabs.Columns:Init()
 	local i = 1
 	local prefix = self.prefix or "AltoholicTabSummary_Sort"
 	local button = _G[ prefix .. i ]
-	local arrow = _G[ prefix .. i .. "Arrow"]
 	
 	while button do
-		arrow:Hide()
+		button.Arrow:Hide()
 		button.ascendingSort = nil		-- not sorted by default
 		button:Hide()
 		
 		i = i + 1
 		button = _G[ prefix .. i ]
-		arrow = _G[ prefix .. i .. "Arrow"]
 	end
 	self.count = 0
 	self.prefix = prefix
@@ -424,23 +424,23 @@ function addon.Tabs.Columns:Add(title, width, func)
 	button:SetScript("OnClick", function(self)
 			local prefix = addon.Tabs.Columns.prefix
 			local i = 1
-			local arrow = _G[ prefix .. i .. "Arrow"]
+			local btn = _G[prefix .. i]
 			
-			while arrow do		-- hide all arrows
-				arrow:Hide()
+			while btn do		-- hide all arrows
+				btn.Arrow:Hide()
 				i = i + 1
-				arrow = _G[ prefix .. i .. "Arrow"]
+				btn = _G[prefix .. i]
 			end
 
-			arrow = _G[ prefix .. self:GetID() .. "Arrow"]
-			arrow:Show()	-- show selected arrow
+			btn = _G[prefix .. self:GetID()]
+			btn.Arrow:Show()	-- show selected arrow
 			
 			if not self.ascendingSort then
 				self.ascendingSort = true
-				arrow:SetTexCoord(0, 0.5625, 1.0, 0);		-- arrow pointing up
+				btn.Arrow:SetTexCoord(0, 0.5625, 1.0, 0);		-- arrow pointing up
 			else
 				self.ascendingSort = nil
-				arrow:SetTexCoord(0, 0.5625, 0, 1.0);		-- arrow pointing down
+				btn.Arrow:SetTexCoord(0, 0.5625, 0, 1.0);		-- arrow pointing down
 			end
 	
 			if func then

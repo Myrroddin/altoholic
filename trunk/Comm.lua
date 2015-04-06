@@ -253,9 +253,8 @@ function Altoholic.Comm.Sharing:RequestNext(player)
 	
 	Altoholic:SetLastAccountSharingInfo(player, GetRealmName(), self.account)
 	
-	Altoholic.Characters:BuildList()
-	Altoholic.Characters:BuildView()
-	Altoholic.Tabs.Summary:Refresh()
+	Altoholic.Characters:InvalidateView()
+	Altoholic.Summary:Update()
 end
 
 function Altoholic.Comm.Sharing:MsgBoxHandler(button)

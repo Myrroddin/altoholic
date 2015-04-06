@@ -29,7 +29,7 @@
 				</Scripts>
 			</ScrollFrame>
 			
-			<Button parentKey="Entry1" inherits="AltoIconListEntryTemplate" id="1">
+			<Button parentKey="Entry1" inherits="AltoIconListEntryTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.ScrollFrame" relativePoint="TOPLEFT" x="3" y="3" />
 				</Anchors>

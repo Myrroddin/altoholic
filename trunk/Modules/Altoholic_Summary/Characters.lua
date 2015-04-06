@@ -18,6 +18,7 @@ local ns = addon.Characters		-- ns = namespace
 
 local characterList
 local view
+local isViewValid
 
 local function ProcessRealms(func)
 	local mode = addon:GetOption("UI.Tabs.Summary.CurrentRealms")
@@ -85,22 +86,7 @@ local function AddRealm(AccountName, RealmName)
 	
 	-- 2) Add the characters
 	for characterName, character in pairs(DataStore:GetCharacters(RealmName, AccountName)) do
-		local rank1, _, _, name1 = DataStore:GetProfession1(character)
-		local rank2, _, _, name2 = DataStore:GetProfession2(character)
-		
-		table.insert(characterList, { linetype = INFO_CHARACTER_LINE + (realmCount*3),
-			key = character,
-			skillName1 = name1,
-			skillRank1 = rank1,
-			spellID1 = DataStore:GetProfessionSpellID(name1),
-			skillName2 = name2,
-			skillRank2 = rank2,
-			spellID2 = DataStore:GetProfessionSpellID(name2),
-			cooking = DataStore:GetCookingRank(character),
-			firstaid = DataStore:GetFirstAidRank(character),
-			fishing = DataStore:GetFishingRank(character),
-			archa = DataStore:GetArchaeologyRank(character),
-		} )
+		table.insert(characterList, { linetype = INFO_CHARACTER_LINE + (realmCount*3), key = character } )
 
 		realmLevels = realmLevels + (DataStore:GetCharacterLevel(character) or 0)
 		realmMoney = realmMoney + (DataStore:GetMoney(character) or 0)
@@ -133,7 +119,7 @@ local function AddRealm(AccountName, RealmName)
 	realmCount = realmCount + 1
 end
 
-function ns:BuildList()
+local function BuildList()
 	characterList = characterList or {}
 	wipe(characterList)
 	
@@ -172,7 +158,7 @@ local function AddRealmView(AccountName, RealmName)
 	end
 end
 
-function ns:BuildView()
+local function BuildView()
 	-- The character info index is a small table that basically indexes character info
 	-- ex: character info contains data for 4 realms on two accounts, but the index only cares about the summary tab filter,
 	-- and indexes just one realm, or one account
@@ -180,25 +166,7 @@ function ns:BuildView()
 	wipe(view)
 	
 	ProcessRealms(AddRealmView)
-end
-
-local function SortByPrimarySkill(a, b, skillName, ascending)
-	if (a.linetype ~= b.linetype) then			-- sort by linetype first ..
-		return a.linetype < b.linetype
-	else													-- and when they're identical, sort  by field xx
-		if mod(a.linetype, 3) ~= INFO_CHARACTER_LINE then
-			return false		-- don't swap lines if they're not INFO_CHARACTER_LINE
-		end
-
-		local skillA = DataStore:GetProfessionInfo(DataStore:GetProfession(a.key, a[skillName]))
-		local skillB = DataStore:GetProfessionInfo(DataStore:GetProfession(b.key, b[skillName]))
-		
-		if ascending then
-			return skillA < skillB
-		else
-			return skillA > skillB
-		end
-	end
+	isViewValid = true
 end
 
 local function SortByFunction(a, b, func, ascending)
@@ -209,8 +177,8 @@ local function SortByFunction(a, b, func, ascending)
 			return false		-- don't swap lines if they're not INFO_CHARACTER_LINE
 		end
 
-		local retA = DataStore[func](self, a.key) or 0		-- set to zero if a return value is nil, so that they can be compared
-		local retB = DataStore[func](self, b.key) or 0
+		local retA = func(self, a.key) or 0		-- set to zero if a return value is nil, so that they can be compared
+		local retB = func(self, b.key) or 0
 		
 		if ascending then
 			return retA < retB
@@ -220,18 +188,11 @@ local function SortByFunction(a, b, func, ascending)
 	end
 end
 
-function ns:Sort(frame, field)
+function ns:Sort(frame, func)
 	local ascending = frame.ascendingSort
 
-	-- Primary Skill
-	if (field == "skillName1") or (field == "skillName2") then
-		table.sort(characterList, function(a, b) return SortByPrimarySkill(a, b, field, ascending)
-			end)
-	else
-		table.sort(characterList, function(a, b) return SortByFunction(a, b, field, ascending) end)
-	end
-
-	addon.Tabs.Summary:Refresh()
+	table.sort(characterList, function(a, b) return SortByFunction(a, b, func, ascending) end)
+	addon.Summary:Update()
 end
 
 function ns:Get(index)
@@ -239,7 +200,15 @@ function ns:Get(index)
 end
 
 function ns:GetView()
+	if not isViewValid then
+		BuildList()
+		BuildView()
+	end
 	return view
+end
+
+function ns:InvalidateView()
+	isViewValid = nil
 end
 
 function ns:GetNum()

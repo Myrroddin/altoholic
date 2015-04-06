@@ -9,6 +9,18 @@ This means cleaning the following files in \WTF\Account\<your_account>\SavedVari
 There WILL be bugs if you use your old files without cleaning them first. 
 Some fixes to work around API changes are too time consuming, so cleaning is required. A meager price to pay once per expansion.
 
+6.1.002 (06/04/2015)
+
+- Updated scanning of currencies (honor points), total no longer needs to be divided by 100 since 6.1.
+- Updated the garrison followers pane in the account summary to show followers with an iLvl greater than 660.
+- DataStore Characters: updated GetRestXPRate() to account for Pandaren extra rest xp.
+- Fixed Auction House scanning, and cleaning of expired auctions.
+- The summary tab has been fully rewritten so that all 6 panes use the same frames. 
+This will make the addition of future content much easier. 
+Some new features here and there while I was at it (quality of life improvements mostly), I'll let you discover them :)
+This is an update I wanted to do for a long time, and there are more things planned (more filters).. the other tabs will get an update too.
+
+
 6.1.001 (25/02/2015)
 
 - Added support for Garrison missions ! Warnings are not in yet, but available and active missions are now visible in the characters' tab.
