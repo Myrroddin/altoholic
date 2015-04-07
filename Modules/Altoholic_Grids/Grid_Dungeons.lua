@@ -232,19 +232,20 @@ local Dungeons = {
 			{ id = 767, achID = 8533 },	--	Ordos
 			{ id = 768, achID = 8535 },	--	Celestials
 		},
-		{	-- [7] Flex raids
-			name = format("%s - %s", RAIDS, GetDifficultyInfo(DIFFICULTY_RAID_FLEX)),
-			{ id = 771, achID = 8458, bosses = 4 },	--	Vale of Eternal Sorrows
-			{ id = 772, achID = 8459, bosses = 4 },	--	Gates of Retribution
-			{ id = 773, achID = 8461, bosses = 3 },	--	The Underhold
-			{ id = 774, achID = 8462, bosses = 3 },	--	Downfall
+	},
+	{	-- [6]
+		name = EXPANSION_NAME5,	-- "Warlords of Draenor"
+		{	-- [1] LFR Raids
+			name = format("%s - %s", RAIDS, GetDifficultyInfo(DIFFICULTY_RAID_LFR)),
+			{ id = 849, achID = 8986, bosses = 3 },	--	Walled City
+			{ id = 850, achID = 8987, bosses = 3 },	--	Arcane Sanctum
+			{ id = 851, achID = 8988, bosses = 1 },	--	Imperator's Rise
+			{ id = 847, achID = 8989, bosses = 3 },	--	Slagworks
+			{ id = 846, achID = 8990, bosses = 3 },	--	The Black Forge
+			{ id = 848, achID = 8991, bosses = 3 },	--	Iron Assembly
+			{ id = 823, achID = 8992, bosses = 1 },	--	Blackhand's Crucible
 		},
 	},
-	
-	-- {	-- [6]
-		-- name = EXPANSION_NAME5,	-- "Warlords of Draenor"
-	-- },
-	
 }
 
 local view
@@ -391,10 +392,11 @@ local callbacks = {
 			for i = 1, GetLFGDungeonNumEncounters(dungeonID) do
 				local bossName = GetLFGDungeonEncounterInfo(dungeonID, i)
 				
+				-- current display is confusing, only show the "already looted" for the time being, skip the others until a better solution is possible
 				if DataStore:IsBossAlreadyLooted(character, dungeonID, bossName) then
 					AltoTooltip:AddDoubleLine(bossName, colors.red..ERR_LOOT_GONE)
-				else
-					AltoTooltip:AddDoubleLine(bossName, colors.green..BOSS_ALIVE)
+				-- else
+					-- AltoTooltip:AddDoubleLine(bossName, colors.green..BOSS_ALIVE)
 				end
 			end
 			
