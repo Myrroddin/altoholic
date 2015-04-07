@@ -560,13 +560,24 @@ columns["LastOnline"] = {
 				return
 			end
 			
+			local text
+			local account, realm, player = strsplit(".", character)
+			
+			if (player == UnitName("player")) and (realm == GetRealmName()) and (account == "Default") then
+				-- current player ? show ONLINE
+				text = format("%s%s", colors.green, GUILD_ONLINE_LABEL)
+			else
+				-- other player, show real time since last online
+				text = format("%s: %s", LASTONLINE, SecondsToTime(time() - DataStore:GetLastLogout(character)))
+			end
+			
 			local tt = AltoTooltip
 			tt:ClearLines()
 			tt:SetOwner(frame, "ANCHOR_RIGHT")
 			tt:AddLine(DataStore:GetColoredCharacterName(character),1,1,1)
 			tt:AddLine(" ",1,1,1)
 			-- then - now = x seconds
-			tt:AddLine(format("%s: %s", LASTONLINE, SecondsToTime(time() - DataStore:GetLastLogout(character))),1,1,1)
+			tt:AddLine(text,1,1,1)
 			tt:Show()
 		end,
 	OnClick = EmptyFunc,
@@ -686,6 +697,10 @@ columns["BankSlots"] = {
 			if not DataStore:GetModuleLastUpdateByKey("DataStore_Containers", character) then
 				return UNKNOWN
 			end
+
+			if DataStore:GetNumBankSlots(character) == 0 then
+				return L["Bank not visited yet"]
+			end
 			
 			return format("%s/%s|r/%s|r/%s|r/%s|r/%s|r/%s|r/%s",
 				DataStore:GetContainerSize(character, 100),
@@ -710,7 +725,7 @@ columns["BankSlots"] = {
 			tt:AddLine(DataStore:GetColoredCharacterName(character),1,1,1)
 			tt:AddLine(" ",1,1,1)
 			
-			if DataStore:GetNumBankSlots(character) < 28 then
+			if DataStore:GetNumBankSlots(character) == 0 then
 				tt:AddLine(L["Bank not visited yet"],1,1,1)
 				tt:Show()
 				return
@@ -748,10 +763,6 @@ columns["FreeBankSlots"] = {
 			end
 			
 			local numSlots = DataStore:GetNumBankSlots(character)
-			if numSlots < 28 then
-				return L["Bank not visited yet"]
-			end
-			
 			local numFree = DataStore:GetNumFreeBankSlots(character)
 			local color = ((numFree / numSlots) <= 0.1) and colors.red or colors.green
 			
@@ -1230,7 +1241,7 @@ columns["MissionTableLastVisit"] = {
 	Width = 65,
 	JustifyH = "RIGHT",
 	GetText = function(character)
-			local num = DataStore:GetNumCompletedMissions(character)
+			local num = DataStore:GetNumCompletedMissions(character) or 0
 			local text = ""
 			
 			if num > 0 then	-- add a '*' to show that there are some completed missions
