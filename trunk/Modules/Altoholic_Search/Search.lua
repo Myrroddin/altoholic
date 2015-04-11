@@ -99,6 +99,7 @@ local function Realm_UpdateEx(self, offset, desc)
 			local id = LineDesc:GetItemID(result)
 			-- itemButton:SetID(id or 0)
 			itemButton.id = id or 0
+			itemButton.link = nil
 			rowFrame:SetID(line)
 			rowFrame:Show()
 		end
