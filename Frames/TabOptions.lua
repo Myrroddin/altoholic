@@ -120,6 +120,32 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "6.1.004 Changes",
+		bulletedList = {
+			"Fixed sorting the account summary by 'Last Online' where the order was sometimes incorrect.",
+			"Added an option to show the tooltip counters without details (no 'equipped', 'bank', ..). Disabled by default.",
+			"No longer wiping the list of followers before scanning them.",
+			"Added a tooltip to the garrison resources in the account summary, it now shows when resources were last collected, and when you will reach the maximum of uncollected resources.",
+			"Fixed incorrect tooltip after multiple searches in the search tab.",
+			"DataStore_Garrisons: Some clean-up to properly report active missions.",
+			"The garrison mission tooltip that shows a '*' when missions are complete now shows it in red if all active missions are complete.",
+		},
+	},
+	{	name = "6.1.003 Changes",
+		bulletedList = {
+			"Fixed a few lua errors in the account summary tab.",
+			"Added Draenor LFR dungeons to the Grids->Dungeon Finder pane.",
+		},
+	},
+	{	name = "6.1.002 Changes",
+		bulletedList = {
+			"Updated scanning of currencies (honor points), total no longer needs to be divided by 100 since 6.1.",
+			"Updated the garrison followers pane in the account summary to show followers with an iLvl greater than 660.",
+			"DataStore Characters: updated GetRestXPRate() to account for Pandaren extra rest xp.",
+			"Fixed Auction House scanning, and cleaning of expired auctions.",
+			"The summary tab has been fully rewritten so that all 6 panes use the same frames. ",
+		},
+	},
 	{	name = "6.1.001 Changes",
 		bulletedList = {
 			"Added support for Garrison missions ! Warnings are not in yet, but available and active missions are now visible in the characters' tab.",
@@ -380,6 +406,7 @@ function addon:SetupOptions()
 	f = AltoholicTooltipOptions
 	f.ShowItemSource.Text:SetText(L["Show item source"])
 	f.ShowItemCount.Text:SetText(L["Show item count per character"])
+	f.ShowSimpleCount.Text:SetText(L["Show item count without details"])
 	f.ShowTotalItemCount.Text:SetText(L["Show total item count"])
 	f.ShowKnownRecipes.Text:SetText(L["Show recipes already known/learnable by"])
 	f.ShowItemID.Text:SetText(L["Show item ID and item level"])
@@ -392,6 +419,7 @@ function addon:SetupOptions()
 	f.ShowGuildBankCountPerTab.Text:SetText(L["Detailed guild bank count"])
 	L["Show item source"] = nil
 	L["Show item count per character"] = nil
+	L["Show item count without details"] = nil
 	L["Show total item count"] = nil
 	L["Show guild bank count"] = nil
 	L["Show already known/learnable by"] = nil

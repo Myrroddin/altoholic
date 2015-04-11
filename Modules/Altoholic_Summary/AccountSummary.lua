@@ -1241,18 +1241,23 @@ columns["MissionTableLastVisit"] = {
 	Width = 65,
 	JustifyH = "RIGHT",
 	GetText = function(character)
-			local num = DataStore:GetNumCompletedMissions(character) or 0
+			local numActive = DataStore:GetNumActiveMissions(character) or 0
+			local numCompleted = DataStore:GetNumCompletedMissions(character) or 0
 			local text = ""
 			
-			if num > 0 then	-- add a '*' to show that there are some completed missions
-				text = format(" %s*", colors.green)
+			if numCompleted > 0 then		-- add a '*' to show that there are some completed missions
+				if numCompleted == numActive then
+					text = format(" %s*", colors.red)	-- red if ALL active missions are complete
+				else
+					text = format(" %s*", colors.green)
+				end
 			end
 	
 			return format("%s%s%s", colors.white, addon:FormatDelay(DataStore:GetMissionTableLastVisit(character)), text)
 		end,
 	OnEnter = function(frame)
 			local character = frame:GetParent().character
-			if not character or not DataStore:GetModuleLastUpdateByKey("DataStore_Mails", character) then
+			if not character or not DataStore:GetModuleLastUpdateByKey("DataStore_Garrisons", character) then
 				return
 			end
 			
@@ -1308,12 +1313,49 @@ columns["CurrencyGarrison"] = {
 	JustifyH = "CENTER",
 	GetText = function(character)
 			local uncollected = DataStore:GetUncollectedResources(character) or 0
-			local amount = DataStore:GetCurrencyTotals(character, CURRENCY_ID_GARRISON)
+			local amount = DataStore:GetCurrencyTotals(character, CURRENCY_ID_GARRISON) or 0
 			local color = (amount == 0) and colors.grey or colors.white
 
 			return format("%s%s/%s+%s", color, amount, colors.green, uncollected)
 		end,
-	OnEnter = EmptyFunc,
+	OnEnter = function(frame)
+			-- to do: 
+			--   - resources
+			--   - uncollected
+			--   - last collection time
+			--   - you will be at 500 in x days
+			--   if res + uncollected > 10k then warning
+			
+	
+			local character = frame:GetParent().character
+			if not character or not DataStore:GetModuleLastUpdateByKey("DataStore_Garrisons", character) then
+				return
+			end
+			
+			local amount = DataStore:GetCurrencyTotals(character, CURRENCY_ID_GARRISON) or 0
+			local uncollected = DataStore:GetUncollectedResources(character) or 0
+			
+			local tt = AltoTooltip
+			tt:ClearLines()
+			tt:SetOwner(frame, "ANCHOR_RIGHT")
+			tt:AddDoubleLine(DataStore:GetColoredCharacterName(character), L["Garrison resources"])
+			tt:AddLine(" ",1,1,1)
+			tt:AddLine(format("%s: %s%s", L["Garrison resources"], colors.green, amount),1,1,1)
+			tt:AddLine(format("%s: %s%s", L["Uncollected resources"], colors.green, uncollected),1,1,1)
+			
+			local lastVisit = DataStore:GetLastResourceCollectionTime(character)
+			if lastVisit then
+				tt:AddLine(format("%s: %s", L["Last collected"], SecondsToTime(time() - lastVisit)),1,1,1)
+			end
+			
+			if uncollected < 500 then
+				tt:AddLine(" ",1,1,1)
+				
+				-- (resources not yet obtained * 600 seconds)
+				tt:AddLine(format("%s: %s", L["Max. uncollected resources in"], SecondsToTime((500 - uncollected) * 600)),1,1,1)
+			end
+			tt:Show()
+		end,
 	OnClick = EmptyFunc,
 	GetTotal = EmptyFunc,
 }

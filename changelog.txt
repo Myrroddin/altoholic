@@ -9,14 +9,22 @@ This means cleaning the following files in \WTF\Account\<your_account>\SavedVari
 There WILL be bugs if you use your old files without cleaning them first. 
 Some fixes to work around API changes are too time consuming, so cleaning is required. A meager price to pay once per expansion.
 
-6.1.002 (07/04/2015)
+6.1.004 (11/04/2015)
+
+- Fixed sorting the account summary by "Last Online" where the order was sometimes incorrect.
+- Added an option to show the tooltip counters without details (no 'equipped', 'bank', ..). Disabled by default.
+- No longer wiping the list of followers before scanning them.
+- Added a tooltip to the garrison resources in the account summary, it now shows when resources were last collected, and when you will reach the maximum of uncollected resources.
+- Fixed incorrect tooltip after multiple searches in the search tab.
+- DataStore_Garrisons: Some clean-up to properly report active missions.
+- The garrison mission tooltip that shows a '*' when missions are complete now shows it in red if all active missions are complete.
+
+6.1.003 (07/04/2015)
 
 REMINDER: If you are looking for a free Heroes of the Storm Beta key for the European Region, you should check the comments section on Curse & WoW Inteface.. I still have a few keys to give away.
 
 - Fixed a few lua errors in the account summary tab.
 - Added Draenor LFR dungeons to the Grids->Dungeon Finder pane.
-
-
 
 6.1.002 (06/04/2015)
 

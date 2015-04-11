@@ -4,8 +4,8 @@ _G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "A
 
 local addon = _G[addonName]
 
-addon.Version = "v6.1.003"
-addon.VersionNum = 601003
+addon.Version = "v6.1.004"
+addon.VersionNum = 601004
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local commPrefix = addonName
@@ -119,6 +119,7 @@ local AddonDB_Defaults = {
 			-- ** Tooltip options **
 			["UI.Tooltip.ShowItemSource"] = true,
 			["UI.Tooltip.ShowItemCount"] = true,
+			["UI.Tooltip.ShowSimpleCount"] = false,				-- display just the counter, without details (like AH, equipped, etc..)
 			["UI.Tooltip.ShowTotalItemCount"] = true,
 			["UI.Tooltip.ShowKnownRecipes"] = true,
 			["UI.Tooltip.ShowItemID"] = false,						-- display item id & item level in the tooltip (default: off)

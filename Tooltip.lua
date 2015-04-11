@@ -236,8 +236,12 @@ local function GetCharacterItemCount(character, searchedID)
 			end
 		end
 
-		-- charInfo should look like 	(Bags: 4, Bank: 8, Equipped: 1, Mail: 7), table concat takes care of this
-		AddCounterLine(name, format("%s (%s%s)", colors.orange .. charCount .. colors.white, table.concat(t, colors.white..", "), colors.white))
+		if addon:GetOption("UI.Tooltip.ShowSimpleCount") then
+			AddCounterLine(name, format("%s%s", colors.orange, charCount))
+		else
+			-- charInfo should look like 	(Bags: 4, Bank: 8, Equipped: 1, Mail: 7), table concat takes care of this
+			AddCounterLine(name, format("%s%s%s (%s%s)", colors.orange, charCount, colors.white, table.concat(t, colors.white..", "), colors.white))
+		end
 	end
 	
 	return charCount
