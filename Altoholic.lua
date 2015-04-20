@@ -398,12 +398,14 @@ function Altoholic:ScrollFrameUpdate(desc)
 		_G[ entry..i ]:Hide()
 	end
 	
-	local offset = addon.ScrollFrames:GetOffset( _G[ frame.."ScrollFrame" ] )
+	local scrollFrame = _G[ frame.."ScrollFrame" ]
+	local offset = scrollFrame:GetOffset()
+
 	-- call the update handler
 	desc:Update(offset, entry, desc)
 	
 	local last = (desc:GetSize() < desc.NumLines) and desc.NumLines or desc:GetSize()
-	addon.ScrollFrames:Update( _G[ frame.."ScrollFrame" ], last, desc.NumLines, desc.LineHeight);
+	scrollFrame:Update(last, desc.NumLines, desc.LineHeight);
 end
 
 function addon:Item_OnEnter(frame)
@@ -762,6 +764,8 @@ function addon:DDM_Initialize(frame, func)
 end
 
 
+
+
 -- ** Calendar stuff **
 local calendarFirstWeekday = 1
 -- 1 = Sunday, recreated locally to avoid the problem caused by the calendar addon not being loaded at startup.
@@ -794,14 +798,14 @@ end
 
 
 -- ** Equipment ** 
--- 02/09/2012 : Global to the addon, should be loaded in the core, ideally code should be in its own file. This will happen later.
+-- 02/09/2012 : Global to the add-on, should be loaded in the core, ideally code should be in its own file. This will happen later.
 
 addon.Equipment = {}
 
 local ns = addon.Equipment		-- ns = namespace
 
 -- These two tables are necessary to find equivalences between INVTYPEs returned by GetItemInfo and the actual equipment slots.
--- For instance, the "ranged" slot can contain bows/guns/wans/relics/thrown weapons.
+-- For instance, the "ranged" slot can contain bows/guns/wands/relics/thrown weapons.
 local inventoryTypes = {
 	["INVTYPE_HEAD"] = 1,		-- 1 means first entry in the EquipmentSlots table (just below this one)
 	["INVTYPE_SHOULDER"] = 2,

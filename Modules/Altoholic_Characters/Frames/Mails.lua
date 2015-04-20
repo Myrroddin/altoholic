@@ -78,6 +78,8 @@ end
 function ns:Update()
 	local VisibleLines = 7
 	local frame = "AltoholicFrameMail"
+	local scrollFrame = _G[ frame.."ScrollFrame" ]
+	
 	local entry = frame.."Entry"
 	
 	local DS = DataStore
@@ -90,11 +92,11 @@ function ns:Update()
 			_G[ entry..i ]:Hide()
 		end
 
-		addon.ScrollFrames:Update( _G[ frame.."ScrollFrame" ], VisibleLines, VisibleLines, 41)
+		scrollFrame:Update(VisibleLines, VisibleLines, 41)
 		return
 	end
 	
-	local offset = addon.ScrollFrames:GetOffset( _G[ frame.."ScrollFrame" ] );
+	local offset = scrollFrame:GetOffset()
 	
 	for i=1, VisibleLines do
 		local line = i + offset
@@ -132,14 +134,14 @@ function ns:Update()
 	end
 	
 	if numMails < VisibleLines then
-		addon.ScrollFrames:Update( _G[ frame.."ScrollFrame" ], VisibleLines, VisibleLines, 41);
+		scrollFrame:Update(VisibleLines, VisibleLines, 41)
 	else
-		addon.ScrollFrames:Update( _G[ frame.."ScrollFrame" ], numMails, VisibleLines, 41);
+		scrollFrame:Update(numMails, VisibleLines, 41)
 	end
 end
 
 function ns:Sort(self, field)
-	ns:BuildView(field, self.ascendingSort)
+	ns:BuildView(field, addon:GetOption("UI.Tabs.Characters.SortAscending"))
 	ns:Update()
 end
 

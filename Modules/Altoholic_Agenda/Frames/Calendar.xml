@@ -253,7 +253,7 @@
 				</Layers>
 				<Scripts>
 					<OnVerticalScroll>
-						Altoholic.ScrollFrames:OnVerticalScroll(self, offset, 18, Altoholic.Calendar.UpdateEvents)
+						self:OnVerticalScroll(offset, 18, Altoholic.Calendar.UpdateEvents)
 					</OnVerticalScroll>
 				</Scripts>
 			</ScrollFrame>

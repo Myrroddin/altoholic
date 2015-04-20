@@ -57,12 +57,50 @@
 				<Size x="300" y="334" />
 			</Frame>
 		</ScrollChild>
+		<KeyValues>
+			<KeyValue key="rowPrefix" value="Entry" />
+		</KeyValues>
 		<Scripts>
 			<OnLoad>
-				Altoholic.ScrollFrames:OnLoad(self)
+				local class = "AltoUIPanelScrollFrame"
+			
+				self.OnLoad = Altoholic:GetClassExtension(class,"OnLoad")
+				self.Update = Altoholic:GetClassExtension(class,"Update")
+				self.GetRow = Altoholic:GetClassExtension(class,"GetRow")
+				self.GetOffset = Altoholic:GetClassExtension(class,"GetOffset")
+				self.SetOffset = Altoholic:GetClassExtension(class,"SetOffset")
+				self.OnMouseWheel = Altoholic:GetClassExtension(class,"OnMouseWheel")
+				self.OnVerticalScroll = Altoholic:GetClassExtension(class,"OnVerticalScroll")
+				self.OnScrollRangeChanged = Altoholic:GetClassExtension(class,"OnScrollRangeChanged")
+				
+				self:OnLoad()
+				
+				if not self.numRows or not self.rowTemplate then 
+					return 
+				end
+			
+				local prefix = self.rowPrefix
+				local parent = self:GetParent()
+				local xOffset = self.xOffset or 0
+				local yOffset = self.yOffset or 0
+				
+				-- auto create the buttons, with the quantity passed as key
+				for i = 1, self.numRows do
+					local frame = CreateFrame("Button", nil, parent, self.rowTemplate)
+					
+					if i == 1 then
+						frame:SetPoint("TOPLEFT", xOffset, yOffset)
+					else
+						-- attach to previous frame
+						frame:SetPoint("TOPLEFT", parent[prefix..(i-1)], "BOTTOMLEFT", 0, 0)
+					end
+					
+					frame:SetID(i)
+					parent[prefix..i] = frame
+				end
 			</OnLoad>
 			<OnScrollRangeChanged>
-				Altoholic.ScrollFrames:OnScrollRangeChanged(self, xrange, yrange)
+				self:OnScrollRangeChanged(xrange, yrange)
 			</OnScrollRangeChanged>
 			<!--  The code to disable the ScrollDownButton is pretty hacked, but it works -->
 			<OnVerticalScroll>
@@ -84,7 +122,7 @@
 				end
 			</OnVerticalScroll>
 			<OnMouseWheel>
-				Altoholic.ScrollFrames:OnMouseWheel(self, delta)
+				self:OnMouseWheel(delta)
 			</OnMouseWheel>
 			<OnScrollRangeChanged function=""/>
 		</Scripts>
@@ -141,5 +179,4 @@
 			</Layer>
 		</Layers>
 	</ScrollFrame>
-	
 </Ui>

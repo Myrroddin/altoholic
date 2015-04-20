@@ -113,7 +113,6 @@ function ns:AccountSharingButton_OnClick()
 	AltoAccountSharing:Show()
 end
 
-
 local DDM_Add = addon.Helpers.DDM_Add
 local DDM_AddTitle = addon.Helpers.DDM_AddTitle
 local DDM_AddCloseMenu = addon.Helpers.DDM_AddCloseMenu

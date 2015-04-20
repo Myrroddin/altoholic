@@ -124,7 +124,6 @@ end
 
 local RealmScrollFrame_Desc = {
 	NumLines = 7,
-	LineHeight = 41,
 	Frame = "AltoholicFrameSearch",
 	GetSize = function() return ns:GetNumResults() end,
 	Update = Realm_UpdateEx,
@@ -244,21 +243,22 @@ local function ScrollFrameUpdate(desc)
 	
 	local frame = _G[desc.Frame]
 	local scrollFrame = frame.ScrollFrame
+	local numRows = scrollFrame.numRows
 	local rowFrame
 
 	-- hide all lines and set their id to 0, the update function is responsible for showing and setting id's of valid lines	
-	for rowIndex = 1, desc.NumLines do
+	for rowIndex = 1, numRows do
 		rowFrame = frame["Entry"..rowIndex]
 		rowFrame:SetID(0)
 		rowFrame:Hide()
 	end
 	
-	local offset = addon.ScrollFrames:GetOffset(scrollFrame)
+	local offset = scrollFrame:GetOffset()
 	-- call the update handler
 	desc:Update(offset, desc)
 	
-	local last = (desc:GetSize() < desc.NumLines) and desc.NumLines or desc:GetSize()
-	addon.ScrollFrames:Update(scrollFrame, last, desc.NumLines, desc.LineHeight)
+	local last = (desc:GetSize() < numRows) and numRows or desc:GetSize()
+	scrollFrame:Update(last)
 end
 
 function ns:Realm_Update()
@@ -266,10 +266,10 @@ function ns:Realm_Update()
 end
 
 function ns:Loots_Update()
-	local numRows = 7
 	
 	local frame = AltoholicFrameSearch
 	local scrollFrame = frame.ScrollFrame
+	local numRows = scrollFrame.numRows
 	local numResults = ns:GetNumResults()
 	
 	if numResults == 0 then
@@ -277,11 +277,11 @@ function ns:Loots_Update()
 		for rowIndex = 1, numRows do	
 			frame["Entry"..rowIndex]:Hide()
 		end
-		addon.ScrollFrames:Update(scrollFrame, numRows, numRows, 41)
+		scrollFrame:Update(numRows)
 		return
 	end
 
-	local offset = addon.ScrollFrames:GetOffset(scrollFrame)
+	local offset = scrollFrame:GetOffset()
 
 	local itemButton
 	local rowFrame
@@ -349,9 +349,9 @@ function ns:Loots_Update()
 	end
 	
 	if numResults < numRows then
-		addon.ScrollFrames:Update(scrollFrame, numRows, numRows, 41)
+		scrollFrame:Update(numRows)
 	else
-		addon.ScrollFrames:Update(scrollFrame, numResults, numRows, 41)
+		scrollFrame:Update(numResults)
 	end
 	
 	if not AltoholicFrameSearch:IsVisible() then
@@ -360,9 +360,9 @@ function ns:Loots_Update()
 end
 
 function ns:Upgrade_Update()
-	local numRows = 7
 	local frame = AltoholicFrameSearch
 	local scrollFrame = frame.ScrollFrame
+	local numRows = scrollFrame.numRows
 	local numResults = ns:GetNumResults()
 	
 	if numResults == 0 then
@@ -370,11 +370,11 @@ function ns:Upgrade_Update()
 		for rowIndex = 1, numRows do	
 			frame["Entry"..rowIndex]:Hide()
 		end
-		addon.ScrollFrames:Update(scrollFrame, numRows, numRows, 41)
+		scrollFrame:Update(numRows)
 		return
 	end
 
-	local offset = addon.ScrollFrames:GetOffset(scrollFrame)
+	local offset = scrollFrame:GetOffset()
 
 	local itemButton
 	local rowFrame
@@ -462,9 +462,9 @@ function ns:Upgrade_Update()
 	end
 	
 	if numResults < numRows then
-		addon.ScrollFrames:Update( _G[ frame.."ScrollFrame" ], numRows, numRows, 41);
+		scrollFrame:Update(numRows)
 	else
-		addon.ScrollFrames:Update( _G[ frame.."ScrollFrame" ], numResults, numRows, 41);
+		scrollFrame:Update(numResults)
 	end
 	
 	if not AltoholicFrameSearch:IsVisible() then
@@ -599,7 +599,7 @@ function ns:SortResults(frame, field)
 	if ns:GetNumResults() == 0 then return end
 
 	local id = frame:GetID()
-	local ascending = frame.ascendingSort
+	local ascending = addon:GetOption("UI.Tabs.Search.SortAscending")
 		
 	if field == "name" then
 		table.sort(results, function(a, b) return SortByName(a, b, ascending) end)
@@ -887,13 +887,13 @@ function ns:FindItem(searchType, searchSubType)
 	
 	if SearchLoots then
 		addon.Tabs.Search:SetMode("loots")
-		if addon:GetOption("UI.Tabs.Search.SortDescending") then 		-- descending sort ?
-			AltoholicTabSearch_Sort3.ascendingSort = true		-- say it's ascending now, it will be toggled
-			ns:SortResults(AltoholicTabSearch_Sort3, "iLvl")
-		else
-			AltoholicTabSearch_Sort3.ascendingSort = nil
-			ns:SortResults(AltoholicTabSearch_Sort3, "iLvl")
-		end
+		-- if addon:GetOption("UI.Tabs.Search.SortDescending") then 		-- descending sort ?
+			-- AltoholicTabSearch.SortButtons.Sort3.ascendingSort = true		-- say it's ascending now, it will be toggled
+			-- ns:SortResults(AltoholicTabSearch.SortButtons.Sort3, "iLvl")
+		-- else
+			-- AltoholicTabSearch.SortButtons.Sort3.ascendingSort = nil
+			-- ns:SortResults(AltoholicTabSearch.SortButtons.Sort3, "iLvl")
+		-- end
 	else
 		addon.Tabs.Search:SetMode("realm")
 	end
@@ -970,13 +970,13 @@ function ns:FindEquipmentUpgrade()
 		addon.Tabs.Search:SetMode("loots")
 	end
 	
-	if addon:GetOption("UI.Tabs.Search.SortDescending") then 		-- descending sort ?
-		AltoholicTabSearch_Sort8.ascendingSort = true		-- say it's ascending now, it will be toggled
-		ns:SortResults(AltoholicTabSearch_Sort8, "iLvl")
-	else
-		AltoholicTabSearch_Sort8.ascendingSort = nil
-		ns:SortResults(AltoholicTabSearch_Sort8, "iLvl")
-	end
+	-- if addon:GetOption("UI.Tabs.Search.SortDescending") then 		-- descending sort ?
+		-- AltoholicTabSearch.SortButtons.Sort8.ascendingSort = true		-- say it's ascending now, it will be toggled
+		-- ns:SortResults(AltoholicTabSearch.SortButtons.Sort8, "iLvl")
+	-- else
+		-- AltoholicTabSearch.SortButtons.Sort8.ascendingSort = nil
+		-- ns:SortResults(AltoholicTabSearch.SortButtons.Sort8, "iLvl")
+	-- end
 
 	ns:Update()
 end

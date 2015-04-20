@@ -266,25 +266,33 @@ function ns:ShowCharInfo(view)
 end
 
 function ns:SetMode(mode)
-	local Columns = addon.Tabs.Columns
-	Columns:Init()
-	
 	if not mode then return end		-- called without parameter for professions
 
+	local showButtons = false
+	
 	if mode == VIEW_MAILS then
-		Columns:Add(MAIL_SUBJECT_LABEL, 220, function(self) addon.Mail:Sort(self, "name") end)
-		Columns:Add(FROM, 140, function(self) addon.Mail:Sort(self, "from") end)
-		Columns:Add(L["Expiry:"], 200, function(self) addon.Mail:Sort(self, "expiry") end)
-
+		parent.SortButtons:SetButton(1, MAIL_SUBJECT_LABEL, 220, function(self) addon.Mail:Sort(self, "name") end)
+		parent.SortButtons:SetButton(2, FROM, 140, function(self) addon.Mail:Sort(self, "from") end)
+		parent.SortButtons:SetButton(3, L["Expiry:"], 200, function(self) addon.Mail:Sort(self, "expiry") end)
+		showButtons = true
+		
 	elseif mode == VIEW_AUCTIONS then
-		Columns:Add(HELPFRAME_ITEM_TITLE, 220, function(self) addon.AuctionHouse:Sort(self, "name", "Auctions") end)
-		Columns:Add(HIGH_BIDDER, 160, function(self) addon.AuctionHouse:Sort(self, "highBidder", "Auctions") end)
-		Columns:Add(CURRENT_BID, 170, function(self) addon.AuctionHouse:Sort(self, "buyoutPrice", "Auctions") end)
+		parent.SortButtons:SetButton(1, HELPFRAME_ITEM_TITLE, 220, function(self) addon.AuctionHouse:Sort(self, "name", "Auctions") end)
+		parent.SortButtons:SetButton(2, HIGH_BIDDER, 160, function(self) addon.AuctionHouse:Sort(self, "highBidder", "Auctions") end)
+		parent.SortButtons:SetButton(3, CURRENT_BID, 170, function(self) addon.AuctionHouse:Sort(self, "buyoutPrice", "Auctions") end)
+		showButtons = true
 	
 	elseif mode == VIEW_BIDS then
-		Columns:Add(HELPFRAME_ITEM_TITLE, 220, function(self) addon.AuctionHouse:Sort(self, "name", "Bids") end)
-		Columns:Add(NAME, 160, function(self) addon.AuctionHouse:Sort(self, "owner", "Bids") end)
-		Columns:Add(CURRENT_BID, 170, function(self) addon.AuctionHouse:Sort(self, "buyoutPrice", "Bids") end)
+		parent.SortButtons:SetButton(1, HELPFRAME_ITEM_TITLE, 220, function(self) addon.AuctionHouse:Sort(self, "name", "Bids") end)
+		parent.SortButtons:SetButton(2, NAME, 160, function(self) addon.AuctionHouse:Sort(self, "owner", "Bids") end)
+		parent.SortButtons:SetButton(3, CURRENT_BID, 170, function(self) addon.AuctionHouse:Sort(self, "buyoutPrice", "Bids") end)
+		showButtons = true
+	end
+	
+	if showButtons then
+		parent.SortButtons:ShowChildFrames()
+	else
+		parent.SortButtons:HideChildFrames()
 	end
 end
 
@@ -694,7 +702,7 @@ local function ProfessionsIcon_Initialize(self, level)
 		-- Profession 1
 		local rank, professionName, _
 		rank, _, _, professionName = DataStore:GetProfession1(currentCharacterKey)
-		if last and rank then
+		if last and rank and professionName then
 			DDM_Add(format("%s %s(%s)", professionName, colors.green, rank ), professionName, OnProfessionChange, nil, (professionName == (currentProfession or "")))
 		elseif professionName then
 			DDM_Add(colors.grey..professionName, nil, nil)
@@ -702,7 +710,7 @@ local function ProfessionsIcon_Initialize(self, level)
 		
 		-- Profession 2
 		rank, _, _, professionName = DataStore:GetProfession2(currentCharacterKey)
-		if last and rank then
+		if last and rank and professionName then
 			DDM_Add(format("%s %s(%s)", professionName, colors.green, rank ), professionName, OnProfessionChange, nil, (professionName == (currentProfession or "")))
 		elseif professionName then
 			DDM_Add(colors.grey..professionName, nil, nil)

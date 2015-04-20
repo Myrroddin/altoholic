@@ -188,11 +188,8 @@ local function SortByFunction(a, b, func, ascending)
 	end
 end
 
-function ns:Sort(frame, func)
-	local ascending = frame.ascendingSort
-
+function ns:Sort(ascending, func)
 	table.sort(characterList, function(a, b) return SortByFunction(a, b, func, ascending) end)
-	addon.Summary:Update()
 end
 
 function ns:Get(index)

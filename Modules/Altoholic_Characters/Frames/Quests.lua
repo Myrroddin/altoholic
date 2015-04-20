@@ -34,6 +34,7 @@ function ns:Update()
 	local entry = frame.."Entry"
 	
 	local DS = DataStore
+	local scrollFrame = _G[ frame.."ScrollFrame" ]
 	
 	if DS:GetQuestLogSize(character) == 0 then
 		AltoholicTabCharacters.Status:SetText(L["No quest found for "] .. addon.Tabs.Characters:GetAlt())
@@ -42,13 +43,13 @@ function ns:Update()
 			_G[ entry..i ]:Hide()
 		end
 
-		addon.ScrollFrames:Update( _G[ frame.."ScrollFrame" ], VisibleLines, VisibleLines, 18)
+		scrollFrame:Update(VisibleLines, VisibleLines, 18)
 		return
 	end
 
 	AltoholicTabCharacters.Status:SetText(format("%s|r / %s", DataStore:GetColoredCharacterName(character), QUEST_LOG))
 	
-	local offset = addon.ScrollFrames:GetOffset( _G[ frame.."ScrollFrame" ] );
+	local offset = scrollFrame:GetOffset()
 	local DisplayedCount = 0
 	local VisibleCount = 0
 	local DrawGroup
@@ -150,7 +151,7 @@ function ns:Update()
 		i = i + 1
 	end
 	
-	addon.ScrollFrames:Update( _G[ frame.."ScrollFrame" ], VisibleCount, VisibleLines, 18);
+	scrollFrame:Update(VisibleCount, VisibleLines, 18)
 end
 
 function ns:InvalidateView()

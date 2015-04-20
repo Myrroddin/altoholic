@@ -61,9 +61,15 @@
 			<ScrollFrame name="$parentScrollFrame" parentKey="ScrollFrame" inherits="AltoBaseScrollFrameTemplate" hidden="true">
 				<Scripts>
 					<OnVerticalScroll>
-						Altoholic.ScrollFrames:OnVerticalScroll(self, offset, 41, Altoholic.Mail.Update)
+						self:OnVerticalScroll(offset, 41, Altoholic.Mail.Update)
 					</OnVerticalScroll>
 				</Scripts>
+				<!--
+				<KeyValues>
+					<KeyValue key="numRows" value="7" type="number" />
+					<KeyValue key="rowTemplate" value="AltoMailEntryTemplate" />
+				</KeyValues>
+				-->
 			</ScrollFrame>
 			
 			<Button name="$parentEntry1" inherits="AltoMailEntryTemplate">

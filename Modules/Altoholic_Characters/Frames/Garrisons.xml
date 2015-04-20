@@ -152,47 +152,15 @@
 			<ScrollFrame parentKey="ScrollFrame" inherits="AltoBaseScrollFrameTemplate" hidden="true">
 				<Scripts>
 					<OnVerticalScroll>
-						Altoholic.ScrollFrames:OnVerticalScroll(self, offset, 41, Altoholic.Garrisons.Update)
+						self:OnVerticalScroll(offset, 41, Altoholic.Garrisons.Update)
 					</OnVerticalScroll>
 				</Scripts>
+				<KeyValues>
+					<KeyValue key="numRows" value="7" type="number" />
+					<KeyValue key="rowHeight" value="41" type="number" />
+					<KeyValue key="rowTemplate" value="AltoGarrisonMissionEntryTemplate" />
+				</KeyValues>
 			</ScrollFrame>
-			
-			<Button parentKey="Entry1" inherits="AltoGarrisonMissionEntryTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.ScrollFrame" relativePoint="TOPLEFT" x="0" y="0" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry2" inherits="AltoGarrisonMissionEntryTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry1" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry3" inherits="AltoGarrisonMissionEntryTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry2" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry4" inherits="AltoGarrisonMissionEntryTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry3" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry5" inherits="AltoGarrisonMissionEntryTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry4" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry6" inherits="AltoGarrisonMissionEntryTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry5" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry7" inherits="AltoGarrisonMissionEntryTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry6" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
 		</Frames>
 	</Frame>
-	
 </Ui>
