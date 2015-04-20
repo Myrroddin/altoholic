@@ -77,7 +77,7 @@
 			<ScrollFrame name="$parentScrollFrame" inherits="AltoBaseScrollFrameTemplate" hidden="true">
 				<Scripts>
 					<OnVerticalScroll>
-						Altoholic.ScrollFrames:OnVerticalScroll(self, offset, 41, Altoholic.AuctionHouse.Update)
+						self:OnVerticalScroll(offset, 41, Altoholic.AuctionHouse.Update)
 					</OnVerticalScroll>
 				</Scripts>
 			</ScrollFrame>

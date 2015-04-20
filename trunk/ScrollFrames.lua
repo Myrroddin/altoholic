@@ -10,11 +10,7 @@ most likely for compatibility reasons.
 I thus had to redo the xml templates and their supporting code.
 --]]
 
-addon.ScrollFrames = {}
-
-local ns = addon.ScrollFrames		-- ns = namespace
-
-function ns:OnLoad(frame)
+local function _OnLoad(frame)
 	local scrollBar = frame.ScrollBar
 	
 	scrollBar.ScrollDownButton:Disable()
@@ -40,15 +36,15 @@ function ns:OnLoad(frame)
 	end
 end
 
-function ns:GetOffset(frame)
+local function _GetOffset(frame)
 	return frame.offset
 end
 
-function ns:SetOffset(frame, offset)
+local function _SetOffset(frame, offset)
 	frame.offset = offset
 end
 
-function ns:OnScrollRangeChanged(frame, offset, rowHeight, updateFunction)
+local function _OnScrollRangeChanged(frame, offset, rowHeight, updateFunction)
 	local scrollBar = frame.ScrollBar
 	
 	if ( not yrange ) then
@@ -120,7 +116,7 @@ function ns:OnScrollRangeChanged(frame, offset, rowHeight, updateFunction)
 	end
 end
 
-function ns:OnMouseWheel(frame, delta)
+local function _OnMouseWheel(frame, delta)
 	local scrollBar = frame.ScrollBar
 	local scrollStep = scrollBar.scrollStep or scrollBar:GetHeight() / 2
 	
@@ -131,7 +127,7 @@ function ns:OnMouseWheel(frame, delta)
 	end
 end
 
-function ns:OnVerticalScroll(frame, offset, rowHeight, updateFunction)
+local function _OnVerticalScroll(frame, offset, rowHeight, updateFunction)
 	local scrollBar = frame.ScrollBar
 	scrollBar:SetValue(offset)
 	
@@ -142,9 +138,13 @@ function ns:OnVerticalScroll(frame, offset, rowHeight, updateFunction)
 	end
 end
 
-function ns:Update(frame, numItems, numToDisplay, buttonHeight)
+local function _Update(frame, numItems, numToDisplay, buttonHeight)
 	-- My own FauxScrollFrame_Update() from SharedUIPanelTemplates.lua
 	-- If more than one screen full of skills then show the scrollbar
+	
+	numToDisplay = numToDisplay or frame.numRows
+	buttonHeight = buttonHeight or frame.rowHeight
+	
 	local scrollBar = frame.ScrollBar
 
 	if numItems > numToDisplay then
@@ -197,3 +197,26 @@ function ns:Update(frame, numItems, numToDisplay, buttonHeight)
 		scrollDownButton:Enable()
 	end
 end
+
+local function _GetRow(frame, index)
+	--  ex: returns parent["Entry6"]
+	local parent = frame:GetParent()
+	return parent[frame.rowPrefix..index]
+end
+
+local function _HideRows(frame)
+
+end
+
+local methods = {
+	OnLoad = _OnLoad,
+	GetOffset = _GetOffset,
+	SetOffset = _SetOffset,
+	OnScrollRangeChanged = _OnScrollRangeChanged,
+	OnMouseWheel = _OnMouseWheel,
+	OnVerticalScroll = _OnVerticalScroll,
+	Update = _Update,
+	GetRow = _GetRow,
+}
+
+addon:RegisterClassExtensions("AltoUIPanelScrollFrame", methods)

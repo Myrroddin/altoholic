@@ -9,7 +9,6 @@ local THIS_ACCOUNT = "Default"
 local ICON_NOT_STARTED = "Interface\\RaidFrame\\ReadyCheck-NotReady" 
 local ICON_PARTIAL = "Interface\\RaidFrame\\ReadyCheck-Waiting"
 local ICON_COMPLETED = "Interface\\RaidFrame\\ReadyCheck-Ready" 
-local CHARS_PER_FRAME = 11
 
 local parentName = "AltoholicTabAchievements"
 local parent
@@ -70,79 +69,12 @@ local function Item_OnClick(frame)
 	addon.Achievements:Update()
 end
 
-function ns:UpdateClassIcons()
-	local key = addon:GetOption(format("Tabs.Achievements.%s.%s.Column1", currentAccount, currentRealm))
-	if not key then	-- first time this realm is displayed, or reset by player
-	
-		local index = 1
-
-		-- add the first 10 keys found on this realm
-		for characterName, characterKey in pairs(DataStore:GetCharacters(currentRealm, currentAccount)) do	
-			-- ex: : ["Tabs.Achievements.Default.MyRealm.Column4"] = "Account.realm.alt7"
-
-			addon:SetOption(format("Tabs.Achievements.%s.%s.Column%d", currentAccount, currentRealm, index), characterKey)
-			
-			index = index + 1
-			if index > CHARS_PER_FRAME then
-				break
-			end
-		end
-		
-		while index <= CHARS_PER_FRAME do
-			addon:SetOption(format("Tabs.Achievements.%s.%s.Column%d", currentAccount, currentRealm, index), nil)
-			index = index + 1
-		end
-	end
-	
-	local itemName, itemButton
-	local class, _
-	
-	local frame = parent.ClassIcons
-	
-	for i = 1, CHARS_PER_FRAME do
-		itemButton = frame["Icon"..i]
-		
-		key = addon:GetOption(format("Tabs.Achievements.%s.%s.Column%d", currentAccount, currentRealm, i))
-		if key then
-			_, class = DataStore:GetCharacterClass(key)
-		end
-		
-		if key and class then
-			local tc = CLASS_ICON_TCOORDS[class]
-		
-			itemButton.Icon:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes");
-			itemButton.Icon:SetTexCoord(tc[1], tc[2], tc[3], tc[4]);
-	
-			if DataStore:GetCharacterFaction(key) == "Alliance" then
-				itemButton.IconBorder:SetVertexColor(0.1, 0.25, 1, 0.5)
-			else
-				itemButton.IconBorder:SetVertexColor(1, 0, 0, 0.5)
-			end
-
-		else	-- no key ? display a question mark icon
-			itemButton.Icon:SetTexture(ICON_PARTIAL)
-			itemButton.Icon:SetTexCoord(0, 1, 0, 1)
-			
-			itemButton.IconBorder:SetVertexColor(0, 1, 0, 0.5)
-		end
-		
-		itemButton.Icon:SetWidth(33)
-		itemButton.Icon:SetHeight(33)
-		itemButton.Icon:SetAllPoints(itemButton)
-		
-		itemButton.IconBorder:Show()
-		itemButton:SetWidth(34)
-		itemButton:SetHeight(34)
-		itemButton:Show()
-	end
-end
-
 function ns:Update()
+	parent.ClassIcons:Update(currentAccount, currentRealm)
+
 	if not view then
 		BuildView()
 	end
-
-	local numRows = 15
 
 	local categoryIndex				-- index of the category in the menu table
 	local categoryCacheIndex		-- index of the category in the cache table
@@ -175,11 +107,12 @@ function ns:Update()
 	end
 	
 	local scrollFrame = parent.ScrollFrame
-	local offset = addon.ScrollFrames:GetOffset( scrollFrame )
+	local numRows = scrollFrame.numRows
+	local offset = scrollFrame:GetOffset()
 	local menuButton
 	
 	for rowIndex = 1, numRows do
-		menuButton = parent["MenuItem"..rowIndex]
+		menuButton = scrollFrame:GetRow(rowIndex)
 		
 		local line = rowIndex + offset
 		
@@ -215,7 +148,7 @@ function ns:Update()
 		end
 	end
 	
-	addon.ScrollFrames:Update( scrollFrame, #MenuCache, numRows, 20);
+	scrollFrame:Update(#MenuCache)
 end
 
 function ns:GetRealm()
@@ -237,7 +170,7 @@ local function OnRealmChange(self, account, realm)
 	
 	if oldRealm and oldAccount then	-- clear the "select char" drop down if realm or account has changed
 		if (oldRealm ~= realm) or (oldAccount ~= account) then
-			ns:UpdateClassIcons()
+			parent.ClassIcons:Update(currentAccount, currentRealm)
 			parent.Status:SetText("")
 			addon.Achievements:Update()
 		end
@@ -320,7 +253,7 @@ local function OnCharacterChange(self, id)
 	end
 
 	addon:SetOption(format("Tabs.Achievements.%s.%s.Column%d", currentAccount, currentRealm, id), key)
-	ns:UpdateClassIcons()
+	parent.ClassIcons:Update(currentAccount, currentRealm)
 	addon.Achievements:Update()
 end
 

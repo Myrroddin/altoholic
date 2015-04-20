@@ -115,7 +115,7 @@ end
 
 function ns:Sort(self, field, AHType)
 	viewSortField = field
-	viewSortOrder = self.ascendingSort
+	viewSortOrder = addon:GetOption("UI.Tabs.Characters.SortAscending")
 	
 	ns:SetListType(AHType)
 	ns:InvalidateView()
@@ -133,6 +133,8 @@ function ns:UpdateAuctions()
 	local frame = "AltoholicFrameAuctions"
 	local entry = frame.."Entry"
 
+	local scrollFrame = _G[ frame.."ScrollFrame" ]
+	
 	local DS = DataStore
 	local character = addon.Tabs.Characters:GetAltKey()
 	
@@ -144,12 +146,12 @@ function ns:UpdateAuctions()
 			_G[ entry..i ]:Hide()
 		end
 
-		addon.ScrollFrames:Update( _G[ frame.."ScrollFrame" ], VisibleLines, VisibleLines, 41)
+		scrollFrame:Update(VisibleLines, VisibleLines, 41)
 		
 		return
 	end
 
-	local offset = addon.ScrollFrames:GetOffset( _G[ frame.."ScrollFrame" ] );
+	local offset = scrollFrame:GetOffset()
 	
 	for i=1, VisibleLines do
 		local line = i + offset
@@ -194,9 +196,9 @@ function ns:UpdateAuctions()
 	end
 	
 	if numAuctions < VisibleLines then
-		addon.ScrollFrames:Update( _G[ frame.."ScrollFrame" ], VisibleLines, VisibleLines, 41);
+		scrollFrame:Update(VisibleLines, VisibleLines, 41)
 	else
-		addon.ScrollFrames:Update( _G[ frame.."ScrollFrame" ], numAuctions, VisibleLines, 41);
+		scrollFrame:Update(numAuctions, VisibleLines, 41)
 	end
 end
 
@@ -204,6 +206,8 @@ function ns:UpdateBids()
 	local VisibleLines = 7
 	local frame = "AltoholicFrameAuctions"
 	local entry = frame.."Entry"
+	
+	local scrollFrame = _G[ frame.."ScrollFrame" ]
 	
 	local DS = DataStore
 	local character = addon.Tabs.Characters:GetAltKey()
@@ -216,11 +220,11 @@ function ns:UpdateBids()
 			_G[ entry..i ]:Hide()
 		end
 
-		addon.ScrollFrames:Update( _G[ frame.."ScrollFrame" ], VisibleLines, VisibleLines, 41)
+		scrollFrame:Update(VisibleLines, VisibleLines, 41)
 		return
 	end
 	
-	local offset = addon.ScrollFrames:GetOffset( _G[ frame.."ScrollFrame" ] );
+	local offset = scrollFrame:GetOffset()
 	
 	for i=1, VisibleLines do
 		local line = i + offset
@@ -260,9 +264,9 @@ function ns:UpdateBids()
 	end
 	
 	if numBids < VisibleLines then
-		addon.ScrollFrames:Update( _G[ frame.."ScrollFrame" ], VisibleLines, VisibleLines, 41);
+		scrollFrame:Update(VisibleLines, VisibleLines, 41)
 	else
-		addon.ScrollFrames:Update( _G[ frame.."ScrollFrame" ], numBids, VisibleLines, 41);
+		scrollFrame:Update(numBids, VisibleLines, 41)
 	end
 end
 

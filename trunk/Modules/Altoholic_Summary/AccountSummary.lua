@@ -271,9 +271,16 @@ local function Name_OnClick(frame, button)
 	end
 end
 
-local function SortView(frame, func, columnName)
+local function SortView(columnName)
 	addon:SetOption("UI.Tabs.Summary.CurrentColumn", columnName)
-	addon.Characters:Sort(frame, func)
+	addon.Summary:Update()
+end
+
+local function GetColorFromAIL(level)
+	if (level < 600) then return colors.grey end
+	if (level <= 615) then return colors.green end
+	if (level <= 630) then return colors.rare end
+	return colors.epic
 end
 
 -- *** Specific sort functions ***
@@ -283,6 +290,38 @@ local function GetCharacterLevel(self, character)
 
 	return level + (rate / 100)
 end
+
+local function GetRarityLevel(self, character)
+	local numEpic = DataStore:GetNumEpicFollowers(character) or 0
+	local numRare = DataStore:GetNumRareFollowers(character) or 0
+	
+	return numEpic + (numRare / 100)
+end
+
+local function GetFollowersLevel615To630(self, character)
+	local num615 = DataStore:GetNumFollowersAtiLevel615(character) or 0
+	local num630 = DataStore:GetNumFollowersAtiLevel630(character) or 0
+	
+	return num630 + (num615 / 100)
+end
+
+local function GetFollowersLevel645To660(self, character)
+	local num645 = DataStore:GetNumFollowersAtiLevel645(character) or 0
+	local num660 = DataStore:GetNumFollowersAtiLevel660(character) or 0
+	
+	return num660 + (num645 / 100)
+end
+
+local function GetFollowersItemLevel(self, character)
+	local avgWeapon = DataStore:GetAvgWeaponiLevel(character) or 0
+	local avgArmor = DataStore:GetAvgArmoriLevel(character) or 0
+	
+	avgWeapon = math.floor(avgWeapon*10)	-- 615.17 becomes 6151
+	avgArmor = math.floor(avgArmor*10)
+	
+	return avgWeapon + (avgArmor / 10000)
+end
+
 
 
 -- *** Column definitions ***
@@ -296,7 +335,8 @@ columns["Name"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetCharacterName, "Name") end,
+	HeaderOnClick = function() SortView("Name") end,
+	HeaderSort = DataStore.GetCharacterName,
 	
 	-- Content
 	Width = 150,
@@ -373,7 +413,8 @@ columns["Level"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, GetCharacterLevel, "Level") end,
+	HeaderOnClick = function() SortView("Level") end,
+	HeaderSort = GetCharacterLevel,
 	
 	-- Content
 	Width = 50,
@@ -418,7 +459,8 @@ columns["RestXP"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetRestXPRate, "RestXP") end,
+	HeaderOnClick = function() SortView("RestXP") end,
+	HeaderSort = DataStore.GetRestXPRate,
 	
 	-- Content
 	Width = 65,
@@ -444,7 +486,7 @@ columns["RestXP"] = {
 			tt:SetOwner(frame, "ANCHOR_RIGHT")
 			tt:AddLine(DataStore:GetColoredCharacterName(character),1,1,1)
 			tt:AddLine(" ",1,1,1)
-			tt:AddLine(format("%s: %s", L["Rest XP"], colors.green..restXP),1,1,1)
+			tt:AddLine(format("%s: %s%s", L["Rest XP"], colors.green, restXP),1,1,1)
 			tt:Show()
 		-- - Improve "rested xp"
 			-- - tooltip : Fully rested in 4 days 12 hours (18 days if not left in an inn) on 29.05.09 4:00 pm
@@ -460,7 +502,8 @@ columns["Money"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetMoney, "Money") end,
+	HeaderOnClick = function() SortView("Money") end,
+	HeaderSort = DataStore.GetMoney,
 	
 	-- Content
 	Width = 110,
@@ -471,8 +514,6 @@ columns["Money"] = {
 	OnEnter = EmptyFunc,
 	OnClick = EmptyFunc,
 	GetTotal = function(line) return addon:GetMoneyString(Characters:GetField(line, "money"), colors.white) end,
-	
-	
 }
 
 columns["Played"] = {
@@ -482,7 +523,8 @@ columns["Played"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetPlayTime, "Played") end,
+	HeaderOnClick = function() SortView("Played") end,
+	HeaderSort = DataStore.GetPlayTime,
 	
 	-- Content
 	Width = 100,
@@ -498,11 +540,12 @@ columns["Played"] = {
 columns["AiL"] = {
 	-- Header
 	HeaderWidth = 55,
-	Header = "AiL",
+	Header = ITEM_LEVEL_ABBR,
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetAverageItemLevel, "AiL") end,
+	HeaderOnClick = function() SortView("AiL") end,
+	HeaderSort = DataStore.GetAverageItemLevel,
 	
 	-- Content
 	Width = 60,
@@ -540,7 +583,8 @@ columns["LastOnline"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetLastLogout, "LastOnline") end,
+	HeaderOnClick = function() SortView("LastOnline") end,
+	HeaderSort = DataStore.GetLastLogout,
 	
 	-- Content
 	Width = 60,
@@ -593,7 +637,8 @@ columns["BagSlots"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetNumBagSlots, "BagSlots") end,
+	HeaderOnClick = function() SortView("BagSlots") end,
+	HeaderSort = DataStore.GetNumBagSlots,
 	
 	-- Content
 	Width = 100,
@@ -644,7 +689,8 @@ columns["FreeBagSlots"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetNumFreeBagSlots, "FreeBagSlots") end,
+	HeaderOnClick = function() SortView("FreeBagSlots") end,
+	HeaderSort = DataStore.GetNumFreeBagSlots,
 	
 	-- Content
 	Width = 70,
@@ -688,7 +734,8 @@ columns["BankSlots"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetNumBankSlots, "BankSlots") end,
+	HeaderOnClick = function() SortView("BankSlots") end,
+	HeaderSort = DataStore.GetNumBankSlots,
 	
 	-- Content
 	Width = 160,
@@ -752,7 +799,8 @@ columns["FreeBankSlots"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetNumFreeBankSlots, "FreeBankSlots") end,
+	HeaderOnClick = function() SortView("FreeBankSlots") end,
+	HeaderSort = DataStore.GetNumFreeBankSlots,
 	
 	-- Content
 	Width = 70,
@@ -797,8 +845,9 @@ columns["FreeReagentBankSlots"] = {	-- TO DO
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
 	HeaderOnClick = function(frame) 
-		-- SortView(frame, DataStore.xxx, "FreeReagentBankSlots") 
+		-- SortView("FreeReagentBankSlots") 
 	end,
+	--HeaderSort = DataStore.xxx,
 	
 	-- Content
 	Width = 50,
@@ -825,7 +874,8 @@ columns["Prof1"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetProfession1, "Prof1") end,
+	HeaderOnClick = function() SortView("Prof1") end,
+	HeaderSort = DataStore.GetProfession1,
 	
 	-- Content
 	Width = 70,
@@ -857,7 +907,8 @@ columns["Prof2"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetProfession2, "Prof2") end,
+	HeaderOnClick = function() SortView("Prof2") end,
+	HeaderSort = DataStore.GetProfession2,
 	
 	-- Content
 	Width = 70,
@@ -889,7 +940,8 @@ columns["ProfCooking"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetCookingRank, "ProfCooking") end,
+	HeaderOnClick = function() SortView("ProfCooking") end,
+	HeaderSort = DataStore.GetCookingRank,
 	
 	-- Content
 	Width = 60,
@@ -914,7 +966,8 @@ columns["ProfFirstAid"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetFirstAidRank, "ProfFirstAid") end,
+	HeaderOnClick = function() SortView("ProfFirstAid") end,
+	HeaderSort = DataStore.GetFirstAidRank,
 	
 	-- Content
 	Width = 60,
@@ -939,7 +992,8 @@ columns["ProfFishing"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetFishingRank, "ProfFishing") end,
+	HeaderOnClick = function() SortView("ProfFishing") end,
+	HeaderSort = DataStore.GetFishingRank,
 	
 	-- Content
 	Width = 60,
@@ -962,7 +1016,8 @@ columns["ProfArchaeology"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetArchaeologyRank, "ProfArchaeology") end,
+	HeaderOnClick = function() SortView("ProfArchaeology") end,
+	HeaderSort = DataStore.GetArchaeologyRank,
 	
 	-- Content
 	Width = 60,
@@ -986,7 +1041,8 @@ columns["Mails"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetNumMails, "Mails") end,
+	HeaderOnClick = function() SortView("Mails") end,
+	HeaderSort = DataStore.GetNumMails,
 	
 	-- Content
 	Width = 60,
@@ -1098,7 +1154,8 @@ columns["LastMailCheck"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetMailboxLastVisit, "LastMailCheck") end,
+	HeaderOnClick = function() SortView("LastMailCheck") end,
+	HeaderSort = DataStore.GetMailboxLastVisit,
 	
 	-- Content
 	Width = 70,
@@ -1134,7 +1191,8 @@ columns["Auctions"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetNumAuctions, "Auctions") end,
+	HeaderOnClick = function() SortView("Auctions") end,
+	HeaderSort = DataStore.GetNumAuctions,
 	
 	-- Content
 	Width = 70,
@@ -1166,7 +1224,8 @@ columns["Bids"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetNumBids, "Bids") end,
+	HeaderOnClick = function() SortView("Bids") end,
+	HeaderSort = DataStore.GetNumBids,
 	
 	-- Content
 	Width = 60,
@@ -1199,7 +1258,8 @@ columns["AHLastVisit"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetAuctionHouseLastVisit, "AHLastVisit") end,
+	HeaderOnClick = function() SortView("AHLastVisit") end,
+	HeaderSort = DataStore.GetAuctionHouseLastVisit,
 	
 	-- Content
 	Width = 70,
@@ -1235,12 +1295,14 @@ columns["MissionTableLastVisit"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetMissionTableLastVisit, "MissionTableLastVisit") end,
+	HeaderOnClick = function() SortView("MissionTableLastVisit") end,
+	HeaderSort = DataStore.GetMissionTableLastVisit,
 	
 	-- Content
 	Width = 65,
 	JustifyH = "RIGHT",
 	GetText = function(character)
+		local numAvail = DataStore:GetNumAvailableMissions(character) or 0
 			local numActive = DataStore:GetNumActiveMissions(character) or 0
 			local numCompleted = DataStore:GetNumCompletedMissions(character) or 0
 			local text = ""
@@ -1251,6 +1313,8 @@ columns["MissionTableLastVisit"] = {
 				else
 					text = format(" %s*", colors.green)
 				end
+			elseif numActive == 0 and numAvail ~= 0 then
+				text = format(" %s!", colors.red)	-- red '!' no mission is active !
 			end
 	
 			return format("%s%s%s", colors.white, addon:FormatDelay(DataStore:GetMissionTableLastVisit(character)), text)
@@ -1272,15 +1336,20 @@ columns["MissionTableLastVisit"] = {
 			tt:AddLine(format("%s: %s", L["Visited"], SecondsToTime(time() - lastVisit)),1,1,1)
 			tt:AddLine(" ",1,1,1)
 			
-			local num = DataStore:GetNumAvailableMissions(character)
-			tt:AddLine(format("Available Missions: %s%d", colors.green, num),1,1,1)
+			local numAvail = DataStore:GetNumAvailableMissions(character) or 0
+			local numActive = DataStore:GetNumActiveMissions(character) or 0
+			local numCompleted = DataStore:GetNumCompletedMissions(character) or 0
+			local color = colors.green
 			
-			num = DataStore:GetNumActiveMissions(character)
-			tt:AddLine(format("In Progress: %s%d", colors.green, num),1,1,1)
+			tt:AddLine(format("Available Missions: %s%d", color, numAvail),1,1,1)
 			
-			num = DataStore:GetNumCompletedMissions(character)
-			local color = (num > 0) and colors.gold or colors.white
-			tt:AddLine(format("%sCompleted Missions: %s%d", color, colors.green, num),1,1,1)
+			if numActive == 0 and numAvail ~= 0 then
+				color = colors.red
+			end
+			tt:AddLine(format("In Progress: %s%d", color, numActive),1,1,1)
+			
+			color = (numCompleted > 0) and colors.gold or colors.white
+			tt:AddLine(format("%sCompleted Missions: %s%d", color, colors.green, numCompleted),1,1,1)
 			
 			tt:Show()
 		end,
@@ -1306,7 +1375,8 @@ columns["CurrencyGarrison"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetGarrisonResources, "CurrencyGarrison") end,
+	HeaderOnClick = function() SortView("CurrencyGarrison") end,
+	HeaderSort = DataStore.GetGarrisonResources,
 	
 	-- Content
 	Width = 80,
@@ -1367,7 +1437,8 @@ columns["CurrencyApexis"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetApexisCrystals, "CurrencyApexis") end,
+	HeaderOnClick = function() SortView("CurrencyApexis") end,
+	HeaderSort = DataStore.GetApexisCrystals,
 	
 	-- Content
 	Width = 100,
@@ -1390,7 +1461,8 @@ columns["CurrencySOTF"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetSealsOfFate, "CurrencySOTF") end,
+	HeaderOnClick = function() SortView("CurrencySOTF") end,
+	HeaderSort = DataStore.GetSealsOfFate,
 	
 	-- Content
 	Width = 60,
@@ -1413,7 +1485,8 @@ columns["CurrencyHonor"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetHonorPoints, "CurrencyHonor") end,
+	HeaderOnClick = function() SortView("CurrencyHonor") end,
+	HeaderSort = DataStore.GetHonorPoints,
 	
 	-- Content
 	Width = 80,
@@ -1436,7 +1509,8 @@ columns["CurrencyConquest"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetConquestPoints, "CurrencyConquest") end,
+	HeaderOnClick = function() SortView("CurrencyConquest") end,
+	HeaderSort = DataStore.GetConquestPoints,
 	
 	-- Content
 	Width = 80,
@@ -1513,7 +1587,8 @@ columns["FollowersLV100"] = {
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetNumFollowersAtLevel100, "FollowersLV100") end,
+	HeaderOnClick = function() SortView("FollowersLV100") end,
+	HeaderSort = DataStore.GetNumFollowersAtLevel100,
 	
 	-- Content
 	Width = 70,
@@ -1530,69 +1605,28 @@ columns["FollowersLV100"] = {
 	GetTotal = EmptyFunc,
 }
 
-columns["FollowersRare"] = {
-	-- Header
-	HeaderWidth = 55,
-	Header = "Rare",
-	GetHeaderTooltip = EmptyFunc,
-	HeaderOnEnter = EmptyFunc,
-	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetNumRareFollowers, "FollowersRare") end,
-	
-	-- Content
-	Width = 55,
-	JustifyH = "CENTER",
-	GetText = function(character)
-			local amount = DataStore:GetNumRareFollowers(character) or 0
-			local color = (amount == 0) and colors.grey or colors.rare
-			
-			return format("%s%s", color, amount)
-		end,
-	OnEnter = EmptyFunc,
-	OnClick = EmptyFunc,
-	GetTotal = EmptyFunc,
-}
-
 columns["FollowersEpic"] = {
 	-- Header
 	HeaderWidth = 55,
-	Header = "Epic",
+	-- Header = "Epic",
+	Header = RARITY,
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetNumEpicFollowers, "FollowersEpic") end,
+	HeaderOnClick = function() SortView("FollowersEpic") end,
+	HeaderSort = GetRarityLevel,
 	
 	-- Content
 	Width = 55,
 	JustifyH = "CENTER",
 	GetText = function(character)
-			local amount = DataStore:GetNumEpicFollowers(character) or 0
-			local color = (amount == 0) and colors.grey or colors.epic
+			local numRare = DataStore:GetNumRareFollowers(character) or 0
+			local colorRare = (numRare == 0) and colors.grey or colors.rare
 			
-			return format("%s%s", color, amount)
-		end,
-	OnEnter = EmptyFunc,
-	OnClick = EmptyFunc,
-	GetTotal = EmptyFunc,
-}
-
-columns["FollowersLV615"] = {
-	-- Header
-	HeaderWidth = 55,
-	Header = "> 615",
-	GetHeaderTooltip = EmptyFunc,
-	HeaderOnEnter = EmptyFunc,
-	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetNumFollowersAtiLevel615, "FollowersLV615") end,
-	
-	-- Content
-	Width = 55,
-	JustifyH = "CENTER",
-	GetText = function(character)
-			local amount = DataStore:GetNumFollowersAtiLevel615(character) or 0
-			local color = (amount == 0) and colors.grey or colors.uncommon
+			local numEpic = DataStore:GetNumEpicFollowers(character) or 0
+			local colorEpic = (numEpic == 0) and colors.grey or colors.epic
 			
-			return format("%s%s", color, amount)
+			return format("%s%s%s/%s%s", colorRare, numRare, colors.white, colorEpic, numEpic)
 		end,
 	OnEnter = EmptyFunc,
 	OnClick = EmptyFunc,
@@ -1601,44 +1635,24 @@ columns["FollowersLV615"] = {
 
 columns["FollowersLV630"] = {
 	-- Header
-	HeaderWidth = 55,
-	Header = "> 630",
+	HeaderWidth = 70,
+	Header = "615/630",
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetNumFollowersAtiLevel630, "FollowersLV630") end,
+	HeaderOnClick = function() SortView("FollowersLV630") end,
+	HeaderSort = GetFollowersLevel615To630,
 	
 	-- Content
-	Width = 55,
+	Width = 70,
 	JustifyH = "CENTER",
 	GetText = function(character)
-			local amount = DataStore:GetNumFollowersAtiLevel630(character) or 0
-			local color = (amount == 0) and colors.grey or colors.rare
+			local num615 = DataStore:GetNumFollowersAtiLevel615(character) or 0
+			local color615 = (num615 == 0) and colors.grey or colors.green
+			local num630 = DataStore:GetNumFollowersAtiLevel630(character) or 0
+			local color630 = (num630 == 0) and colors.grey or colors.rare
 			
-			return format("%s%s", color, amount)
-		end,
-	OnEnter = EmptyFunc,
-	OnClick = EmptyFunc,
-	GetTotal = EmptyFunc,
-}
-
-columns["FollowersLV645"] = {
-	-- Header
-	HeaderWidth = 55,
-	Header = "> 645",
-	GetHeaderTooltip = EmptyFunc,
-	HeaderOnEnter = EmptyFunc,
-	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetNumFollowersAtiLevel645, "FollowersLV645") end,
-	
-	-- Content
-	Width = 55,
-	JustifyH = "CENTER",
-	GetText = function(character)
-			local amount = DataStore:GetNumFollowersAtiLevel645(character) or 0
-			local color = (amount == 0) and colors.grey or colors.epic
-			
-			return format("%s%s", color, amount)
+			return format("%s%s%s/%s%s", color615, num615, colors.white, color630, num630)
 		end,
 	OnEnter = EmptyFunc,
 	OnClick = EmptyFunc,
@@ -1647,23 +1661,96 @@ columns["FollowersLV645"] = {
 
 columns["FollowersLV660"] = {
 	-- Header
-	HeaderWidth = 55,
-	Header = "> 660",
+	HeaderWidth = 70,
+	Header = "645/660",
 	GetHeaderTooltip = EmptyFunc,
 	HeaderOnEnter = EmptyFunc,
 	HeaderOnLeave = EmptyFunc,
-	HeaderOnClick = function(frame) SortView(frame, DataStore.GetNumFollowersAtiLevel660, "FollowersLV660") end,
+	HeaderOnClick = function() SortView("FollowersLV660") end,
+	HeaderSort = GetFollowersLevel645To660,
 	
 	-- Content
-	Width = 55,
+	Width = 70,
 	JustifyH = "CENTER",
 	GetText = function(character)
-			local amount = DataStore:GetNumFollowersAtiLevel660(character) or 0
+			local num645 = DataStore:GetNumFollowersAtiLevel645(character) or 0
+			local color645 = (num645 == 0) and colors.grey or colors.epic
+			local num660 = DataStore:GetNumFollowersAtiLevel660(character) or 0
+			local color660 = (num660 == 0) and colors.grey or colors.epic
+			
+			return format("%s%s%s/%s%s", color645, num645, colors.white, color660, num660)
+		end,
+	OnEnter = EmptyFunc,
+	OnClick = EmptyFunc,
+	GetTotal = EmptyFunc,
+}
+
+columns["FollowersLV675"] = {
+	-- Header
+	HeaderWidth = 50,
+	Header = "675",
+	GetHeaderTooltip = EmptyFunc,
+	HeaderOnEnter = EmptyFunc,
+	HeaderOnLeave = EmptyFunc,
+	HeaderOnClick = function() SortView("FollowersLV675") end,
+	HeaderSort = DataStore.GetNumFollowersAtiLevel675,
+	
+	-- Content
+	Width = 50,
+	JustifyH = "CENTER",
+	GetText = function(character)
+			local amount = DataStore:GetNumFollowersAtiLevel675(character) or 0
 			local color = (amount == 0) and colors.grey or colors.epic
 			
 			return format("%s%s", color, amount)
 		end,
 	OnEnter = EmptyFunc,
+	OnClick = EmptyFunc,
+	GetTotal = EmptyFunc,
+}
+
+columns["FollowersItems"] = {
+	-- Header
+	HeaderWidth = 75,
+	Header = ITEM_LEVEL_ABBR,
+	GetHeaderTooltip = EmptyFunc,
+	HeaderOnEnter = EmptyFunc,
+	HeaderOnLeave = EmptyFunc,
+	HeaderOnClick = function() SortView("FollowersItems") end,
+	HeaderSort = GetFollowersItemLevel,
+	
+	-- Content
+	Width = 75,
+	JustifyH = "CENTER",
+	GetText = function(character)
+			local avgWeapon = DataStore:GetAvgWeaponiLevel(character) or 0
+			local colorW = GetColorFromAIL(avgWeapon)
+			
+			local avgArmor = DataStore:GetAvgArmoriLevel(character) or 0
+			local colorA = GetColorFromAIL(avgArmor)
+			
+			return format("%s%.1f%s/%s%.1f", colorW, avgWeapon, colors.white, colorA, avgArmor)
+		end,
+	OnEnter = function(frame)
+			local character = frame:GetParent().character
+			if not character or not DataStore:GetModuleLastUpdateByKey("DataStore_Garrisons", character) then
+				return
+			end
+			
+			local avgWeapon = DataStore:GetAvgWeaponiLevel(character) or 0
+			local colorW = GetColorFromAIL(avgWeapon)
+			local avgArmor = DataStore:GetAvgArmoriLevel(character) or 0
+			local colorA = GetColorFromAIL(avgArmor)
+			
+			local tt = AltoTooltip
+			tt:ClearLines()
+			tt:SetOwner(frame, "ANCHOR_RIGHT")
+			tt:AddLine(DataStore:GetColoredCharacterName(character),1,1,1)
+			tt:AddLine(" ",1,1,1)
+			tt:AddLine(format("%s: %s%.1f", WEAPON, colorW, avgWeapon),1,1,1)
+			tt:AddLine(format("%s: %s%.1f", ARMOR, colorA, avgArmor),1,1,1)
+			tt:Show()
+		end,
 	OnClick = EmptyFunc,
 	GetTotal = EmptyFunc,
 }
@@ -1715,7 +1802,7 @@ local modes = {
 	[MODE_SKILLS] = { "Name", "Level", "Prof1", "Prof2", "ProfCooking", "ProfFirstAid", "ProfFishing", "ProfArchaeology" },
 	[MODE_ACTIVITY] = { "Name", "Level", "Mails", "LastMailCheck", "Auctions", "Bids", "AHLastVisit", "MissionTableLastVisit" },
 	[MODE_CURRENCIES] = { "Name", "Level", "CurrencyGarrison", "CurrencyApexis", "CurrencySOTF", "CurrencyHonor", "CurrencyConquest" },
-	[MODE_FOLLOWERS] = { "Name", "Level", "FollowersLV100", "FollowersRare", "FollowersEpic", "FollowersLV615", "FollowersLV630", "FollowersLV645", "FollowersLV660" },
+	[MODE_FOLLOWERS] = { "Name", "Level", "FollowersLV100", "FollowersEpic", "FollowersLV630", "FollowersLV660", "FollowersLV675", "FollowersItems" },
 }
 
 local function ViewAltInfo(self, characterInfoLine)
@@ -1806,6 +1893,7 @@ end
 function ns:SetMode(mode)
 	addon:SetOption("UI.Tabs.Summary.CurrentMode", mode)
 	
+	local parent = AltoholicTabSummary
 	AltoholicTabSummaryStatus:SetText("")
 	AltoholicTabSummaryToggleView:Show()
 	AltoholicTabSummary_SelectLocation:Show()
@@ -1814,36 +1902,48 @@ function ns:SetMode(mode)
 	AltoholicTabSummary_OptionsDataStore:Show()
 	
 	-- add the appropriate columns for this mode
-	local Columns = addon.Tabs.Columns
-	Columns:Init()
-
 	for i = 1, #modes[mode] do
 		local columnName = modes[mode][i]
 		local column = columns[columnName]
 		
-		Columns:Add(column.Header, column.HeaderWidth, column.HeaderOnClick)
+		parent.SortButtons:SetButton(i, column.Header, column.HeaderWidth, column.HeaderOnClick)
 	end
 end
 
 function ns:Update()
-	local numRows = 14
 	
 	local frame = AltoholicFrameSummary
-	local offset = addon.ScrollFrames:GetOffset(frame.ScrollFrame)
+	local scrollFrame = frame.ScrollFrame
+	local numRows = scrollFrame.numRows
+	local offset = scrollFrame:GetOffset()
 
 	local isRealmShown
 	local numVisibleRows = 0
 	local numDisplayedRows = 0
 
-	local currentMode = addon:GetOption("UI.Tabs.Summary.CurrentMode")
+	local sortOrder = addon:GetOption("UI.Tabs.Summary.SortAscending")
+	local currentColumn = addon:GetOption("UI.Tabs.Summary.CurrentColumn")
+	local currentModeIndex = addon:GetOption("UI.Tabs.Summary.CurrentMode")
+	local currentMode = modes[currentModeIndex]
+	
+	-- rebuild and get the view, then sort it
+	Characters:InvalidateView()
+	local view = Characters:GetView()
+	Characters:Sort(sortOrder, columns[currentColumn].HeaderSort)
+
+	-- attempt to restore the arrow to the right sort button
+	local container = AltoholicTabSummary.SortButtons
+	for i = 0, #currentMode do
+		if currentMode[i] == currentColumn then
+			container["Sort"..i].Arrow:Draw(sortOrder)
+		end
+	end
+	
 	local rowIndex = 1
 	local item
 	
-	local view = Characters:GetView()
-	
 	for _, line in pairs(view) do
-		local rowFrame = frame["Entry"..rowIndex]
-	
+		local rowFrame = scrollFrame:GetRow(rowIndex)
 		local lineType = Characters:GetLineType(line)
 		
 		if (offset > 0) or (numDisplayedRows >= numRows) then		-- if the line will not be visible
@@ -1907,8 +2007,8 @@ function ns:Update()
 					rowFrame.Item1:SetPoint("TOPLEFT", 10, 0)
 
 					-- fill the visible cells for this mode
-					for i = 1, #modes[currentMode] do
-						SetButtonData(rowFrame["Item"..i], character, modes[currentMode][i])
+					for i = 1, #currentMode do
+						SetButtonData(rowFrame["Item"..i], character, currentMode[i])
 					end
 					
 				elseif (lineType == INFO_TOTAL_LINE) then
@@ -1916,8 +2016,8 @@ function ns:Update()
 					rowFrame.Collapse:Hide()
 					
 					-- fill the visible cells for this mode
-					for i = 1, #modes[currentMode] do
-						SetTotalButtonData(rowFrame["Item"..i], line, modes[currentMode][i])
+					for i = 1, #currentMode do
+						SetTotalButtonData(rowFrame["Item"..i], line, currentMode[i])
 					end
 					
 					item = rowFrame.Item1
@@ -1926,7 +2026,7 @@ function ns:Update()
 				end
 					
 				-- hide the extra cells
-				for i = #modes[currentMode]+1, 10 do
+				for i = #currentMode+1, 10 do
 					rowFrame["Item"..i]:Hide()
 				end
 				
@@ -1940,14 +2040,14 @@ function ns:Update()
 	end
 	
 	while rowIndex <= numRows do
-		local rowFrame = frame["Entry"..rowIndex]
+		local rowFrame = scrollFrame:GetRow(rowIndex) 
 		
 		rowFrame:SetID(0)
 		rowFrame:Hide()
 		rowIndex = rowIndex + 1
 	end
-	
-	addon.ScrollFrames:Update(frame.ScrollFrame, numVisibleRows, numRows, 18)
+
+	scrollFrame:Update(numVisibleRows)
 end
 
 function addon:AiLTooltip()

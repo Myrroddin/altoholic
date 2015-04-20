@@ -150,7 +150,8 @@ function ns:Update()
 	
 	_G[parent .. "Info"]:Show()
 	
-	local offset = addon.ScrollFrames:GetOffset( _G[ parent.."ScrollFrame" ] );
+	local scrollFrame = _G[ parent.."ScrollFrame" ]
+	local offset = scrollFrame:GetOffset()
 	local DisplayedCount = 0
 	local VisibleCount = 0
 	local DrawGroup = true
@@ -286,7 +287,7 @@ function ns:Update()
 	
 	_G[parent]:Show()
 	
-	addon.ScrollFrames:Update( _G[ parent.."ScrollFrame" ], VisibleCount, VisibleLines, 18);
+	scrollFrame:Update(VisibleCount, VisibleLines, 18)
 end
 
 function ns:SetCurrentProfession(prof)

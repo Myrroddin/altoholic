@@ -4,17 +4,17 @@ _G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "A
 
 local addon = _G[addonName]
 
-addon.Version = "v6.1.004"
-addon.VersionNum = 601004
+addon.Version = "v6.1.005"
+addon.VersionNum = 601005
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local commPrefix = addonName
 
-BINDING_HEADER_ALTOHOLIC = addonName;
-BINDING_NAME_ALTOHOLIC_TOGGLE = "Toggle UI";
+BINDING_HEADER_ALTOHOLIC = addonName
+BINDING_NAME_ALTOHOLIC_TOGGLE = "Toggle UI"
 
 local options = { 
-	type= "group",
+	type = "group",
 	args = {
 		search = {
 			type = "input",
@@ -77,6 +77,7 @@ local AddonDB_Defaults = {
 			["UI.Tabs.Summary.CurrentMode"] = 1,								-- current mode (1 = account summary, 2 = bags, ...)
 			["UI.Tabs.Summary.CurrentColumn"] = "Name",						-- current column (default = "Name")
 			["UI.Tabs.Summary.CurrentRealms"] = 2,								-- selected realms (current/all in current/all accounts)
+			["UI.Tabs.Summary.SortAscending"] = true,							-- ascending or descending sort order
 			
 			-- ** Character tab options **
 			["UI.Tabs.Characters.ViewBags"] = true,
@@ -86,20 +87,22 @@ local AddonDB_Defaults = {
 			["UI.Tabs.Characters.ViewReagentBank"] = true,
 			["UI.Tabs.Characters.ViewBagsRarity"] = 0,						-- rarity level of items (not a boolean !)
 			["UI.Tabs.Characters.GarrisonMissions"] = 1,						-- available missions = 1, active missions = 2
+			["UI.Tabs.Characters.SortAscending"] = true,						-- ascending or descending sort order
 						
 			-- ** Search tab options **
 			["UI.Tabs.Search.ItemInfoAutoQuery"] = false,
-			["UI.Tabs.Search.SortDescending"] = false,				-- display search results in the loot table in ascending (0) or descending (1) order ?
 			["UI.Tabs.Search.IncludeNoMinLevel"] = true,				-- include items with no minimum level
 			["UI.Tabs.Search.IncludeMailboxItems"] = true,
 			["UI.Tabs.Search.IncludeGuildBankItems"] = true,
 			["UI.Tabs.Search.IncludeKnownRecipes"] = true,
+			["UI.Tabs.Search.SortAscending"] = true,							-- ascending or descending sort order
 			TotalLoots = 0,					-- make at least one search in the loot tables to initialize these values
 			UnknownLoots = 0,
 			
 			-- ** Guild Bank tab options **
 			["UI.Tabs.Guild.BankItemsRarity"] = 0,								-- rarity filter in the guild bank tab
 			["UI.Tabs.Guild.BankAutoUpdate"] = false,							-- can the guild bank tabs update requests be answered automatically or not.
+			["UI.Tabs.Guild.SortAscending"] = true,							-- ascending or descending sort order
 			
 			-- ** Grids tab options **
 			["UI.Tabs.Grids.Reputations.CurrentXPack"] = 1,					-- Current expansion pack 
@@ -206,6 +209,19 @@ LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject(addonName, {
 	text = (Broker2FuBar) and addonName or nil,		-- only for fubar,  not for ldb
 	label = addonName,
 })
+
+-- ** Class Extensions **
+local classExtensions = {}
+
+function addon:RegisterClassExtensions(class, methods)
+	-- Sets the methods for a given type of objet, it's far from being true OOP, but works quite nice to add some methods to templates :)
+	-- ScrollFrames.lua & .xml show a good example of the application
+	classExtensions[class] = methods
+end
+
+function addon:GetClassExtension(class, method)
+	return classExtensions[class][method]
+end
 
 
 local guildMembersVersion = {} 	-- hash table containing guild member info
@@ -366,7 +382,6 @@ function addon.Tabs:OnClick(index)
 	PanelTemplates_SetTab(_G[addonName.."Frame"], index);
 	self:HideAll()
 	self.current = index
-	self.Columns.prefix = addonName.."Tab"..tabList[index].."_Sort"
 	
 	if index >= 1 and index <= 7 then
 		local moduleName = format("%s_%s", addonName, tabList[index])
@@ -391,67 +406,6 @@ function addon.Tabs:OnClick(index)
 	ShowTab(tabList[index])
 end
 
-addon.Tabs.Columns = {}
-
-function addon.Tabs.Columns:Init()
-	local i = 1
-	local prefix = self.prefix or "AltoholicTabSummary_Sort"
-	local button = _G[ prefix .. i ]
-	
-	while button do
-		button.Arrow:Hide()
-		button.ascendingSort = nil		-- not sorted by default
-		button:Hide()
-		
-		i = i + 1
-		button = _G[ prefix .. i ]
-	end
-	self.count = 0
-	self.prefix = prefix
-end
-
-function addon.Tabs.Columns:Add(title, width, func)
-	local prefix = self.prefix
-	self.count = self.count + 1
-	local button = _G[ prefix..self.count ]
-
-	if not title then		-- no title ? count the column, but hide it
-		button:Hide()
-		return
-	end
-	
-	button:SetText(title)
-	button:SetWidth(width)
-	button:SetScript("OnClick", function(self)
-			local prefix = addon.Tabs.Columns.prefix
-			local i = 1
-			local btn = _G[prefix .. i]
-			
-			while btn do		-- hide all arrows
-				btn.Arrow:Hide()
-				i = i + 1
-				btn = _G[prefix .. i]
-			end
-
-			btn = _G[prefix .. self:GetID()]
-			btn.Arrow:Show()	-- show selected arrow
-			
-			if not self.ascendingSort then
-				self.ascendingSort = true
-				btn.Arrow:SetTexCoord(0, 0.5625, 1.0, 0);		-- arrow pointing up
-			else
-				self.ascendingSort = nil
-				btn.Arrow:SetTexCoord(0, 0.5625, 0, 1.0);		-- arrow pointing down
-			end
-	
-			if func then
-				func(self)
-			end
-		end)
-	button:Show()
-end
-
-
 -- Allow ESC to close the main frame
 tinsert(UISpecialFrames, "AltoholicFrame");
 tinsert(UISpecialFrames, "AltoMsgBox");
@@ -465,9 +419,9 @@ function addon:CmdSearchBags(arg1, arg2)
 	end
 	
 	if not (AltoholicFrame:IsVisible()) then
-		AltoholicFrame:Show();
+		AltoholicFrame:Show()
 	end
 	AltoholicFrame_SearchEditBox:SetText(strlower(arg2))
 	addon.Tabs:OnClick("Search")
-	addon.Search:FindItem();
+	addon.Search:FindItem()
 end	

@@ -10,47 +10,15 @@
 			<ScrollFrame name="$parentScrollFrame" parentKey="ScrollFrame" inherits="AltoBaseScrollFrameTemplate">
 				<Scripts>
 					<OnVerticalScroll>
-						Altoholic.ScrollFrames:OnVerticalScroll(self, offset, 41, Altoholic.Containers.Update)
+						self:OnVerticalScroll(offset, 41, Altoholic.Containers.Update)
 					</OnVerticalScroll>
 				</Scripts>
+				<KeyValues>
+					<KeyValue key="numRows" value="7" type="number" />
+					<KeyValue key="rowHeight" value="41" type="number" />
+					<KeyValue key="rowTemplate" value="AltoContainerTemplate" />
+				</KeyValues>
 			</ScrollFrame>
-			
-			<Button parentKey="Entry1" inherits="AltoContainerTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentScrollFrame" relativePoint="TOPLEFT" x="0" y="0" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry2" inherits="AltoContainerTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry1" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry3" inherits="AltoContainerTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry2" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry4" inherits="AltoContainerTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry3" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry5" inherits="AltoContainerTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry4" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry6" inherits="AltoContainerTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry5" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry7" inherits="AltoContainerTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry6" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
 		</Frames>
 	</Frame>
-	
 </Ui>

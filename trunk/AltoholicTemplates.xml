@@ -1,4 +1,5 @@
 ﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="AltoholicTemplates.lua"></Script>
 	
 	<Button name="AltoTabTemplate" inherits="CharacterFrameTabButtonTemplate" virtual="true">
 		<Scripts>
@@ -33,6 +34,8 @@
 		</Layers>
 		<Scripts>
 			<OnLoad>
+				self.SetClass = Altoholic:GetClassExtension("AltoClassIcon","SetClass")
+			
 				local level = self:GetParent():GetFrameLevel()
 				self:SetFrameLevel(level + 1)
 				self:RegisterForClicks("LeftButtonDown", "RightButtonDown");
@@ -44,6 +47,40 @@
 			</OnLeave>
 		</Scripts>
 	</Button>
+
+	<Frame name="AltoClassIconsContainerTemplate" virtual="true">
+		<Size x="457" y="37" />
+		<Anchors>
+			<Anchor point="TOPLEFT" x="370" y="-55" />
+		</Anchors>
+		<KeyValues>
+			<KeyValue key="iconPrefix" value="Icon" />
+		</KeyValues>
+		<Scripts>
+			<OnLoad>
+				self.Update = Altoholic:GetClassExtension("AltoClassIconsContainer","Update")
+				self.ShowChildFrames = Altoholic:GetClassExtension("AltoFrame","ShowChildFrames")
+				self.HideChildFrames = Altoholic:GetClassExtension("AltoFrame","HideChildFrames")
+			
+				local prefix = self.iconPrefix
+			
+				-- auto create the sort buttons, with the quantity passed as key
+				for i = 1, self.numIcons do
+					local frame = CreateFrame("Button", nil, self, self.iconTemplate)
+					
+					if i == 1 then
+						frame:SetPoint("TOPLEFT")
+					else
+						-- attach to previous frame
+						frame:SetPoint("TOPLEFT", self[prefix..(i-1)], "TOPRIGHT", 5, 0)
+					end
+					
+					frame:SetID(i)
+					self[prefix..i] = frame
+				end
+			</OnLoad>
+		</Scripts>
+	</Frame>
 	
 	<!-- Simple item button template -->
  	<Button name="AltoItemButtonTemplate" inherits="AltoButtonTemplate" virtual="true">
@@ -228,7 +265,8 @@
 		</Layers>
 	</Button>
 
-	<Button name="AltoSortButtonTemplate" virtual="true">
+	<Button name="AltoSortButtonTemplate" hidden="true" virtual="true">
+		<Size x="50" y="19" />
 		<Layers>
 			<Layer level="BACKGROUND">
 				<Texture parentKey="Left" file="Interface\FriendsFrame\WhoFrame-ColumnTabs">
@@ -255,7 +293,7 @@
 				</Texture>
 			</Layer>
 		</Layers>
-		<ButtonText name="$parentText">
+		<ButtonText parentKey="Text">
 			<Anchors>
 				<Anchor point="LEFT" x="8" y="-2" />
 			</Anchors>
@@ -264,7 +302,7 @@
 		<NormalTexture parentKey="Arrow" file="Interface\Buttons\UI-SortArrow">
 			<Size x="9" y="8" />
 			<Anchors>
-				<Anchor point="LEFT" relativeTo="$parentText" relativePoint="RIGHT" x="3" y="-2" />
+				<Anchor point="LEFT" relativeKey="$parent.Text" relativePoint="RIGHT" x="3" y="-2" />
 			</Anchors>
 			<TexCoords left="0" right="0.5625" top="0" bottom="1.0"/>
 		</NormalTexture>
@@ -278,9 +316,55 @@
 		<Scripts>
 			<OnLoad>
 				self.Arrow:Hide()
+				self.Arrow.Draw = Altoholic:GetClassExtension("AltoSortButton","Draw")
 			</OnLoad>
+			<OnClick>
+				local parent = self:GetParent()
+				
+				for _, child in ipairs( {parent:GetChildren()} ) do
+					child.Arrow:Hide()
+				end
+			
+				local option = parent.option
+				Altoholic:ToggleOption(nil, option)
+
+				local ascending = Altoholic:GetOption(option)
+				self.Arrow:Draw(ascending)
+	
+				if self.func then
+					self.func(self)
+				end
+			</OnClick>
 		</Scripts>
 	</Button>
+	
+	<Frame name="AltoSortButtonsContainerTemplate" virtual="true">
+		<Size x="700" y="19" />
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeTo="AltoholicFrame_SearchEditBox" relativePoint="BOTTOMRIGHT" x="10" y="-10" />
+		</Anchors>
+		<Scripts>
+			<OnLoad>
+				self.SetButton = Altoholic:GetClassExtension("AltoSortButtonsContainer","SetButton")
+				self.ShowChildFrames = Altoholic:GetClassExtension("AltoFrame","ShowChildFrames")
+				self.HideChildFrames = Altoholic:GetClassExtension("AltoFrame","HideChildFrames")
+			
+				-- auto create the sort buttons, with the quantity passed as key
+				for i = 1, self.numButtons do
+					local frame = CreateFrame("Button", nil, self, "AltoSortButtonTemplate")
+					
+					if i == 1 then
+						frame:SetPoint("TOPLEFT")
+					else
+						-- attach to previous frame
+						frame:SetPoint("LEFT", self["Sort"..(i-1)], "RIGHT", 0, 0)
+					end
+					
+					self["Sort"..i] = frame
+				end
+			</OnLoad>
+		</Scripts>
+	</Frame>
 	
 	<!-- IconList, used by Pets & Achievements -->
 	<Button name="AltoIconListItemTemplate" hidden="true" virtual="true">

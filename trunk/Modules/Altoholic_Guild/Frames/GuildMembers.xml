@@ -125,85 +125,18 @@
 			</OnLoad>
 		</Scripts>
 		<Frames>
-			<ScrollFrame name="$parentScrollFrame" parentKey="ScrollFrame" inherits="AltoBaseScrollFrameTemplate">
+			<ScrollFrame parentKey="ScrollFrame" inherits="AltoBaseScrollFrameTemplate">
 				<Scripts>
 					<OnVerticalScroll>
-						Altoholic.ScrollFrames:OnVerticalScroll(self, offset, 18, Altoholic.Guild.Members.Update)
+						self:OnVerticalScroll(offset, 18, Altoholic.Guild.Members.Update)
 					</OnVerticalScroll>
 				</Scripts>
+				<KeyValues>
+					<KeyValue key="numRows" value="14" type="number" />
+					<KeyValue key="rowHeight" value="18" type="number" />
+					<KeyValue key="rowTemplate" value="AltoGuildMembersTemplate" />
+				</KeyValues>
 			</ScrollFrame>
-			
-			<!-- Scrollframe entries -->
-			<Button parentKey="Entry1" inherits="AltoGuildMembersTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentScrollFrame" relativePoint="TOPLEFT" x="0" y="0" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry2" inherits="AltoGuildMembersTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry1" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry3" inherits="AltoGuildMembersTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry2" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry4" inherits="AltoGuildMembersTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry3" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry5" inherits="AltoGuildMembersTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry4" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry6" inherits="AltoGuildMembersTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry5" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry7" inherits="AltoGuildMembersTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry6" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry8" inherits="AltoGuildMembersTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry7" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry9" inherits="AltoGuildMembersTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry8" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry10" inherits="AltoGuildMembersTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry9" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry11" inherits="AltoGuildMembersTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry10" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry12" inherits="AltoGuildMembersTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry11" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry13" inherits="AltoGuildMembersTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry12" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Entry14" inherits="AltoGuildMembersTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Entry13" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</Button>
 
 			<!-- Equipment Icons on the right of the frame -->
 			<Button parentKey="Item1" inherits="AltoItemButtonTemplate">

@@ -9,6 +9,13 @@ This means cleaning the following files in \WTF\Account\<your_account>\SavedVari
 There WILL be bugs if you use your old files without cleaning them first. 
 Some fixes to work around API changes are too time consuming, so cleaning is required. A meager price to pay once per expansion.
 
+6.1.005 (20/04/2015)
+
+- The garrison mission tooltip now shows a red exclamation mark '!' when no missions are active.
+- In the account summary, the last column used to sort the view is now remembered, and is restored when you log in again.
+- Character's tab: fixed a lua error when mousing over the professions' icon of a character that does not have 2 professions.
+- Account Summary: modified the garrison followers pane to show followers at iLvl 675 and a column for their weapon/armor iLvl.
+
 6.1.004 (11/04/2015)
 
 - Fixed sorting the account summary by "Last Online" where the order was sometimes incorrect.

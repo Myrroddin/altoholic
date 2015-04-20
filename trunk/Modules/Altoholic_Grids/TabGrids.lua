@@ -104,73 +104,6 @@ local function UpdateMenuIcons()
 	end
 end
 
-local function UpdateClassIcons()
-	local key = addon:GetOption(format("Tabs.Grids.%s.%s.Column1", currentAccount, currentRealm))
-	if not key then	-- first time this realm is displayed, or reset by player
-	
-		local index = 1
-
-		-- add the first 11 keys found on this realm
-		for characterName, characterKey in pairs(DataStore:GetCharacters(currentRealm, currentAccount)) do	
-			-- ex: : ["Tabs.Grids.Default.MyRealm.Column4"] = "Account.realm.alt7"
-
-			addon:SetOption(format("Tabs.Grids.%s.%s.Column%d", currentAccount, currentRealm, index), characterKey)
-			
-			index = index + 1
-			if index > CHARS_PER_FRAME then
-				break
-			end
-		end
-		
-		while index <= CHARS_PER_FRAME do
-			addon:SetOption(format("Tabs.Grids.%s.%s.Column%d", currentAccount, currentRealm, index), nil)
-			index = index + 1
-		end
-	end
-	
-	local itemName, itemButton
-	local class, _
-	
-	local frame = parent.ClassIcons
-	
-	for i = 1, CHARS_PER_FRAME do
-		itemButton = frame["Icon"..i]
-		
-		key = addon:GetOption(format("Tabs.Grids.%s.%s.Column%d", currentAccount, currentRealm, i))
-		if key then
-			_, class = DataStore:GetCharacterClass(key)
-		end
-		
-		if key and class then
-			local tc = CLASS_ICON_TCOORDS[class]
-		
-			itemButton.Icon:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes");
-			itemButton.Icon:SetTexCoord(tc[1], tc[2], tc[3], tc[4])
-	
-			if DataStore:GetCharacterFaction(key) == "Alliance" then
-				itemButton.IconBorder:SetVertexColor(0.1, 0.25, 1, 0.5)
-			else
-				itemButton.IconBorder:SetVertexColor(1, 0, 0, 0.5)
-			end
-
-		else	-- no key ? display a question mark icon
-			itemButton.Icon:SetTexture(ICON_PARTIAL)
-			itemButton.Icon:SetTexCoord(0, 1, 0, 1)
-			
-			itemButton.IconBorder:SetVertexColor(0, 1, 0, 0.5)
-		end
-		
-		itemButton.Icon:SetWidth(33)
-		itemButton.Icon:SetHeight(33)
-		itemButton.Icon:SetAllPoints(itemButton)
-		
-		itemButton.IconBorder:Show()
-		itemButton:SetWidth(34)
-		itemButton:SetHeight(34)
-		itemButton:Show()
-	end
-end
-
 local gridCallbacks = {}
 
 function ns:RegisterGrid(category, callbacks)
@@ -202,13 +135,14 @@ function ns:MenuItem_OnClick(frame, button)
 end
 
 function ns:Update()
-	UpdateClassIcons()
+	parent.ClassIcons:Update(currentAccount, currentRealm)
 
-	local numRows = 8
 	local frame = AltoholicFrameGrids
+	local scrollFrame = frame.ScrollFrame
+	local numRows = scrollFrame.numRows
 	frame:Show()
 		
-	local offset = addon.ScrollFrames:GetOffset(frame.ScrollFrame)
+	local offset = scrollFrame:GetOffset()
 	
 	ns:SetStatus("")
 	
@@ -219,7 +153,7 @@ function ns:Update()
 	local itemButton
 	
 	for rowIndex = 1, numRows do
-		local rowFrame = frame["Entry"..rowIndex]
+		local rowFrame = scrollFrame:GetRow(rowIndex)
 		local dataRowID = rowIndex + offset
 		if dataRowID <= size then	-- if the row is visible
 
@@ -252,7 +186,7 @@ function ns:Update()
 		end
 	end
 
-	addon.ScrollFrames:Update(frame.ScrollFrame, size, numRows, 41)
+	scrollFrame:Update(size)
 end
 
 function ns:GetRealm()

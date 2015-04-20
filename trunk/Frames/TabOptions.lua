@@ -339,7 +339,6 @@ function addon:SetupOptions()
 		L["There is a risk of disconnection if the queried item\nis a loot from a high level dungeon.\n\n"],
 		L["|cFF00FF00Disable|r to avoid this risk"])	
 	
-	f.SortDescending.Text:SetText(L["Sort loots in descending order"])
 	f.IncludeNoMinLevel.Text:SetText(L["Include items without level requirement"])
 	f.IncludeMailboxItems.Text:SetText(L["Include mailboxes"])
 	f.IncludeGuildBankItems.Text:SetText(L["Include guild bank(s)"])
@@ -475,7 +474,6 @@ function addon:RestoreOptionsToUI()
 	f = AltoholicSearchOptions
 	
 	f.ItemInfoAutoQuery:SetChecked(O["UI.Tabs.Search.ItemInfoAutoQuery"])
-	f.SortDescending:SetChecked(O["UI.Tabs.Search.SortDescending"])
 	f.IncludeNoMinLevel:SetChecked(O["UI.Tabs.Search.IncludeNoMinLevel"])
 	f.IncludeMailboxItems:SetChecked(O["UI.Tabs.Search.IncludeMailboxItems"])
 	f.IncludeGuildBankItems:SetChecked(O["UI.Tabs.Search.IncludeGuildBankItems"])

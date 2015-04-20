@@ -206,7 +206,7 @@ local function SetEventLineOffset(offset)
 	elseif offset > (#view - NUM_EVENTLINES) then
 		offset = (#view - NUM_EVENTLINES)
 	end
-	addon.ScrollFrames:SetOffset( AltoholicFrameCalendarScrollFrame, offset )
+	AltoholicFrameCalendarScrollFrame:SetOffset(offset)
 	AltoholicFrameCalendarScrollFrameScrollBar:SetValue(offset * 18)
 end
 
@@ -303,7 +303,8 @@ function ns:UpdateEvents()
 	local frame = "AltoholicFrameCalendar"
 	local entry = frame.."Entry"
 
-	local offset = addon.ScrollFrames:GetOffset( _G[ frame.."ScrollFrame" ] );
+	local scrollFrame = _G[ frame.."ScrollFrame" ]
+	local offset = scrollFrame:GetOffset()
 
 	for i=1, VisibleLines do
 		local line = i + offset
@@ -343,7 +344,7 @@ function ns:UpdateEvents()
 	end
 	
 	local last = (#view < VisibleLines) and VisibleLines or #view
-	addon.ScrollFrames:Update( _G[ frame.."ScrollFrame" ], last, VisibleLines, 18);
+	scrollFrame:Update(last, VisibleLines, 18)
 end
 
 -- *** Mouse events ***

@@ -478,10 +478,10 @@ function ns:SetCategory(categoryID)
 end
 
 function ns:Update()
-	local numRows = 8
-	
 	local frame = AltoholicFrameAchievements
-	local offset = addon.ScrollFrames:GetOffset(frame.ScrollFrame)
+	local scrollFrame = frame.ScrollFrame
+	local numRows = scrollFrame.numRows
+	local offset = scrollFrame:GetOffset()
 	
 	local categorySize = GetCategorySize(currentCategoryID)
 		
@@ -494,7 +494,7 @@ function ns:Update()
 	AltoholicTabAchievements.Status:SetText(format("%s: %s", ACHIEVEMENTS, colors.green..categorySize ))
 	
 	for rowIndex = 1, numRows do
-		local rowFrame = frame["Entry"..rowIndex]
+		local rowFrame = scrollFrame:GetRow(rowIndex)
 		local line = rowIndex + offset
 		
 		if line <= categorySize then	-- if the line is visible
@@ -562,5 +562,5 @@ function ns:Update()
 		end
 	end
 
-	addon.ScrollFrames:Update(frame.ScrollFrame, categorySize, numRows, 41)
+	scrollFrame:Update(categorySize)
 end

@@ -29,6 +29,7 @@ embeds.xml
 
 locale.xml
 
+Core.lua
 AltoholicTemplates.xml
 Altoholic.xml
 ScrollFrames.xml

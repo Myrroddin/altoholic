@@ -75,9 +75,15 @@
 			<ScrollFrame name="$parentScrollFrame" inherits="AltoBaseScrollFrameTemplate">
 				<Scripts>
 					<OnVerticalScroll>
-						Altoholic.ScrollFrames:OnVerticalScroll(self, offset, 18, Altoholic.Quests.Update)
+						self:OnVerticalScroll(offset, 18, Altoholic.Quests.Update)
 					</OnVerticalScroll>
 				</Scripts>
+				<!--
+				<KeyValues>
+					<KeyValue key="numRows" value="14" type="number" />
+					<KeyValue key="rowTemplate" value="AltoQuestEntryTemplate" />
+				</KeyValues>
+				-->
 			</ScrollFrame>
 			
 			<Button name="$parentEntry1" inherits="AltoQuestEntryTemplate">

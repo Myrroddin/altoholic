@@ -289,22 +289,23 @@ function ns:Update()
 		BuildView()
 	end
 	
-	local numRows = 14
 	local frame = parent.Members
 	local scrollFrame = frame.ScrollFrame
+	local numRows = scrollFrame.numRows
 	
 	parent.Status:SetText(L["Click a character's AiL to see its equipment"])
 	
 	if #view == 0 then
 		-- Hides all entries of the scrollframe, and updates it accordingly
-		for rowIndex = 1, numRows do	
-			frame["Entry"..rowIndex]:Hide()
+		for rowIndex = 1, numRows do
+			local rowFrame = scrollFrame:GetRow(rowIndex) 
+			rowFrame:Hide()
 		end
-		addon.ScrollFrames:Update(scrollFrame, numRows, numRows, 18)
+		scrollFrame:Update(numRows)
 		return
 	end
 	
-	local offset = addon.ScrollFrames:GetOffset( scrollFrame );
+	local offset = scrollFrame:GetOffset()
 	local DisplayedCount = 0
 	local VisibleCount = 0
 	local DrawAlts
@@ -314,7 +315,7 @@ function ns:Update()
 	local guild = DataStore:GetGuild()
 	
 	for lineIndex, v in pairs(view) do
-		local rowFrame = frame["Entry"..rowIndex]
+		local rowFrame = scrollFrame:GetRow(rowIndex)
 		
 		local lineType = mod(v.lineType, 2)
 	
@@ -423,16 +424,18 @@ function ns:Update()
 	end
 	
 	while rowIndex <= numRows do
-		frame["Entry"..rowIndex]:SetID(0)
-		frame["Entry"..rowIndex]:Hide()
+		local rowFrame = scrollFrame:GetRow(rowIndex) 
+		
+		rowFrame:SetID(0)
+		rowFrame:Hide()
 		rowIndex = rowIndex + 1
 	end
-	addon.ScrollFrames:Update( scrollFrame, VisibleCount, numRows, 18);
+	scrollFrame:Update(VisibleCount)
 end
 
 function ns:Sort(self, field)
 	viewSortField = field
-	viewSortOrder = self.ascendingSort
+	viewSortOrder = addon:GetOption("UI.Tabs.Guild.SortAscending")
 	
 	ns:InvalidateView()
 end

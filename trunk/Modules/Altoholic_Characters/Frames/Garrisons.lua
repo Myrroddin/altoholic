@@ -62,23 +62,24 @@ function ns:Update()
 		BuildView()
 	end
 
-	local numRows = 7
 	local frame = AltoholicFrameGarrisonMissions
 	local scrollFrame = frame.ScrollFrame
+	local numRows = scrollFrame.numRows
 	
 	if not isViewValid then		-- make sure the scroll frame is cleared !
-		for i = 1, numRows do
-			frame["Entry"..i]:Hide()
+		for rowIndex = 1, numRows do
+			local rowFrame = scrollFrame:GetRow(rowIndex) 
+			rowFrame:Hide()
 		end
 
-		addon.ScrollFrames:Update(scrollFrame, numRows, numRows, 41)
+		scrollFrame:Update(numRows)
 		return
 	end
 
-	local offset = addon.ScrollFrames:GetOffset(scrollFrame)
+	local offset = scrollFrame:GetOffset()
 	
 	for rowIndex = 1, numRows do
-		local rowFrame = frame["Entry"..rowIndex]
+		local rowFrame = scrollFrame:GetRow(rowIndex)
 		local line = rowIndex + offset
 	
 		if line <= #view then
@@ -247,7 +248,7 @@ function ns:Update()
 		end
 	end
 	
-	addon.ScrollFrames:Update(frame.ScrollFrame, #view, numRows, 41)
+	scrollFrame:Update(#view)
 end
 
 function ns:InvalidateView()
