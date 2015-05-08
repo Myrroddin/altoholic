@@ -70,9 +70,6 @@ local followerTypes = {
 	L["Not recruited at the inn"],
 }
 
-local DDM_Add = addon.Helpers.DDM_Add
-local DDM_AddCloseMenu = addon.Helpers.DDM_AddCloseMenu
-
 local function SortByFollowerName(a, b)
 	local nameA = C_Garrison.GetFollowerNameByID(a)
 	local nameB = C_Garrison.GetFollowerNameByID(b)
@@ -169,13 +166,13 @@ local function OnFollowerFilterChange(self)
 	addon.Tabs.Grids:Update()
 end
 
-local function DropDown_Initialize()
+local function DropDown_Initialize(frame)
 	local currentFollowers = addon:GetOption(OPTION_FOLLOWERS)
 	
 	for i = 1, #followerTypes do
-		DDM_Add(followerTypes[i], i, OnFollowerFilterChange, nil, (i==currentFollowers))
+		frame:AddButton(followerTypes[i], i, OnFollowerFilterChange, nil, (i==currentFollowers))
 	end
-	DDM_AddCloseMenu()
+	frame:AddCloseMenu()
 end
 
 local callbacks = {
@@ -269,12 +266,10 @@ local callbacks = {
 
 			local currentFollowers = addon:GetOption(OPTION_FOLLOWERS)
 			
-			UIDropDownMenu_SetWidth(frame, 100) 
-			UIDropDownMenu_SetButtonWidth(frame, 20)
-			UIDropDownMenu_SetText(frame, followerTypes[currentFollowers])
-			addon:DDM_Initialize(frame, DropDown_Initialize)
-			
-			
+			frame:SetMenuWidth(100) 
+			frame:SetButtonWidth(20)
+			frame:SetText(followerTypes[currentFollowers])
+			frame:Initialize(DropDown_Initialize, "MENU_NO_BORDERS")
 		end,
 }
 

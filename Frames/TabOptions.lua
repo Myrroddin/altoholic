@@ -120,6 +120,26 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "6.1.006 Changes",
+		bulletedList = {
+			"Updated list of archaeology projects with WoD projects. I apparently messed up and lost the file that contained the update in 6.1.001, it's now ok.",
+			"Moved several UI templates to their own folder.",
+			"Completely rewrote the Blizzard's DropDownMenu widget to use my own version.",
+			"Account Summary -> The amount of uncollected garrison resources now appears in yellow when resources exceed 300, and in red when they exceed 450.",
+			"Account Summary -> Added icons with drop-down menus to filter your list of alts by faction, level, profession and class.",
+			"Account Summary -> Fixed the expand/collapse button that did not work anymore after the complete rewrite of the pane.",
+			"Achievements lists updated ! (Thanks Bluemage29 for your help !!)",
+			"Fixed a Lua error when viewing the Guild tab with an character not in a guild.",
+		},
+	},
+	{	name = "6.1.005 Changes",
+		bulletedList = {
+			"The garrison mission tooltip now shows a red exclamation mark '!' when no missions are active.",
+			"In the account summary, the last column used to sort the view is now remembered, and is restored when you log in again.",
+			"Character's tab: fixed a lua error when mousing over the professions' icon of a character that does not have 2 professions.",
+			"Account Summary: modified the garrison followers pane to show followers at iLvl 675 and a column for their weapon/armor iLvl.",
+		},
+	},
 	{	name = "6.1.004 Changes",
 		bulletedList = {
 			"Fixed sorting the account summary by 'Last Online' where the order was sometimes incorrect.",

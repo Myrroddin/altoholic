@@ -1,7 +1,7 @@
 ﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="AccountSummary.lua"></Script>
 
-	<!-- New Templates for all buttons used in the summary pane -->
+	<!-- New Template for all buttons used in the summary pane -->
 	<Button name="AltoSummaryButtonTemplate" virtual="true">
 		<Size x="40" y="18" />
 		<ButtonText parentKey="Text" justifyH="CENTER">
@@ -25,19 +25,17 @@
 	<Button name="AltoSummaryRowTemplate" virtual="true">
 		<Size x="615" y="22" />
 		<Frames>
-			<Button parentKey="Collapse" hidden="true">
-				<Size x="16" y="16" />
+			<Button parentKey="Collapse" inherits="AltoToggleButtonTemplate">
 				<Anchors>
 					<Anchor point="LEFT" x="7" y="1" />
 				</Anchors>
 				<Scripts>
 					<OnClick>
+						self:Toggle()
 						Altoholic.Characters:ToggleHeader(self)
 						Altoholic.Summary:Update()
 					</OnClick>
 				</Scripts>
-				<NormalTexture parentKey="Icon" file="Interface\Buttons\UI-MinusButton-UP" />
-				<HighlightTexture file="Interface\Buttons\UI-PlusButton-Hilight" alphaMode="ADD" />
 			</Button>
 			
 			<Button parentKey="Item1" inherits="AltoSummaryButtonTemplate" id="1">
@@ -117,18 +115,6 @@
 					<KeyValue key="rowTemplate" value="AltoSummaryRowTemplate" />
 				</KeyValues>
 			</ScrollFrame>
-			
-			<Frame name="$parentRightClickMenu" inherits="UIDropDownMenuTemplate" id="1" hidden="true">
-				<Size>
-					<AbsDimension x="100" y="40"/>
-				</Size>
-				<Scripts>
-					<OnLoad>
-						Altoholic:DDM_Initialize(self, Altoholic.Summary.RightClickMenu_OnLoad)
-					</OnLoad>
-				</Scripts>
-			</Frame>
 		</Frames>
 	</Frame>
-	
 </Ui>

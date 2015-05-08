@@ -82,6 +82,7 @@ local isViewValid
 local OPTION_BUILDINGS = "UI.Tabs.Grids.Garrisons.CurrentBuildings"
 
 local currentDDMText
+local dropDownFrame
 
 local function BuildView()
 	view = view or {}
@@ -96,10 +97,8 @@ local function BuildView()
 	isViewValid = true
 end
 
-local DDM_AddCloseMenu = addon.Helpers.DDM_AddCloseMenu
-
 local function OnBuildingTypeSelected(self)
-	CloseDropDownMenus()
+	dropDownFrame:Close()
 	
 	addon:SetOption(OPTION_BUILDINGS, self.value)
 	
@@ -109,10 +108,10 @@ local function OnBuildingTypeSelected(self)
 	addon.Tabs.Grids:Update()
 end
 
-local function DropDown_Initialize(self, level)
+local function DropDown_Initialize(frame, level)
 	if not level then return end
 
-	local info = UIDropDownMenu_CreateInfo()
+	local info = frame:CreateInfo()
 	
 	local currentBuildings = addon:GetOption(OPTION_BUILDINGS)
 	
@@ -122,9 +121,9 @@ local function DropDown_Initialize(self, level)
 			info.func = OnBuildingTypeSelected
 			info.checked = (currentBuildings == index)
 			info.value = index
-			UIDropDownMenu_AddButton(info, level)
+			frame:AddButtonInfo(info, level)
 		end
-		DDM_AddCloseMenu()
+		frame:AddCloseMenu()
 	end
 end
 
@@ -234,7 +233,8 @@ local callbacks = {
 	OnLeave = function(self)
 			AltoholicTabGrids.BuildingLevelTooltip:Hide()
 		end,
-	InitViewDDM = function(frame, title) 
+	InitViewDDM = function(frame, title)
+			dropDownFrame = frame
 			frame:Show()
 			title:Show()
 			
@@ -247,10 +247,10 @@ local callbacks = {
 			
 			currentDDMText = Buildings[currentBuildings].name
 			
-			UIDropDownMenu_SetWidth(frame, 100) 
-			UIDropDownMenu_SetButtonWidth(frame, 20)
-			UIDropDownMenu_SetText(frame, currentDDMText)
-			addon:DDM_Initialize(frame, DropDown_Initialize)
+			frame:SetMenuWidth(100) 
+			frame:SetButtonWidth(20)
+			frame:SetText(currentDDMText)
+			frame:Initialize(DropDown_Initialize, "MENU_NO_BORDERS")
 		end,
 }
 

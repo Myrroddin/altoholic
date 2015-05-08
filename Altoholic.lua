@@ -321,8 +321,9 @@ function addon:OnEnable()
 
 	InitLocalization()
 	addon:SetupOptions()
+	-- Only needed in debug
+	-- addon.Profiler:Init()
 	addon.Tasks:Init()
-	addon.Profiler:Init()
 	addon.Events:Init()
 	addon:InitTooltip()
 
@@ -676,38 +677,6 @@ function addon:ShowWidgetTooltip(frame)
 	AltoTooltip:Show(); 
 end
 
-function addon:DrawCharacterTooltip(self, character)
-	local name = DS:GetColoredCharacterName(character)
-	if not name then return end
-
-	AltoTooltip:SetOwner(self, "ANCHOR_LEFT");
-	AltoTooltip:ClearLines();
-	AltoTooltip:AddDoubleLine(name, DS:GetColoredCharacterFaction(character))
-
-	AltoTooltip:AddLine(format("%s %s |r%s %s", L["Level"], 
-		colors.green..DS:GetCharacterLevel(character), DS:GetCharacterRace(character),	DS:GetCharacterClass(character)),1,1,1)
-
-	local zone, subZone = DS:GetLocation(character)
-	AltoTooltip:AddLine(format("%s: %s |r(%s|r)", L["Zone"], colors.gold..zone, colors.gold..subZone),1,1,1)
-	
-	local restXP = DS:GetRestXP(character)
-	if restXP and restXP > 0 then
-		AltoTooltip:AddLine(format("%s: %s", L["Rest XP"], colors.green..restXP),1,1,1)
-	end
-	
-	AltoTooltip:AddLine("Average iLevel: " .. colors.green .. format("%.1f", DS:GetAverageItemLevel(character)),1,1,1);	
-
-	if IsAddOnLoaded("DataStore_Achievements") then
-		local numAchievements = DS:GetNumCompletedAchievements(character) or 0
-		if numAchievements > 0 then
-			AltoTooltip:AddLine(ACHIEVEMENTS_COMPLETED ..": " .. colors.green .. DS:GetNumCompletedAchievements(character) .. "/"..DS:GetNumAchievements(character))
-			AltoTooltip:AddLine(ACHIEVEMENT_TITLE ..": " .. colors.green .. DS:GetNumAchievementPoints(character))
-		end
-	end
-	
-	AltoTooltip:Show();
-end
-
 function addon:DrawFollowerTooltip(frame)
 	local character = frame.key
 	if not character then return end
@@ -763,7 +732,34 @@ function addon:DDM_Initialize(frame, func)
 	frame.initialize = func
 end
 
+local ICON_CHARACTERS_ALLIANCE = "Interface\\Icons\\Achievement_Character_Gnome_Female"
+local ICON_CHARACTERS_HORDE = "Interface\\Icons\\Achievement_Character_Orc_Male"
+-- mini easter egg icons, if you read the code using these, please don't spoil it :)
+local ICON_CHARACTERS_MIDSUMMER = "Interface\\Icons\\INV_Misc_Toy_07"
+local ICON_CHARACTERS_HALLOWSEND_ALLIANCE = "Interface\\Icons\\INV_Mask_06"
+local ICON_CHARACTERS_HALLOWSEND_HORDE = "Interface\\Icons\\INV_Mask_03"
+local ICON_CHARACTERS_DOTD_ALLIANCE = "Interface\\Icons\\INV_Misc_Bone_HumanSkull_02"
+local ICON_CHARACTERS_DOTD_HORDE = "Interface\\Icons\\INV_Misc_Bone_OrcSkull_01"
+local ICON_CHARACTERS_WINTERVEIL_ALLIANCE = "Interface\\Icons\\Achievement_WorldEvent_LittleHelper"
+local ICON_CHARACTERS_WINTERVEIL_HORDE = "Interface\\Icons\\Achievement_WorldEvent_XmasOgre"
 
+function addon:GetCharacterIcon()
+	local faction = UnitFactionGroup("player")
+	local day = (tonumber(date("%m")) * 100) + tonumber(date("%d"))	-- ex: dec 15 = 1215, for easy tests below
+	local icon = (faction == "Alliance") and ICON_CHARACTERS_ALLIANCE or ICON_CHARACTERS_HORDE
+	
+	if (day >= 1215) or (day <= 102) then				-- winter veil
+		icon = (faction == "Alliance") and ICON_CHARACTERS_WINTERVEIL_ALLIANCE or ICON_CHARACTERS_WINTERVEIL_HORDE
+	elseif (day >= 621) and (day <= 704) then			-- midsummer
+		icon = ICON_CHARACTERS_MIDSUMMER
+	elseif (day >= 1018) and (day <= 1031) then		-- hallow's end
+		icon = (faction == "Alliance") and ICON_CHARACTERS_HALLOWSEND_ALLIANCE or ICON_CHARACTERS_HALLOWSEND_HORDE
+	elseif (day >= 1101) and (day <= 1102) then		-- day of the dead
+		icon = (faction == "Alliance") and ICON_CHARACTERS_DOTD_ALLIANCE or ICON_CHARACTERS_DOTD_HORDE
+	end
+	
+	return icon
+end
 
 
 -- ** Calendar stuff **

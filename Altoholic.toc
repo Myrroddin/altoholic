@@ -30,9 +30,8 @@ embeds.xml
 locale.xml
 
 Core.lua
-AltoholicTemplates.xml
+Templates\UITemplates.xml
 Altoholic.xml
-ScrollFrames.xml
 
 Frames\TabOptions.xml
 Frames\AccountSharing.xml

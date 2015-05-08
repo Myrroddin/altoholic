@@ -23,9 +23,6 @@ local statTypes = {
 
 local currentKey
 
-local DDM_Add = addon.Helpers.DDM_Add
-local DDM_AddCloseMenu = addon.Helpers.DDM_AddCloseMenu
-
 local function SortByAbility(a, b)
 	local nameA = C_Garrison.GetFollowerAbilityName(a)
 	local nameB = C_Garrison.GetFollowerAbilityName(b)
@@ -120,13 +117,13 @@ local function OnStatsFilterChange(self)
 	addon.Tabs.Grids:Update()
 end
 
-local function DropDown_Initialize()
+local function DropDown_Initialize(frame)
 	local currentStats = addon:GetOption(OPTION_STATS)
 	
 	for i = 1, #statTypes do
-		DDM_Add(statTypes[i].label, i, OnStatsFilterChange, nil, (i==currentStats))
+		frame:AddButton(statTypes[i].label, i, OnStatsFilterChange, nil, (i==currentStats))
 	end
-	DDM_AddCloseMenu()
+	frame:AddCloseMenu()
 end
 
 local callbacks = {
@@ -203,10 +200,10 @@ local callbacks = {
 			local currentStats = addon:GetOption(OPTION_STATS)
 			currentKey = statTypes[currentStats].key
 			
-			UIDropDownMenu_SetWidth(frame, 100) 
-			UIDropDownMenu_SetButtonWidth(frame, 20)
-			UIDropDownMenu_SetText(frame, statTypes[currentStats].label)
-			addon:DDM_Initialize(frame, DropDown_Initialize)
+			frame:SetMenuWidth(100) 
+			frame:SetButtonWidth(20)
+			frame:SetText(statTypes[currentStats].label)
+			frame:Initialize(DropDown_Initialize, "MENU_NO_BORDERS")
 		end,
 }
 

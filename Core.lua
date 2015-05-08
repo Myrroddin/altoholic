@@ -4,8 +4,8 @@ _G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "A
 
 local addon = _G[addonName]
 
-addon.Version = "v6.1.005"
-addon.VersionNum = 601005
+addon.Version = "v6.1.006"
+addon.VersionNum = 601006
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local commPrefix = addonName
@@ -77,6 +77,12 @@ local AddonDB_Defaults = {
 			["UI.Tabs.Summary.CurrentMode"] = 1,								-- current mode (1 = account summary, 2 = bags, ...)
 			["UI.Tabs.Summary.CurrentColumn"] = "Name",						-- current column (default = "Name")
 			["UI.Tabs.Summary.CurrentRealms"] = 2,								-- selected realms (current/all in current/all accounts)
+			["UI.Tabs.Summary.CurrentFactions"] = 3,							-- 1 = Alliance, 2 = Horde, 3 = Both
+			["UI.Tabs.Summary.CurrentLevels"] = 1,								-- 1 = All
+			["UI.Tabs.Summary.CurrentLevelsMin"] = 1,							
+			["UI.Tabs.Summary.CurrentLevelsMax"] = 100,					
+			["UI.Tabs.Summary.CurrentClasses"] = 0,							-- 0 = All
+			["UI.Tabs.Summary.CurrentTradeSkill"] = 0,						-- 0 = All
 			["UI.Tabs.Summary.SortAscending"] = true,							-- ascending or descending sort order
 			
 			-- ** Character tab options **
@@ -165,7 +171,8 @@ local AddonDB_Defaults = {
 			["UI.ClampWindowToScreen"] = false,
 
 		},
-}}
+	}
+}
 
 addon.Colors = {
 	white	= "|cFFFFFFFF",
@@ -210,18 +217,6 @@ LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject(addonName, {
 	label = addonName,
 })
 
--- ** Class Extensions **
-local classExtensions = {}
-
-function addon:RegisterClassExtensions(class, methods)
-	-- Sets the methods for a given type of objet, it's far from being true OOP, but works quite nice to add some methods to templates :)
-	-- ScrollFrames.lua & .xml show a good example of the application
-	classExtensions[class] = methods
-end
-
-function addon:GetClassExtension(class, method)
-	return classExtensions[class][method]
-end
 
 
 local guildMembersVersion = {} 	-- hash table containing guild member info
@@ -309,26 +304,34 @@ function addon:ChatCommand(input)
 	end
 end
 
-addon.TradeSkills = {}
-addon.TradeSkills.Names = {
-	ALCHEMY = GetSpellInfo(2259),
-	ARCHAEOLOGY = GetSpellInfo(78670),
-	BLACKSMITHING = GetSpellInfo(3100),
-	COOKING = GetSpellInfo(2550),
-	ENCHANTING = GetSpellInfo(7411),
-	ENGINEERING = GetSpellInfo(4036),
-	FIRSTAID = GetSpellInfo(3273),
-	FISHING = GetSpellInfo(131474),
-	HERBALISM = GetSpellInfo(2366),
-	INSCRIPTION = GetSpellInfo(45357),
-	JEWELCRAFTING = GetSpellInfo(25229),
-	LEATHERWORKING = GetSpellInfo(2108),
-	MINING = GetSpellInfo(2575),
-	SKINNING = GetSpellInfo(8613),
-	SMELTING = GetSpellInfo(2656),
-	TAILORING = GetSpellInfo(3908),
+addon.TradeSkills = {
+	Recipes = {},
+	-- spell IDs in alphabetical order (english), primary then secondary
+	spellIDs = { 2259, 3100, 7411, 4036, 45357, 25229, 2108, 2656, 3908, 2550, 3273 },
+	firstSecondarySkillIndex = 10, -- index of the first secondary profession in the table
+	
+	AccountSummaryFiltersSpellIDs = { 2259, 3100, 7411, 4036, 2366, 45357, 25229, 2108, 2575, 8613, 3908, 2550, 3273, 131474, 78670 },
+	AccountSummaryFirstSecondarySkillIndex = 12, -- index of the first secondary profession in the table
+		
+	Names = {
+		ALCHEMY = GetSpellInfo(2259),
+		ARCHAEOLOGY = GetSpellInfo(78670),
+		BLACKSMITHING = GetSpellInfo(3100),
+		COOKING = GetSpellInfo(2550),
+		ENCHANTING = GetSpellInfo(7411),
+		ENGINEERING = GetSpellInfo(4036),
+		FIRSTAID = GetSpellInfo(3273),
+		FISHING = GetSpellInfo(131474),
+		HERBALISM = GetSpellInfo(2366),
+		INSCRIPTION = GetSpellInfo(45357),
+		JEWELCRAFTING = GetSpellInfo(25229),
+		LEATHERWORKING = GetSpellInfo(2108),
+		MINING = GetSpellInfo(2575),
+		SKINNING = GetSpellInfo(8613),
+		SMELTING = GetSpellInfo(2656),
+		TAILORING = GetSpellInfo(3908),
+	},
 }
-addon.TradeSkills.Recipes = {}
 
 -- ** Tabs **
 local tabList = {

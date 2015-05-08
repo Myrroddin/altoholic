@@ -5,23 +5,23 @@ license-output: LICENSE.txt
 enable-nolib-creation: yes
 
 required-dependencies:
-	- datastore
-	- datastore_achievements
-	- datastore_agenda
-	- datastore_auctions
-	- datastore_characters
-	- datastore_containers
-	- datastore_crafts
-	- datastore_currencies
-	- datastore_garrisons
-	- datastore_inventory
-	- datastore_mails
-	- datastore_pets
-	- datastore_quests
-	- datastore_reputations
-	- datastore_spells
-	- datastore_stats
-	- datastore_talents
+- datastore
+- datastore_achievements
+- datastore_agenda
+- datastore_auctions
+- datastore_characters
+- datastore_containers
+- datastore_crafts
+- datastore_currencies
+- datastore_garrisons
+- datastore_inventory
+- datastore_mails
+- datastore_pets
+- datastore_quests
+- datastore_reputations
+- datastore_spells
+- datastore_stats
+- datastore_talents
 
 externals:
  libs/AceConfig-3.0:

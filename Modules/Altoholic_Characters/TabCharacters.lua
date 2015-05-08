@@ -33,17 +33,6 @@ local VIEW_KNOWN_GLYPHS = 11
 local VIEW_PROFESSION = 12
 local VIEW_GARRISONS = 13
 
-local ICON_CHARACTERS_ALLIANCE = "Interface\\Icons\\Achievement_Character_Gnome_Female"
-local ICON_CHARACTERS_HORDE = "Interface\\Icons\\Achievement_Character_Orc_Male"
--- mini easter egg icons, if you read the code using these, please don't spoil it :)
-local ICON_CHARACTERS_MIDSUMMER = "Interface\\Icons\\INV_Misc_Toy_07"
-local ICON_CHARACTERS_HALLOWSEND_ALLIANCE = "Interface\\Icons\\INV_Mask_06"
-local ICON_CHARACTERS_HALLOWSEND_HORDE = "Interface\\Icons\\INV_Mask_03"
-local ICON_CHARACTERS_DOTD_ALLIANCE = "Interface\\Icons\\INV_Misc_Bone_HumanSkull_02"
-local ICON_CHARACTERS_DOTD_HORDE = "Interface\\Icons\\INV_Misc_Bone_OrcSkull_01"
-local ICON_CHARACTERS_WINTERVEIL_ALLIANCE = "Interface\\Icons\\Achievement_WorldEvent_LittleHelper"
-local ICON_CHARACTERS_WINTERVEIL_HORDE = "Interface\\Icons\\Achievement_WorldEvent_XmasOgre"
-
 -- Second mini easter egg, the bag icon changes depending on the amount of chars at level max (on the current realm), or based on the time of the year
 local BAG_ICONS = {
 	"Interface\\Icons\\INV_MISC_BAG_09",			-- mini pouch
@@ -865,14 +854,22 @@ local menuIconCallbacks = {
 }
 
 function ns:Icon_OnEnter(frame)
+	-- local currentMenuID = frame:GetID()
+	
+	-- local menu = frame:GetParent():GetParent().ContextualMenu
+	
+	-- menu:Initialize(menuIconCallbacks[currentMenuID], "LIST")
+	-- menu:Close()
+	-- menu:Toggle(frame, 0, 0)
+
+
+
 	local currentMenuID = frame:GetID()
 	
 	addon:DDM_Initialize(parent.ContextualMenu, menuIconCallbacks[currentMenuID])
 	
-	-- hide all
 	CloseDropDownMenus()
 
-	-- show current
 	ToggleDropDownMenu(1, nil, parent.ContextualMenu, AltoholicTabCharacters_MenuIcons, (currentMenuID-1)*42, -5)
 end
 
@@ -886,9 +883,7 @@ function ns:OnLoad()
 	-- mini easter egg, change the character icon depending on the time of year :)
 	-- if you find this code, please don't spoil it :)
 
-	local faction = UnitFactionGroup("player")
 	local day = (tonumber(date("%m")) * 100) + tonumber(date("%d"))	-- ex: dec 15 = 1215, for easy tests below
-	local charIcon = (faction == "Alliance") and ICON_CHARACTERS_ALLIANCE or ICON_CHARACTERS_HORDE
 	local bagIcon = ICON_VIEW_BAGS
 
 	-- bag icon gets better with more chars at lv max
@@ -904,19 +899,12 @@ function ns:OnLoad()
 		bagIcon = BAG_ICONS[numLvMax]
 	end
 	
-	if (day >= 1215) or (day <= 102) then				-- winter veil
-		charIcon = (faction == "Alliance") and ICON_CHARACTERS_WINTERVEIL_ALLIANCE or ICON_CHARACTERS_WINTERVEIL_HORDE
-	elseif (day >= 621) and (day <= 704) then			-- midsummer
-		charIcon = ICON_CHARACTERS_MIDSUMMER
-	elseif (day >= 1018) and (day <= 1031) then		-- hallow's end
-		charIcon = (faction == "Alliance") and ICON_CHARACTERS_HALLOWSEND_ALLIANCE or ICON_CHARACTERS_HALLOWSEND_HORDE
+	if (day >= 1018) and (day <= 1031) then		-- hallow's end
 		bagIcon = ICON_BAGS_HALLOWSEND
-	elseif (day >= 1101) and (day <= 1102) then		-- day of the dead
-		charIcon = (faction == "Alliance") and ICON_CHARACTERS_DOTD_ALLIANCE or ICON_CHARACTERS_DOTD_HORDE
 	end
 	
 	local menuIcons = parent.MenuIcons
-	menuIcons.CharactersIcon.Icon:SetTexture(charIcon)
+	menuIcons.CharactersIcon.Icon:SetTexture(addon:GetCharacterIcon())
 	menuIcons.BagsIcon.Icon:SetTexture(bagIcon)
 	
 	-- ** Characters / Equipment / Reputations / Currencies **

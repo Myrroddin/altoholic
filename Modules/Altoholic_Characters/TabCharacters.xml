@@ -31,19 +31,14 @@
 
 	<Button name="AltoTabCharactersIconTemplate" inherits="AltoButtonTemplate" virtual="true">
 		<Scripts>
-			<OnLoad>
-				local icon = self.Icon
-				icon:SetWidth(30)
-				icon:SetHeight(30)
-				
-				if self.iconFile then
-					self.Icon:SetTexture(self.iconFile)
-				end
-			</OnLoad>
 			<OnEnter>
 				Altoholic.Tabs.Characters:Icon_OnEnter(self)
 			</OnEnter>
 		</Scripts>
+		<KeyValues>
+			<KeyValue key="iconWidth" value="30" type="number" />
+			<KeyValue key="iconHeight" value="30" type="number" />
+		</KeyValues>
 	</Button>
 	
 	<Frame name="AltoholicTabCharacters" parent="AltoholicFrame" hidden="true">

@@ -2,6 +2,12 @@
 
 if not L then return end
 
+L["FILTER_REALMS"] = "Realms filter"
+L["FILTER_FACTIONS"] = "Faction filter"
+L["FILTER_LEVELS"] = "Level filter"
+L["FILTER_PROFESSIONS"] = "Profession filter"
+L["FILTER_CLASSES"] = "Class filter"
+
 -- Colors
 L["COLOR_RED"] = "Red"
 L["COLOR_GREY"] = "Grey"

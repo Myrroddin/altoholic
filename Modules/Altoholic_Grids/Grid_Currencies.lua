@@ -72,9 +72,6 @@ local function BuildView()
 	isViewValid = true
 end
 
-local DDM_Add = addon.Helpers.DDM_AddWithArgs
-local DDM_AddCloseMenu = addon.Helpers.DDM_AddCloseMenu
-
 local function OnTokenChange(self, header)
 	addon:SetOption(OPTION_TOKEN, header)
 	addon.Tabs.Grids:SetViewDDMText(header)
@@ -91,12 +88,12 @@ local function OnTokensAllInOne(self)
 	addon.Tabs.Grids:Update()
 end
 
-local function DropDown_Initialize()
+local function DropDown_Initialize(frame)
 	for _, header in ipairs(GetUsedHeaders()) do		-- and add them to the DDM
-		DDM_Add(header, nil, OnTokenChange, header, nil, (addon:GetOption(OPTION_TOKEN) == header))
+		frame:AddButtonWithArgs(header, nil, OnTokenChange, header, nil, (addon:GetOption(OPTION_TOKEN) == header))
 	end
-	DDM_Add(L["All-in-one"], nil, OnTokensAllInOne, nil, nil, (addon:GetOption(OPTION_TOKEN) == nil))
-	DDM_AddCloseMenu()
+	frame:AddButtonWithArgs(L["All-in-one"], nil, OnTokensAllInOne, nil, nil, (addon:GetOption(OPTION_TOKEN) == nil))
+	frame:AddCloseMenu()
 end
 
 local callbacks = {
@@ -171,10 +168,10 @@ local callbacks = {
 			frame:Show()
 			title:Show()
 			
-			UIDropDownMenu_SetWidth(frame, 100) 
-			UIDropDownMenu_SetButtonWidth(frame, 20)
-			UIDropDownMenu_SetText(frame, addon:GetOption(OPTION_TOKEN) or L["All-in-one"])
-			addon:DDM_Initialize(frame, DropDown_Initialize)
+			frame:SetMenuWidth(100) 
+			frame:SetButtonWidth(20)
+			frame:SetText(addon:GetOption(OPTION_TOKEN) or L["All-in-one"])
+			frame:Initialize(DropDown_Initialize, "MENU_NO_BORDERS")
 		end,
 }
 
