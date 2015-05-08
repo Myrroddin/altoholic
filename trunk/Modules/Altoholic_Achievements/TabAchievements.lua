@@ -19,10 +19,6 @@ local highlightIndex
 local currentRealm = GetRealmName()
 local currentAccount = THIS_ACCOUNT
 
-local DDM_Add = addon.Helpers.DDM_Add
-local DDM_AddTitle = addon.Helpers.DDM_AddTitle
-local DDM_AddCloseMenu = addon.Helpers.DDM_AddCloseMenu
-
 addon.Tabs.Achievements = {}
 
 local ns = addon.Tabs.Achievements		-- ns = namespace
@@ -164,9 +160,8 @@ local function OnRealmChange(self, account, realm)
 	currentAccount = account
 	currentRealm = realm
 
-	UIDropDownMenu_ClearAll(parent.SelectRealm);
-	UIDropDownMenu_SetSelectedValue(parent.SelectRealm, account .."|".. realm)
-	UIDropDownMenu_SetText(parent.SelectRealm, colors.green .. account .. ": " .. colors.white.. realm)
+	parent.SelectRealm:SetSelectedValue(format("%s|%s", account, realm))
+	parent.SelectRealm:SetText(format("%s%s: %s%s", colors.green, account, colors.white, realm))
 	
 	if oldRealm and oldAccount then	-- clear the "select char" drop down if realm or account has changed
 		if (oldRealm ~= realm) or (oldAccount ~= account) then
@@ -189,13 +184,13 @@ local function AddRealm(realm, account)
 	UIDropDownMenu_AddButton(info, 1); 
 end
 
-function ns:DropDownRealm_Initialize()
+function ns.DropDownRealm_Initialize(frame)
 	if not currentAccount or not currentRealm then return end
 
 	-- this account first ..
-	DDM_AddTitle(colors.gold..L["This account"])
+	frame:AddTitle(colors.gold..L["This account"])
 	for realm in pairs(DataStore:GetRealms()) do
-		local info = UIDropDownMenu_CreateInfo()
+		local info = frame:CreateInfo()
 
 		info.text = colors.white..realm
 		info.value = format("%s|%s", THIS_ACCOUNT, realm)
@@ -203,7 +198,7 @@ function ns:DropDownRealm_Initialize()
 		info.func = OnRealmChange
 		info.arg1 = THIS_ACCOUNT
 		info.arg2 = realm
-		UIDropDownMenu_AddButton(info, 1)
+		frame:AddButtonInfo(info, 1)
 	end
 
 	-- .. then all other accounts
@@ -216,12 +211,12 @@ function ns:DropDownRealm_Initialize()
 	end
 	
 	if count > 0 then
-		DDM_AddTitle(" ")
-		DDM_AddTitle(colors.gold..OTHER)
+		frame:AddTitle()
+		frame:AddTitle(colors.gold..OTHER)
 		for account in pairs(accounts) do
 			if account ~= THIS_ACCOUNT then
 				for realm in pairs(DataStore:GetRealms(account)) do
-					local info = UIDropDownMenu_CreateInfo()
+					local info = frame:CreateInfo()
 
 					info.text = format("%s: %s", colors.green..account, colors.white..realm)
 					info.value = format("%s|%s", account, realm)
@@ -229,16 +224,16 @@ function ns:DropDownRealm_Initialize()
 					info.func = OnRealmChange
 					info.arg1 = account
 					info.arg2 = realm
-					UIDropDownMenu_AddButton(info, 1)
+					frame:AddButtonInfo(info, 1)
 				end
 			end
 		end
 	end
 	
-	DDM_AddTitle(" ")
-	DDM_AddTitle(colors.gold..L["Not started"], ICON_NOT_STARTED)
-	DDM_AddTitle(colors.gold..L["Started"], ICON_PARTIAL)
-	DDM_AddTitle(colors.gold..COMPLETE, ICON_COMPLETED)
+	frame:AddTitle()
+	frame:AddTitle(colors.gold..L["Not started"], ICON_NOT_STARTED)
+	frame:AddTitle(colors.gold..L["Started"], ICON_PARTIAL)
+	frame:AddTitle(colors.gold..COMPLETE, ICON_COMPLETED)
 end
 
 
@@ -260,24 +255,22 @@ end
 -- ** Menu Icons **
 function ns:Icon_OnEnter(frame)
 	local currentMenuID = frame:GetID()
-	parent.ContextualMenu.menuID = currentMenuID
-	
-	-- hide all
-	CloseDropDownMenus()
+	local menu = frame:GetParent():GetParent().ContextualMenu
 
-	-- show current
-	ToggleDropDownMenu(1, nil, parent.ContextualMenu, "AltoholicTabAchievements_ClassIcons", (currentMenuID-1)*39, 0)
-	
+	menu.menuID = currentMenuID
+	menu:Close()
+	menu:Toggle(frame, 0, 0)
+
 	local key = addon:GetOption(format("Tabs.Achievements.%s.%s.Column%d", currentAccount, currentRealm, currentMenuID))
 	if key then
-		addon:DrawCharacterTooltip(frame, key)
+		frame:DrawTooltip(key)
 	end
 end
 
-local function ClassIcon_Initialize(self, level)
-	local id = self.menuID
+local function ClassIcon_Initialize(frame, level)
+	local id = frame.menuID
 	
-	DDM_AddTitle(L["Characters"])
+	frame:AddTitle(L["Characters"])
 	local nameList = {}		-- we want to list characters alphabetically
 	for _, character in pairs(DataStore:GetCharacters(currentRealm, currentAccount)) do
 		table.insert(nameList, character)	-- we can add the key instead of just the name, since they will all be like account.realm.name, where account & realm are identical
@@ -288,32 +281,32 @@ local function ClassIcon_Initialize(self, level)
 	local key = addon:GetOption(format("Tabs.Achievements.%s.%s.Column%d", currentAccount, currentRealm, id)) or ""
 	
 	for _, character in ipairs(nameList) do
-		local info = UIDropDownMenu_CreateInfo(); 
+		local info = frame:CreateInfo()
 		
 		info.text		= DataStore:GetColoredCharacterName(character)
 		info.value		= character
 		info.func		= OnCharacterChange
 		info.checked	= (key == character)
 		info.arg1		= id
-		UIDropDownMenu_AddButton(info, 1)
+		frame:AddButtonInfo(info, 1)
 	end
 	
-	DDM_AddTitle(" ")
+	frame:AddTitle()
 	
-	local info = UIDropDownMenu_CreateInfo()
+	local info = frame:CreateInfo()
 	info.text		= (id == 1) and RESET or NONE
 	info.value		= "empty"
 	info.func		= OnCharacterChange
 	info.checked	= (key == "")
 	info.arg1		= id
-	UIDropDownMenu_AddButton(info, 1)
+	frame:AddButtonInfo(info, 1)
 
-	DDM_AddCloseMenu()
+	frame:AddCloseMenu()
 end
 
 function ns:OnLoad()
 	parent = _G[parentName]
-	addon:DDM_Initialize(parent.ContextualMenu, ClassIcon_Initialize)
+	parent.ContextualMenu:Initialize(ClassIcon_Initialize, "MENU")
 end
 
 local function OnAchievementEarned(event, id)

@@ -24,10 +24,6 @@ if DataStore_Pets then
 	table.sort(DataStore:GetCompanionList(), SortPets)
 end
 
-local DDM_Add = addon.Helpers.DDM_Add
-local DDM_AddTitle = addon.Helpers.DDM_AddTitle
-local DDM_AddCloseMenu = addon.Helpers.DDM_AddCloseMenu
-
 local function CompanionOnClick(frame, button)
 	if frame.id and ( button == "LeftButton" ) and ( IsShiftKeyDown() ) then
 		local chat = ChatEdit_GetLastActiveWindow()
@@ -110,17 +106,17 @@ local function OnXPackChange(self)
 	addon.Tabs.Grids:Update()
 end
 
-local function PetDropDown_Initialize()
+local function DropDown_Initialize(frame)
 	local currentXPack = addon:GetOption(OPTION_XPACK)
 
 	for i, xpack in pairs(xPacks) do
-		DDM_Add(xpack, i, OnXPackChange, nil, (i==currentXPack))
+		frame:AddButton(xpack, i, OnXPackChange, nil, (i==currentXPack))
 	end
 	
-	DDM_AddCloseMenu()
+	frame:AddCloseMenu()
 end
 
-local companionsCallbacks = {
+local callbacks = {
 	OnUpdate = function() 
 			local currentXPack = addon:GetOption(OPTION_XPACK)
 			spellList = (currentXPack <= CAT_ALLINONE) and petList[currentXPack] or DataStore:GetCompanionList()
@@ -172,18 +168,18 @@ local companionsCallbacks = {
 			AltoTooltip:Hide() 
 		end,
 		
-	InitViewDDM = function(frame, title) 
+	InitViewDDM = function(frame, title)
 			frame:Show()
 			title:Show()
 			
-			UIDropDownMenu_SetWidth(frame, 100) 
-			UIDropDownMenu_SetButtonWidth(frame, 20)
-			UIDropDownMenu_SetText(frame, xPacks[addon:GetOption(OPTION_XPACK)])
-			addon:DDM_Initialize(frame, PetDropDown_Initialize)
+			frame:SetMenuWidth(100) 
+			frame:SetButtonWidth(20)
+			frame:SetText(xPacks[addon:GetOption(OPTION_XPACK)])
+			frame:Initialize(DropDown_Initialize, "MENU_NO_BORDERS")
 		end,
 }
 
 local tab = addon.Tabs.Grids
 
-tab:RegisterGrid(5, companionsCallbacks)
+tab:RegisterGrid(5, callbacks)
 

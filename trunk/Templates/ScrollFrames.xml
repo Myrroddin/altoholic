@@ -62,16 +62,7 @@
 		</KeyValues>
 		<Scripts>
 			<OnLoad>
-				local class = "AltoUIPanelScrollFrame"
-			
-				self.OnLoad = Altoholic:GetClassExtension(class,"OnLoad")
-				self.Update = Altoholic:GetClassExtension(class,"Update")
-				self.GetRow = Altoholic:GetClassExtension(class,"GetRow")
-				self.GetOffset = Altoholic:GetClassExtension(class,"GetOffset")
-				self.SetOffset = Altoholic:GetClassExtension(class,"SetOffset")
-				self.OnMouseWheel = Altoholic:GetClassExtension(class,"OnMouseWheel")
-				self.OnVerticalScroll = Altoholic:GetClassExtension(class,"OnVerticalScroll")
-				self.OnScrollRangeChanged = Altoholic:GetClassExtension(class,"OnScrollRangeChanged")
+				Altoholic:SetClassExtensions(self, "AltoUIPanelScrollFrame")
 				
 				self:OnLoad()
 				

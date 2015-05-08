@@ -33,25 +33,27 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<Frame parentKey="SelectRealm" name="$parent_SelectRealm" inherits="UIDropDownMenuTemplate">
+			<Frame parentKey="SelectRealm" inherits="AltoDropDownMenuTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.Label1" relativePoint="BOTTOMLEFT" x="-25" y="-2" />
 				</Anchors>
 				<Scripts>
 					<OnLoad>
-						UIDropDownMenu_SetWidth(self, 100) 
-						UIDropDownMenu_SetButtonWidth(self, 20)
+						Altoholic:SetClassExtensions(self, "AltoDropDownMenu")
 						
 						local realm = GetRealmName()
-						UIDropDownMenu_SetSelectedValue(self, "Default|".. realm)
-						UIDropDownMenu_SetText(self, realm)
-						Altoholic:DDM_Initialize(self, Altoholic.Tabs.Achievements.DropDownRealm_Initialize)
+						
+						self:SetMenuWidth(100) 
+						self:SetButtonWidth(20)
+						self:Initialize(Altoholic.Tabs.Achievements.DropDownRealm_Initialize)
+						self:SetSelectedValue("Default|".. realm)
+						self:SetText(realm)
 					</OnLoad>
 				</Scripts>
 			</Frame>
 		
 			<!-- Menu Icons -->
-			<Frame parentKey="ClassIcons" name="$parent_ClassIcons" inherits="AltoClassIconsContainerTemplate">
+			<Frame parentKey="ClassIcons" inherits="AltoClassIconsContainerTemplate">
 				<KeyValues>
 					<KeyValue key="numIcons" value="11" type="number" />
 					<KeyValue key="iconTemplate" value="AltoTabAchievementsClassIconTemplate" />

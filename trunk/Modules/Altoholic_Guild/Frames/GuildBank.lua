@@ -422,8 +422,8 @@ function ns:OnLoad()
 	-- if the player is not in a guild, set the drop down to the first available guild on this realm, if any.
 	if not currentGuild then
 		-- if the guild that will be displayed is not the one the current player is in, then disable the button
-		parent.Bank.UpdateIcon:Disable()
-		parent.Bank.UpdateIcon.Icon:SetDesaturated(true)
+		menuIcons.UpdateIcon:Disable()
+		menuIcons.UpdateIcon.Icon:SetDesaturated(true)
 	
 		for guildName, guild in pairs(DataStore:GetGuilds(currentRealm, THIS_ACCOUNT)) do
 			local money = DataStore:GetGuildBankMoney(guild)

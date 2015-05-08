@@ -1,5 +1,7 @@
 ﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
+	<!-- 
 	<Script file="Profiler.lua"></Script>
+	-->
 	<Script file="Tasks.lua"></Script>
 	<Script file="Helpers.lua"></Script>
 	<Script file="Comm.lua"></Script>
@@ -26,7 +28,7 @@
 		</Anchors>		
 		<Scripts>
 			<OnLoad>
-				self:RegisterForClicks("LeftButtonDown", "RightButtonDown");
+				self:RegisterForClicks("LeftButtonDown", "RightButtonDown")
 				self:RegisterForDrag("RightButton")
 			</OnLoad>
 			<OnClick>
@@ -40,16 +42,16 @@
 				end
 			</OnUpdate>
 			<OnDragStart>
-				self.isMoving = true;
+				self.isMoving = true
 			</OnDragStart>
 			<OnDragStop>
-				self.isMoving = false;
+				self.isMoving = false
 			</OnDragStop>
 			<OnEnter> 
 				Altoholic:ShowWidgetTooltip(self)
 			</OnEnter>
 			<OnLeave>
-				AltoTooltip:Hide();
+				AltoTooltip:Hide()
 			</OnLeave>
 		</Scripts>
 		<Layers>
@@ -83,8 +85,8 @@
 			<OnLoad>
 				self:RegisterForDrag("LeftButton")
 				self.elapsed = 0
-				PanelTemplates_SetNumTabs(AltoholicFrame, 7)
-				PanelTemplates_SetTab(AltoholicFrame, 1)
+				PanelTemplates_SetNumTabs(self, 7)
+				PanelTemplates_SetTab(self, 1)
 			</OnLoad>
 			<OnDragStart>
 				self:StartMoving()

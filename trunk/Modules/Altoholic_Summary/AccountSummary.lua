@@ -37,10 +37,6 @@ local VIEW_GARRISONS = 13
 local ICON_FACTION_HORDE = "Interface\\Icons\\INV_BannerPVP_01"
 local ICON_FACTION_ALLIANCE = "Interface\\Icons\\INV_BannerPVP_02"
 
-local DDM_Add = addon.Helpers.DDM_AddWithArgs
-local DDM_AddTitle = addon.Helpers.DDM_AddTitle
-local DDM_AddCloseMenu = addon.Helpers.DDM_AddCloseMenu
-
 addon.Summary = {}
 
 local ns = addon.Summary		-- ns = namespace
@@ -247,6 +243,135 @@ local function ShowTotals(frame)
 	tt:Show()
 end
 
+local function SortView(columnName)
+	addon:SetOption("UI.Tabs.Summary.CurrentColumn", columnName)
+	addon.Summary:Update()
+end
+
+local function GetColorFromAIL(level)
+	if (level < 600) then return colors.grey end
+	if (level <= 615) then return colors.green end
+	if (level <= 630) then return colors.rare end
+	return colors.epic
+end
+
+
+-- ** Right-Click Menu **
+local function ViewAltInfo(self, characterInfoLine)
+	addon.Tabs:OnClick("Characters")
+	addon.Tabs.Characters:SetAlt(Characters:GetInfo(characterInfoLine))
+	addon.Tabs.Characters:ViewCharInfo(self.value)
+end
+
+local function DeleteAlt_MsgBox_Handler(self, button, characterInfoLine)
+	if not button then return end
+	
+	local name, realm, account = Characters:GetInfo(characterInfoLine)
+	
+	DataStore:DeleteCharacter(name, realm, account)
+	
+	-- rebuild the main character table, and all the menus
+	Characters:InvalidateView()
+	addon.Summary:Update()
+		
+	addon:Print(format( L["Character %s successfully deleted"], name))
+end
+
+local function DeleteAlt(self, characterInfoLine)
+	local name, realm, account = Characters:GetInfo(characterInfoLine)
+	
+	if (account == THIS_ACCOUNT) and	(realm == GetRealmName()) and (name == UnitName("player")) then
+		addon:Print(L["Cannot delete current character"])
+		return
+	end
+
+	addon:SetMsgBoxHandler(DeleteAlt_MsgBox_Handler, characterInfoLine)
+	
+	AltoMsgBox_Text:SetText(L["Delete this Alt"] .. "?\n" .. name)
+	AltoMsgBox:Show()
+end
+
+local function UpdateRealm(self, characterInfoLine)
+	local _, realm, account = Characters:GetInfo(characterInfoLine)
+	
+	AltoAccountSharing_AccNameEditBox:SetText(account)
+	AltoAccountSharing_UseTarget:SetChecked(nil)
+	AltoAccountSharing_UseName:SetChecked(1)
+	
+	local _, updatedWith = addon:GetLastAccountSharingInfo(realm, account)
+	AltoAccountSharing_AccTargetEditBox:SetText(updatedWith)
+	
+	addon.Tabs.Summary:AccountSharingButton_OnClick()
+end
+
+local function DeleteRealm_MsgBox_Handler(self, button, characterInfoLine)
+	if not button then return end
+
+	local _, realm, account = Characters:GetInfo(characterInfoLine)
+	DataStore:DeleteRealm(realm, account)
+
+	-- if the realm being deleted was the current ..
+	local tc = addon.Tabs.Characters
+	if tc and tc:GetRealm() == realm and tc:GetAccount() == account then
+		
+		-- reset to this player
+		local player = UnitName("player")
+		local realmName = GetRealmName()
+		addon.Tabs.Characters:SetAlt(player, realmName, THIS_ACCOUNT)
+		addon.Containers:UpdateCache()
+		tc:ViewCharInfo(VIEW_BAGS)
+	end
+	
+	-- rebuild the main character table, and all the menus
+	Characters:InvalidateView()
+	addon.Summary:Update()
+		
+	addon:Print(format( L["Realm %s successfully deleted"], realm))
+end
+
+local function DeleteRealm(self, characterInfoLine)
+	local _, realm, account = Characters:GetInfo(characterInfoLine)
+		
+	if (account == THIS_ACCOUNT) and	(realm == GetRealmName()) then
+		addon:Print(L["Cannot delete current realm"])
+		return
+	end
+
+	addon:SetMsgBoxHandler(DeleteRealm_MsgBox_Handler, characterInfoLine)
+	AltoMsgBox_Text:SetText(L["Delete this Realm"] .. "?\n" .. realm)
+	AltoMsgBox:Show()
+end
+
+local function NameRightClickMenu_Initialize(frame)
+	local characterInfoLine = ns.CharInfoLine
+	if not characterInfoLine then return end
+
+	local lineType = Characters:GetLineType(characterInfoLine)
+	if not lineType then return end
+
+	if lineType == INFO_REALM_LINE then
+		local _, realm, account = Characters:GetInfo(characterInfoLine)
+		local _, updatedWith = addon:GetLastAccountSharingInfo(realm, account)
+		
+		if updatedWith then
+			frame:AddButtonWithArgs(format("Update from %s", colors.green..updatedWith), nil, UpdateRealm, characterInfoLine)
+		end
+		frame:AddButtonWithArgs(L["Delete this Realm"], nil, DeleteRealm, characterInfoLine)
+		return
+	end
+
+	frame:AddTitle(DataStore:GetColoredCharacterName(Characters:Get(characterInfoLine).key))
+	frame:AddTitle()
+	frame:AddButtonWithArgs(L["View bags"], VIEW_BAGS, ViewAltInfo, characterInfoLine)
+	frame:AddButtonWithArgs(L["View mailbox"], VIEW_MAILS, ViewAltInfo, characterInfoLine)
+	frame:AddButtonWithArgs(L["View quest log"], VIEW_QUESTS, ViewAltInfo, characterInfoLine)
+	frame:AddButtonWithArgs(L["View auctions"], VIEW_AUCTIONS, ViewAltInfo, characterInfoLine)
+	frame:AddButtonWithArgs(L["View bids"], VIEW_BIDS, ViewAltInfo, characterInfoLine)
+	frame:AddButtonWithArgs(COMPANIONS, VIEW_COMPANIONS, ViewAltInfo, characterInfoLine)
+	frame:AddButtonWithArgs(L["Delete this Alt"], nil, DeleteAlt, characterInfoLine)
+	frame:AddCloseMenu()
+end
+
 local function Name_OnClick(frame, button)
 	local line = frame:GetParent():GetID()
 	if line == 0 then return end
@@ -258,7 +383,15 @@ local function Name_OnClick(frame, button)
 	
 	if button == "RightButton" then
 		ns.CharInfoLine = line	-- line containing info about the alt on which action should be taken (delete, ..)
-		ToggleDropDownMenu(1, nil, AltoholicFrameSummaryRightClickMenu, "AltoholicFrameSummaryScrollFrame", 130, 330-(line*22))
+		
+		local scrollFrame = frame:GetParent():GetParent().ScrollFrame
+		local menu = scrollFrame:GetParent():GetParent().ContextualMenu
+		local offset = scrollFrame:GetOffset()
+		
+		menu:Initialize(NameRightClickMenu_Initialize, "LIST")
+		menu:Close()
+		menu:Toggle(frame, frame:GetWidth() - 20, 10)
+			
 		return
 	elseif button == "LeftButton" and lineType == INFO_CHARACTER_LINE then
 		addon.Tabs:OnClick("Characters")
@@ -271,17 +404,6 @@ local function Name_OnClick(frame, button)
 	end
 end
 
-local function SortView(columnName)
-	addon:SetOption("UI.Tabs.Summary.CurrentColumn", columnName)
-	addon.Summary:Update()
-end
-
-local function GetColorFromAIL(level)
-	if (level < 600) then return colors.grey end
-	if (level <= 615) then return colors.green end
-	if (level <= 630) then return colors.rare end
-	return colors.epic
-end
 
 -- *** Specific sort functions ***
 local function GetCharacterLevel(self, character)
@@ -321,7 +443,6 @@ local function GetFollowersItemLevel(self, character)
 	
 	return avgWeapon + (avgArmor / 10000)
 end
-
 
 
 -- *** Column definitions ***
@@ -1385,18 +1506,19 @@ columns["CurrencyGarrison"] = {
 			local uncollected = DataStore:GetUncollectedResources(character) or 0
 			local amount = DataStore:GetCurrencyTotals(character, CURRENCY_ID_GARRISON) or 0
 			local color = (amount == 0) and colors.grey or colors.white
+			local colorUncollected
+			
+			if uncollected <= 300 then
+				colorUncollected = colors.green
+			elseif uncollected < 450 then
+				colorUncollected = colors.yellow
+			else
+				colorUncollected = colors.red
+			end
 
-			return format("%s%s/%s+%s", color, amount, colors.green, uncollected)
+			return format("%s%s/%s+%s", color, amount, colorUncollected , uncollected)
 		end,
 	OnEnter = function(frame)
-			-- to do: 
-			--   - resources
-			--   - uncollected
-			--   - last collection time
-			--   - you will be at 500 in x days
-			--   if res + uncollected > 10k then warning
-			
-	
 			local character = frame:GetParent().character
 			if not character or not DataStore:GetModuleLastUpdateByKey("DataStore_Garrisons", character) then
 				return
@@ -1805,101 +1927,10 @@ local modes = {
 	[MODE_FOLLOWERS] = { "Name", "Level", "FollowersLV100", "FollowersEpic", "FollowersLV630", "FollowersLV660", "FollowersLV675", "FollowersItems" },
 }
 
-local function ViewAltInfo(self, characterInfoLine)
-	addon.Tabs:OnClick("Characters")
-	addon.Tabs.Characters:SetAlt(Characters:GetInfo(characterInfoLine))
-	addon.Tabs.Characters:ViewCharInfo(self.value)
-end
-
-local function DeleteAlt_MsgBox_Handler(self, button, characterInfoLine)
-	if not button then return end
-	
-	local name, realm, account = Characters:GetInfo(characterInfoLine)
-	
-	DataStore:DeleteCharacter(name, realm, account)
-	
-	-- rebuild the main character table, and all the menus
-	Characters:InvalidateView()
-	addon.Summary:Update()
-		
-	addon:Print(format( L["Character %s successfully deleted"], name))
-end
-
-local function DeleteAlt(self, characterInfoLine)
-	local name, realm, account = Characters:GetInfo(characterInfoLine)
-	
-	if (account == THIS_ACCOUNT) and	(realm == GetRealmName()) and (name == UnitName("player")) then
-		addon:Print(L["Cannot delete current character"])
-		return
-	end
-
-	addon:SetMsgBoxHandler(DeleteAlt_MsgBox_Handler, characterInfoLine)
-	
-	AltoMsgBox_Text:SetText(L["Delete this Alt"] .. "?\n" .. name)
-	AltoMsgBox:Show()
-end
-
-local function UpdateRealm(self, characterInfoLine)
-	local _, realm, account = Characters:GetInfo(characterInfoLine)
-	
-	AltoAccountSharing_AccNameEditBox:SetText(account)
-	AltoAccountSharing_UseTarget:SetChecked(nil)
-	AltoAccountSharing_UseName:SetChecked(1)
-	
-	local _, updatedWith = addon:GetLastAccountSharingInfo(realm, account)
-	AltoAccountSharing_AccTargetEditBox:SetText(updatedWith)
-	
-	addon.Tabs.Summary:AccountSharingButton_OnClick()
-end
-
-local function DeleteRealm_MsgBox_Handler(self, button, characterInfoLine)
-	if not button then return end
-
-	local _, realm, account = Characters:GetInfo(characterInfoLine)
-	DataStore:DeleteRealm(realm, account)
-
-	-- if the realm being deleted was the current ..
-	local tc = addon.Tabs.Characters
-	if tc:GetRealm() == realm and tc:GetAccount() == account then
-		
-		-- reset to this player
-		local player = UnitName("player")
-		local realmName = GetRealmName()
-		addon.Tabs.Characters:SetAlt(player, realmName, THIS_ACCOUNT)
-		addon.Containers:UpdateCache()
-		tc:ViewCharInfo(VIEW_BAGS)
-	end
-	
-	-- rebuild the main character table, and all the menus
-	Characters:InvalidateView()
-	addon.Summary:Update()
-		
-	addon:Print(format( L["Realm %s successfully deleted"], realm))
-end
-
-local function DeleteRealm(self, characterInfoLine)
-	local _, realm, account = Characters:GetInfo(characterInfoLine)
-		
-	if (account == THIS_ACCOUNT) and	(realm == GetRealmName()) then
-		addon:Print(L["Cannot delete current realm"])
-		return
-	end
-
-	addon:SetMsgBoxHandler(DeleteRealm_MsgBox_Handler, characterInfoLine)
-	AltoMsgBox_Text:SetText(L["Delete this Realm"] .. "?\n" .. realm)
-	AltoMsgBox:Show()
-end
-
 function ns:SetMode(mode)
 	addon:SetOption("UI.Tabs.Summary.CurrentMode", mode)
 	
 	local parent = AltoholicTabSummary
-	AltoholicTabSummaryStatus:SetText("")
-	AltoholicTabSummaryToggleView:Show()
-	AltoholicTabSummary_SelectLocation:Show()
-	AltoholicTabSummary_RequestSharing:Show()
-	AltoholicTabSummary_Options:Show()
-	AltoholicTabSummary_OptionsDataStore:Show()
 	
 	-- add the appropriate columns for this mode
 	for i = 1, #modes[mode] do
@@ -1929,7 +1960,9 @@ function ns:Update()
 	-- rebuild and get the view, then sort it
 	Characters:InvalidateView()
 	local view = Characters:GetView()
-	Characters:Sort(sortOrder, columns[currentColumn].HeaderSort)
+	if columns[currentColumn] then	-- an old column name might still be in the DB.
+		Characters:Sort(sortOrder, columns[currentColumn].HeaderSort)
+	end
 
 	-- attempt to restore the arrow to the right sort button
 	local container = AltoholicTabSummary.SortButtons
@@ -1948,11 +1981,12 @@ function ns:Update()
 		
 		if (offset > 0) or (numDisplayedRows >= numRows) then		-- if the line will not be visible
 			if lineType == INFO_REALM_LINE then								-- then keep track of counters
-				if Characters:GetField(line, "isCollapsed") == false then
+				if not Characters:IsRealmCollapsed(line) then
 					isRealmShown = true
 				else
 					isRealmShown = false
 				end
+				
 				numVisibleRows = numVisibleRows + 1
 				offset = offset - 1		-- no further control, nevermind if it goes negative
 			elseif isRealmShown then
@@ -1963,11 +1997,9 @@ function ns:Update()
 			if lineType == INFO_REALM_LINE then
 				local _, realm, account = Characters:GetInfo(line)
 				
-				if Characters:GetField(line, "isCollapsed") == false then
-					rowFrame.Collapse:SetNormalTexture("Interface\\Buttons\\UI-MinusButton-Up")
+				if not Characters:IsRealmCollapsed(line) then
 					isRealmShown = true
 				else
-					rowFrame.Collapse:SetNormalTexture("Interface\\Buttons\\UI-PlusButton-Up")
 					isRealmShown = false
 				end
 				rowFrame.Collapse:Show()
@@ -2101,34 +2133,4 @@ function addon:AiLTooltip()
 	tt:AddDoubleLine(colors.yellow .. "510", format("%s%s: %s", colors.white, GetMapNameByID(953), "10"))
 	tt:AddDoubleLine(colors.yellow .. "520", format("%s%s: %s", colors.white, GetMapNameByID(953), PLAYER_DIFFICULTY4))
 	tt:AddDoubleLine(colors.yellow .. "530", format("%s%s: %s", colors.white, GetMapNameByID(953), "25"))
-end
-
-function ns:RightClickMenu_OnLoad(self)
-	local characterInfoLine = ns.CharInfoLine
-	if not characterInfoLine then return end
-
-	local lineType = Characters:GetLineType(characterInfoLine)
-	if not lineType then return end
-
-	if lineType == INFO_REALM_LINE then
-		local _, realm, account = Characters:GetInfo(characterInfoLine)
-		local _, updatedWith = addon:GetLastAccountSharingInfo(realm, account)
-		
-		if updatedWith then
-			DDM_Add(format("Update from %s", colors.green..updatedWith), nil, UpdateRealm, characterInfoLine)
-		end
-		DDM_Add(L["Delete this Realm"], nil, DeleteRealm, characterInfoLine)
-		return
-	end
-
-	DDM_AddTitle(DataStore:GetColoredCharacterName(Characters:Get(characterInfoLine).key))
-	DDM_AddTitle(" ")
-	DDM_Add(L["View bags"], VIEW_BAGS, ViewAltInfo, characterInfoLine)
-	DDM_Add(L["View mailbox"], VIEW_MAILS, ViewAltInfo, characterInfoLine)
-	DDM_Add(L["View quest log"], VIEW_QUESTS, ViewAltInfo, characterInfoLine)
-	DDM_Add(L["View auctions"], VIEW_AUCTIONS, ViewAltInfo, characterInfoLine)
-	DDM_Add(L["View bids"], VIEW_BIDS, ViewAltInfo, characterInfoLine)
-	DDM_Add(COMPANIONS, VIEW_COMPANIONS, ViewAltInfo, characterInfoLine)
-	DDM_Add(L["Delete this Alt"], nil, DeleteAlt, characterInfoLine)
-	DDM_AddCloseMenu()
 end
