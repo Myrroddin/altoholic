@@ -24,7 +24,8 @@
 			<ScrollFrame parentKey="ScrollFrame" inherits="AltoBaseScrollFrameTemplate">
 				<Scripts>
 					<OnVerticalScroll>
-						self:OnVerticalScroll(offset, 41, Altoholic.Tabs.Grids.Update)
+						local parent = self:GetParent():GetParent()
+						self:OnVerticalScroll(offset, 41, parent.Update, parent)
 					</OnVerticalScroll>
 				</Scripts>
 				<KeyValues>

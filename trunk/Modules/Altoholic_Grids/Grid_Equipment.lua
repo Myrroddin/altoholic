@@ -485,4 +485,4 @@ local callbacks = {
 		end,
 }
 
-addon.Tabs.Grids:RegisterGrid(1, callbacks)
+AltoholicTabGrids:RegisterGrid(1, callbacks)

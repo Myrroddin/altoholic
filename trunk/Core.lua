@@ -4,8 +4,8 @@ _G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "A
 
 local addon = _G[addonName]
 
-addon.Version = "v6.1.006"
-addon.VersionNum = 601006
+addon.Version = "v6.2.006"
+addon.VersionNum = 602006
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local commPrefix = addonName
@@ -84,6 +84,8 @@ local AddonDB_Defaults = {
 			["UI.Tabs.Summary.CurrentClasses"] = 0,							-- 0 = All
 			["UI.Tabs.Summary.CurrentTradeSkill"] = 0,						-- 0 = All
 			["UI.Tabs.Summary.SortAscending"] = true,							-- ascending or descending sort order
+			["UI.Tabs.Summary.ShowLevelDecimals"] = true,					-- display character level with decimals or not
+			["UI.Tabs.Summary.ShowILevelDecimals"] = true,					-- display character level with decimals or not
 			
 			-- ** Character tab options **
 			["UI.Tabs.Characters.ViewBags"] = true,

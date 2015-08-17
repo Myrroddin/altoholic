@@ -13,7 +13,7 @@ local function BuildView()
 	questList = {}
 	view = {}
 	
-	local realm, account = addon.Tabs.Grids:GetRealm()
+	local account, realm = AltoholicTabGrids:GetRealm()
 	
 	for _, character in pairs(DataStore:GetCharacters(realm, account)) do	-- all alts on this realm
 		local num = DataStore:GetDailiesHistorySize(character) or 0
@@ -54,7 +54,7 @@ local callbacks = {
 				rowFrame.Name.Text:SetJustifyH("LEFT")
 			end
 		end,
-	RowOnEnter = function()	end,
+	RowOnEnter = function() end,
 	RowOnLeave = function() end,
 	ColumnSetup = function(self, button, dataRowID, character)
 			button.Name:SetFontObject("GameFontNormalSmall")
@@ -89,7 +89,7 @@ local callbacks = {
 
 function addon:DATASTORE_QUEST_TURNED_IN(event, sender, character)
 	BuildView()
-	addon.Tabs.Grids:Update()
+	AltoholicTabGrids:Update()
 end
 
-addon.Tabs.Grids:RegisterGrid(9, callbacks)
+AltoholicTabGrids:RegisterGrid(9, callbacks)

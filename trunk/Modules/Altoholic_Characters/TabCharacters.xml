@@ -189,22 +189,14 @@
 				</Anchors>
 			</Button>
 			-->
-			
-			<Frame parentKey="SelectRealm" name="$parent_SelectRealm" inherits="UIDropDownMenuTemplate">
+		
+			<Frame parentKey="SelectRealm" inherits="AltoRealmPickerTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.Text1" relativePoint="BOTTOMLEFT" x="-25" y="-2" />
 				</Anchors>
-				<Scripts>
-					<OnLoad>
-						UIDropDownMenu_SetWidth(self, 120) 
-						UIDropDownMenu_SetButtonWidth(self, 20)
-						
-						local realm = GetRealmName()
-						UIDropDownMenu_SetSelectedValue(self, "Default|".. realm)
-						UIDropDownMenu_SetText(self, realm)
-						Altoholic:DDM_Initialize(self, Altoholic.Tabs.Characters.DropDownRealm_Initialize)
-					</OnLoad>
-				</Scripts>
+				<KeyValues>
+					<KeyValue key="menuWidth" value="120" type="number" />
+				</KeyValues>
 			</Frame>
 			
 			<Button parentKey="Characters" inherits="AltoViewIconTemplate" id="1">

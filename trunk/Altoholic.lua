@@ -264,28 +264,30 @@ local function MerchantFrame_UpdateMerchantInfoHook()
 	
 			if link then		-- if there's a valid item link in this slot ..
 				local itemID = addon:GetIDFromLink(link)
-				local _, _, _, _, _, itemType, itemSubType = GetItemInfo(itemID)
-				
-				local r, g, b = 1, 1, 1
-				
-				-- also applies to garrison blueprints
-				if IsBOPItemKnown(itemID) then		-- recipe is bop and already known, useless to alts : red.
-					r, g, b = 1, 0, 0
-				elseif itemType == L["ITEM_TYPE_RECIPE"] and itemSubType ~= L["ITEM_SUBTYPE_BOOK"] then		-- is it a recipe ?
-					local _, couldLearn, willLearn = addon:GetRecipeOwners(itemSubType, link, addon:GetRecipeLevel(link))
-					if #couldLearn == 0 and #willLearn == 0 then		-- nobody could learn the recipe, neither now nor later : red
+				if itemID and itemID ~= 0 then		-- if there's a valid item link 
+					local _, _, _, _, _, itemType, itemSubType = GetItemInfo(itemID)
+					
+					local r, g, b = 1, 1, 1
+					
+					-- also applies to garrison blueprints
+					if IsBOPItemKnown(itemID) then		-- recipe is bop and already known, useless to alts : red.
 						r, g, b = 1, 0, 0
-					elseif #couldLearn > 0 then							-- at least 1 could learn it : green (priority over "will learn")
-						r, g, b = 0, 1, 0
-					elseif #willLearn > 0 then								-- nobody could learn it now, but some could later : yellow
-						r, g, b = 1, 1, 0
+					elseif itemType == L["ITEM_TYPE_RECIPE"] and itemSubType ~= L["ITEM_SUBTYPE_BOOK"] then		-- is it a recipe ?
+						local _, couldLearn, willLearn = addon:GetRecipeOwners(itemSubType, link, addon:GetRecipeLevel(link))
+						if #couldLearn == 0 and #willLearn == 0 then		-- nobody could learn the recipe, neither now nor later : red
+							r, g, b = 1, 0, 0
+						elseif #couldLearn > 0 then							-- at least 1 could learn it : green (priority over "will learn")
+							r, g, b = 0, 1, 0
+						elseif #willLearn > 0 then								-- nobody could learn it now, but some could later : yellow
+							r, g, b = 1, 1, 0
+						end
 					end
-				end
-				
-				local button = _G["MerchantItem" .. i .. "ItemButton"]
-				if button then
-					SetItemButtonTextureVertexColor(button, r, g, b)
-					SetItemButtonNormalTextureVertexColor(button, r, g, b)
+					
+					local button = _G["MerchantItem" .. i .. "ItemButton"]
+					if button then
+						SetItemButtonTextureVertexColor(button, r, g, b)
+						SetItemButtonNormalTextureVertexColor(button, r, g, b)
+					end
 				end
 			end
 		end
@@ -380,7 +382,9 @@ function addon:OnShow()
 	
 	if not addon.Tabs.current then
 		addon.Tabs:OnClick("Summary")
-		addon.Tabs.Summary:MenuItem_OnClick(addon:GetOption("UI.Tabs.Summary.CurrentMode"))
+		-- addon.Tabs.Summary:MenuItem_OnClick(addon:GetOption("UI.Tabs.Summary.CurrentMode"))
+		local mode = addon:GetOption("UI.Tabs.Summary.CurrentMode")
+		AltoholicTabSummary["MenuItem"..mode]:Item_OnClick()
 	end
 end
 
@@ -504,7 +508,10 @@ end
 
 function addon:GetIDFromLink(link)
 	if link then
-		return tonumber(link:match("item:(%d+)"))
+		local linktype, id = string.match(link, "|H([^:]+):(%d+)")
+		if id then
+			return tonumber(id);
+		end
 	end
 end
 

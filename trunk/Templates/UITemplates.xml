@@ -3,6 +3,7 @@
 	<Script file="ClassExtensions.lua"></Script>
 	<Script file="Frame.lua"></Script>
 
+	<Include file="AutoCastShine.xml"/>
 	<Include file="Button.xml"/>
 	<Include file="ClassIcon.xml"/>
 	<Include file="ClassIconsContainer.xml"/>
@@ -11,6 +12,7 @@
 	<Include file="ScrollFrames.xml"/>
 	<Include file="ToggleButton.xml"/>
 	<Include file="DropDownMenu.xml"/>
+	<Include file="RealmPicker.xml"/>
 	
 	<Button name="AltoTabTemplate" inherits="CharacterFrameTabButtonTemplate" virtual="true">
 		<Scripts>
@@ -47,6 +49,11 @@
 		</NormalTexture>
 		<Scripts>
 			<OnLoad>
+				Altoholic:SetClassExtensions(self, "AltoButton")
+			
+				self:SetIconSize(self.iconWidth, self.iconHeight)
+				self:SetIcon(self.iconFile)
+			
 				local level = self:GetParent():GetFrameLevel()
 				self:SetFrameLevel(level + 1)
 				self:RegisterForClicks("LeftButtonDown", "RightButtonDown");

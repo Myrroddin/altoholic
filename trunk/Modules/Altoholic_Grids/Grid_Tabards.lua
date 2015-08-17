@@ -62,7 +62,7 @@ local function RefreshTabards()
 	local link = GetInventoryItemLink("player", tabardSlot)
 	
 	if link then
-		addon.Tabs.Grids:Update()
+		AltoholicTabGrids:Update()
 	end
 end
 
@@ -121,4 +121,4 @@ local callbacks = {
 		end,
 }
 
-addon.Tabs.Grids:RegisterGrid(4, callbacks)
+AltoholicTabGrids:RegisterGrid(4, callbacks)

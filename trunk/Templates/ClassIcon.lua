@@ -6,6 +6,82 @@ local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local ICON_PARTIAL = "Interface\\RaidFrame\\ReadyCheck-Waiting"
 
+local function OnCharacterChange(frame, option, classIcons)
+	local key = frame.value		-- key is either a datastore character key, or nil (if "None" is selected by the player for this column)
+	if key == "empty" then		-- if the keyword "empty" is passed, save a nil value in the options
+		key = nil
+	end
+
+	addon:SetOption(option, key)
+
+	if classIcons.OnCharacterChanged then
+		classIcons:OnCharacterChanged()		-- callback method in the container
+	end
+end
+
+local function ClassIcon_Initialize(frame, level)
+	local id = frame.menuID
+	local parent = frame:GetParent()
+	local account, realm = parent.SelectRealm:GetCurrentRealm()
+		
+	frame:AddTitle(L["Characters"])
+	local nameList = {}		-- we want to list characters alphabetically
+	for _, character in pairs(DataStore:GetCharacters(realm, account)) do
+		table.insert(nameList, character)	-- we can add the key instead of just the name, since they will all be like account.realm.name, where account & realm are identical
+	end
+	table.sort(nameList)
+	
+	-- get the key associated with this button
+	-- ex: "Tabs.Grids.<account>.<realm>.Column5"
+	local option = format(frame.optionFormat, account, realm, id)
+	local key = addon:GetOption(option) or ""
+	
+	for _, character in ipairs(nameList) do
+		local info = frame:CreateInfo()
+		
+		info.text		= DataStore:GetColoredCharacterName(character)
+		info.value		= character
+		info.func		= OnCharacterChange
+		info.checked	= (key == character)
+		info.arg1		= option
+		info.arg2		= parent.ClassIcons
+		frame:AddButtonInfo(info, 1)
+	end
+	
+	frame:AddTitle()
+	
+	local info = frame:CreateInfo()
+	info.text		= (id == 1) and RESET or NONE
+	info.value		= "empty"
+	info.func		= OnCharacterChange
+	info.checked	= (key == "")
+	info.arg1		= option
+	info.arg2		= parent.ClassIcons
+	frame:AddButtonInfo(info, 1)
+
+	frame:AddCloseMenu()
+end
+
+local function _Icon_OnEnter(frame)
+	local parent = frame:GetParent():GetParent()
+	local currentMenuID = frame:GetID()
+	local menu = parent.ContextualMenu
+
+	menu.menuID = currentMenuID
+	menu.optionFormat = frame.optionFormat
+	menu:Initialize(ClassIcon_Initialize, "MENU")
+	menu:Close()
+	menu:Toggle(frame, 0, 0)
+
+	-- get the key associated with this button
+	-- ex: "Tabs.Grids.<account>.<realm>.Column5"
+	local account, realm = parent.SelectRealm:GetCurrentRealm()
+	local key = addon:GetOption(format(frame.optionFormat, account, realm, currentMenuID))
+	if key then
+		frame:DrawTooltip(key)
+	end
+end
+
 local function _SetClassIcon(frame, class, faction)
 	local icon = frame.Icon
 	local border = frame.IconBorder
@@ -82,6 +158,7 @@ local function _DrawTooltip(frame, character)
 end
 
 addon:RegisterClassExtensions("AltoClassIcon", {
+	Icon_OnEnter = _Icon_OnEnter,
 	SetClass = _SetClassIcon,
 	DrawTooltip = _DrawTooltip,
 })

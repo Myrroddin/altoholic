@@ -103,9 +103,9 @@ local function OnBuildingTypeSelected(self)
 	addon:SetOption(OPTION_BUILDINGS, self.value)
 	
 	currentDDMText = Buildings[self.value].name
-	addon.Tabs.Grids:SetViewDDMText(currentDDMText)
+	AltoholicTabGrids:SetViewDDMText(currentDDMText)
 	isViewValid = nil
-	addon.Tabs.Grids:Update()
+	AltoholicTabGrids:Update()
 end
 
 local function DropDown_Initialize(frame, level)
@@ -254,4 +254,4 @@ local callbacks = {
 		end,
 }
 
-addon.Tabs.Grids:RegisterGrid(10, callbacks)
+AltoholicTabGrids:RegisterGrid(10, callbacks)

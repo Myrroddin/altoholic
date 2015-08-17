@@ -1,7 +1,5 @@
 ﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
-	<!-- 
 	<Script file="Button.lua"></Script>
-	-->
 
  	<Button name="AltoButtonTemplate" virtual="true">
 		<Size x="37" y="37" />
@@ -14,22 +12,10 @@
 		<HighlightTexture file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD"/>
 		<Scripts>
 			<OnLoad>
-				local icon = self.Icon
-
-				-- set size if needed
-				if self.iconWidth then
-					icon:SetWidth(self.iconWidth)
-				end
-				if self.iconHeight then
-					icon:SetHeight(self.iconHeight)
-				end
-				
-				-- set texture if needed
-				local tex = self.iconFile
+				Altoholic:SetClassExtensions(self, "AltoButton")
 			
-				if tex then
-					icon:SetTexture(tex)
-				end
+				self:SetIconSize(self.iconWidth, self.iconHeight)
+				self:SetIcon(self.iconFile)
 			</OnLoad>
 		</Scripts>
 	</Button>

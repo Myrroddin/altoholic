@@ -529,7 +529,7 @@ function addon:DATASTORE_GLOBAL_MAIL_EXPIRY(event, threshold)
 	addon:SetMsgBoxHandler(function(self, button)
 			if button then
 				addon:ToggleUI()
-				addon.Tabs.Summary:MenuItem_OnClick(4)
+				AltoholicTabSummary.MenuItem4:Item_OnClick()
 			end
 		end)
 	

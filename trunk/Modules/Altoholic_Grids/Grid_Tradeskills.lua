@@ -31,14 +31,14 @@ local function OnXPackChange(self)
 	
 	addon:SetOption(OPTION_XPACK, currentXPack)
 
-	addon.Tabs.Grids:SetViewDDMText(xPacks[currentXPack])
-	addon.Tabs.Grids:Update()
+	AltoholicTabGrids:SetViewDDMText(xPacks[currentXPack])
+	AltoholicTabGrids:Update()
 end
 
 local function OnTradeSkillChange(self)
 	dropDownFrame:Close()
 	addon:SetOption(OPTION_TRADESKILL, self.value)
-	addon.Tabs.Grids:Update()
+	AltoholicTabGrids:Update()
 end
 
 local function DropDown_Initialize(frame, level)
@@ -132,7 +132,7 @@ local callbacks = {
 			end
 			
 			local prof = GetSpellInfo(tradeskills[currentTradeSkill])
-			addon.Tabs.Grids:SetStatus(format("%s / %s", colors.green..prof, colors.white .. xPacks[currentXPack]))
+			AltoholicTabGrids:SetStatus(format("%s / %s", colors.green..prof, colors.white .. xPacks[currentXPack]))
 		end,
 	OnUpdateComplete = function() end,
 	GetSize = function() return #currentList end,
@@ -226,4 +226,4 @@ local callbacks = {
 		end,
 }
 
-addon.Tabs.Grids:RegisterGrid(7, callbacks)
+AltoholicTabGrids:RegisterGrid(7, callbacks)

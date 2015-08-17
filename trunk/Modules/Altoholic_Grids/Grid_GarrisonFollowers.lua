@@ -82,7 +82,7 @@ local function BuildView()
 	-- list all collected followers (across all alts), sorted alphabetically
 	-- .. then list all uncollected followers, also sorted alphabetically
 
-	local realm, account = addon.Tabs.Grids:GetRealm()
+	local account, realm = AltoholicTabGrids:GetRealm()
 	local uncollected = {}
 	local followers
 	
@@ -160,10 +160,10 @@ local function OnFollowerFilterChange(self)
 	
 	addon:SetOption(OPTION_FOLLOWERS, currentFollowers)
 
-	addon.Tabs.Grids:SetViewDDMText(followerTypes[currentFollowers])
+	AltoholicTabGrids:SetViewDDMText(followerTypes[currentFollowers])
 	
 	isViewValid = nil
-	addon.Tabs.Grids:Update()
+	AltoholicTabGrids:Update()
 end
 
 local function DropDown_Initialize(frame)
@@ -275,9 +275,9 @@ local callbacks = {
 
 local function OnFollowersUpdated()
 	isViewValid = nil
-	addon.Tabs.Grids:Update()
+	AltoholicTabGrids:Update()
 end
 
 addon:RegisterMessage("DATASTORE_GARRISON_FOLLOWERS_UPDATED", OnFollowersUpdated)
 
-addon.Tabs.Grids:RegisterGrid(11, callbacks)
+AltoholicTabGrids:RegisterGrid(11, callbacks)

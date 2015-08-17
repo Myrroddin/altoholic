@@ -717,11 +717,11 @@ local function BrowseCharacter(character)
 			end
 		end
 	end
-	
+		
 	if addon:GetOption("UI.Tabs.Search.IncludeKnownRecipes")			-- check known recipes ?
 		and (filters:GetFilterValue("itemType") == nil) 
-		and (filters:GetFilterValue("itemRarity") == 0)
-		and (filters:GetFilterValue("itemSlot") == 0) then
+		-- and (filters:GetFilterValue("itemSlot") == 0)				-- is now nil .. not zero anymore, keep commented for reference
+		and (filters:GetFilterValue("itemRarity") == 0) then
 		
 		local professions = DataStore:GetProfessions(character)
 		if professions then

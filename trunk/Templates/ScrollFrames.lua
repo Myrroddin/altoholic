@@ -44,7 +44,7 @@ local function _SetOffset(frame, offset)
 	frame.offset = offset
 end
 
-local function _OnScrollRangeChanged(frame, offset, rowHeight, updateFunction)
+local function _OnScrollRangeChanged(frame, xrange, yrange)
 	local scrollBar = frame.ScrollBar
 	
 	if ( not yrange ) then
@@ -127,14 +127,14 @@ local function _OnMouseWheel(frame, delta)
 	end
 end
 
-local function _OnVerticalScroll(frame, offset, rowHeight, updateFunction)
+local function _OnVerticalScroll(frame, offset, rowHeight, updateFunction, arg1, arg2, arg3)
 	local scrollBar = frame.ScrollBar
 	scrollBar:SetValue(offset)
 	
 	frame.offset = floor((offset / rowHeight) + 0.5)
 
 	if updateFunction then
-		updateFunction(frame)
+		updateFunction(arg1, arg2, arg3)
 	end
 end
 
@@ -204,7 +204,7 @@ local function _GetRow(frame, index)
 	return parent[frame.rowPrefix..index]
 end
 
-local methods = {
+addon:RegisterClassExtensions("AltoUIPanelScrollFrame", {
 	OnLoad = _OnLoad,
 	GetOffset = _GetOffset,
 	SetOffset = _SetOffset,
@@ -213,6 +213,4 @@ local methods = {
 	OnVerticalScroll = _OnVerticalScroll,
 	Update = _Update,
 	GetRow = _GetRow,
-}
-
-addon:RegisterClassExtensions("AltoUIPanelScrollFrame", methods)
+})

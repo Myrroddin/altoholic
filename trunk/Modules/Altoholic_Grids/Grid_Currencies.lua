@@ -18,7 +18,7 @@ local function HashToSortedArray(hash)
 end
 
 local function GetUsedHeaders()
-	local realm, account = addon.Tabs.Grids:GetRealm()
+	local account, realm = AltoholicTabGrids:GetRealm()
 	
 	local usedHeaders = {}
 	local isHeader, name, num
@@ -40,7 +40,7 @@ end
 local function GetUsedTokens(header)
 	-- get the list of tokens found under a specific header, across all alts
 
-	local realm, account = addon.Tabs.Grids:GetRealm()
+	local account, realm = AltoholicTabGrids:GetRealm()
 	
 	local tokens = {}
 	local useData				-- use data for a specific header or not
@@ -74,18 +74,18 @@ end
 
 local function OnTokenChange(self, header)
 	addon:SetOption(OPTION_TOKEN, header)
-	addon.Tabs.Grids:SetViewDDMText(header)
+	AltoholicTabGrids:SetViewDDMText(header)
 
 	isViewValid = nil
-	addon.Tabs.Grids:Update()
+	AltoholicTabGrids:Update()
 end
 
 local function OnTokensAllInOne(self)
 	addon:SetOption(OPTION_TOKEN, nil)
-	addon.Tabs.Grids:SetViewDDMText(L["All-in-one"])
+	AltoholicTabGrids:SetViewDDMText(L["All-in-one"])
 
 	isViewValid = nil
-	addon.Tabs.Grids:Update()
+	AltoholicTabGrids:Update()
 end
 
 local function DropDown_Initialize(frame)
@@ -102,7 +102,7 @@ local callbacks = {
 				BuildView()
 			end
 			
-			addon.Tabs.Grids:SetStatus(addon:GetOption(OPTION_TOKEN) or L["All-in-one"])
+			AltoholicTabGrids:SetStatus(addon:GetOption(OPTION_TOKEN) or L["All-in-one"])
 		end,
 	GetSize = function() return #view end,
 	RowSetup = function(self, rowFrame, dataRowID)
@@ -177,4 +177,4 @@ local callbacks = {
 
 local headers = GetUsedHeaders()
 
-addon.Tabs.Grids:RegisterGrid(3, callbacks)
+AltoholicTabGrids:RegisterGrid(3, callbacks)

@@ -280,10 +280,10 @@ local function OnRaidListChange(self, xpackIndex, raidListIndex)
 		
 	local raidList = Dungeons[xpackIndex][raidListIndex]
 	currentDDMText = raidList.name
-	addon.Tabs.Grids:SetViewDDMText(currentDDMText)
+	AltoholicTabGrids:SetViewDDMText(currentDDMText)
 	
 	isViewValid = nil
-	addon.Tabs.Grids:Update()
+	AltoholicTabGrids:Update()
 end
 
 local function DropDown_Initialize(frame, level)
@@ -327,7 +327,7 @@ local callbacks = {
 			local currentXPack = addon:GetOption(OPTION_XPACK)
 			local currentRaids = addon:GetOption(OPTION_RAIDS)
 			
-			addon.Tabs.Grids:SetStatus(format("%s / %s", Dungeons[currentXPack].name, Dungeons[currentXPack][currentRaids].name))
+			AltoholicTabGrids:SetStatus(format("%s / %s", Dungeons[currentXPack].name, Dungeons[currentXPack][currentRaids].name))
 		end,
 	GetSize = function() return #view end,
 	RowSetup = function(self, rowFrame, dataRowID)
@@ -425,4 +425,4 @@ local callbacks = {
 		end,
 }
 
-addon.Tabs.Grids:RegisterGrid(6, callbacks)
+AltoholicTabGrids:RegisterGrid(6, callbacks)
