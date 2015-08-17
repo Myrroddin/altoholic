@@ -5,8 +5,6 @@ local colors = addon.Colors
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local LCI = LibStub("LibCraftInfo-1.0")
 
-local THIS_ACCOUNT = "Default"
-
 local parentName = "AltoholicTabCharacters"
 local parent
 
@@ -15,8 +13,6 @@ local currentView = 0		-- current view in the characters category
 local currentProfession
 
 local currentAlt = UnitName("player")
-local currentRealm = GetRealmName()
-local currentAccount = THIS_ACCOUNT
 
 -- ** Icons Menus **
 local VIEW_BAGS = 1
@@ -124,76 +120,6 @@ function ns:MenuItem_OnClick(frame, button)
 	menuIcons.GarrisonIcon:Show()
 end
 
--- ** realm selection **
-local function OnRealmChange(self, account, realm)
-	local oldAccount = currentAccount
-	local oldRealm = currentRealm
-
-	currentAccount = account
-	currentRealm = realm
-	
-	UIDropDownMenu_ClearAll(parent.SelectRealm);
-	UIDropDownMenu_SetSelectedValue(parent.SelectRealm, account .."|".. realm)
-	UIDropDownMenu_SetText(parent.SelectRealm, colors.green .. account .. ": " .. colors.white.. realm)
-	
-	if oldRealm and oldAccount then	-- clear the "select char" drop down if realm or account has changed
-		if (oldRealm ~= realm) or (oldAccount ~= account) then
-			parent.Status:SetText("")
-			currentAlt = nil
-			currentProfession = nil
-			
-			HideAll()
-		end
-	end
-end
-
-function ns:DropDownRealm_Initialize()
-	if not currentAccount or not currentRealm then return end
-	
-	-- this account first ..
-	DDM_AddTitle(colors.gold..L["This account"])
-	for realm in pairs(DataStore:GetRealms()) do
-		local info = UIDropDownMenu_CreateInfo()
-
-		info.text = colors.white..realm
-		info.value = format("%s|%s", THIS_ACCOUNT, realm)
-		info.checked = nil
-		info.func = OnRealmChange
-		info.arg1 = THIS_ACCOUNT
-		info.arg2 = realm
-		UIDropDownMenu_AddButton(info, 1)
-	end
-
-	-- .. then all other accounts
-	local accounts = DataStore:GetAccounts()
-	local count = 0
-	for account in pairs(accounts) do
-		if account ~= THIS_ACCOUNT then
-			count = count + 1
-		end
-	end
-	
-	if count > 0 then
-		DDM_AddTitle(" ")
-		DDM_AddTitle(colors.gold..OTHER)
-		for account in pairs(accounts) do
-			if account ~= THIS_ACCOUNT then
-				for realm in pairs(DataStore:GetRealms(account)) do
-					local info = UIDropDownMenu_CreateInfo()
-
-					info.text = format("%s: %s", colors.green..account, colors.white..realm)
-					info.value = format("%s|%s", account, realm)
-					info.checked = nil
-					info.func = OnRealmChange
-					info.arg1 = account
-					info.arg2 = realm
-					UIDropDownMenu_AddButton(info, 1)
-				end
-			end
-		end
-	end
-end
-
 function ns:ViewCharInfo(index)
 	index = index or self.value
 	
@@ -296,32 +222,33 @@ end
 
 -- ** DB / Get **
 function ns:GetAccount()
-	return currentAccount
+	local account, realm = parent.SelectRealm:GetCurrentRealm()
+	return account
 end
 
 function ns:GetRealm()
-	return currentRealm, currentAccount
+	local account, realm = parent.SelectRealm:GetCurrentRealm()
+	return realm, account
 end
 
+
 function ns:GetAlt()
-	return currentAlt, currentRealm, currentAccount
+	local account, realm = parent.SelectRealm:GetCurrentRealm()
+	return currentAlt, realm, account
 end
 
 function ns:GetAltKey()
-	if currentAlt and currentRealm and currentAccount then
-		return format("%s.%s.%s", currentAccount, currentRealm, currentAlt)
+	local account, realm = parent.SelectRealm:GetCurrentRealm()
+	
+	if currentAlt and realm and account then
+		return format("%s.%s.%s", account, realm, currentAlt)
 	end
 end
 
 -- ** DB / Set **
 function ns:SetAlt(alt, realm, account)
 	currentAlt = alt
-	currentRealm = (realm) and realm				-- only set the value if not nil
-	currentAccount = (account) and account		-- only set the value if not nil
-	
-	-- set drop down menu
-	ns:DropDownRealm_Initialize()
-	UIDropDownMenu_SetSelectedValue(parent.SelectRealm, account .."|".. realm)
+	parent.SelectRealm:SetCurrentRealm(realm, account)
 end
 
 function ns:SetAltKey(key)
@@ -503,9 +430,11 @@ end
 
 -- ** Menu Icons **
 local function CharactersIcon_Initialize(self, level)
+	local account, realm = parent.SelectRealm:GetCurrentRealm()
+	
 	DDM_AddTitle(L["Characters"])
 	local nameList = {}		-- we want to list characters alphabetically
-	for _, character in pairs(DataStore:GetCharacters(currentRealm, currentAccount)) do
+	for _, character in pairs(DataStore:GetCharacters(realm, account)) do
 		table.insert(nameList, character)	-- we can add the key instead of just the name, since they will all be like account.realm.name, where account & realm are identical
 	end
 	table.sort(nameList)
@@ -878,6 +807,13 @@ function ns:OnLoad()
 
 	-- Left Menu
 	parent.Text1:SetText(L["Realm"])
+	
+	parent.SelectRealm:RegisterClassEvent("RealmChanged", function() 
+			parent.Status:SetText("")
+			currentAlt = nil
+			currentProfession = nil
+			HideAll()
+		end)
 	
 	-- Menu Icons
 	-- mini easter egg, change the character icon depending on the time of year :)

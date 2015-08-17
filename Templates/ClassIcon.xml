@@ -14,13 +14,14 @@
 		</Layers>
 		<Scripts>
 			<OnLoad>
+				Altoholic:SetClassExtensions(self, "AltoButton")
 				Altoholic:SetClassExtensions(self, "AltoClassIcon")
 			
 				local level = self:GetParent():GetFrameLevel()
 				self:SetFrameLevel(level + 1)
-				self:RegisterForClicks("LeftButtonDown", "RightButtonDown");
+				self:RegisterForClicks("LeftButtonDown", "RightButtonDown")
 				
-				self.Icon:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
+				self:SetIcon("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
 			</OnLoad>
 			<OnLeave>
 				AltoTooltip:Hide()

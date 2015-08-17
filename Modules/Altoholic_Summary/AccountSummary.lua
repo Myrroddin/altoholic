@@ -189,60 +189,6 @@ end
 
 local Characters = addon.Characters
 
-local function GetFactionTotals(f, line)
-	local _, realm, account = Characters:GetInfo(line)
-	
-	local level = 0
-	local money = 0
-	local played = 0
-	
-	for _, character in pairs(DataStore:GetCharacters(realm, account)) do
-		if DataStore:GetCharacterFaction(character) == f then
-			level = level + DataStore:GetCharacterLevel(character)
-			money = money + DataStore:GetMoney(character)
-			played = played + DataStore:GetPlayTime(character)
-		end
-	end
-	
-	return level, money, played
-end
-
-local function ShowTotals(frame)
-	local line = frame:GetParent():GetID()
-	local tt = AltoTooltip
-	
-	tt:ClearLines()
-	tt:SetOwner(frame, "ANCHOR_TOP")
-	tt:AddLine(L["Totals"])
-	
-	local aLevels, aMoney, aPlayed = GetFactionTotals("Alliance", line)
-	local hLevels, hMoney, hPlayed = GetFactionTotals("Horde", line)
-	
-	tt:AddLine(" ",1,1,1)
-	tt:AddDoubleLine(colors.white..L["Levels"] , format("%s|r (%s %s|r, %s %s|r)", 
-		Characters:GetField(line, "level"),
-		addon:TextureToFontstring(ICON_FACTION_ALLIANCE, 18, 18), colors.white..aLevels,
-		addon:TextureToFontstring(ICON_FACTION_HORDE, 18, 18), colors.white..hLevels))
-	
-	tt:AddLine(" ",1,1,1)
-	tt:AddDoubleLine(colors.white..MONEY, format("%s|r (%s %s|r, %s %s|r)", 
-		addon:GetMoneyString(Characters:GetField(line, "money"), colors.white, true),
-		addon:TextureToFontstring(ICON_FACTION_ALLIANCE, 18, 18), 
-		addon:GetMoneyString(aMoney, colors.white, true),
-		addon:TextureToFontstring(ICON_FACTION_HORDE, 18, 18), 
-		addon:GetMoneyString(hMoney, colors.white, true)))
-	
-	tt:AddLine(" ",1,1,1)
-	tt:AddDoubleLine(colors.white..PLAYED , format("%s|r (%s %s|r, %s %s|r)",
-		Characters:GetField(line, "played"),
-		addon:TextureToFontstring(ICON_FACTION_ALLIANCE, 18, 18),
-		addon:GetTimeString(aPlayed),
-		addon:TextureToFontstring(ICON_FACTION_HORDE, 18, 18), 
-		addon:GetTimeString(hPlayed)))
-	
-	tt:Show()
-end
-
 local function SortView(columnName)
 	addon:SetOption("UI.Tabs.Summary.CurrentColumn", columnName)
 	addon.Summary:Update()
@@ -542,7 +488,7 @@ columns["Level"] = {
 	JustifyH = "CENTER",
 	GetText = function(character) 
 		local level = DataStore:GetCharacterLevel(character)
-		if level ~= MAX_PLAYER_LEVEL then
+		if level ~= MAX_PLAYER_LEVEL and addon:GetOption("UI.Tabs.Summary.ShowLevelDecimals") then
 			local rate = DataStore:GetXPRate(character)
 			level = format("%.1f", level + (rate/100))		-- show level as 98.4 if not level cap
 		end
@@ -569,7 +515,10 @@ columns["Level"] = {
 				colors.green, DataStore:GetXPRate(character), colors.white),1,1,1)
 			tt:Show()
 		end,
-	OnClick = EmptyFunc,
+	OnClick = function(frame, button)
+			addon:ToggleOption(nil, "UI.Tabs.Summary.ShowLevelDecimals")
+			addon.Summary:Update()
+		end,
 	GetTotal = function(line) return Characters:GetField(line, "level") end,
 }
 
@@ -673,7 +622,11 @@ columns["AiL"] = {
 	JustifyH = "CENTER",
 	GetText = function(character) 
 		local AiL = DataStore:GetAverageItemLevel(character) or 0
-		return format("%s%.1f", colors.yellow, AiL)
+		if addon:GetOption("UI.Tabs.Summary.ShowILevelDecimals") then
+			return format("%s%.1f", colors.yellow, AiL)
+		else
+			return format("%s%d", colors.yellow, AiL)
+		end
 	end,
 	OnEnter = function(frame)
 			local character = frame:GetParent().character
@@ -693,7 +646,10 @@ columns["AiL"] = {
 			addon:AiLTooltip()
 			tt:Show()
 		end,
-	OnClick = EmptyFunc,
+	OnClick = function(frame, button)
+			addon:ToggleOption(nil, "UI.Tabs.Summary.ShowILevelDecimals")
+			addon.Summary:Update()
+		end,
 	GetTotal = function(line) return colors.white..format("%.1f", Characters:GetField(line, "realmAiL")) end,
 }
 
@@ -1877,47 +1833,6 @@ columns["FollowersItems"] = {
 	GetTotal = EmptyFunc,
 }
 
-local function SetButtonData(frame, character, columnName)
-	local obj = columns[columnName]
-	
-	-- Set basic properties
-	frame:SetWidth(obj.Width)
-	frame.Text:SetWidth(obj.Width)
-	frame.Text:SetJustifyH(obj.JustifyH)
-	frame.Text:SetText(obj.GetText(character))
-	frame:Show()
-
-	-- Set Scripts
-	frame:SetScript("OnEnter", obj.OnEnter)
-	frame:SetScript("OnClick", obj.OnClick)
-end
-
-local function SetTotalButtonData(frame, line, columnName)
-	local obj = columns[columnName]
-	
-	-- Set basic properties
-	frame:SetWidth(obj.Width)
-	frame.Text:SetWidth(obj.Width)
-	
-	if obj.TotalJustifyH then
-		frame.Text:SetJustifyH(obj.TotalJustifyH)
-	else
-		frame.Text:SetJustifyH(obj.JustifyH)
-	end
-	
-
-	if obj.GetTotal ~= EmptyFunc then
-		frame.Text:SetText(obj.GetTotal(line))
-		frame:Show()
-	else
-		frame:Hide()
-	end
-
-	-- Set Scripts
-	frame:SetScript("OnEnter", EmptyFunc)
-	frame:SetScript("OnClick", EmptyFunc)
-end
-
 local modes = {
 	[MODE_SUMMARY] = { "Name", "Level", "RestXP", "Money", "Played", "AiL", "LastOnline" },
 	[MODE_BAGS] = { "Name", "Level", "BagSlots", "FreeBagSlots", "BankSlots", "FreeBankSlots" },
@@ -1942,7 +1857,6 @@ function ns:SetMode(mode)
 end
 
 function ns:Update()
-	
 	local frame = AltoholicFrameSummary
 	local scrollFrame = frame.ScrollFrame
 	local numRows = scrollFrame.numRows
@@ -2002,68 +1916,18 @@ function ns:Update()
 				else
 					isRealmShown = false
 				end
-				rowFrame.Collapse:Show()
-				
-				item = rowFrame.Item1
-				item:SetWidth(300)
-				item:SetPoint("TOPLEFT", 25, 0)
-				item.Text:SetWidth(300)
-				item.Text:SetJustifyH("LEFT")
-				
-				if account == THIS_ACCOUNT then	-- saved as default, display as localized.
-					item.Text:SetText(format("%s (%s".. L["Account"]..": %s%s|r)", realm, colors.white, colors.green, L["Default"]))
-				else
-					local last = addon:GetLastAccountSharingInfo(realm, account)
-					item.Text:SetText(format("%s (%s".. L["Account"]..": %s%s %s%s|r)", realm, colors.white, colors.green, account, colors.yellow, last or ""))
-				end
-				
-				item:SetScript("OnEnter", EmptyFunc)
-				item:SetScript("OnClick", Name_OnClick)
-				
-				for i = 2, 10 do
-					rowFrame["Item"..i]:Hide()
-				end
-	
-				rowFrame.character = nil
-				rowFrame:SetID(line)
-				rowFrame:Show()
+				rowFrame:DrawRealmLine(line, realm, account, Name_OnClick)
+			
 				rowIndex = rowIndex + 1
 				numVisibleRows = numVisibleRows + 1
 				numDisplayedRows = numDisplayedRows + 1
 			elseif isRealmShown then
 				if (lineType == INFO_CHARACTER_LINE) then
-					local character = DataStore:GetCharacter( Characters:GetInfo(line) )
-					
-					rowFrame.character = character
-					rowFrame.Collapse:Hide()
-					rowFrame.Item1:SetPoint("TOPLEFT", 10, 0)
-
-					-- fill the visible cells for this mode
-					for i = 1, #currentMode do
-						SetButtonData(rowFrame["Item"..i], character, currentMode[i])
-					end
-					
+					rowFrame:DrawCharacterLine(line, columns, currentMode)
 				elseif (lineType == INFO_TOTAL_LINE) then
-					rowFrame.character = nil
-					rowFrame.Collapse:Hide()
-					
-					-- fill the visible cells for this mode
-					for i = 1, #currentMode do
-						SetTotalButtonData(rowFrame["Item"..i], line, currentMode[i])
-					end
-					
-					item = rowFrame.Item1
-					item:SetPoint("TOPLEFT", 10, 0)
-					item:SetScript("OnEnter", ShowTotals)
+					rowFrame:DrawTotalLine(line, columns, currentMode)
 				end
-					
-				-- hide the extra cells
-				for i = #currentMode+1, 10 do
-					rowFrame["Item"..i]:Hide()
-				end
-				
-				rowFrame:SetID(line)
-				rowFrame:Show()
+
 				rowIndex = rowIndex + 1
 				numVisibleRows = numVisibleRows + 1
 				numDisplayedRows = numDisplayedRows + 1

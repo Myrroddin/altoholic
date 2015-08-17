@@ -434,7 +434,8 @@ local function _Toggle(frame, level, value, dropDownFrame, anchorName, xOffset, 
 	if not x or not y then listFrame:Hide() return end
 
 	listFrame.onHide = dropDownFrame.onHide
-		--  We just move level 1 enough to keep it on the screen. We don't necessarily change the anchors.
+	
+	--  We just move level 1 enough to keep it on the screen. We don't necessarily change the anchors.
 	if level == 1 then
 		local offLeft = listFrame:GetLeft() / uiScale
 		local offRight = (GetScreenWidth() - listFrame:GetRight()) / uiScale

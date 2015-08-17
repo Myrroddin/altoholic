@@ -204,12 +204,13 @@ local Factions = {
 			name = FACTION_ALLIANCE,	-- 469
 			{ name = DataStore:GetFactionName(1710), icon = "inv_tabard_a_shataridefense" },		-- Sha'tari Defense
 			{ name = DataStore:GetFactionName(1682), icon = "inv_tabard_a_78wrynnvanguard" },	-- Wrynn's Vanguard
+			{ name = DataStore:GetFactionName(1847), icon = "inv_tabard_a_78wrynnvanguard" },	-- Hand of the Prophet
 		},
 		{	-- [2]
 			name = FACTION_HORDE,
 			{ name = DataStore:GetFactionName(1708), icon = "inv_tabard_a_80laughingskull" },	-- Laughing Skull Orcs
 			{ name = DataStore:GetFactionName(1681), icon = "inv_tabard_a_77voljinsspear" },		-- Vol'jin's Spear
-
+			{ name = DataStore:GetFactionName(1848), icon = "inv_tabard_a_77voljinsspear" },	-- Vol'jin's Headh
 		},
 		{	-- [3]
 			name = OTHER,
@@ -217,6 +218,8 @@ local Factions = {
 			{ name = DataStore:GetFactionName(1731), icon = "inv_tabard_a_81exarchs" },		-- Council of Exarchs
 			{ name = DataStore:GetFactionName(1445), icon = "inv_tabard_a_01frostwolfclan" },		-- Frostwold Orcs
 			{ name = DataStore:GetFactionName(1711), icon = "achievement_goblinhead" },		-- Steamwheedle Preservation Society
+			{ name = DataStore:GetFactionName(1849), icon = "achievement_goblinhead" },			-- Order of the Awakened
+			{ name = DataStore:GetFactionName(1850), icon = "achievement_goblinhead" },			-- The Saberstalkers
 		},		
 	},	
 	{	-- [7]
@@ -314,10 +317,10 @@ local function OnFactionChange(self, xpackIndex, factionGroupIndex)
 		
 	local factionGroup = Factions[xpackIndex][factionGroupIndex]
 	currentDDMText = factionGroup.name
-	addon.Tabs.Grids:SetViewDDMText(currentDDMText)
+	AltoholicTabGrids:SetViewDDMText(currentDDMText)
 	
 	isViewValid = nil
-	addon.Tabs.Grids:Update()
+	AltoholicTabGrids:Update()
 end
 
 local lastRealm, lastAccount
@@ -328,7 +331,7 @@ local function OnGuildSelected(self)
 	addon:SetOption(OPTION_XPACK, CAT_GUILD)
 	addon:SetOption(OPTION_FACTION, 1)
 	
-	local realm, account = addon.Tabs.Grids:GetRealm()
+	local account, realm = AltoholicTabGrids:GetRealm()
 	
 	if not lastRealm or not lastAccount or lastRealm ~= realm or lastAccount ~= account then	-- realm/account changed ? rebuild view
 		AddGuildsToFactionsTable(realm, account)
@@ -337,10 +340,10 @@ local function OnGuildSelected(self)
 	lastRealm = realm
 	lastAccount = account
 	currentDDMText = GUILD
-	addon.Tabs.Grids:SetViewDDMText(currentDDMText)
+	AltoholicTabGrids:SetViewDDMText(currentDDMText)
 	
 	isViewValid = nil
-	addon.Tabs.Grids:Update()
+	AltoholicTabGrids:Update()
 end
 
 local function OnAllInOneSelected(self)
@@ -349,9 +352,9 @@ local function OnAllInOneSelected(self)
 	addon:SetOption(OPTION_FACTION, 1)
 	
 	currentDDMText = L["All-in-one"]
-	addon.Tabs.Grids:SetViewDDMText(currentDDMText)
+	AltoholicTabGrids:SetViewDDMText(currentDDMText)
 	isViewValid = nil
-	addon.Tabs.Grids:Update()
+	AltoholicTabGrids:Update()
 end
 
 local function DropDown_Initialize(frame, level)
@@ -431,11 +434,11 @@ local callbacks = {
 			local currentFactionGroup = addon:GetOption(OPTION_FACTION)
 			
 			if (currentXPack == CAT_GUILD) then
-				addon.Tabs.Grids:SetStatus(GUILD)
+				AltoholicTabGrids:SetStatus(GUILD)
 			elseif (currentXPack == CAT_ALLINONE) then
-				addon.Tabs.Grids:SetStatus(L["All-in-one"])
+				AltoholicTabGrids:SetStatus(L["All-in-one"])
 			else
-				addon.Tabs.Grids:SetStatus(format("%s / %s", Factions[currentXPack].name, Factions[currentXPack][currentFactionGroup].name))
+				AltoholicTabGrids:SetStatus(format("%s / %s", Factions[currentXPack].name, Factions[currentXPack][currentFactionGroup].name))
 			end
 		end,
 	GetSize = function() return #view end,
@@ -567,7 +570,7 @@ local callbacks = {
 			end
 			
 			if (currentXPack == CAT_GUILD) then
-				local realm, account = addon.Tabs.Grids:GetRealm()
+				local account, realm = AltoholicTabGrids:GetRealm()
 				AddGuildsToFactionsTable(realm, account)
 			end
 			
@@ -578,4 +581,4 @@ local callbacks = {
 		end,
 }
 
-addon.Tabs.Grids:RegisterGrid(2, callbacks)
+AltoholicTabGrids:RegisterGrid(2, callbacks)

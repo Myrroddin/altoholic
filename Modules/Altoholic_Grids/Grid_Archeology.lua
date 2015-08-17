@@ -10,8 +10,8 @@ local currentItemID
 local function OnRaceChange(self)
 	addon:SetOption(OPTION_RACE, self.value)
 
-	addon.Tabs.Grids:SetViewDDMText(GetArchaeologyRaceInfo(self.value))
-	addon.Tabs.Grids:Update()
+	AltoholicTabGrids:SetViewDDMText(GetArchaeologyRaceInfo(self.value))
+	AltoholicTabGrids:Update()
 end
 
 local function DropDown_Initialize(frame)
@@ -30,7 +30,7 @@ end
 
 local callbacks = {
 	OnUpdate = function()
-			addon.Tabs.Grids:SetStatus(GetArchaeologyRaceInfo(addon:GetOption(OPTION_RACE)))
+			AltoholicTabGrids:SetStatus(GetArchaeologyRaceInfo(addon:GetOption(OPTION_RACE)))
 		end,
 	GetSize = function() return DataStore:GetRaceNumArtifacts(addon:GetOption(OPTION_RACE)) end,
 	RowSetup = function(self, rowFrame, dataRowID)
@@ -95,4 +95,4 @@ local callbacks = {
 		end,
 }
 
-addon.Tabs.Grids:RegisterGrid(8, callbacks)
+AltoholicTabGrids:RegisterGrid(8, callbacks)

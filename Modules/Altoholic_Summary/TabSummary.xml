@@ -1,72 +1,38 @@
 ﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="TabSummary.lua"></Script>
 	
-	<Button name="AltoSummaryMenuItemTemplate" inherits="AltoMenuItemTemplate" hidden="false" virtual="true">
-		<Size x="156" y="20" />
-		<Scripts>
-			<OnClick>
-				-- Hide all sort buttons when changing mode
-				local parent = self:GetParent()
-				
-				for _, child in ipairs( {parent.SortButtons:GetChildren()} ) do
-					child.ascendingSort = nil
-					child.Arrow:Hide()
-					child:Hide()
-				end
-	
-				-- update the highlight, unlock all, lock current
-				local i = 1
-				while parent["MenuItem"..i] do
-					parent["MenuItem"..i]:UnlockHighlight()
-					i = i + 1
-				end
-				self:LockHighlight()
-				
-				Altoholic.Tabs.Summary:MenuItem_OnClick(self:GetID())
-			</OnClick>
-		</Scripts>
-	</Button>
-	
-	<Button name="AltoTabSummaryIconTemplate" inherits="AltoButtonTemplate" virtual="true">
-		<Scripts>
-			<OnEnter>
-				Altoholic.Tabs.Summary:Icon_OnEnter(self)
-			</OnEnter>
-		</Scripts>
-	</Button>
-	
 	<Frame name="AltoholicTabSummary" parent="AltoholicFrame">
 		<Size x="758" y="447" />
 		<Anchors>
 			<Anchor point="TOPLEFT"/>
 		</Anchors>
 		<Frames>
-			<Button parentKey="MenuItem1" inherits="AltoSummaryMenuItemTemplate" id="1">
+			<Button parentKey="MenuItem1" inherits="AltoTabSummaryMenuItemTemplate" id="1">
 				<Anchors>
 					<Anchor point="TOPLEFT" x="23" y="-105" />
 				</Anchors>
 			</Button>
-			<Button parentKey="MenuItem2" inherits="AltoSummaryMenuItemTemplate" id="2">
+			<Button parentKey="MenuItem2" inherits="AltoTabSummaryMenuItemTemplate" id="2">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.MenuItem1" relativePoint="BOTTOMLEFT" x="0" y="0" />
 				</Anchors>
 			</Button>
-			<Button parentKey="MenuItem3" inherits="AltoSummaryMenuItemTemplate" id="3">
+			<Button parentKey="MenuItem3" inherits="AltoTabSummaryMenuItemTemplate" id="3">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.MenuItem2" relativePoint="BOTTOMLEFT" x="0" y="0" />
 				</Anchors>
 			</Button>
-			<Button parentKey="MenuItem4" inherits="AltoSummaryMenuItemTemplate" id="4">
+			<Button parentKey="MenuItem4" inherits="AltoTabSummaryMenuItemTemplate" id="4">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.MenuItem3" relativePoint="BOTTOMLEFT" x="0" y="0" />
 				</Anchors>
 			</Button>
-			<Button parentKey="MenuItem5" inherits="AltoSummaryMenuItemTemplate" id="5">
+			<Button parentKey="MenuItem5" inherits="AltoTabSummaryMenuItemTemplate" id="5">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.MenuItem4" relativePoint="BOTTOMLEFT" x="0" y="0" />
 				</Anchors>
 			</Button>
-			<Button parentKey="MenuItem6" inherits="AltoSummaryMenuItemTemplate" id="6">
+			<Button parentKey="MenuItem6" inherits="AltoTabSummaryMenuItemTemplate" id="6">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.MenuItem5" relativePoint="BOTTOMLEFT" x="0" y="0" />
 				</Anchors>
@@ -196,7 +162,17 @@
 		</Frames>
 		<Scripts>
 			<OnLoad>
-				Altoholic.Tabs.Summary:OnLoad()
+				local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+				
+				self.MenuItem1:SetText(L["Account Summary"])
+				self.MenuItem2:SetText(L["Bag Usage"])
+				self.MenuItem3:SetText(SKILLS)
+				self.MenuItem4:SetText(L["Activity"])
+				self.MenuItem5:SetText(CURRENCY)
+				self.MenuItem6:SetText(GARRISON_FOLLOWERS_TITLE)
+				self.RequestSharing:SetText(L["Account Sharing"])
+				
+				self.ClassIcon:SetIcon(Altoholic:GetCharacterIcon())
 			</OnLoad>
 			<OnShow>
 				if Altoholic.Summary then

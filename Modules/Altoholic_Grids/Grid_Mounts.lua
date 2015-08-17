@@ -102,8 +102,8 @@ local function OnXPackChange(self)
 	
 	addon:SetOption(OPTION_XPACK, currentXPack)
 
-	addon.Tabs.Grids:SetViewDDMText(xPacks[currentXPack])
-	addon.Tabs.Grids:Update()
+	AltoholicTabGrids:SetViewDDMText(xPacks[currentXPack])
+	AltoholicTabGrids:Update()
 end
 
 local function DropDown_Initialize(frame)
@@ -121,7 +121,7 @@ local callbacks = {
 			local currentXPack = addon:GetOption(OPTION_XPACK)
 			spellList = (currentXPack <= CAT_ALLINONE) and petList[currentXPack] or DataStore:GetCompanionList()
 
-			addon.Tabs.Grids:SetStatus(xPacks[currentXPack])
+			AltoholicTabGrids:SetStatus(xPacks[currentXPack])
 		end,
 	GetSize = function() return #spellList end,
 	RowSetup = function(self, rowFrame, dataRowID)
@@ -179,7 +179,4 @@ local callbacks = {
 		end,
 }
 
-local tab = addon.Tabs.Grids
-
-tab:RegisterGrid(5, callbacks)
-
+AltoholicTabGrids:RegisterGrid(5, callbacks)

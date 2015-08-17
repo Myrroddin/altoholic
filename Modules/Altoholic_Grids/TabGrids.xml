@@ -2,39 +2,13 @@
 	<Script file="TabGrids.lua"></Script>
 	
 	<Button name="AltoTabGridsClassIconTemplate" inherits="AltoClassIconTemplate" virtual="true">
+		<KeyValues>
+			<KeyValue key="optionFormat" value="Tabs.Grids.%s.%s.Column%d" />
+		</KeyValues>
 		<Scripts>
 			<OnEnter>
-				Altoholic.Tabs.Grids:Icon_OnEnter(self)
-				
+				self:Icon_OnEnter()
 			</OnEnter>
-		</Scripts>
-	</Button>
-	
- 	<Button name="AltoTabGridsMenuIconTemplate" inherits="AltoButtonTemplate" virtual="true">
-		<Size x="30" y="30" />
-		<Frames>
-			<Frame parentKey="Shine" name="$parentShine" inherits="AutoCastShineTemplate">
-				<Size x="28" y="28" />
-				<Anchors>
-					<Anchor point="CENTER" x="0" y="0" />
-				</Anchors>
-			</Frame>
-		</Frames>
-		<Scripts>
-			<OnEnter>
-				if self.text then
-					AltoTooltip:ClearLines();
-					AltoTooltip:SetOwner(self, "ANCHOR_RIGHT");
-					AltoTooltip:AddLine(self.text,1,1,1);
-					AltoTooltip:Show();
-				end
-			</OnEnter>
-			<OnLeave>
-				AltoTooltip:Hide();
-			</OnLeave>
-			<OnClick>
-				Altoholic.Tabs.Grids:MenuItem_OnClick(self, button)
-			</OnClick>
 		</Scripts>
 	</Button>
 	
@@ -73,23 +47,13 @@
 					<Anchor point="TOPLEFT" relativeKey="$parent.TextView" relativePoint="BOTTOMLEFT" x="-25" y="-2"/>
 				</Anchors>
 			</Frame>
-			<Frame parentKey="SelectRealm" inherits="AltoDropDownMenuTemplate">
+			<Frame parentKey="SelectRealm" inherits="AltoRealmPickerTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.Label1" relativePoint="BOTTOMLEFT" x="-25" y="-2" />
 				</Anchors>
-				<Scripts>
-					<OnLoad>
-						Altoholic:SetClassExtensions(self, "AltoDropDownMenu")
-						
-						local realm = GetRealmName()
-						
-						self:SetMenuWidth(120) 
-						self:SetButtonWidth(20)
-						self:Initialize(Altoholic.Tabs.Grids.DropDownRealm_Initialize)
-						self:SetSelectedValue("Default|".. realm)
-						self:SetText(realm)
-					</OnLoad>
-				</Scripts>
+				<KeyValues>
+					<KeyValue key="menuWidth" value="120" type="number" />
+				</KeyValues>
 			</Frame>
 				
 			<!-- Menu Icons -->
@@ -277,10 +241,33 @@
 		</Frames>
 		<Scripts>
 			<OnLoad>
-				Altoholic.Tabs.Grids:OnLoad()
+				Altoholic:SetClassExtensions(self, "AltoTabGrids")
+				
+				local L = LibStub("AceLocale-3.0"):GetLocale("Altoholic")
+				
+				self.Label1:SetText(L["Realm"])
+				self.Equipment.text = L["Equipment"]
+				self.Factions.text = L["Reputations"]
+				self.Tabards.text = "Tabards"
+				self.Archeology.text = GetSpellInfo(78670)
+				self.Dailies.text = "Daily Quests"
+				self.FollowerAbilities.text = format("%s/%s", GARRISON_RECRUIT_ABILITIES, GARRISON_RECRUIT_TRAITS)
+				
+				self.SelectRealm:RegisterClassEvent("RealmChanged", function()
+						self.Status:SetText("")
+						self:Update()
+					end)
+				
+				self.ClassIcons.OnCharacterChanged = function()
+						self:Update()
+					end
+					
+				self.Equipment:StartAutoCastShine()
+				self.currentGridID = 1
 			</OnLoad>
 			<OnShow>
-				Altoholic.Tabs.Grids:OnShow()
+				self:UpdateMenuIcons()
+				self:Update()
 			</OnShow>
 		</Scripts>
 	</Frame>

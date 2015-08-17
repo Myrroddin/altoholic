@@ -57,7 +57,7 @@ local function BuildView()
 	viewItems = {}
 	wipe(counters)
 	
-	local realm, account = addon.Tabs.Grids:GetRealm()
+	local account, realm = AltoholicTabGrids:GetRealm()
 	
 	local currentStats = addon:GetOption(OPTION_STATS)
 	
@@ -111,10 +111,10 @@ local function OnStatsFilterChange(self)
 	addon:SetOption(OPTION_STATS, currentStats)
 	currentKey = statTypes[currentStats].key
 
-	addon.Tabs.Grids:SetViewDDMText(statTypes[currentStats].label)
+	AltoholicTabGrids:SetViewDDMText(statTypes[currentStats].label)
 	
 	isViewValid = nil
-	addon.Tabs.Grids:Update()
+	AltoholicTabGrids:Update()
 end
 
 local function DropDown_Initialize(frame)
@@ -207,4 +207,4 @@ local callbacks = {
 		end,
 }
 
-addon.Tabs.Grids:RegisterGrid(12, callbacks)
+AltoholicTabGrids:RegisterGrid(12, callbacks)
