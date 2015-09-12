@@ -44,7 +44,15 @@ local function UpdateBankTabButtons()
 		if tabName then
 			button.Icon:SetWidth(30)
 			button.Icon:SetHeight(30)
-			button.Icon:SetTexture(DataStore:GetGuildBankTabIcon(currentGuildKey, i))
+			
+			local icon = DataStore:GetGuildBankTabIcon(currentGuildKey, i)
+			local iconNumber = tonumber(icon)
+			
+			if iconNumber then
+				button.Icon:SetToFileData(iconNumber)
+			else
+				button.Icon:SetTexture(icon)
+			end
 			button:Show()
 		else
 			button:Hide()

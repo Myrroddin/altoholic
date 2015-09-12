@@ -157,7 +157,14 @@ local function CreateLists(level, buttonIndex)
 end
 
 local function SetIconImage(icon, texture, info)
-	icon:SetTexture(texture)
+	local iconNumber = tonumber(texture)
+	if iconNumber then
+		icon:SetToFileData(iconNumber)
+	else
+		icon:SetTexture(texture)
+	end
+
+	-- icon:SetTexture(texture)
 	
 	if info.tCoordLeft then
 		icon:SetTexCoord(info.tCoordLeft, info.tCoordRight, info.tCoordTop, info.tCoordBottom)

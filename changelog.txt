@@ -9,6 +9,12 @@ This means cleaning the following files in \WTF\Account\<your_account>\SavedVari
 There WILL be bugs if you use your old files without cleaning them first. 
 Some fixes to work around API changes are too time consuming, so cleaning is required. A meagre price to pay once per expansion.
 
+6.2.007 (12/09/2015)
+
+- Added Garona & Harrison Jones to the list of followers not recruited at the inn.
+- Fixed guild bank tab icons displayed as a red square instead of the tab's icon.
+- DataStore_Achievements: Fixed a Lua error at logon.
+
 6.2.006 (17/08/2015)
 
 Imported all changes made in the unofficial releases made during my absence.
