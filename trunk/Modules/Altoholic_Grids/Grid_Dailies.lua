@@ -92,4 +92,4 @@ function addon:DATASTORE_QUEST_TURNED_IN(event, sender, character)
 	AltoholicTabGrids:Update()
 end
 
-AltoholicTabGrids:RegisterGrid(9, callbacks)
+AltoholicTabGrids:RegisterGrid(4, callbacks)

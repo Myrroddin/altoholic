@@ -165,7 +165,7 @@ local function UpdateSpread()
 					itemButton.startTime = startTime
 					itemButton.duration = duration
 					
-					CooldownFrame_SetTimer(itemButton.Cooldown, startTime or 0, duration or 0, isEnabled)
+					-- CooldownFrame_SetTimer(itemButton.Cooldown, startTime or 0, duration or 0, isEnabled)
 				
 					itemButton:Show()
 				else
@@ -276,7 +276,7 @@ local function UpdateAllInOne()
 						itemButton.startTime = startTime
 						itemButton.duration = duration
 						
-						CooldownFrame_SetTimer(itemButton.Cooldown, startTime or 0, duration or 0, isEnabled)
+						-- CooldownFrame_SetTimer(itemButton.Cooldown, startTime or 0, duration or 0, isEnabled)
 				
 						itemButton:Show()
 						

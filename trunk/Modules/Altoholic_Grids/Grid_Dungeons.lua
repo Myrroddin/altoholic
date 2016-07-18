@@ -244,6 +244,11 @@ local Dungeons = {
 			{ id = 846, achID = 8990, bosses = 3 },	--	The Black Forge
 			{ id = 848, achID = 8991, bosses = 3 },	--	Iron Assembly
 			{ id = 823, achID = 8992, bosses = 1 },	--	Blackhand's Crucible
+			{ id = 982, achID = 10023, bosses = 3 }, --  Hellbreach
+			{ id = 983, achID = 10024, bosses = 3 }, --  Halls of Blood
+			{ id = 984, achID = 10025, bosses = 3 }, --  Bastion of Shadows
+			{ id = 985, achID = 10026, bosses = 3 }, --  Destructor's Rise
+			{ id = 986, achID = 10027, bosses = 1 }, --  The Black Gate
 		},
 	},
 }

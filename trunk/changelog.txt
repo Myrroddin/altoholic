@@ -9,6 +9,16 @@ This means cleaning the following files in \WTF\Account\<your_account>\SavedVari
 There WILL be bugs if you use your old files without cleaning them first. 
 Some fixes to work around API changes are too time consuming, so cleaning is required. A meagre price to pay once per expansion.
 
+7.0.001 (19/07/2016)
+
+- REMINDER : CLEANING YOUR SAVED VARIABLES IS MANDATORY FOR 7.0 (YES I'M SHOUTING ! :D)
+- Various fixes to support 7.0 API changes.
+- Glyph UI has been removed.
+- Tabard UI has been removed.
+
+Note : I've been extremely busy with big projects & responsibilities at work in the past months (year ? .. almost!), but 21/07 is national day in Belgium so it's a long weekend over here, I'll have time to follow-up on 7.0 and release extra changes.
+I expect the rest of the year to keep quite busy given our current planning, hopefully 2017 should be quieter (and I'll have a long holiday in December, yay !).
+
 6.2.007 (12/09/2015)
 
 - Added Garona & Harrison Jones to the list of followers not recruited at the inn.

@@ -18,16 +18,14 @@ local currentAlt = UnitName("player")
 local VIEW_BAGS = 1
 local VIEW_QUESTS = 2
 local VIEW_TALENTS = 3
-local VIEW_GLYPHS = 4
-local VIEW_AUCTIONS = 5
-local VIEW_BIDS = 6
-local VIEW_MAILS = 7
+local VIEW_AUCTIONS = 4
+local VIEW_BIDS = 5
+local VIEW_MAILS = 6
 -- local VIEW_MOUNTS = 8
-local VIEW_COMPANIONS = 9
-local VIEW_SPELLS = 10
-local VIEW_KNOWN_GLYPHS = 11
-local VIEW_PROFESSION = 12
-local VIEW_GARRISONS = 13
+local VIEW_COMPANIONS = 7
+local VIEW_SPELLS = 8
+local VIEW_PROFESSION = 9
+local VIEW_GARRISONS = 10
 
 -- Second mini easter egg, the bag icon changes depending on the amount of chars at level max (on the current realm), or based on the time of the year
 local BAG_ICONS = {
@@ -77,7 +75,6 @@ local function HideAll()
 	AltoholicFramePets:Hide()
 	AltoholicFrameAuctions:Hide()
 	AltoholicFrameRecipes:Hide()
-	AltoholicFrameGlyphs:Hide()
 	AltoholicFrameSpellbook:Hide()
 	AltoholicFrameGarrisonMissions:Hide()
 end
@@ -138,14 +135,11 @@ function ns:ShowCharInfo(view)
 	elseif view == VIEW_QUESTS then
 		AltoholicFrameQuests:Show()
 		addon.Quests:InvalidateView()
-		addon.Quests:Update()		
+		addon.Quests:Update()
 		
 	elseif view == VIEW_TALENTS then
 		addon.Talents:Reset();
 		addon.Talents:Update();
-	elseif view == VIEW_GLYPHS then
-		AltoholicFrameGlyphs:Show()
-		addon.Glyphs:Update();
 	
 	elseif view == VIEW_AUCTIONS then
 		addon.AuctionHouse:SetListType("Auctions")
@@ -168,9 +162,9 @@ function ns:ShowCharInfo(view)
 	elseif view == VIEW_COMPANIONS then
 		addon.Pets:SetSinglePetView("CRITTER")
 		addon.Pets:UpdatePets()
-	elseif view == VIEW_KNOWN_GLYPHS then
-		addon.Spellbook:UpdateKnownGlyphs()
+
 	elseif view == VIEW_PROFESSION then
+		AltoholicFrameRecipes:Show()
 		addon.TradeSkills.Recipes:InvalidateView()
 		addon.TradeSkills.Recipes:Update()
 	elseif view == VIEW_GARRISONS then
@@ -276,8 +270,7 @@ local function OnCharacterChange(self)
 
 	currentProfession = nil
 	
-	if currentView ~= VIEW_TALENTS and currentView ~= VIEW_SPELLS and
-		currentView ~= VIEW_KNOWN_GLYPHS and currentView ~= VIEW_PROFESSION then
+	if currentView ~= VIEW_TALENTS and currentView ~= VIEW_SPELLS and	currentView ~= VIEW_PROFESSION then
 		ns:ShowCharInfo(currentView)		-- this will show the same info from another alt (ex: containers/mail/ ..)
 	else
 		HideAll()
@@ -317,27 +310,12 @@ local function OnTalentChange(self)
 	end
 end
 
-local function OnGlyphChange(self)
-	CloseDropDownMenus()
-
-	ns:ViewCharInfo(VIEW_GLYPHS)
-end
-
 local function OnSpellTabChange(self)
 	CloseDropDownMenus()
 	
 	if self.value then
 		addon.Spellbook:SetSchool(self.value)
 		ns:ViewCharInfo(VIEW_SPELLS)
-	end
-end
-
-local function OnGlyphSpellsChange(self)
-	CloseDropDownMenus()
-	
-	if self.value then
-		addon.Spellbook:SetGlyphType(self.value)
-		ns:ViewCharInfo(VIEW_KNOWN_GLYPHS)
 	end
 end
 
@@ -464,8 +442,8 @@ local function BagsIcon_Initialize(self, level)
 	local rarity = addon:GetOption("UI.Tabs.Characters.ViewBagsRarity")
 	DDM_Add(L["Any"], 0, OnRarityChange, nil, (rarity == 0))
 	
-	for i = 2, 6 do		-- Quality: 0 = poor .. 5 = legendary
-		DDM_Add(ITEM_QUALITY_COLORS[i].hex .. _G["ITEM_QUALITY"..i.."_DESC"], i, OnRarityChange, nil, (rarity == i))
+	for i = LE_ITEM_QUALITY_UNCOMMON, LE_ITEM_QUALITY_HEIRLOOM do		-- Quality: 0 = poor .. 5 = legendary
+		DDM_Add(format("|c%s%s", select(4, GetItemQualityColor(i)), _G["ITEM_QUALITY"..i.."_DESC"]), i, OnRarityChange, nil, (rarity == i))
 	end
 	
 	DDM_AddCloseMenu()
@@ -481,7 +459,7 @@ local function QuestsIcon_Initialize(self, level)
 	DDM_AddTitle("|r ")
 	DDM_AddTitle(GAMEOPTIONS_MENU)
 	if DataStore_Quests then
-		DDM_Add("DataStore Quests", nil, function() Altoholic:ToggleUI(); InterfaceOptionsFrame_OpenToCategory(DataStoreQuestsOptions) end)
+		DDM_Add("DataStore Quests", nil, function() Altoholic:ToggleUI(); InterfaceOptionsFrame_OpenToCategory("DataStore_Quests") end)
 	end
 	DDM_AddCloseMenu()
 end
@@ -491,13 +469,10 @@ local function TalentsIcon_Initialize(self, level)
 	local currentCharacterKey = ns:GetAltKey()
 	if not currentCharacterKey then return end
 	
-	DDM_AddTitle(format("%s & %s / %s", TALENTS, GLYPHS, DataStore:GetColoredCharacterName(currentCharacterKey)))
+	DDM_AddTitle(format("%s / %s", TALENTS, DataStore:GetColoredCharacterName(currentCharacterKey)))
 	DDM_AddTitle(" ")
 	DDM_Add(TALENT_SPEC_PRIMARY, 1, OnTalentChange, nil, nil)
 	DDM_Add(TALENT_SPEC_SECONDARY, 2, OnTalentChange, nil, nil)
-	DDM_AddTitle(" ")
-	DDM_Add(GLYPHS, nil, OnGlyphChange, nil, (currentView == VIEW_GLYPHS))
-	
 	DDM_AddCloseMenu()
 end
 
@@ -528,7 +503,7 @@ local function AuctionIcon_Initialize(self, level)
 	DDM_AddTitle("|r ")
 	DDM_AddTitle(GAMEOPTIONS_MENU)
 	if DataStore_Auctions then
-		DDM_Add("DataStore Auctions", nil, function() Altoholic:ToggleUI(); InterfaceOptionsFrame_OpenToCategory(DataStoreAuctionsOptions) end)
+		DDM_Add("DataStore Auctions", nil, function() Altoholic:ToggleUI(); InterfaceOptionsFrame_OpenToCategory("DataStore_Auctions") end)
 	end
 	DDM_AddCloseMenu()
 end
@@ -579,10 +554,6 @@ local function SpellbookIcon_Initialize(self, level)
 	else
 		DDM_Add(format(COMPANIONS .. " %s(%d)", colors.grey, numPets), nil, nil)
 	end
-	DDM_AddTitle(" ")
-	DDM_AddTitle(GLYPHS)
-	DDM_Add(MAJOR_GLYPHS, 1, OnGlyphSpellsChange)
-	DDM_Add(MINOR_GLYPHS, 2, OnGlyphSpellsChange)
 	DDM_AddCloseMenu()
 end
 
@@ -647,14 +618,14 @@ local function ProfessionsIcon_Initialize(self, level)
 			info.func = nil
 			UIDropDownMenu_AddButton(info, level)
 
-			info.text = colors.white..TRADESKILL_FILTER_SLOTS
+			info.text = colors.white..SLOT_ABBR
 			info.hasArrow = 1
 			info.checked = nil
 			info.value = 2
 			info.func = nil
 			UIDropDownMenu_AddButton(info, level)
 
-			info.text = colors.white..TRADESKILL_FILTER_SUBCLASS
+			info.text = colors.white..SUBCATEGORY
 			info.hasArrow = 1
 			info.checked = nil
 			info.value = 3
@@ -663,8 +634,8 @@ local function ProfessionsIcon_Initialize(self, level)
 			
 		else		-- grey out filters
 			DDM_Add(colors.grey..COLOR, nil, nil)
-			DDM_Add(colors.grey..TRADESKILL_FILTER_SLOTS, nil, nil)
-			DDM_Add(colors.grey..TRADESKILL_FILTER_SUBCLASS, nil, nil)
+			DDM_Add(colors.grey..SLOT_ABBR, nil, nil)
+			DDM_Add(colors.grey..SUBCATEGORY, nil, nil)
 		end
 
 		DDM_AddCloseMenu()
@@ -733,9 +704,9 @@ local function ProfessionsIcon_Initialize(self, level)
 			
 		elseif UIDROPDOWNMENU_MENU_VALUE == 3 then	-- subclass
 		
-			info.text = ALL_SUBCLASSES
-			info.value = ALL_SUBCLASSES
-			info.checked = (addon.TradeSkills.Recipes:GetCurrentSubClass() == ALL_SUBCLASSES)
+			info.text = ALL
+			info.value = ALL
+			info.checked = (addon.TradeSkills.Recipes:GetCurrentSubClass() == ALL)
 			info.func = OnProfessionSubClassChange
 			UIDropDownMenu_AddButton(info, level)
 		
@@ -848,8 +819,15 @@ function ns:OnLoad()
 	parent.Characters.text = L["Characters"]
 	
 	addon:RegisterMessage("DATASTORE_RECIPES_SCANNED")
+	addon:RegisterMessage("DATASTORE_QUESTLOG_SCANNED")
 end
 
 function addon:DATASTORE_RECIPES_SCANNED(event, sender, tradeskillName)
 	addon.TradeSkills.Recipes:InvalidateView()
 end
+
+function addon:DATASTORE_QUESTLOG_SCANNED(event, sender)
+	addon.Quests:InvalidateView()
+	addon.Quests:Update()
+end
+
