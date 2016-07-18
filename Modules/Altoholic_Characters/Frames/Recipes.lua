@@ -35,7 +35,7 @@ local isViewValid
 local currentProfession
 local currentColor = SKILL_ANY
 local currentSlots = ALL_INVENTORY_SLOTS
-local currentSubClass = ALL_SUBCLASSES
+local currentSubClass = ALL
 
 local ns = addon.TradeSkills.Recipes		-- ns = namespace
 
@@ -70,18 +70,18 @@ local function BuildView()
 	
 	local hideCategory		-- hide or show the current header ?
 	local hideLine			-- hide or show the current line ?
-	
+		
 	for index = 1, DataStore:GetNumCraftLines(profession) do
-		local isHeader, color, info = DataStore:GetCraftLineInfo(profession, index)
+		local isHeader, color, info, indent = DataStore:GetCraftLineInfo(profession, index)
 
 		if isHeader then
 			hideCategory = false
-			if currentSubClass ~= ALL_SUBCLASSES and currentSubClass ~= info then
+			if currentSubClass ~= ALL and currentSubClass ~= info then
 				hideCategory = true	-- hide if a specific subclass is selected AND we're not on it
 			end
 
 			if not hideCategory then
-				table.insert(view, { id = index, isCollapsed = false } )
+				table.insert(view, { id = index, isCollapsed = false, indent = indent } )
 			end
 		else		-- data line
 			if not hideCategory then
@@ -138,6 +138,8 @@ local function BuildView()
 end
 
 function ns:Update()
+	if not _G[parent]:IsVisible() then return end		-- frame is not visible, do nothing
+	
 	if not isViewValid then
 		BuildView()
 	end
@@ -160,10 +162,13 @@ function ns:Update()
 	local isHeader
 	local isCollapsed
 	
+	local currentIndent = 0
+	
 	for index, s in pairs(view) do
 		if type(s) == "table" then
 			isHeader = true
 			isCollapsed = s.isCollapsed
+			currentIndent = s.indent
 		else
 			isHeader = nil
 		end

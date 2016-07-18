@@ -83,6 +83,7 @@ local function AddRealm(AccountName, RealmName)
 	local realmBankSlots = 0
 	local realmFreeBankSlots = 0
 	local realmAiL = 0
+	local realmOffset = realmCount*3
 	local numCharacters = 0
 
 	-- let's get our filter values
@@ -96,7 +97,7 @@ local function AddRealm(AccountName, RealmName)
 	local shouldAddCharacter = true
 	
 	-- 1) Add the realm name
-	table.insert(characterList, { linetype = INFO_REALM_LINE + (realmCount*3),
+	table.insert(characterList, { linetype = INFO_REALM_LINE + realmOffset,
 		account = AccountName,
 		realm = RealmName
 	} )
@@ -171,14 +172,14 @@ local function AddRealm(AccountName, RealmName)
 			realmBankSlots = realmBankSlots + (DataStore:GetNumBankSlots(character) or 0)
 			realmFreeBankSlots = realmFreeBankSlots + (DataStore:GetNumFreeBankSlots(character) or 0)
 			realmAiL = realmAiL + (DataStore:GetAverageItemLevel(character) or 0)
-			table.insert(characterList, { linetype = INFO_CHARACTER_LINE + (realmCount*3), key = character } )
+			table.insert(characterList, { linetype = INFO_CHARACTER_LINE + realmOffset, key = character } )
 			
 			numCharacters = numCharacters + 1
 		end
 	end
 
 	-- 3) Add the totals
-	table.insert(characterList, { linetype = INFO_TOTAL_LINE + (realmCount*3),
+	table.insert(characterList, { linetype = INFO_TOTAL_LINE + realmOffset,
 		level = colors.white .. realmLevels,
 		money = realmMoney,
 		played = Altoholic:GetTimeString(realmPlayed),
@@ -186,7 +187,7 @@ local function AddRealm(AccountName, RealmName)
 		freeBagSlots = realmFreeBagSlots,
 		bankSlots = realmBankSlots,
 		freeBankSlots = realmFreeBankSlots,
-		realmAiL = (realmAiL / numCharacters),
+		realmAiL = (numCharacters ~= 0) and (realmAiL / numCharacters) or 0,
 	} )
 
 	totalMoney = totalMoney + realmMoney

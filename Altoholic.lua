@@ -335,7 +335,7 @@ function addon:OnEnable()
 	Orig_MerchantFrame_UpdateMerchantInfo = MerchantFrame_UpdateMerchantInfo
 	MerchantFrame_UpdateMerchantInfo = MerchantFrame_UpdateMerchantInfoHook
 	
-	AltoholicFrameName:SetText(format("Altoholic %s%s by %sThaoky", colors.white, addon.Version, colors.classMage))
+	AltoholicFrameName:SetText(format("Altoholic %s%s by |c%sThaoky", colors.white, addon.Version, RAID_CLASS_COLORS["MAGE"].colorStr))
 
 	local realm = GetRealmName()
 	local player = UnitName("player")

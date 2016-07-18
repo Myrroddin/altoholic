@@ -888,6 +888,10 @@ columns["FreeBankSlots"] = {
 			end
 			
 			local numSlots = DataStore:GetNumBankSlots(character)
+			if numSlots == 0 then		-- Bank not visited yet
+				return 0			
+			end
+			
 			local numFree = DataStore:GetNumFreeBankSlots(character)
 			local color = ((numFree / numSlots) <= 0.1) and colors.red or colors.green
 			

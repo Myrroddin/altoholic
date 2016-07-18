@@ -102,19 +102,22 @@ local function BuildView()
 	end
 	
 	-- Prepare a list of uncollected followers
-	local link
-	for k, follower in pairs(C_Garrison.GetFollowers()) do
-		link = C_Garrison.GetFollowerLinkByID(follower.followerID)
-		if link then
-			local	id = link:match("garrfollower:(%d+)")
-			id = tonumber(id)
-				
-			if not collected[id] then
-				table.insert(uncollected, id)
+	local followersList = C_Garrison.GetFollowers(LE_FOLLOWER_TYPE_GARRISON_6_0)
+	if followersList then 
+		local link
+		for k, follower in pairs(followersList) do
+			link = C_Garrison.GetFollowerLinkByID(follower.followerID)
+			if link then
+				local	id = link:match("garrfollower:(%d+)")
+				id = tonumber(id)
+					
+				if not collected[id] then
+					table.insert(uncollected, id)
+				end
 			end
 		end
+		table.sort(uncollected, SortByFollowerName)
 	end
-	table.sort(uncollected, SortByFollowerName)
 	
 	-- Now prepare the view, depending on user selection.
 	view = {}
@@ -217,7 +220,9 @@ local callbacks = {
 			button.Name:SetPoint("BOTTOMRIGHT", 0, 0)
 			button.Background:SetDesaturated(false)
 			button.Background:SetTexCoord(0, 1, 0, 1)
-			GarrisonFollowerPortrait_Set(button.Background, C_Garrison.GetFollowerPortraitIconIDByID(id))
+			-- GarrisonFollowerPortrait_Set(button.Background, C_Garrison.GetFollowerPortraitIconIDByID(id))
+			
+			button.Background:SetTexture(C_Garrison.GetFollowerPortraitIconIDByID(id))
 			
 			if level then
 				button.key = character
@@ -280,4 +285,4 @@ end
 
 addon:RegisterMessage("DATASTORE_GARRISON_FOLLOWERS_UPDATED", OnFollowersUpdated)
 
-AltoholicTabGrids:RegisterGrid(11, callbacks)
+AltoholicTabGrids:RegisterGrid(10, callbacks)

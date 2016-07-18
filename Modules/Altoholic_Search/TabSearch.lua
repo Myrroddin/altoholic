@@ -7,52 +7,119 @@ local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local parentName = "AltoholicTabSearch"
 local parent
 
-local view
 local highlightIndex
 
 addon.Tabs.Search = {}
 
 local ns = addon.Tabs.Search		-- ns = namespace
 
-local function BuildView()
-	view = view or {}
-	wipe(view)
-	
-	local itemClasses =  { GetAuctionItemClasses() };
-	local classNum = 1
-	for _, itemClass in pairs(itemClasses) do
-		table.insert(view, { name = itemClass, isCollapsed = true } )
-		table.insert(view, L["Any"] )
-		
-		local itemSubClasses =  { GetAuctionItemSubClasses(classNum) };
-		for _, itemSubClass in pairs(itemSubClasses) do
-			table.insert(view, itemSubClass )
-		end
-		
-		classNum = classNum + 1
-	end
-end
+local currentClass
+local currentSubClass
+
+-- from Blizzard_AuctionData.lua & LuaEnum.lua
+-- Note : review this later on, I suspect Blizzard will change this again
+local categories = {
+	{
+		name = AUCTION_CATEGORY_WEAPONS,
+		class = LE_ITEM_CLASS_WEAPON,
+		subClasses = {
+			LE_ITEM_WEAPON_AXE1H, LE_ITEM_WEAPON_MACE1H, LE_ITEM_WEAPON_SWORD1H,
+			LE_ITEM_WEAPON_AXE2H, LE_ITEM_WEAPON_MACE2H, LE_ITEM_WEAPON_SWORD2H, 
+			LE_ITEM_WEAPON_WARGLAIVE, LE_ITEM_WEAPON_DAGGER, LE_ITEM_WEAPON_UNARMED, LE_ITEM_WEAPON_WAND,
+			LE_ITEM_WEAPON_POLEARM, LE_ITEM_WEAPON_STAFF,
+			LE_ITEM_WEAPON_BOWS, LE_ITEM_WEAPON_CROSSBOW, LE_ITEM_WEAPON_GUNS, LE_ITEM_WEAPON_THROWN,
+			LE_ITEM_WEAPON_FISHINGPOLE,
+		},
+		isCollapsed = true,
+	},
+	{
+		name = AUCTION_CATEGORY_ARMOR,
+		class = LE_ITEM_CLASS_ARMOR,
+		subClasses = {
+			LE_ITEM_ARMOR_PLATE, LE_ITEM_ARMOR_MAIL, LE_ITEM_ARMOR_LEATHER, LE_ITEM_ARMOR_CLOTH, 
+			LE_ITEM_ARMOR_GENERIC, LE_ITEM_ARMOR_SHIELD, LE_ITEM_ARMOR_COSMETIC,
+		},
+		isCollapsed = true,
+	},
+	{
+		name = AUCTION_CATEGORY_CONTAINERS,
+		class = LE_ITEM_CLASS_CONTAINER,
+		subClasses = { GetAuctionItemSubClasses(LE_ITEM_CLASS_CONTAINER) },
+		isCollapsed = true,
+	},
+	{
+		name = AUCTION_CATEGORY_GEMS,
+		class = LE_ITEM_CLASS_GEM,
+		subClasses = { GetAuctionItemSubClasses(LE_ITEM_CLASS_GEM) },
+		isCollapsed = true,
+	},
+	{
+		name = AUCTION_CATEGORY_ITEM_ENHANCEMENT,
+		class = LE_ITEM_CLASS_ITEM_ENHANCEMENT,
+		subClasses = { GetAuctionItemSubClasses(LE_ITEM_CLASS_ITEM_ENHANCEMENT) },
+		isCollapsed = true,
+	},
+	{
+		name = AUCTION_CATEGORY_CONSUMABLES,
+		class = LE_ITEM_CLASS_CONSUMABLE,
+		subClasses = { GetAuctionItemSubClasses(LE_ITEM_CLASS_CONSUMABLE) },
+		isCollapsed = true,
+	},
+	{
+		name = AUCTION_CATEGORY_GLYPHS,
+		class = LE_ITEM_CLASS_GLYPH,
+		subClasses = { GetAuctionItemSubClasses(LE_ITEM_CLASS_GLYPH) },
+		isCollapsed = true,
+	},
+	{
+		name = AUCTION_CATEGORY_TRADE_GOODS,
+		class = LE_ITEM_CLASS_TRADEGOODS,
+		subClasses = { GetAuctionItemSubClasses(LE_ITEM_CLASS_TRADEGOODS) },
+		isCollapsed = true,
+	},
+	{
+		name = AUCTION_CATEGORY_RECIPES,
+		class = LE_ITEM_CLASS_RECIPE,
+		subClasses = { GetAuctionItemSubClasses(LE_ITEM_CLASS_RECIPE) },
+		isCollapsed = true,
+	},
+	{
+		name = AUCTION_CATEGORY_BATTLE_PETS,
+		class = LE_ITEM_CLASS_BATTLEPET,
+		subClasses = { GetAuctionItemSubClasses(LE_ITEM_CLASS_BATTLEPET) },
+		isCollapsed = true,
+	},
+	{
+		name = AUCTION_CATEGORY_QUEST_ITEMS,
+		class = LE_ITEM_CLASS_QUESTITEM,
+		subClasses = { GetAuctionItemSubClasses(LE_ITEM_CLASS_QUESTITEM) },
+		isCollapsed = true,
+	},
+	{
+		name = AUCTION_CATEGORY_MISCELLANEOUS,
+		class = LE_ITEM_CLASS_MISCELLANEOUS,
+		subClasses = { GetAuctionItemSubClasses(LE_ITEM_CLASS_MISCELLANEOUS) },
+		isCollapsed = true,
+	},
+}
 
 local function Header_OnClick(frame)
-	local header = view[frame.itemTypeIndex]
+	local header = categories[frame.itemTypeIndex]
 	header.isCollapsed = not header.isCollapsed
 
 	ns:Update()
 end
 
 local function Item_OnClick(frame)
-	local itemType = frame.itemTypeIndex
-	local itemSubType = frame.itemSubTypeIndex
-
-	highlightIndex = itemSubType
+	local category = categories[frame.itemTypeIndex]
+	local class = category.class
+	local subClass = category.subClasses[frame.itemSubTypeIndex]
+	
+	-- 1005 = class 1, sub 5
+	highlightIndex = (frame.itemTypeIndex * 1000) + frame.itemSubTypeIndex
 	ns:Update()
 	
-	-- around 5-7 ms on the current realm, 25-40 ms in the loot tables
-	if view[itemSubType] == L["Any"] then
-		addon.Search:FindItem(view[itemType].name)
-	else
-		addon.Search:FindItem(view[itemType].name, view[itemSubType])
-	end
+	addon.Search:FindItem(GetItemClassInfo(class), GetItemSubClassInfo(class, subClass))
 end
 
 function ns:OnLoad()
@@ -65,24 +132,19 @@ function ns:OnLoad()
 end
 
 function ns:Update()
-	if not view then
-		BuildView()
-	end
-	
-	local itemTypeIndex				-- index of the item type in the menu table
 	local itemTypeCacheIndex		-- index of the item type in the cache table
 	local MenuCache = {}
 	
-	for k, v in pairs (view) do		-- rebuild the cache
-		if type(v) == "table" then		-- header
-			itemTypeIndex = k
-			table.insert(MenuCache, { linetype=1, nameIndex=k } )
-			itemTypeCacheIndex = #MenuCache
-		else
-			if view[itemTypeIndex].isCollapsed == false then
-				table.insert(MenuCache, { linetype=2, nameIndex=k, parentIndex=itemTypeIndex } )
+	for categoryIndex, category in ipairs (categories) do
+	
+		table.insert(MenuCache, { linetype = 1, dataIndex = categoryIndex } )
+		itemTypeCacheIndex = #MenuCache
+	
+		if category.isCollapsed == false then
+			for subCategoryIndex, subCategory in ipairs(category.subClasses) do
+				table.insert(MenuCache, { linetype = 2, dataIndex = subCategoryIndex, parentIndex = categoryIndex } )
 				
-				if (highlightIndex) and (highlightIndex == k) then
+				if (highlightIndex) and (highlightIndex == ((categoryIndex*1000)+ subCategoryIndex)) then
 					MenuCache[#MenuCache].needsHighlight = true
 					MenuCache[itemTypeCacheIndex].needsHighlight = true
 				end
@@ -119,14 +181,18 @@ function ns:Update()
 			end			
 			
 			if p.linetype == 1 then
-				menuButton.Text:SetText(colors.white .. view[p.nameIndex].name)
+				menuButton.Text:SetText(format("%s%s", colors.white, categories[p.dataIndex].name))
 				menuButton:SetScript("OnClick", Header_OnClick)
-				menuButton.itemTypeIndex = p.nameIndex
+				menuButton.itemTypeIndex = p.dataIndex
 			elseif p.linetype == 2 then
-				menuButton.Text:SetText("|cFFBBFFBB   " .. view[p.nameIndex])
+				local category = categories[p.parentIndex]
+				local class = category.class
+				local subClass = category.subClasses[p.dataIndex]
+			
+				menuButton.Text:SetText("|cFFBBFFBB   " .. GetItemSubClassInfo(class, subClass))
 				menuButton:SetScript("OnClick", Item_OnClick)
 				menuButton.itemTypeIndex = p.parentIndex
-				menuButton.itemSubTypeIndex = p.nameIndex
+				menuButton.itemSubTypeIndex = p.dataIndex
 			end
 
 			menuButton:Show()
@@ -145,12 +211,8 @@ function ns:Reset()
 	addon.Search:ClearResults()
 	collectgarbage()
 	
-	if view then
-		for k, v in pairs(view) do			-- rebuild the cache
-			if type(v) == "table" then		-- header
-				v.isCollapsed = true
-			end
-		end
+	for _, category in pairs(categories) do			-- rebuild the cache
+		category.isCollapsed = true
 	end
 	highlightIndex = nil
 	
@@ -164,15 +226,15 @@ end
 function ns:DropDownRarity_Initialize()
 	local info = UIDropDownMenu_CreateInfo(); 
 
-	for i = 0, NUM_ITEM_QUALITIES do		-- Quality: 0 = poor .. 5 = legendary
-		info.text = ITEM_QUALITY_COLORS[i].hex .. _G["ITEM_QUALITY"..i.."_DESC"]
+	for i = 0, LE_ITEM_QUALITY_HEIRLOOM do		-- Quality: 0 = poor .. 5 = legendary ..
+		info.text = format("|c%s%s", select(4, GetItemQualityColor(i)), _G["ITEM_QUALITY"..i.."_DESC"])
 		info.value = i
 		info.func = function(self)	
-			UIDropDownMenu_SetSelectedValue(parent.SelectRarity, self.value);
+			UIDropDownMenu_SetSelectedValue(parent.SelectRarity, self.value)
 		end
 		info.checked = nil; 
 		info.icon = nil; 
-		UIDropDownMenu_AddButton(info, 1); 
+		UIDropDownMenu_AddButton(info, 1);
 	end
 end 
 

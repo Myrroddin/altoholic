@@ -98,12 +98,6 @@ local function _UpdateMenuIcons(frame)
 	else
 		frame.Pets:DisableIcon()
 	end
-	
-	if DataStore_Achievements then
-		frame.Tabards:EnableIcon()
-	else
-		frame.Tabards:DisableIcon()
-	end
 
 	if DataStore_Quests then
 		frame.Dailies:EnableIcon()

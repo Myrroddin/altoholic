@@ -207,4 +207,4 @@ local callbacks = {
 		end,
 }
 
-AltoholicTabGrids:RegisterGrid(12, callbacks)
+AltoholicTabGrids:RegisterGrid(11, callbacks)

@@ -92,12 +92,12 @@
 					<KeyValue key="text" value="CURRENCY" type="global" />
 				</KeyValues>
 			</Button>
-			<Button parentKey="Tabards" inherits="AltoTabGridsMenuIconTemplate" id="4">
+			<Button parentKey="Dailies" inherits="AltoTabGridsMenuIconTemplate" id="4">
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Tokens" relativePoint="BOTTOMRIGHT" x="5" y="0" />
 				</Anchors>
 				<KeyValues>
-					<KeyValue key="iconFile" value="Interface\Icons\inv_chest_cloth_30" />
+					<KeyValue key="iconFile" value="Interface\LFGFrame\LFGIcon-Quest" />
 				</KeyValues>
 			</Button>
 
@@ -137,24 +137,16 @@
 				</KeyValues>
 			</Button>
 
-			<Button parentKey="Dailies" inherits="AltoTabGridsMenuIconTemplate" id="9">
+			<Button parentKey="GarrisonArchitect" inherits="AltoTabGridsMenuIconTemplate" id="9">
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" relativeTo="AltoholicTabGrids" relativePoint="BOTTOMLEFT" x="30" y="160" />
-				</Anchors>
-				<KeyValues>
-					<KeyValue key="iconFile" value="Interface\LFGFrame\LFGIcon-Quest" />
-				</KeyValues>
-			</Button>
-			<Button parentKey="GarrisonArchitect" inherits="AltoTabGridsMenuIconTemplate" id="10">
-				<Anchors>
-					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Dailies" relativePoint="BOTTOMRIGHT" x="5" y="0" />
 				</Anchors>
 				<KeyValues>
 					<KeyValue key="iconFile" value="Interface\Icons\inv_garrison_blueprints3" />
 					<KeyValue key="text" value="GARRISON_ARCHITECT" type="global" />
 				</KeyValues>
 			</Button>
-			<Button parentKey="GarrisonFollowers" inherits="AltoTabGridsMenuIconTemplate" id="11">
+			<Button parentKey="GarrisonFollowers" inherits="AltoTabGridsMenuIconTemplate" id="10">
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" relativeKey="$parent.GarrisonArchitect" relativePoint="BOTTOMRIGHT" x="5" y="0" />
 				</Anchors>
@@ -163,7 +155,7 @@
 					<KeyValue key="text" value="GARRISON_FOLLOWERS_TITLE" type="global" />
 				</KeyValues>
 			</Button>
-			<Button parentKey="FollowerAbilities" inherits="AltoTabGridsMenuIconTemplate" id="12">
+			<Button parentKey="FollowerAbilities" inherits="AltoTabGridsMenuIconTemplate" id="11">
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" relativeKey="$parent.GarrisonFollowers" relativePoint="BOTTOMRIGHT" x="5" y="0" />
 				</Anchors>
@@ -248,7 +240,6 @@
 				self.Label1:SetText(L["Realm"])
 				self.Equipment.text = L["Equipment"]
 				self.Factions.text = L["Reputations"]
-				self.Tabards.text = "Tabards"
 				self.Archeology.text = GetSpellInfo(78670)
 				self.Dailies.text = "Daily Quests"
 				self.FollowerAbilities.text = format("%s/%s", GARRISON_RECRUIT_ABILITIES, GARRISON_RECRUIT_TRAITS)

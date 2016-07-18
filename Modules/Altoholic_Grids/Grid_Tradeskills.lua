@@ -180,7 +180,7 @@ local callbacks = {
 			local tradeskills = addon.TradeSkills.spellIDs
 			local profession = DataStore:GetProfession(character, GetSpellInfo(tradeskills[addon:GetOption(OPTION_TRADESKILL)]))			
 
-			if profession.NumCrafts ~= 0 then
+			if #profession.Crafts ~= 0 then
 				-- do not enable this yet .. working fine, but better if more filtering allowed. ==> filtering on rarity
 				
 				-- local _, _, itemRarity, itemLevel = GetItemInfo(currentItemID)

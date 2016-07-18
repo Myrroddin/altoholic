@@ -27,10 +27,11 @@ addon.Quests = {}
 local ns = addon.Quests		-- ns = namespace
 
 function ns:Update()
-	local character = addon.Tabs.Characters:GetAltKey()
-	
-	local VisibleLines = 14
 	local frame = "AltoholicFrameQuests"
+	if not _G[frame]:IsVisible() then return end		-- frame is not visible, do nothing
+	
+	local character = addon.Tabs.Characters:GetAltKey()
+	local VisibleLines = 14
 	local entry = frame.."Entry"
 	
 	local DS = DataStore
@@ -61,7 +62,6 @@ function ns:Update()
 	end
 
 	local i=1
-	
 	for line = 1, DS:GetQuestLogSize(character) do
 		local isHeader, quest, groupSize, money, isComplete = DS:GetQuestLogInfo(character, line)
 		
