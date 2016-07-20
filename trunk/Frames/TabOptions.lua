@@ -120,6 +120,12 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "7.0.002 Changes",
+		bulletedList = {
+			"DataStore_Garrisons: Fixed a few Lua errors.",
+			"DataStore_Mails: Fixed the invalid attachment counts in the tooltip (note: you will have to visit the mailboxes that have a wrong count to correct it, it's not a display error, it's a database error)",
+		},
+	},
 	{	name = "7.0.001 Changes",
 		bulletedList = {
 			"Various fixes to support 7.0 API changes.",

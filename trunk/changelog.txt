@@ -9,6 +9,11 @@ This means cleaning the following files in \WTF\Account\<your_account>\SavedVari
 There WILL be bugs if you use your old files without cleaning them first. 
 Some fixes to work around API changes are too time consuming, so cleaning is required. A meagre price to pay once per expansion.
 
+7.0.002 (20/07/2016)
+
+- DataStore_Garrisons: Fixed a few Lua errors.
+- DataStore_Mails: Fixed the invalid attachment counts in the tooltip (note: you will have to visit the mailboxes that have a wrong count to correct it, it's not a display error, it's a database error)
+
 7.0.001 (19/07/2016)
 
 - REMINDER : CLEANING YOUR SAVED VARIABLES IS MANDATORY FOR 7.0 (YES I'M SHOUTING ! :D)
