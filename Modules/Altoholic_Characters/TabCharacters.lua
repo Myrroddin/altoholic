@@ -21,7 +21,6 @@ local VIEW_TALENTS = 3
 local VIEW_AUCTIONS = 4
 local VIEW_BIDS = 5
 local VIEW_MAILS = 6
--- local VIEW_MOUNTS = 8
 local VIEW_COMPANIONS = 7
 local VIEW_SPELLS = 8
 local VIEW_PROFESSION = 9

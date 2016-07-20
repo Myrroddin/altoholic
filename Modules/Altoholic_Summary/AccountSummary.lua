@@ -27,12 +27,13 @@ local THIS_ACCOUNT = "Default"
 
 local VIEW_BAGS = 1
 local VIEW_QUESTS = 2
-local VIEW_AUCTIONS = 5
-local VIEW_BIDS = 6
-local VIEW_MAILS = 7
-local VIEW_MOUNTS = 8
-local VIEW_COMPANIONS = 9
-local VIEW_GARRISONS = 13
+local VIEW_AUCTIONS = 4
+local VIEW_BIDS = 5
+local VIEW_MAILS = 6
+local VIEW_COMPANIONS = 7
+local VIEW_SPELLS = 8
+local VIEW_PROFESSION = 9
+local VIEW_GARRISONS = 10
 
 local ICON_FACTION_HORDE = "Interface\\Icons\\INV_BannerPVP_01"
 local ICON_FACTION_ALLIANCE = "Interface\\Icons\\INV_BannerPVP_02"
