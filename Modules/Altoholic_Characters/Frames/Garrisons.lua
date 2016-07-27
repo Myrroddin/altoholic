@@ -148,7 +148,7 @@ function ns:Update()
 				local portrait = rowFrame["Follower"..i].Portrait
 				if followers then
 					local followerID = followers[i]
-					portrait:SetToFileData(C_Garrison.GetFollowerPortraitIconIDByID(followerID))
+					portrait:SetTexture(C_Garrison.GetFollowerPortraitIconIDByID(followerID))
 					portrait:Show()
 					rowFrame["Follower"..i].key = character
 					rowFrame["Follower"..i].followerID = followerID

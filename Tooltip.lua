@@ -435,25 +435,27 @@ local function ShowGatheringNodeCounters()
 	WriteTotal(GameTooltip)
 end
 
-local function ProcessTooltip(tooltip, name, link)
+local function ProcessTooltip(tooltip, link)
 	if Informant and isNodeDone then
 		return
 	end
 	
 	local itemID = addon:GetIDFromLink(link)
+	if not itemID then return end
 	
-    if (itemID == 0) and (TradeSkillFrame ~= nil) and TradeSkillFrame:IsVisible() then
-      if (GetMouseFocus():GetName()) == "TradeSkillSkillIcon" then
-        itemID = tonumber(GetTradeSkillItemLink(TradeSkillFrame.selectedSkill):match("item:(%d+):")) or nil
-      else
-        for i = 1, 8 do
-          if (GetMouseFocus():GetName()) == "TradeSkillReagent"..i then
-            itemID = tonumber(GetTradeSkillReagentItemLink(TradeSkillFrame.selectedSkill, i):match("item:(%d+):")) or nil
-            break
-          end
-        end
-      end
-    end
+	if (itemID == 0) and (TradeSkillFrame ~= nil) and TradeSkillFrame:IsVisible() then
+		if (GetMouseFocus():GetName()) == "TradeSkillSkillIcon" then
+			itemID = tonumber(GetTradeSkillItemLink(TradeSkillFrame.selectedSkill):match("item:(%d+):")) or nil
+		else
+			for i = 1, 8 do
+				if (GetMouseFocus():GetName()) == "TradeSkillReagent"..i then
+					itemID = tonumber(GetTradeSkillReagentItemLink(TradeSkillFrame.selectedSkill, i):match("item:(%d+):")) or nil
+					break
+				end
+			end
+		end
+	end
+	 
 	if (itemID == 0) then return end
 	-- if there's no cached item id OR if it's different from the previous one ..
 	if (not cachedItemID) or 
@@ -530,9 +532,9 @@ local function ProcessTooltip(tooltip, name, link)
 end
 
 local function Hook_LinkWrangler(frame)
-	local name, link = frame:GetItem()
-	if name and link then
-		ProcessTooltip(frame, name, link)
+	local _, link = frame:GetItem()
+	if link then
+		ProcessTooltip(frame, link)
 	end
 end
 
@@ -545,16 +547,19 @@ end
 local function OnGameTooltipSetItem(tooltip, ...)
 	if (not isTooltipDone) and tooltip then
 		isTooltipDone = true
+
 		local name, link = tooltip:GetItem()
 		-- Blizzard broke tooltip:GetItem() in 6.2. Detect and fix the bug if possible.
 		if name == "" then
 			local itemID = addon:GetIDFromLink(link)
 			if not itemID or itemID == 0 then
+				-- hooking SetRecipeResultItem & SetRecipeReagentItem is necessary for trade skill UI, link is captured and saved in storedLink
 				link = storedLink
 			end
 		end
+		
 		if link then
-			ProcessTooltip(tooltip, name, link)
+			ProcessTooltip(tooltip, link)
 		end
 	end
 end
@@ -598,10 +603,10 @@ end
 
 local function OnItemRefTooltipSetItem(tooltip, ...)
 	if (not isTooltipDone) and tooltip then
-		local name, link = tooltip:GetItem()
+		local _, link = tooltip:GetItem()
 		isTooltipDone = true
 		if link then
-			ProcessTooltip(tooltip, name, link)
+			ProcessTooltip(tooltip, link)
 		end
 	end
 end
@@ -630,17 +635,6 @@ function addon:InitTooltip()
 			nil,
 			Hook_SetCurrencyToken
 		},
-		SetTradeSkillItem = {
-			function(self,index,reagentIndex)
-				local owner = GameTooltip:GetOwner()
-				if reagentIndex then
-					storedLink = GetTradeSkillReagentItemLink(index,reagentIndex)
-				else
-					storedLink = GetTradeSkillItemLink(index)
-				end
-			end,
-			nil
-		},
 		SetQuestItem = {
 			function(self,type,index) storedLink = GetQuestItemLink(type,index) end,
 			nil
@@ -648,7 +642,23 @@ function addon:InitTooltip()
 		SetQuestLogItem = {
 			function(self,type,index) storedLink = GetQuestLogItemLink(type,index) end,
 			nil
-		}
+		},
+		SetRecipeResultItem = {
+			function(self, recipeID)
+				if recipeID then
+					storedLink = C_TradeSkillUI.GetRecipeItemLink(recipeID)
+				end
+			end,
+			nil
+		},
+		SetRecipeReagentItem = {
+			function(self, recipeID, reagentIndex)
+				if recipeID and reagentIndex then
+					storedLink = C_TradeSkillUI.GetRecipeReagentItemLink(recipeID, reagentIndex)
+				end
+			end,
+			nil
+		},
 	}
 	-- install all method hooks
 	for m, hooks in pairs(tooltipMethodHooks) do

@@ -48,11 +48,7 @@ local function UpdateBankTabButtons()
 			local icon = DataStore:GetGuildBankTabIcon(currentGuildKey, i)
 			local iconNumber = tonumber(icon)
 			
-			if iconNumber then
-				button.Icon:SetToFileData(iconNumber)
-			else
-				button.Icon:SetTexture(icon)
-			end
+			button.Icon:SetTexture(iconNumber or icon)
 			button:Show()
 		else
 			button:Hide()

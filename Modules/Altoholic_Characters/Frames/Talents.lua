@@ -790,7 +790,7 @@ function ns:Reset()
 	currentGuildMemberTalentGroup = 1
 	
 	--UIDropDownMenu_SetText(_G[ parent .. "_SelectMember" ], L["Guild Members"])
-	UIDropDownMenu_SetText(_G[ parent .. "_SelectMember" ], L["Compare with"])
+	-- UIDropDownMenu_SetText(_G[ parent .. "_SelectMember" ], L["Compare with"])
 end
 
 local function OnPlayerTalentUpdate()

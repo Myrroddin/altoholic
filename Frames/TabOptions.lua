@@ -120,6 +120,15 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "7.0.003 Changes",
+		bulletedList = {
+			"Profession level cap raised to 800.",
+			"Fixed the counts not being shown in the item tooltip when mousing over a craft reagent in the tradeskill UI.",
+			"Fixed a Lua error when clicking on a recipe link in the chat log.",
+			"Fixed a Lua error when checking the guild bank tab.",
+			"DataStore_Talents: Rewrote scanning of talent information, UI will come back in a future release.",
+		},
+	},
 	{	name = "7.0.002 Changes",
 		bulletedList = {
 			"DataStore_Garrisons: Fixed a few Lua errors.",
