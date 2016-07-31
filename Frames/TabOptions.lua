@@ -120,6 +120,11 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "7.0.004 Changes",
+		bulletedList = {
+			"Fixed issues related to connected realms (guild bank, tooltips, etc..)",
+		},
+	},
 	{	name = "7.0.003 Changes",
 		bulletedList = {
 			"Profession level cap raised to 800.",

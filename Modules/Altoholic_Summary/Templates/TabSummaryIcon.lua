@@ -71,22 +71,6 @@ local function ResetAllData()
 	AltoMsgBox:Show()
 end
 
-local function ResetConnectedRealms_MsgBox_Handler(self, button)
-	if not button then return end
-	
-	DataStore:ClearAllConnectedRealms()
-	addon:Print(L["Realm links successfully deleted"])
-end
-
-local function ResetConnectedRealms()
-	-- reset connected realms, only the links between realms, not the data from other alts
-	addon:SetMsgBoxHandler(ResetConnectedRealms_MsgBox_Handler)
-	
-	AltoMsgBox_Text:SetText(L["Reset connected realms ?"])
-	AltoMsgBox:Show()
-end
-
-
 -- ** Menu Icons **
 local locationLabels = {
 	format("%s %s(%s)", L["This realm"], colors.green, L["This account"]),
@@ -223,7 +207,6 @@ local function DataStoreOptionsIcon_Initialize(frame, level)
 	
 	frame:AddTitle()
 	frame:AddButton(L["Reset all data"], nil, ResetAllData)
-	frame:AddButton(L["Reset connected realms"], nil, ResetConnectedRealms)
 	frame:AddButton(HELP_LABEL, DataStoreHelp, ShowOptionsCategory)
 	frame:AddCloseMenu()
 end

@@ -21,7 +21,7 @@
 		</Scripts>
 	</GameTooltip>
 	
-	<Button name="AltoholicMinimapButton" parent="Minimap" toplevel="true">
+	<Button name="AltoholicMinimapButton" parent="Minimap" frameStrata="MEDIUM" toplevel="true">
 		<Size x="33" y="33" />
 		<Anchors>
 			<Anchor point="CENTER" relativeTo="Minimap" relativePoint="RIGHT" x="5" y="0" />

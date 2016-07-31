@@ -440,7 +440,7 @@ function ns:OnLoad()
 	
 	-- if the current guild or at least a guild on this realm was found..set the right values
 	if currentGuild then
-		currentGuildKey = format("%s.%s.%s", THIS_ACCOUNT, currentRealm, currentGuild)
+		currentGuildKey = DataStore:GetThisGuildKey()
 
 		-- pick the first available tab
 		for i = 1, MAX_BANK_TABS do 
