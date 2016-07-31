@@ -9,6 +9,27 @@ This means cleaning the following files in \WTF\Account\<your_account>\SavedVari
 There WILL be bugs if you use your old files without cleaning them first. 
 Some fixes to work around API changes are too time consuming, so cleaning is required. A meagre price to pay once per expansion.
 
+
+7.0.004 (31/07/2016)
+
+- Fixed issues related to connected realms (guild bank, tooltips, etc..)
+IMPORTANT NOTE: a guild bank will not be scanned if it's on a realm that is not known by the add-on.
+
+So if you have characters belonging to a guild from another realm, and you have no character on that realm, you will have to create a character on that other realm, and log him on once, just to identify the realm.
+
+The API provides absolutely no way of matching a short realm name to a long realm name.
+If your realm is a small name without spaces (like 'Dalaran'), then this might seem like a non-issue for you, but it makes it impossible to know precisely to which realm a guild belongs.
+Basically, my workaround is about making the addon know that "Marécage de Zangar" is also known as "MarécagedeZangar" by getting rid of spaces.
+
+This is an extremely imperfect solution, and I sincerely dislike it, but the API does not help in any way.
+The solution should hopefully work across all localizations, but I can't promise anything.
+
+Wanna help ? Relay this topic on the US forums :
+
+http://eu.battle.net/forums/en/wow/topic/17612943218
+
+and kindly bump.. 
+
 7.0.003 (27/07/2016)
 
 - Profession level cap raised to 800.
