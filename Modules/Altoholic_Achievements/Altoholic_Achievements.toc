@@ -1,4 +1,4 @@
-﻿## Interface: 70000
+﻿## Interface: 70100
 ## Title: Altoholic_Achievements
 ## Notes: Altoholic's Achievements UI
 ## Author: Thaoky (EU-Marécages de Zangar)
@@ -7,5 +7,7 @@
 ## LoadOnDemand: 1
 ## X-Category: Interface Enhancements
 
+Templates\UITemplates.xml
 TabAchievements.xml
-Achievements.xml
+
+Frames\Achievements.xml

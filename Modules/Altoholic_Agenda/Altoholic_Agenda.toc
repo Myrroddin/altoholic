@@ -1,4 +1,4 @@
-﻿## Interface: 70000
+﻿## Interface: 70100
 ## Title: Altoholic_Agenda
 ## Notes: Altoholic's Agenda UI
 ## Author: Thaoky (EU-Marécages de Zangar)
@@ -7,6 +7,7 @@
 ## LoadOnDemand: 1
 ## X-Category: Interface Enhancements
 
+Templates\UITemplates.xml
 TabAgenda.xml
 
 Frames\Calendar.xml

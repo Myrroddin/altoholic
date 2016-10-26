@@ -1,4 +1,4 @@
-﻿## Interface: 70000
+﻿## Interface: 70100
 ## Title: Altoholic_Grids
 ## Notes: Altoholic's Grids Tab
 ## Author: Thaoky (EU-Marécages de Zangar)
