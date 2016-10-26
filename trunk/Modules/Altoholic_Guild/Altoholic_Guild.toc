@@ -1,4 +1,4 @@
-﻿## Interface: 70000
+﻿## Interface: 70100
 ## Title: Altoholic_Guild
 ## Notes: Altoholic's Guild UI
 ## Author: Thaoky (EU-Marécages de Zangar)
@@ -7,8 +7,8 @@
 ## LoadOnDemand: 1
 ## X-Category: Interface Enhancements
 
+Templates\UITemplates.xml
 TabGuild.xml
 
 Frames\GuildMembers.xml
 Frames\GuildBank.xml
-# Frames\GuildProfessions.xml
