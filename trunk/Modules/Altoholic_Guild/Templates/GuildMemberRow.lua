@@ -79,7 +79,7 @@ local function _Level_OnEnter(frame)
 	tooltip:ClearLines()
 	tooltip:SetOwner(frame, "ANCHOR_RIGHT")
 	tooltip:AddLine(format("%s%s", DataStore:GetClassColor(englishClass), member), 1, 1, 1)
-	tooltip:AddLine(format("%s%s: %s%s", colors.white, L["Average Item Level"], colors.green, format("%.1f", averageItemLvl)), 1, 1, 1)
+	tooltip:AddLine(format("%s%s: %s%s", colors.white, L["COLUMN_ILEVEL_TITLE"], colors.green, format("%.1f", averageItemLvl)), 1, 1, 1)
 
 	addon:AiLTooltip()
 	tooltip:AddLine(" ", 1, 1, 1)

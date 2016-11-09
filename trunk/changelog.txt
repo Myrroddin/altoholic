@@ -10,6 +10,21 @@ There WILL be bugs if you use your old files without cleaning them first.
 Some fixes to work around API changes are too time consuming, so cleaning is required. A meagre price to pay once per expansion.
 
 
+7.1.002 (9/11/2016)
+
+- DataStore_Quests: Fixed a tainting issue that prevented players from queuing into battlegrounds.
+- DataStore_Talents: Added support for artifact data.
+- DataStore_Garrisons: Added support for tracking of next artifact research.
+- Summary tab: added an extra panel for artifact data.
+- Summary tab: added a tooltip for all column headers, and some OnClick actions behind a few buttons.
+- Summary tab: removed honor & conquest currencies, they were replaced by Order Hall resources & Seal of the Broken Fate.
+
+- Fixed a few other Lua errors.
+
+Note: I did some clean-up in the usage of localized strings in the Summary tab, some strings have to be translated, help appreciated :)
+
+It happens here : https://wow.curseforge.com/addons/altoholic/localization/
+
 7.1.001 (26/10/2016)
 
 - DataStore_Quests: added an option to select the hour at which daily quests are reset.
@@ -27,6 +42,8 @@ It's now 100% accurate and maintains itself (yeah, less code to maintain \o/).
 Note: you should open each profession once to populate this internal reference table.
 - DataStore_Mails: Fixed the invalid attachment counts in the tooltip for mails sent by guild mates.
 - Removed LibBabble-Inventory, replaced the translations it provided by values returned by the game's API.
+- DataStore_Quests: Fixed scanning quest links, which caused a Lua error when clicking on a tooltip.
+Make sure to log in your alts once to fix their quest logs in the DB, this is what causes the tooltip issue.
 
 7.0.006 (09/08/2016)
 
