@@ -19,7 +19,7 @@ local function _Update(frame, account, realm, allianceID, hordeID)
 	local character
 	local achievementID
 	
-	for colIndex = 1, 11 do
+	for colIndex = 1, 12 do
 		button = frame["Item"..colIndex]
 		button.IconBorder:Hide()
 		

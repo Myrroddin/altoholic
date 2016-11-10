@@ -10,6 +10,12 @@ There WILL be bugs if you use your old files without cleaning them first.
 Some fixes to work around API changes are too time consuming, so cleaning is required. A meagre price to pay once per expansion.
 
 
+7.1.003 (10/11/2016)
+
+- Added a row for the 12th character on both the achievements and grids tabs.
+
+Note: that's a quick implementation, I still want to update a few things under the hood, but I figured you guys had waited long enough already.
+
 7.1.002 (9/11/2016)
 
 - DataStore_Quests: Fixed a tainting issue that prevented players from queuing into battlegrounds.
