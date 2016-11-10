@@ -22,7 +22,7 @@
 			</Button>
 			<Button parentKey="Item1" inherits="AltoAchievementButtonTemplate">
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="180" y="0" />
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="175" y="0" />
 				</Anchors>
 			</Button>
 			<Button parentKey="Item2" inherits="AltoAchievementButtonTemplate">
@@ -73,6 +73,11 @@
 			<Button parentKey="Item11" inherits="AltoAchievementButtonTemplate">
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item10" relativePoint="BOTTOMRIGHT" x="5" y="0" />
+				</Anchors>
+			</Button>
+			<Button parentKey="Item12" inherits="AltoAchievementButtonTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item11" relativePoint="BOTTOMRIGHT" x="5" y="0" />
 				</Anchors>
 			</Button>
 		</Frames>

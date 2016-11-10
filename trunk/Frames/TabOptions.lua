@@ -120,6 +120,11 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "7.1.003 Changes",
+		bulletedList = {
+			"Added a row for the 12th character on both the achievements and grids tabs.",
+		},
+	},
 	{	name = "7.1.002 Changes",
 		bulletedList = {
 			"DataStore_Quests: Fixed a tainting issue that prevented players from queuing into battlegrounds.",
