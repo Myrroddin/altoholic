@@ -193,8 +193,6 @@ L["ACCOUNT_WIDE"] = "Account Wide"
 
 
 
-
-
 L["ITEM_TYPE_RECIPE"] = "Recipe"
 L["ITEM_SUBTYPE_BOOK"] = "Book"
 
