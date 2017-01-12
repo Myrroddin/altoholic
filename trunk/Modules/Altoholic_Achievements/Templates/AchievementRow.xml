@@ -19,65 +19,73 @@
 						</FontString>
 					</Layer>
 				</Layers>
+				<Scripts>
+					<OnEnter>
+						self:GetParent():Name_OnEnter()
+					</OnEnter> 
+					<OnLeave>
+						AltoTooltip:Hide()
+					</OnLeave>
+				</Scripts>
 			</Button>
 			<Button parentKey="Item1" inherits="AltoAchievementButtonTemplate">
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="175" y="0" />
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="175" y="3" />
 				</Anchors>
 			</Button>
 			<Button parentKey="Item2" inherits="AltoAchievementButtonTemplate">
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item1" relativePoint="BOTTOMRIGHT" x="5" y="0" />
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item1" relativePoint="BOTTOMRIGHT" x="4" y="0" />
 				</Anchors>
 			</Button>
 			<Button parentKey="Item3" inherits="AltoAchievementButtonTemplate">
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item2" relativePoint="BOTTOMRIGHT" x="5" y="0" />
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item2" relativePoint="BOTTOMRIGHT" x="4" y="0" />
 				</Anchors>
 			</Button>
 			<Button parentKey="Item4" inherits="AltoAchievementButtonTemplate">
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item3" relativePoint="BOTTOMRIGHT" x="5" y="0" />
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item3" relativePoint="BOTTOMRIGHT" x="4" y="0" />
 				</Anchors>
 			</Button>
 			<Button parentKey="Item5" inherits="AltoAchievementButtonTemplate">
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item4" relativePoint="BOTTOMRIGHT" x="5" y="0" />
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item4" relativePoint="BOTTOMRIGHT" x="4" y="0" />
 				</Anchors>
 			</Button>
 			<Button parentKey="Item6" inherits="AltoAchievementButtonTemplate">
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item5" relativePoint="BOTTOMRIGHT" x="5" y="0" />
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item5" relativePoint="BOTTOMRIGHT" x="4" y="0" />
 				</Anchors>
 			</Button>
 			<Button parentKey="Item7" inherits="AltoAchievementButtonTemplate">
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item6" relativePoint="BOTTOMRIGHT" x="5" y="0" />
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item6" relativePoint="BOTTOMRIGHT" x="4" y="0" />
 				</Anchors>
 			</Button>
 			<Button parentKey="Item8" inherits="AltoAchievementButtonTemplate">
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item7" relativePoint="BOTTOMRIGHT" x="5" y="0" />
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item7" relativePoint="BOTTOMRIGHT" x="4" y="0" />
 				</Anchors>
 			</Button>
 			<Button parentKey="Item9" inherits="AltoAchievementButtonTemplate">
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item8" relativePoint="BOTTOMRIGHT" x="5" y="0" />
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item8" relativePoint="BOTTOMRIGHT" x="4" y="0" />
 				</Anchors>
 			</Button>
 			<Button parentKey="Item10" inherits="AltoAchievementButtonTemplate">
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item9" relativePoint="BOTTOMRIGHT" x="5" y="0" />
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item9" relativePoint="BOTTOMRIGHT" x="4" y="0" />
 				</Anchors>
 			</Button>
 			<Button parentKey="Item11" inherits="AltoAchievementButtonTemplate">
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item10" relativePoint="BOTTOMRIGHT" x="5" y="0" />
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item10" relativePoint="BOTTOMRIGHT" x="4" y="0" />
 				</Anchors>
 			</Button>
 			<Button parentKey="Item12" inherits="AltoAchievementButtonTemplate">
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item11" relativePoint="BOTTOMRIGHT" x="5" y="0" />
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent.Item11" relativePoint="BOTTOMRIGHT" x="4" y="0" />
 				</Anchors>
 			</Button>
 		</Frames>

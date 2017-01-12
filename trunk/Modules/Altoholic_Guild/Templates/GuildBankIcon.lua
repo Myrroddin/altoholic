@@ -40,6 +40,7 @@ local function OnGuildChange(frame, guildBank)
 	
 	guildBank:SetCurrentGuild(guildKey)
 	guildBank:SetCurrentBankTab(nil)
+	guildBank:Update()
 	
 	local _, _, guildName = strsplit(".", guildKey)
 	AltoholicTabGuild.Status:SetText(format("%s%s %s/", colors.green, guildName, colors.white))
@@ -77,19 +78,18 @@ end
 
 local function OnGuildDelete(frame, guildBank)
 	local guildKey = frame.value
-
-	addon:SetMsgBoxHandler(DeleteGuild_MsgBox_Handler, guildKey)
-	
 	local _, realm, guildName = strsplit(".", guildKey)
-
-	AltoMsgBox_Text:SetText(format("%s\n%s%s %s(%s)", L["Delete Guild Bank?"], colors.green, guildName, colors.white, realm ))
-	AltoMsgBox:Show()
+	
+	AltoMessageBox:SetHandler(DeleteGuild_MsgBox_Handler, guildKey)
+	AltoMessageBox:SetText(format("%s\n%s%s %s(%s)", L["Delete Guild Bank?"], colors.green, guildName, colors.white, realm ))
+	AltoMessageBox:Show()
 	
 	guildBank.ContextualMenu:Close()
 end
 
 local function OnGuildBankTabChange(frame, guildBank)
 	guildBank:SetCurrentBankTab(frame.value)
+	guildBank:Update()
 end
 
 local function OnBankTabRemoteUpdate(frame, guildBank)

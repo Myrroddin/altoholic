@@ -5,7 +5,7 @@
 		<Size x="37" y="37" />
 		<Layers>
 			<Layer level="BORDER">
-				<Texture parentKey="Icon"/>
+				<Texture parentKey="Icon" setAllPoints="true" />
 			</Layer>
 		</Layers>
 		<PushedTexture file="Interface\Buttons\UI-Quickslot-Depress"/>

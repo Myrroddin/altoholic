@@ -26,7 +26,7 @@ local function _Button_OnEnter(frame)
 	tooltip:ClearLines()
 	tooltip:AddDoubleLine(DataStore:GetColoredCharacterName(character), achName)
 	tooltip:AddLine(format("%s%s", colors.white, description), 1, 1, 1, 1, 1)
-	tooltip:AddLine(format("%s%s: %s%s", colors.white, ACHIEVEMENT_TITLE, colors.yellow, points))
+	-- tooltip:AddLine(format("%s%s: %s%s", colors.white, ACHIEVEMENT_TITLE, colors.yellow, points))
 	tooltip:AddLine(" ")
 
 	local isStarted, isComplete = DataStore:GetAchievementInfo(character, achievementID, isAccountBound)
@@ -64,7 +64,8 @@ local function _Button_OnEnter(frame)
 				else
 					criteriaString = format(" - %s (%s/%s)", criteriaString, quantity, reqQuantity)
 				end
-			else
+			
+			else	-- criteria not started
 				criteriaString = format(" - %s", criteriaString)
 			end
 			

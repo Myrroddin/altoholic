@@ -57,7 +57,7 @@
 		</Layers>
 		<Frames>
 			<Cooldown parentKey="Cooldown" inherits="CooldownFrameTemplate"/>
-			<Button parentKey="Item" inherits="AltoItemButtonTemplate">
+			<Button parentKey="Item" inherits="AltoItemIconTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" x="10" y="0" />
 				</Anchors>

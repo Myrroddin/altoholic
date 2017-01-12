@@ -33,5 +33,7 @@ Core.lua
 Templates\UITemplates.xml
 Altoholic.xml
 
+Frames\MessageBox.xml
+Frames\MinimapButton.xml
 Frames\TabOptions.xml
 Frames\AccountSharing.xml

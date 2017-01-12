@@ -3,12 +3,12 @@
 	
 	<Button name="AltoAchievementButtonTemplate" hidden="true" virtual="true">
 		<!-- <Size x="34" y="34" /> -->
-		<Size x="31" y="31" />
+		<Size x="32" y="32" />
 		<Layers> 
 			<Layer level="BACKGROUND"> 
 				<Texture parentKey="Background">
 					<!-- <Size x="29" y="29" /> -->
-					<Size x="26" y="26" />
+					<Size x="28" y="28" />
 					<Anchors>
 						<Anchor point="LEFT" x="2" y="0" />
 					</Anchors>
