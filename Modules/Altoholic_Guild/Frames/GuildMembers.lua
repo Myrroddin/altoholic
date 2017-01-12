@@ -385,7 +385,8 @@ local function _Init(frame)
 	-- Set the textures of equipment icons
 	for i = 1, 19 do
 		local button = frame["Item"..i]
-		button.Icon:SetTexture(addon:GetEquipmentSlotIcon(equipmentToFrame[i]))
+		-- button.Icon:SetTexture(addon:GetEquipmentSlotIcon(equipmentToFrame[i]))
+		button:SetIcon(addon:GetEquipmentSlotIcon(equipmentToFrame[i]))
 		button:Show()
 	end
 end
@@ -413,31 +414,13 @@ local function _Update(frame, member)
 	
 		local itemID = DataStore:GetGuildMemberInventoryItem(guild, member, equipmentToFrame[i])
 		if itemID then
-			button.Icon:SetTexture(GetItemIcon(itemID))
-
-			-- set link and id for addon:Item_OnEnter(self)
-			if type(itemID) == "string" then
-				button.link = itemID
-				button.id = addon:GetIDFromLink(itemID)
-			elseif type(itemID) == "number" then
-				button.id = itemID
-				button.link = nil
-			end
-			
 			-- display the coloured border
 			local _, _, itemRarity, itemLevel = GetItemInfo(itemID)
-			if itemRarity and itemRarity >= 2 then
-				local r, g, b = GetItemQualityColor(itemRarity)
-				button.IconBorder:SetVertexColor(r, g, b, 0.5)
-				button.IconBorder:Show()
-			end
-			
-			button.Count:SetText(itemLevel)
-			button.Count:Show()
+			button:SetItem(itemID, nil, itemRarity)
+			button:SetCount(itemLevel)
 		else
-			button.Icon:SetTexture(addon:GetEquipmentSlotIcon(equipmentToFrame[i]))
-			button.id = nil
-			button.link = nil
+			button:SetIcon(addon:GetEquipmentSlotIcon(equipmentToFrame[i]))
+			button:SetInfo(nil, nil)
 		end
 		
 		button:Show()

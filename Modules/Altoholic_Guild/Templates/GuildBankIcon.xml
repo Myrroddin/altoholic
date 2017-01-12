@@ -14,9 +14,5 @@
 				self:Icon_OnEnter()
 			</OnEnter>
 		</Scripts>
-		<KeyValues>
-			<KeyValue key="iconWidth" value="30" type="number" />
-			<KeyValue key="iconHeight" value="30" type="number" />
-		</KeyValues>
 	</Button>
 </Ui>

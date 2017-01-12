@@ -16,7 +16,10 @@ local function _Icon_OnEnter(frame)
 end
 
 local function _Icon_OnClick(frame, button)
-	frame:GetParent():SetCurrentBankTab(frame:GetID())
+	local guildBank = frame:GetParent()
+	
+	guildBank:SetCurrentBankTab(frame:GetID())
+	guildBank:Update()
 end
 
 addon:RegisterClassExtensions("AltoGuildBankTabIcon", {
