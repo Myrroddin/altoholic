@@ -42,7 +42,18 @@ local ICON_FACTION_ALLIANCE = "Interface\\Icons\\INV_BannerPVP_02"
 local TEXTURE_FONT = "|T%s:%s:%s|t"
 
 -- http://www.wowhead.com/currency=1171/artifact-knowledge
-local artifactXPGain = { 25,50,90,140,200,275,375,500,650,850,1100,1400,1775,2250,2850,3600,4550,5700,7200,9000,11300,14200,17800,22300,24900 }
+local artifactXPGain = { 
+	25,50,90,140,200,
+	275,375,500,650,850,
+	1100,1400,1775,2250,2850,
+	3600,4550,5700,7200,9000,
+	11300,14200,17800,22300,24900, 
+	100000,130000,170000,220000,290000,
+	380000,490000,640000,830000,1800000,
+	1400000,1820000,2370000,3080000,4000000,
+	5200000,6760000,8790000,11430000,14860000,
+	19320000,25120000,32660000,42460000,55200000 
+}
 
 addon.Summary = {}
 
@@ -87,13 +98,13 @@ local function FormatBagSlots(size, free)
 	return format(L["NUM_SLOTS_AND_FREE"], colors.cyan, size, colors.white, colors.green, free, colors.white)
 end
 
-local function FormatRankPoints(rank)
-	local points = C_ArtifactUI.GetCostForPointAtRank(rank)
+local function FormatRankPoints(rank, tier)
+	local points = C_ArtifactUI.GetCostForPointAtRank(rank, tier)
 	if rank == 1 then
 		return format("%s%s: %s%d", colors.white, rank, colors.green, points)
 	end
 	
-	local pointsPreviousLevel = C_ArtifactUI.GetCostForPointAtRank(rank-1)
+	local pointsPreviousLevel = C_ArtifactUI.GetCostForPointAtRank(rank-1, tier)
 	local percentage = ((points / pointsPreviousLevel) - 1) * 100
 	
 	return format("%s%s: %s%d %s+%2.1f%%", colors.white, rank, colors.green, points, colors.yellow, percentage)
@@ -1896,7 +1907,7 @@ columns["ArtifactPower"] = {
 					-- format("%s%s: %s%d", colors.white, i, colors.green, C_ArtifactUI.GetCostForPointAtRank(i)), 
 					-- format("%s%s: %s%d", colors.white, i+numRows, colors.green, C_ArtifactUI.GetCostForPointAtRank(i+numRows))
 				-- )
-				tooltip:AddDoubleLine(FormatRankPoints(i), FormatRankPoints(i+numRows))
+				tooltip:AddDoubleLine(FormatRankPoints(i, 2), FormatRankPoints(i+numRows, 2))
 			end
 		end,
 	headerOnClick = function() SortView("ArtifactPower") end,
@@ -1907,11 +1918,12 @@ columns["ArtifactPower"] = {
 	JustifyH = "CENTER",
 	GetText = function(character)
 			local level = DataStore:GetEquippedArtifactRank(character) or 0
+			local tier = DataStore:GetEquippedArtifactTier(character) or 2
 			local color = (level == 0) and colors.grey or colors.white
 			
 			local power = DataStore:GetEquippedArtifactPower(character) or 0
-			
-			return format("%s%s%s/%s%s", color, power, colors.white, colors.yellow, C_ArtifactUI.GetCostForPointAtRank(level))
+
+			return format("%s%s%s/%s%s", color, power, colors.white, colors.yellow, C_ArtifactUI.GetCostForPointAtRank(level, tier))
 		end,
 	OnEnter = function(frame)
 			local character = frame:GetParent().character
@@ -1921,9 +1933,10 @@ columns["ArtifactPower"] = {
 			if level == 0 then return end
 			
 			local power = DataStore:GetEquippedArtifactPower(character) or 0
+			local tier = DataStore:GetEquippedArtifactTier(character) or 2
 			local equippedArtifact = DataStore:GetEquippedArtifact(character)
 			
-			local extraTraits = DataStore:GetNumArtifactTraitsPurchasableFromXP(level, power)
+			local extraTraits = DataStore:GetNumArtifactTraitsPurchasableFromXP(level, power, tier)
 			
 			local tt = AltoTooltip
 			tt:ClearLines()
@@ -1937,20 +1950,21 @@ columns["ArtifactPower"] = {
 					format("%s%s %s(%s+%s%s)/%s%s", 
 						colors.green, power, 
 						colors.white, colors.cyan, extraTraits, 
-						colors.white, colors.yellow, C_ArtifactUI.GetCostForPointAtRank(level))
+						colors.white, colors.yellow, C_ArtifactUI.GetCostForPointAtRank(level, tier))
 				)
 			
 			else 
 				tt:AddDoubleLine(
 					format("%s%s", colors.white, equippedArtifact), 
-					format("%s%s%s/%s%s", colors.green, power, colors.white, colors.yellow, C_ArtifactUI.GetCostForPointAtRank(level))
+					format("%s%s%s/%s%s", colors.green, power, colors.white, colors.yellow, C_ArtifactUI.GetCostForPointAtRank(level, tier))
 				)
 			end
 			tt:AddLine(" ")
 			
 			for artifactName, artifactInfo in pairs(DataStore:GetKnownArtifacts(character)) do
 				if artifactName ~= equippedArtifact then
-					extraTraits = DataStore:GetNumArtifactTraitsPurchasableFromXP(artifactInfo.rank, artifactInfo.pointsRemaining)
+					tier = artifactInfo.tier or 2
+					extraTraits = DataStore:GetNumArtifactTraitsPurchasableFromXP(artifactInfo.rank, artifactInfo.pointsRemaining, tier)
 					
 					if extraTraits > 0 then
 						tt:AddDoubleLine(
@@ -1958,12 +1972,12 @@ columns["ArtifactPower"] = {
 							format("%s%s %s(%s+%s%s)/%s%s", 
 								colors.green, artifactInfo.pointsRemaining, 
 								colors.white, colors.cyan, extraTraits, 
-								colors.white, colors.yellow, C_ArtifactUI.GetCostForPointAtRank(artifactInfo.rank))
+								colors.white, colors.yellow, C_ArtifactUI.GetCostForPointAtRank(artifactInfo.rank, tier))
 						)
 					else
 						tt:AddDoubleLine(
 							format("%s%s", colors.white, artifactName), 
-							format("%s%s%s/%s%s", colors.green, artifactInfo.pointsRemaining, colors.white, colors.yellow, C_ArtifactUI.GetCostForPointAtRank(artifactInfo.rank))
+							format("%s%s%s/%s%s", colors.green, artifactInfo.pointsRemaining, colors.white, colors.yellow, C_ArtifactUI.GetCostForPointAtRank(artifactInfo.rank, tier))
 						)
 					end
 				end
@@ -1982,12 +1996,17 @@ columns["ArtifactKnowledge"] = {
 	headerOnEnter = function(frame, tooltip) 
 			tooltip:AddLine(" ")
 			
-			local numRows = 12	-- current maximum = 25 levels, but begin at 2
+
+			tooltip:AddDoubleLine(
+				format("%s%s: %s-", colors.white, 1, colors.green), 
+				format("%s%s: %s+%d%%", colors.white, 26, colors.green, artifactXPGain[26])
+			)
 			
+			local numRows = 24
 			for i = 1, numRows do
 				tooltip:AddDoubleLine(
 					format("%s%s: %s+%d%%", colors.white, i+1, colors.green, artifactXPGain[i+1]), 
-					format("%s%s: %s+%d%%", colors.white, i+1+numRows, colors.green, artifactXPGain[i+1+numRows])
+					format("%s%s: %s+%d%%", colors.white, i+2+numRows, colors.green, artifactXPGain[i+2+numRows])
 				)
 			end
 		end,

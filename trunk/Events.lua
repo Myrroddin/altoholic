@@ -1,4 +1,4 @@
-﻿-- This file manages the events (calendar, cooldowns, etc..) supported by the addon
+-- This file manages the events (calendar, cooldowns, etc..) supported by the addon
 
 local addonName = ...
 local addon = _G[addonName]

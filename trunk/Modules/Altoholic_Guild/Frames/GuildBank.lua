@@ -5,7 +5,6 @@ local colors = addon.Colors
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local THIS_ACCOUNT = "Default"
-local NUM_GUILDBANK_ROWS = 7
 local MAX_BANK_TABS = 8
 
 local currentGuildKey
@@ -34,7 +33,7 @@ local function _Init(frame)
 		end
 	end
 	
-	-- if the current guild or at least a guild on this realm was found..set the right values
+	-- if the current guild or at least a guild on this realm was found, then set the right values
 	if currentGuild then
 		currentGuildKey = DataStore:GetThisGuildKey()
 
@@ -53,8 +52,8 @@ end
 
 local function _Update(frame)
 	if not currentGuildKey or not currentGuildBankTab then		-- no tab found ? exit
-		for rowIndex = 1, NUM_GUILDBANK_ROWS do
-			frame["Entry"..rowIndex]:Hide()
+		for _, row in pairs(frame.ItemRows) do
+			row:Hide()
 		end
 		return 
 	end
@@ -63,7 +62,7 @@ local function _Update(frame)
 	if not tab.name then return end		-- tab not yet scanned ? exit
 	
 	local _, _, guildName = strsplit(".", currentGuildKey)
-	AltoholicTabGuild.Status:SetText(format("%s %s/ %s", colors.green..guildName, colors.white, tab.name))
+	frame:GetParent():SetStatus(format("%s%s %s/ %s", colors.green, guildName, colors.white, tab.name))
 
 	frame.Info1:SetText(format(L["Last visit: %s by %s"], colors.green..tab.ClientDate..colors.white, colors.green..tab.visitedBy))
 
@@ -72,28 +71,25 @@ local function _Update(frame)
 	frame.Info2:SetText(format(L["Local Time: %s   %sRealm Time: %s"], localTime, colors.white, realmTime))
 	
 	local money = DataStore:GetGuildBankMoney(currentGuildKey)
-	frame.Info3:SetText(MONEY .. ": " .. addon:GetMoneyString(money or 0, colors.white))
+	frame.Info3:SetText(format("%s: %s", MONEY, addon:GetMoneyString(money or 0, colors.white)))
 	
 	local rarity = addon:GetOption("UI.Tabs.Guild.BankItemsRarity")
 	
-	local rowFrame
+	local numGuildBankRows = #frame.ItemRows
 	
-	for rowIndex = 1, NUM_GUILDBANK_ROWS do
-		rowFrame = frame["Entry"..rowIndex]
+	for _, row in pairs(frame.ItemRows) do
+		local from = mod(row:GetID(), numGuildBankRows)
+		if from == 0 then from = numGuildBankRows end
 	
-		local from = mod(rowIndex, NUM_GUILDBANK_ROWS)
-		if from == 0 then from = NUM_GUILDBANK_ROWS end
-	
-		for columnIndex = 14, 1, -1 do
-			local itemIndex = from + ((columnIndex - 1) * NUM_GUILDBANK_ROWS)
+		for _, itemButton in pairs(row.Items) do
+			local itemIndex = from + ((itemButton:GetID() - 1) * numGuildBankRows)
 			local itemID, itemLink, itemCount = DataStore:GetSlotInfo(tab, itemIndex)
 			
-			local itemButton = rowFrame["Item" .. columnIndex]
 			itemButton:SetItem(itemID, itemLink, rarity)
 			itemButton:SetCount(itemCount)
 			itemButton:Show()
 		end
-		rowFrame:Show()
+		row:Show()
 	end
 	
 	frame:Show()
@@ -102,12 +98,12 @@ end
 local function _UpdateBankTabButtons(frame)
 	if not currentGuildKey then return end
 	
-	for i = 1, MAX_BANK_TABS do 
-		local button = frame["TabButton"..i]
-		local tabName = DataStore:GetGuildBankTabName(currentGuildKey, i)
+	for _, button in pairs(frame.TabButtons) do
+		local id = button:GetID()
+		local tabName = DataStore:GetGuildBankTabName(currentGuildKey, id)
 	
 		if tabName then
-			local icon = DataStore:GetGuildBankTabIcon(currentGuildKey, i)
+			local icon = DataStore:GetGuildBankTabIcon(currentGuildKey, id)
 			local iconNumber = tonumber(icon)
 			
 			button.Icon:SetTexture(iconNumber or icon)
