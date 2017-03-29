@@ -1,4 +1,4 @@
-﻿local addonName = "Altoholic"
+local addonName = "Altoholic"
 local addon = _G[addonName]
 local colors = addon.Colors
 
@@ -379,14 +379,10 @@ addon:RegisterClassExtensions("AltoGuildMembers", {
 
 -- *** Equipment ***
 
-local equipmentToFrame = { 1,3,5,9,10,6,7,8,11,12,13,14,15,4,2,19,16,17,18 }
-
 local function _Init(frame)
-	-- Set the textures of equipment icons
-	for i = 1, 19 do
-		local button = frame["Item"..i]
-		-- button.Icon:SetTexture(addon:GetEquipmentSlotIcon(equipmentToFrame[i]))
-		button:SetIcon(addon:GetEquipmentSlotIcon(equipmentToFrame[i]))
+	-- Set the default textures of equipment icons
+	for _, button in pairs(frame.Items) do
+		button:SetIcon(addon:GetEquipmentSlotIcon(button:GetID()))
 		button:Show()
 	end
 end
@@ -407,19 +403,19 @@ local function _Update(frame, member)
 
 	local guild = DataStore:GetGuild()
 	
-	for i = 1, 19 do
-		local button = frame["Item"..i]
-		button.Count:Hide();
+	for _, button in pairs(frame.Items) do
+		local id = button:GetID()
+		button.Count:Hide()
 		button.IconBorder:Hide()
 	
-		local itemID = DataStore:GetGuildMemberInventoryItem(guild, member, equipmentToFrame[i])
+		local itemID = DataStore:GetGuildMemberInventoryItem(guild, member, id)
 		if itemID then
 			-- display the coloured border
 			local _, _, itemRarity, itemLevel = GetItemInfo(itemID)
 			button:SetItem(itemID, nil, itemRarity)
 			button:SetCount(itemLevel)
 		else
-			button:SetIcon(addon:GetEquipmentSlotIcon(equipmentToFrame[i]))
+			button:SetIcon(addon:GetEquipmentSlotIcon(id))
 			button:SetInfo(nil, nil)
 		end
 		

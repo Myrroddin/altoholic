@@ -10,6 +10,14 @@ There WILL be bugs if you use your old files without cleaning them first.
 Some fixes to work around API changes are too time consuming, so cleaning is required. A meagre price to pay once per expansion.
 
 
+7.2.001 (29/03/2017)
+
+- DataStore_Talents : Fixed a few issues when scanning artifact data (Thanks AlexSUCF !)
+- DataStore_Talents : Fixed an issue when artifact XP was updated.
+
+Note: I haven't had time to play much tonight, but I did not discover urgent issues. I'll keep testing tomorrow & Friday and will post a fix if anything break.
+At the very least, I'll have to test the new reputation paragons to see if anything is broken on that side.
+
 7.1.004 (12/01/2017)
 
 Nine Year Anniversary Edition.

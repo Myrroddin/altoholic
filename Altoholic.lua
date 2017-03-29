@@ -1,4 +1,4 @@
-﻿--[[	*** Altoholic ***
+--[[	*** Altoholic ***
 Written by : Thaoky, EU-Marécages de Zangar
 --]]
 

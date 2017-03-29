@@ -120,6 +120,12 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "7.2.001 Changes",
+		bulletedList = {
+			"DataStore_Talents : Fixed a few issues when scanning artifact data",
+			"DataStore_Talents : Fixed an issue when artifact XP was updated.",
+		},
+	},
 	{	name = "7.1.003 Changes",
 		bulletedList = {
 			"Added a row for the 12th character on both the achievements and grids tabs.",
