@@ -120,6 +120,20 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "7.2.003 Changes",
+		bulletedList = {
+			"Fixed a bug where searched results were not shown in the proper quality (ex: upgraded items).",
+			"Changed the navigation of the characters' tab.",
+			"Updated Herb and Mining Nodes, that was long overdue. (Thanks 2TailedFox !)",
+			"Fixed a lua error in the search tab.",
+			"Fixed Midsummer achievements.",
+			"DataStore_Quests: now tracking emissary quests.",
+			"Added a new panel : Grids -> Emissary quests.",
+			"Brought back a name to the minimap button frame, goes against my principles, but I love you guys that much!",
+			"Added a new panel in the grids tab : Sets !",
+			"Added a new library : LibMVC",
+		},
+	},
 	{	name = "7.2.002 Changes",
 		bulletedList = {
 			"Fixed a bug assigning gained artifact xp to the wrong artifact.",

@@ -57,7 +57,7 @@ local function Realm_UpdateEx(self, offset, desc)
 			rowFrame.Stat1:SetText(color .. owner)
 			
 			local realm, account, faction = LineDesc:GetRealm(result)
-			local location = addon:GetFactionColour(faction) .. realm
+			local location = format("%s%s", colors[faction], realm)
 			if account ~= THIS_ACCOUNT then
 				location = location .. "\n" ..colors.white .. L["Account"] .. ": " ..colors.green.. account
 			end
@@ -67,8 +67,10 @@ local function Realm_UpdateEx(self, offset, desc)
 			itemButton = rowFrame.Item
 			itemButton.IconBorder:Hide()
 			
-			if result.id then
-				local _, _, itemRarity = GetItemInfo(result.id)
+			local item = result.link or result.id
+			
+			if item then
+				local _, _, itemRarity = GetItemInfo(item)
 				if itemRarity then
 					local r, g, b
 					r, g, b, hex = GetItemQualityColor(itemRarity)
@@ -82,11 +84,13 @@ local function Realm_UpdateEx(self, offset, desc)
 			
 			local name, source, sourceID = LineDesc:GetItemData(result, line)
 
-			rowFrame.Name:SetText(hex .. name)
-			rowFrame.Source.Text:SetText(source)
-			rowFrame.Source:SetID(sourceID)
-						
-			itemButton:SetInfo(LineDesc:GetItemID(result))
+			if name then
+				rowFrame.Name:SetText(hex .. name)
+				rowFrame.Source.Text:SetText(source)
+				rowFrame.Source:SetID(sourceID)
+			end
+			
+			itemButton:SetInfo(LineDesc:GetItemInfo(result))
 			itemButton:SetIcon(LineDesc:GetItemTexture(result))			
 			itemButton:SetCount(result.count)
 			
@@ -135,8 +139,8 @@ local RealmScrollFrame_Desc = {
 					local account, realm = strsplit(".", character)
 					return realm, account, DataStore:GetCharacterFaction(character)
 				end,
-			GetItemID = function(self, result)
-					return result.id
+			GetItemInfo = function(self, result)
+					return result.id, result.link
 				end,
 		},
 		[GUILD_ITEM_LINE] = {
@@ -157,8 +161,8 @@ local RealmScrollFrame_Desc = {
 					
 					return realm, account, DataStore:GetGuildBankFaction(guild)
 				end,
-			GetItemID = function(self, result)
-					return result.id
+			GetItemInfo = function(self, result)
+					return result.id, result.link
 				end,
 		},
 		[PLAYER_CRAFT_LINE] = {
@@ -188,7 +192,7 @@ local RealmScrollFrame_Desc = {
 		
 					return realm, account, DataStore:GetCharacterFaction(character)
 				end,
-			GetItemID = function(self, result)
+			GetItemInfo = function(self, result)
 					local _, _, spellID = DataStore:GetCraftLineInfo(result.profession, result.craftIndex)
 					local itemID = DataStore:GetCraftResultItem(spellID)
 			
@@ -219,7 +223,7 @@ local RealmScrollFrame_Desc = {
 			GetRealm = function(self, result)
 					return GetRealmName(), THIS_ACCOUNT, UnitFactionGroup("player")
 				end,
-			GetItemID = function(self, result)
+			GetItemInfo = function(self, result)
 					return DataStore:GetCraftResultItem(result.spellID)
 				end,
 		},

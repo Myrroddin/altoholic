@@ -4,6 +4,7 @@ local colors = addon.Colors
 local icons = addon.Icons
 
 local ICON_VIEW_QUESTS = "Interface\\LFGFrame\\LFGIcon-Quest"
+local OPTION_QUESTS = "UI.Tabs.Grids.Dailies.CurrentQuests"
 
 local questList
 local view
@@ -15,17 +16,20 @@ local function BuildView()
 	local account, realm = AltoholicTabGrids:GetRealm()
 	
 	for _, character in pairs(DataStore:GetCharacters(realm, account)) do	-- all alts on this realm
-		local num = DataStore:GetDailiesHistorySize(character) or 0
-		for i = 1, num do
-			local id, title = DataStore:GetDailiesHistoryInfo(character, i)
-			
-			if not questList[id] then
-				questList[id] = {}
-				questList[id].title = title
-				questList[id].completedBy = {}
+		for questID, _ in pairs(DataStore:GetEmissaryQuests()) do
+			local isOnQuest, questLogIndex = DataStore:IsCharacterOnQuest(character, questID)
+			if isOnQuest then
+				local _, link = DataStore:GetQuestLogInfo(character, questLogIndex)
+				local questName = DataStore:GetQuestInfo(link)
+
+				if not questList[questID] then
+					questList[questID] = {}
+					questList[questID].title = questName
+					questList[questID].notCompletedBy = {}
+				end				
+
+				questList[questID].notCompletedBy[character] = true
 			end
-			
-			questList[id].completedBy[character] = true
 		end
 	end
 	
@@ -41,9 +45,6 @@ end
 local callbacks = {
 	OnUpdate = function() 
 			BuildView()
-			if not questList then
-				addon:RegisterMessage("DATASTORE_QUEST_TURNED_IN")
-			end
 		end,
 	GetSize = function() return #view end,
 	RowSetup = function(self, rowFrame, dataRowID)
@@ -63,7 +64,7 @@ local callbacks = {
 			button.Background:SetTexCoord(0, 1, 0, 1)
 			button.Background:SetTexture(ICON_VIEW_QUESTS)
 			
-			if questList[view[dataRowID]].completedBy[character]  then
+			if questList[view[dataRowID]].notCompletedBy[character]  then
 				button.Background:SetVertexColor(1.0, 1.0, 1.0)
 				button.Name:SetText(icons.ready)
 			else
@@ -71,9 +72,14 @@ local callbacks = {
 				button.Name:SetText(icons.notReady)
 			end
 		end,
-	OnEnter = nil,
+	OnEnter = function(self) 
+			self.link = nil
+			addon:Item_OnEnter(self) 
+		end,
 	OnClick = nil,
-	OnLeave = nil,
+	OnLeave = function(self)
+			GameTooltip:Hide() 
+		end,
 		
 	InitViewDDM = function(frame, title) 
 			frame:Hide()
@@ -81,9 +87,4 @@ local callbacks = {
 		end,
 }
 
-function addon:DATASTORE_QUEST_TURNED_IN(event, sender, character)
-	BuildView()
-	AltoholicTabGrids:Update()
-end
-
-AltoholicTabGrids:RegisterGrid(4, callbacks)
+AltoholicTabGrids:RegisterGrid(12, callbacks)
