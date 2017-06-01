@@ -30,6 +30,8 @@ externals:
   url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceDBOptions-3.0
  libs/AceGUI-3.0:
   url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceGUI-3.0
+ libs/LibMVC-1.0:
+  url: https://repos.curseforge.com/wow/libmvc/trunk 
  libs/LibBabble-Boss-3.0:
   url: svn://svn.wowace.com/wow/libbabble-boss-3-0/mainline/trunk
  libs/LibCraftInfo-1.0:

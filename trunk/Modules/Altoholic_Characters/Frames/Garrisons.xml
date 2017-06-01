@@ -19,8 +19,7 @@
 		</Frames>
 		<Scripts>
 			<OnLoad>
-				Altoholic:SetClassExtensions(self, "AltoGarrisonMissionsPanel")
-				self:Init()
+				Altoholic:BindViewToController(self, "AltoholicUI.GarrisonMissionsPanel")
 			</OnLoad>
 		</Scripts>
 	</Frame>

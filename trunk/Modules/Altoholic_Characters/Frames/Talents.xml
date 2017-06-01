@@ -26,7 +26,7 @@
 		</Frames>
 		<Scripts>
 			<OnLoad>
-				Altoholic:SetClassExtensions(self, "AltoTalentPanel")
+				Altoholic:BindViewToController(self, "AltoholicUI.TalentPanel")
 			</OnLoad>
 		</Scripts>
 	</Frame>

@@ -1,6 +1,7 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
 local colors = addon.Colors
+local icons = addon.Icons
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
@@ -37,9 +38,6 @@ local VIEW_COMPANIONS = 7
 local VIEW_SPELLS = 8
 local VIEW_PROFESSION = 9
 local VIEW_GARRISONS = 10
-
-local ICON_FACTION_HORDE = "Interface\\Icons\\INV_BannerPVP_01"
-local ICON_FACTION_ALLIANCE = "Interface\\Icons\\INV_BannerPVP_02"
 
 local TEXTURE_FONT = "|T%s:%s:%s|t"
 
@@ -470,7 +468,7 @@ columns["Name"] = {
 	GetText = function(character) 
 			local name = DataStore:GetColoredCharacterName(character)
 			local class = DataStore:GetCharacterClass(character)
-			local icon = (DataStore:GetCharacterFaction(character) == "Alliance") and ICON_FACTION_ALLIANCE or ICON_FACTION_HORDE
+			local icon = icons[DataStore:GetCharacterFaction(character)]
 			
 			return format("%s %s (%s)", format(TEXTURE_FONT, icon, 18, 18), name, class)
 		end,
@@ -2197,7 +2195,7 @@ function ns:Update()
 	local container = AltoholicTabSummary.SortButtons
 	for i = 0, #currentMode do
 		if currentMode[i] == currentColumn then
-			container["Sort"..i].Arrow:Draw(sortOrder)
+			container["Sort"..i]:DrawArrow(sortOrder)
 		end
 	end
 	
