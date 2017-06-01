@@ -337,6 +337,14 @@ function addon:OnEnable()
 	local key = format("%s.%s.%s", THIS_ACCOUNT, realm, player)
 	addon.ThisCharacter = addon.db.global.Characters[key]
 
+	-- Do not move this line, minimap initialization must happen AFTER OnEnable, otherwise options are not yet ready
+	if addon:GetOption("UI.Minimap.ShowIcon") then
+		Minimap.AltoholicButton:Move()
+		Minimap.AltoholicButton:Show()
+	else
+		Minimap.AltoholicButton:Hide()
+	end
+	
 	addon:RestoreOptionsToUI()
 	addon:RegisterEvent("CHAT_MSG_LOOT", OnChatMsgLoot)
 	

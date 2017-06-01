@@ -10,6 +10,10 @@ There WILL be bugs if you use your old files without cleaning them first.
 Some fixes to work around API changes are too time consuming, so cleaning is required. A meagre price to pay once per expansion.
 
 
+7.2.003b (01/06/2017)
+
+- Fixed minimap icon not being properly restored at logon.
+
 7.2.003 (01/06/2017)
 
 - Fixed a bug where searched results were not shown in the proper quality (ex: upgraded items).
