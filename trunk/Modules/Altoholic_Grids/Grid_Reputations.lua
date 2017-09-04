@@ -228,6 +228,8 @@ local Factions = {
 			{ name = DataStore:GetFactionName(1859), icon = "achievements_zone_suramar" },			-- The Nightfallen
 			{ name = DataStore:GetFactionName(1894), icon = "achievements_zone_brokenshore" },			-- The Wardens
 			{ name = DataStore:GetFactionName(2045), icon = "achievement_faction_legionfall" },			-- Armies of Legionfall
+			{ name = DataStore:GetFactionName(2165), icon = "achievement_admiral_of_the_light" },			-- Army of the Light
+			{ name = DataStore:GetFactionName(2170), icon = "achievement_master_of_argussian_reach" },			-- Argussian Reach
 		},		
 	},	
 	{	-- [8]

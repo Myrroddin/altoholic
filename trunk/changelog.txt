@@ -10,6 +10,21 @@ There WILL be bugs if you use your old files without cleaning them first.
 Some fixes to work around API changes are too time consuming, so cleaning is required. A meagre price to pay once per expansion.
 
 
+7.3.001 (04/09/2017)
+
+- Caged pets are now properly recognized in the inventory.
+- Search tab : fixed caged pets not being returned in the search results.
+Note: caged pets stored in the guild bank are not correctly visible. This is due to the game returning different item information for the caged pet when it is stored in the guild bank vs in your bags.
+If someone knows a way around this, I'm all ears :)
+- Search tab : fixed mythic keystones not being returned in the search results.
+- Made some improvements to the emissaries' panel, progress is now shown for each alt/zone. Quests are now sorted by expiry time (closest to expiry at the top). Thanks Paintstorm & Caspianroach for the suggestions.
+- Account Summary : Improved formatting of artifact power in the tooltip.
+- Grids -> Sets : added some extra filters for sets (faction + PVP type).
+- Characters -> Quests : the panel is being rewritten, but I have to face the facts, it won't be ready anytime soon, and the release has been delayed long enough.
+If you cannot live with this panel, edit the file Altoholic_Characters\Frames\Quests.lua, and delete lines 219+220 in the Update function.
+Note: rendering is primitive, you just have a list of quests, and the filter in the "Quests" icon does not work. Categories are listed, but that's all.
+Sorry, I had hoped this would have been ready for 7.3 .. but Blizzard released sooner than I had expected.
+
 7.2.003b (01/06/2017)
 
 - Fixed minimap icon not being properly restored at logon.

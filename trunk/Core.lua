@@ -4,8 +4,8 @@ _G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "A
 
 local addon = _G[addonName]
 
-addon.Version = "v7.2.003b"
-addon.VersionNum = 702003
+addon.Version = "v7.3.001"
+addon.VersionNum = 703001
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local commPrefix = addonName
@@ -128,7 +128,6 @@ local AddonDB_Defaults = {
 			["UI.Tabs.Grids.Sets.IncludePVE"] = true,							-- Include PVE Sets
 			["UI.Tabs.Grids.Sets.IncludePVP"] = true,							-- Include PVP Sets
 			["UI.Tabs.Grids.Sets.CurrentXPack"] = 1,							-- Current expansion pack 
-			["UI.Tabs.Grids.Dailies.CurrentQuests"] = 1,						-- Current quest type (dailies = 1, emissary = 2)
 
 			-- ** Tooltip options **
 			["UI.Tooltip.ShowItemSource"] = true,

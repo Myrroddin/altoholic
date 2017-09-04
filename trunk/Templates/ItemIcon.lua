@@ -15,7 +15,12 @@ addon:Controller("AltoholicUI.ItemIcon", {
 		GameTooltip:SetOwner(frame, "ANCHOR_LEFT")
 		
 		if itemLink then
-			GameTooltip:SetHyperlink(itemLink)
+			local speciesID, level, breedQuality, maxHealth, power, speed, name = DataStore:GetBattlePetInfoFromLink(itemLink)
+			if speciesID then
+				BattlePetToolTip_Show(speciesID, level, breedQuality, maxHealth, power, speed, name)
+			else
+				GameTooltip:SetHyperlink(itemLink)
+			end
 		else
 			-- this line queries the server for an unknown id
 			GameTooltip:SetHyperlink("item:"..itemID..":0:0:0:0:0:0:0")	

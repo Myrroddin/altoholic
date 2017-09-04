@@ -55,16 +55,19 @@ local ns = addon.Tabs.Characters		-- ns = namespace
 
 -- *** Utility functions ***
 local function HideAll()
+	
+	AltoholicTabCharacters.QuestLog:Hide()
+	AltoholicTabCharacters.Talents:Hide()
+	AltoholicTabCharacters.GarrisonMissions:Hide()
+	
 	AltoholicFrameContainers:Hide()
-	AltoholicFrameTalents:Hide()
+
 	AltoholicFrameMail:Hide()
-	AltoholicFrameQuests:Hide()
 	AltoholicFramePets:Hide()
 	AltoholicFrameAuctions:Hide()
 	AltoholicFrameRecipes:Hide()
 	-- AltoholicTabCharacters.Recipes:Hide()
 	AltoholicFrameSpellbook:Hide()
-	AltoholicFrameGarrisonMissions:Hide()
 end
 
 local function EnableIcon(frame)
@@ -115,12 +118,9 @@ function ns:ShowCharInfo(view)
 		addon.Containers:Update()
 		
 	elseif view == VIEW_QUESTS then
-		AltoholicFrameQuests:Show()
-		addon.Quests:InvalidateView()
-		addon.Quests:Update()
-		
+		AltoholicTabCharacters.QuestLog:Update()
 	elseif view == VIEW_TALENTS then
-		AltoholicFrameTalents:Update()
+		AltoholicTabCharacters.Talents:Update()
 	
 	elseif view == VIEW_AUCTIONS then
 		addon.AuctionHouse:SetListType("Auctions")
@@ -151,7 +151,7 @@ function ns:ShowCharInfo(view)
 		-- AltoholicTabCharacters.Recipes:Update()
 				
 	elseif view == VIEW_GARRISONS then
-		AltoholicFrameGarrisonMissions:Update()
+		AltoholicTabCharacters.GarrisonMissions:Update()
 	end
 end
 
@@ -277,6 +277,14 @@ local function OnRarityChange(self)
 	addon:SetOption("UI.Tabs.Characters.ViewBagsRarity", self.value)
 	addon.Containers:Update()
 end
+
+local function OnQuestHeaderChange(self)
+	local headerIndex = self.value
+
+
+	ns:ViewCharInfo(VIEW_QUESTS)
+end
+
 
 local function OnTalentChange(self)
 	CloseDropDownMenus()
@@ -456,7 +464,12 @@ local function QuestsIcon_Initialize(self, level)
 	if not currentCharacterKey then return end
 	
 	DDM_AddTitle(format("%s / %s", QUESTS_LABEL, DataStore:GetColoredCharacterName(currentCharacterKey)))
-	DDM_Add(QUEST_LOG, VIEW_QUESTS, OnViewChange, nil, (currentView == VIEW_QUESTS))
+	-- DDM_Add(QUEST_LOG, VIEW_QUESTS, OnViewChange, nil, (currentView == VIEW_QUESTS))
+
+	DDM_Add(ALL, 0, OnQuestHeaderChange)
+	for headerIndex, header in pairs(DataStore:GetQuestHeaders(currentCharacterKey)) do
+		DDM_Add(header, headerIndex, OnQuestHeaderChange)
+	end
 	
 	DDM_AddTitle("|r ")
 	DDM_AddTitle(GAMEOPTIONS_MENU)
@@ -823,7 +836,9 @@ function addon:DATASTORE_RECIPES_SCANNED(event, sender, tradeskillName)
 end
 
 function addon:DATASTORE_QUESTLOG_SCANNED(event, sender)
-	addon.Quests:InvalidateView()
-	addon.Quests:Update()
+	-- addon.Quests:InvalidateView()
+	-- addon.Quests:Update()
+
+	AltoholicTabCharacters.QuestLog:Update()
 end
 

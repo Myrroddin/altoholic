@@ -1,16 +1,17 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
 
-local function OnPlayerTalentUpdate()
-	if AltoholicFrameTalents:IsVisible() then
-		AltoholicFrameTalents:Update()
-	end
-end	
-
-addon:RegisterEvent("PLAYER_TALENT_UPDATE", OnPlayerTalentUpdate)
-addon:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED", OnPlayerTalentUpdate)
-
 addon:Controller("AltoholicUI.TalentPanel", {
+	OnBind = function(frame)
+		local function OnPlayerTalentUpdate()
+			if frame:IsVisible() then
+				frame:Update()
+			end
+		end	
+
+		addon:RegisterEvent("PLAYER_TALENT_UPDATE", OnPlayerTalentUpdate)
+		addon:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED", OnPlayerTalentUpdate)
+	end,
 	Update = function(frame)
 		frame:Hide()
 		

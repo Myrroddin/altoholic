@@ -49,7 +49,7 @@ addon:Controller("AltoholicUI.DropDownMenuButton", {
 		func(frame, frame.arg1, frame.arg2, checked)
 		
 		if playSound then
-			PlaySound("UChatScrollButton")
+			PlaySound(1115)
 		end
 	end,
 	GetChecked = function(frame)
@@ -968,7 +968,7 @@ addon:Controller("AltoholicUI.DropDownMenu", {
 		info.notCheckable = 1
 		frame:AddButtonInfo(info, 1)
 	end,
-	AddTitle = function(frame, text, icon)
+	AddTitle = function(frame, text, icon, level)
 		local info = frame:CreateInfo()
 
 		info.isTitle = 1
@@ -976,7 +976,7 @@ addon:Controller("AltoholicUI.DropDownMenu", {
 		info.icon = icon
 		info.checked = nil
 		info.notCheckable = 1
-		frame:AddButtonInfo(info, 1)
+		frame:AddButtonInfo(info, level or 1)
 	end,
 	Close = function(frame, level)
 		CloseLists(level)

@@ -52,14 +52,14 @@ local function BuildView()
 	end
 end
 
-local function OnGarrisonMissionListUpdate()
-	if AltoholicFrameGarrisonMissions:IsVisible() then
-		AltoholicFrameGarrisonMissions:Update()
-	end
-end
-
 addon:Controller("AltoholicUI.GarrisonMissionsPanel", {
 	OnBind = function(frame)
+		local function OnGarrisonMissionListUpdate()
+			if frame:IsVisible() then
+				frame:Update()
+			end
+		end
+	
 		addon:RegisterEvent("GARRISON_MISSION_LIST_UPDATE", OnGarrisonMissionListUpdate)
 	end,
 	Update = function(frame)
