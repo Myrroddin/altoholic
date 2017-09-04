@@ -13,6 +13,7 @@ local currentTier
 local OPTION_PVE = "UI.Tabs.Grids.Sets.IncludePVE"
 local OPTION_PVP = "UI.Tabs.Grids.Sets.IncludePVP"
 local OPTION_XPACK = "UI.Tabs.Grids.Sets.CurrentXPack"
+local OPTION_PVPDESC_PREFIX = "UI.Tabs.Grids.Sets.PVP."
 
 local TEXTURE_FONT = "|T%s:%s:%s|t"
 
@@ -59,6 +60,18 @@ local function FormatSetDescription(setInfo)
 	end
 
 	return format("%s\n%s", line1, line2)
+end
+
+local function IsPVPDescriptionChecked(description)
+	local optionName = format("%s%s", OPTION_PVPDESC_PREFIX, description)
+	local option = addon:GetOption(optionName)
+	
+	if type(option) == "nil" then		-- if the option does not exist (first use), then initialize it to true
+		addon:SetOption(optionName, true)
+		option = true
+	end
+
+	return option
 end
 
 -- Mage set id's are used as reference for tier data
@@ -201,6 +214,8 @@ local TransmogSets = {
 	},
 }
 
+local pvpSortedDescriptions = {}
+
 local function InitTransmogSetsInfo(sets)
 	if not sets then return end
 
@@ -237,6 +252,8 @@ local function InitTransmogSetsInfo(sets)
 		setIndexes[set.setID] = index
 	end
 
+	local pvpDescriptions = {}
+	
 	-- browse tracked sets
 	for xpackIndex, xpack in ipairs(TransmogSets) do
 		for setInfoIndex, setInfo in ipairs(xpack) do
@@ -261,6 +278,11 @@ local function InitTransmogSetsInfo(sets)
 					setInfo.description = set.description
 					setInfo.requiredFaction = set.requiredFaction
 				
+					-- keep track of pvp descriptions
+					if set.description and setInfo.isPVP then
+						pvpDescriptions[set.description] = true
+					end
+				
 					-- save some cpu cycles, when 12 sets are found matching the reference, break the loop
 					matchCount = matchCount + 1
 					if matchCount == 12 then break end
@@ -268,6 +290,11 @@ local function InitTransmogSetsInfo(sets)
 			end
 		end
 	end
+	
+	for desc, _ in pairs(pvpDescriptions) do
+		table.insert(pvpSortedDescriptions, desc)
+	end
+	table.sort(pvpSortedDescriptions)
 end
 
 InitTransmogSetsInfo(C_TransmogSets.GetAllSets())
@@ -278,15 +305,40 @@ local function BuildView()
 
 	local includePVE = addon:GetOption(OPTION_PVE)
 	local includePVP = addon:GetOption(OPTION_PVP)
+	local includeAlliance = addon:GetOption(format("%s%s", OPTION_PVPDESC_PREFIX, FACTION_ALLIANCE))
+	local includeHorde = addon:GetOption(format("%s%s", OPTION_PVPDESC_PREFIX, FACTION_HORDE))
 	local currentXPack = addon:GetOption(OPTION_XPACK)
+	
+	local activePVPTypes = {}
+	
+	for _, pvpDescription in ipairs(pvpSortedDescriptions) do
+		if IsPVPDescriptionChecked(pvpDescription) then
+			activePVPTypes[pvpDescription] = true
+		end
+	end
 
 	-- Parse set data
 	for xpackIndex, xpack in ipairs(TransmogSets) do
 		for _, setInfo in ipairs(xpack) do
 			local isPVP = setInfo.isPVP
+			local factionOK = true	-- will remain true if no "requiredFaction" is set
+			local descOK = false
 
-			if (not isPVP and includePVE) or		-- it is a PVE set, and we want it
-				(isPVP and includePVP) then		-- it is a PVP set, and we want it
+			-- For PVP sets only: check is the description is one we want to show (ex: hide all "Elite" sets)
+			if isPVP and setInfo.description then
+				descOK = activePVPTypes[setInfo.description]
+			end
+			
+			local faction = setInfo.requiredFaction
+			if faction then
+				if ((faction == FACTION_ALLIANCE) and not includeAlliance) or
+					((faction == FACTION_HORDE) and not includeHorde) then
+					factionOK = false
+				end
+			end
+
+			if (not isPVP and includePVE and factionOK) or		-- it is a PVE set, and we want it
+				(isPVP and includePVP and descOK and factionOK) then		-- it is a PVP set, and we want it, and it's description is OK
 
 				if (currentXPack == CAT_ALLINONE) or (currentXPack == xpackIndex) then
 					table.insert(view, setInfo)	-- insert the table pointer
@@ -298,13 +350,13 @@ local function BuildView()
 	isViewValid = true
 end
 
-local function OnPVEClicked(args)
+local function OnPVEClicked(self)
 	addon:ToggleOption(nil, OPTION_PVE)
 	isViewValid = nil
 	AltoholicTabGrids:Update()
 end
 
-local function OnPVPClicked(args)
+local function OnPVPClicked(self)
 	addon:ToggleOption(nil, OPTION_PVP)
 	isViewValid = nil
 	AltoholicTabGrids:Update()
@@ -320,17 +372,48 @@ local function OnXPackChange(self)
 	AltoholicTabGrids:Update()
 end
 
-local function DropDown_Initialize(frame)
-	frame:AddButton(TRANSMOG_SET_PVE, nil, OnPVEClicked, nil, addon:GetOption(OPTION_PVE))
-	frame:AddButton(TRANSMOG_SET_PVP, nil, OnPVPClicked, nil, addon:GetOption(OPTION_PVP))
-	frame:AddTitle(" ")
+local function OnPVPFilterChanged(frame)
+	frame:GetParent():Close()
 
-	local currentXPack = addon:GetOption(OPTION_XPACK)
-	for i, xpack in pairs(xPacks) do
-		frame:AddButton(xpack, i, OnXPackChange, nil, (i==currentXPack))
-	end
+	local description = frame.value
+	local optionName = format("%s%s", OPTION_PVPDESC_PREFIX, description)
 	
-	frame:AddCloseMenu()
+	addon:ToggleOption(nil, optionName)
+	isViewValid = nil
+	AltoholicTabGrids:Update()
+end
+
+local function DropDown_Initialize(frame, level)
+	if not level then return end
+	
+	
+	if level == 1 then
+		frame:AddButton(TRANSMOG_SET_PVE, nil, OnPVEClicked, nil, addon:GetOption(OPTION_PVE), level)
+		
+		local info = frame:CreateInfo()
+		info.text = TRANSMOG_SET_PVP
+		info.func = OnPVPClicked
+		info.hasArrow = 1
+		info.checked = addon:GetOption(OPTION_PVP)
+		info.value = nil
+		frame:AddButtonInfo(info, level)
+		frame:AddTitle(" ")
+
+		local currentXPack = addon:GetOption(OPTION_XPACK)
+		for i, xpack in pairs(xPacks) do
+			frame:AddButton(xpack, i, OnXPackChange, nil, (i==currentXPack), level)
+		end
+		
+		frame:AddCloseMenu()
+	elseif level == 2 then
+		frame:AddButton(FACTION_ALLIANCE, FACTION_ALLIANCE, OnPVPFilterChanged, nil, IsPVPDescriptionChecked(FACTION_ALLIANCE), level)
+		frame:AddButton(FACTION_HORDE, FACTION_HORDE, OnPVPFilterChanged, nil, IsPVPDescriptionChecked(FACTION_HORDE), level)
+		frame:AddTitle(" ", nil, 2)
+	
+		for _, pvpDescription in ipairs(pvpSortedDescriptions) do
+			frame:AddButton(pvpDescription, pvpDescription, OnPVPFilterChanged, nil, IsPVPDescriptionChecked(pvpDescription), level)
+		end
+	end
 end
 
 local callbacks = {

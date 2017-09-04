@@ -32,28 +32,26 @@ local function BuildView()
 	end
 end
 
+local function ShowCategory(frame, id)
+	local tab = frame:GetParent()
+	
+	tab:Update()
+	tab:Show()
+	tab.Achievements:SetCategory(id)
+	tab.Achievements:Update()
+end
+
 local function Header_OnClick(frame)
 	highlightIndex = frame.categoryIndex
 	local header = view[highlightIndex]
 	header.isCollapsed = not header.isCollapsed
 
-	local tab = frame:GetParent()
-	
-	tab:Update()
-	tab:Show()
-	tab.Achievements:SetCategory(header.id)
-	tab.Achievements:Update()
+	ShowCategory(frame, header.id)
 end
 
 local function Item_OnClick(frame)
 	highlightIndex = frame.subCategoryIndex
-	local item = view[highlightIndex]
-	local tab = frame:GetParent()
-	
-	tab:Update()
-	tab:Show()
-	tab.Achievements:SetCategory(item)
-	tab.Achievements:Update()
+	ShowCategory(frame, view[highlightIndex])
 end
 
 local function OnAchievementEarned(event, id)

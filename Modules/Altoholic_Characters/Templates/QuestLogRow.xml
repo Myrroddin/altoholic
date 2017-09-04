@@ -1,16 +1,26 @@
 <Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
-	<Script file="GarrisonMissionRow.lua"></Script>
+	<Script file="QuestLogRow.lua"></Script>
 	
-	<Button name="AltoGarrisonMissionRowTemplate" virtual="true">
+	<Button name="AltoQuestLogRowTemplate" virtual="true">
 		<Size x="615" y="43" />
 		<Layers>
 			<Layer level="BACKGROUND">
+			<!--
 				<FontString parentKey="Name" inherits="GameFontNormal" justifyH="LEFT">
-					<Size x="220" y="32" />
+					<Size x="320" y="32" />
 					<Anchors>
 						<Anchor point="TOPLEFT" x="45" y="6" />
 					</Anchors>
+				</FontString> 
+			-->
+				<FontString parentKey="Level" inherits="GameFontNormal" justifyH="LEFT" hidden="true">
+					<Size x="30" y="32" />
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.Name" relativePoint="BOTTOMLEFT" x="0" y="13" />
+					</Anchors>
 				</FontString>
+
+				<!-- 
 				<Texture parentKey="CostIcon" file="Interface\Icons\inv_garrison_resource" hidden="true" alphaMode="ADD">
 					<Size x="16" y="16"/>
 					<Anchors>
@@ -35,29 +45,40 @@
 						<Anchor point="TOPLEFT" relativeKey="$parent.Name" relativePoint="TOPRIGHT" x="110" y="-16" />
 					</Anchors>
 				</FontString>
+				-->
 			</Layer>
 		</Layers>
 		<Frames>
-			<Button parentKey="MissionType" inherits="AltoItemIconTemplate">
+			<Button parentKey="QuestType" inherits="AltoButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" x="2" y="-2" />
 				</Anchors>
 			</Button>
-			<Button parentKey="Follower1" inherits="AltoGarrisonMissionFollowerTemplate">
+			<Button parentKey="Name">
+				<Size x="400" y="32"/>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Name" relativePoint="TOPRIGHT" x="5" y="-9" />
+					<Anchor point="TOPLEFT" x="45" y="6" />
 				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<FontString parentKey="Text" inherits="GameFontNormal" justifyH="LEFT">
+							<Size x="400" y="32"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" x="0" y="0" />
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnEnter>
+						self:GetParent():Name_OnEnter()
+					</OnEnter> 
+					<OnLeave>
+						GameTooltip:Hide()
+					</OnLeave>
+				</Scripts>
 			</Button>
-			<Button parentKey="Follower2" inherits="AltoGarrisonMissionFollowerTemplate">
-				<Anchors>
-					<Anchor point="LEFT" relativeKey="$parent.Follower1" relativePoint="RIGHT" />
-				</Anchors>
-			</Button>
-			<Button parentKey="Follower3" inherits="AltoGarrisonMissionFollowerTemplate">
-				<Anchors>
-					<Anchor point="LEFT" relativeKey="$parent.Follower2" relativePoint="RIGHT" />
-				</Anchors>
-			</Button>
+
 			<Button parentKey="Reward1" inherits="AltoGarrisonMissionRewardTemplate">
 				<Anchors>
 					<Anchor point="TOPRIGHT" x="-50" y="-4" />
@@ -78,7 +99,7 @@
 		</HighlightTexture>
 		<Scripts>
 			<OnLoad>
-				Altoholic:BindViewToController(self, "AltoholicUI.GarrisonMissionRow")
+				Altoholic:BindViewToController(self, "AltoholicUI.QuestLogRow")
 			</OnLoad>
 		</Scripts>
 	</Button>

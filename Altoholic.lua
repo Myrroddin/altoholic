@@ -621,28 +621,15 @@ end
 
 function addon:ListCharsOnQuest(questName, player, tooltip)
 	if not questName then return nil end
-	
-	local DS = DataStore
-	local CharsOnQuest = {}
-	for characterName, character in pairs(DS:GetCharacters(realm)) do
-		if characterName ~= player then
-			local questLogSize = DS:GetQuestLogSize(character) or 0
-			for i = 1, questLogSize do
-				local isHeader, link = DS:GetQuestLogInfo(character, i)
-				if not isHeader then
-					local altQuestName = DS:GetQuestInfo(link)
-					if altQuestName == questName then		-- same quest found ?
-						table.insert(CharsOnQuest, DS:GetColoredCharacterName(character))	
-					end
-				end
-			end
+
+	local charsOnQuest = DataStore:GetCharactersOnQuest(questName, player)
+	if #charsOnQuest > 0 then
+		tooltip:AddLine(" ",1,1,1)
+		tooltip:AddLine(format("%s%s", colors.green, L["Are also on this quest:"]))
+		
+		for _, character in pairs(charsOnQuest) do
+			tooltip:AddLine(DataStore:GetColoredCharacterName(character))
 		end
-	end
-	
-	if #CharsOnQuest > 0 then
-		tooltip:AddLine(" ",1,1,1);
-		tooltip:AddLine(colors.green .. L["Are also on this quest:"],1,1,1);
-		tooltip:AddLine(table.concat(CharsOnQuest, "\n"),1,1,1);
 	end
 end
 
