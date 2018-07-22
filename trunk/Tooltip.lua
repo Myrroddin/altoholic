@@ -82,6 +82,22 @@ local GatheringNodes = {			-- Add herb/ore possession info to Plants/Mines, than
 	["Felslate Seam"]                      = 123919, -- Felslate
 	["Rich Felslate Deposit"]              = 123919, -- Felslate
 	
+	["Empyrium Deposit"]                   = 151564, -- Empyrium
+	["Empyrium Seam"]                      = 151564, -- Empyrium
+	["Rich Empyrium Deposit"]              = 151564, -- Empyrium
+	["Astral Glory"]     				      = 151565,	
+	
+	-- Battle for Azeroth
+	["Monelite Deposit"]				   		= 152512, -- Monelite Ore
+	["Rich Monelite Deposit"]			   	= 152512, -- Monelite Ore
+	["Monelite Seam"]					   		= 152512, -- Monelite Ore
+	["Storm Silver Deposit"]			   	= 152579, -- Storm Silver Ore
+	["Rich Storm Silver Deposit"]		   	= 152579, -- Storm Silver Ore
+	["Storm Silver Seam"]				   	= 152579, -- Storm Silver Ore
+	["Platinum Deposit"]				   		= 152513, -- Platinum Ore
+	["Rich Platinum Deposit"]			   	= 152513, -- Platinum Ore
+
+	
 	-- Herbs
 	-- Classic
 	[L["Arthas' Tears"]]        =  8836,
@@ -169,13 +185,14 @@ local GatheringNodes = {			-- Add herb/ore possession info to Plants/Mines, than
 	["Fjarnskaggl"]             = 124104,
 	["Starlight Rose"]          = 124105,	
 	
-	
-	
-	
-	
-	
-	
-	
+	-- Battle for Azeroth
+	["Akunda's Bite"]           = 152507,
+	["Anchor Weed"]             = 152510,
+	["Riverbud"]                = 152505,
+	["Sea Stalk"]               = 152511,
+	["Siren's Pollen"]          = 152509,	
+	["Star Moss"]               = 152506,	
+	["Winter's Kiss"]           = 152508,	
 }
 
 -- *** Utility functions ***
