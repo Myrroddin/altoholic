@@ -87,7 +87,7 @@ local Factions = {
 			{ name = DataStore:GetFactionName(947), icon = "Spell_Misc_HellifrePVPThrallmarFavor" },	-- "Thrallmar" 
 		},
 		{	-- [2]
-			name = GetMapNameByID(481),	-- "Shattrath City"
+			name = C_Map.GetMapInfo(481),	-- "Shattrath City"
 			{ name = DataStore:GetFactionName(1011), icon = "Achievement_Zone_Terrokar" },		-- "Lower City" 
 			{ name = DataStore:GetFactionName(1031), icon = "Ability_Hunter_Pet_NetherRay" },		-- "Sha'tari Skyguard" 
 			{ name = DataStore:GetFactionName(1077), icon = "INV_Shield_48" },		-- "Shattered Sun Offensive" 
@@ -131,7 +131,7 @@ local Factions = {
 			{ name = DataStore:GetFactionName(1085), icon = "Achievement_Zone_BoreanTundra_03" },		-- "Warsong Offensive" 
 		},
 		{	-- [4]
-			name = GetMapNameByID(493),	-- "Sholazar Basin"
+			name = C_Map.GetMapInfo(493),	-- "Sholazar Basin"
 			{ name = DataStore:GetFactionName(1104), icon = "Ability_Mount_WhiteDireWolf" },		-- "Frenzyheart Tribe" 
 			{ name = DataStore:GetFactionName(1105), icon = "Achievement_Reputation_MurlocOracle" },	-- "The Oracles" 
 		},

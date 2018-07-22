@@ -134,7 +134,8 @@ SendMailNameEditBox:SetScript("OnChar", function(self, ...)
 		for characterName, character in pairs(DataStore:GetCharacters()) do
 			if DataStore:GetCharacterFaction(character) == currentFaction then
 				if ( strfind(strupper(characterName), strupper(text), 1, 1) == 1 ) then
-					SendMailNameEditBox:SetText(characterName)
+					--SendMailNameEditBox:SetText(characterName)
+					SendMailNameEditBox:SetText(format("%s-%s", characterName, GetRealmName()))
 					SendMailNameEditBox:HighlightText(textlen, -1)
 					return;
 				end

@@ -4,8 +4,8 @@ _G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "A
 
 local addon = _G[addonName]
 
-addon.Version = "v7.3.001"
-addon.VersionNum = 703001
+addon.Version = "v8.0.001"
+addon.VersionNum = 800001
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local commPrefix = addonName
@@ -221,6 +221,7 @@ addon.Icons = {
 
 	Alliance = "Interface\\Icons\\INV_BannerPVP_02",
 	Horde = "Interface\\Icons\\INV_BannerPVP_01",
+	Neutral = "Interface\\Icons\\Achievement_character_pandaren_female",
 }
 
 -- ** LDB Launcher **
