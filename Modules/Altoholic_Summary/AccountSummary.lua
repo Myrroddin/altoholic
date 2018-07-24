@@ -12,7 +12,7 @@ local MODE_ACTIVITY = 4
 local MODE_CURRENCIES = 5
 local MODE_FOLLOWERS = 6
 
-local SKILL_CAP = 800
+local SKILL_CAP = 900
 local CURRENCY_ID_JUSTICE = 395
 local CURRENCY_ID_VALOR = 396
 local CURRENCY_ID_APEXIS = 823
@@ -174,12 +174,25 @@ local function Tradeskill_OnEnter(frame, skillName, showRecipeStats)
 				tt:Show()
 				return
 			end
-		
-			if DataStore:GetNumCraftLines(profession) == 0 then
+
+			local numCategories = DataStore:GetNumRecipeCategories(profession)
+			if numCategories == 0 then
 				tt:AddLine(format("%s: 0 %s", L["No data"], TRADESKILL_SERVICE_LEARN),1,1,1)
 			else
+				for i = 1, numCategories do
+					local _, name, rank, maxRank = DataStore:GetRecipeCategoryInfo(profession, i)
+					
+					if name and rank and maxRank then
+						local color = (maxRank == 0) and colors.red or colors.green
+						tt:AddDoubleLine(name, format("%s%s|r / %s%s", color, rank, color, maxRank))
+					-- else
+						-- tt:AddLine(name)
+					end
+				end
+			
 				local orange, yellow, green, grey = DataStore:GetNumRecipesByColor(profession)
 				
+				tt:AddLine(" ")
 				tt:AddLine(orange+yellow+green+grey .. " " .. TRADESKILL_SERVICE_LEARN,1,1,1)
 				tt:AddLine(format("%s%d %s%s|r / %s%d %s%s|r / %s%d %s%s",
 					colors.white, green, colors.recipeGreen, L["COLOR_GREEN"],
@@ -221,7 +234,7 @@ local function Tradeskill_OnClick(frame, skillName)
 	if not skillName or not DataStore:GetModuleLastUpdateByKey("DataStore_Crafts", character) then return end
 
 	local profession = DataStore:GetProfession(character, skillName)
-	if not profession or DataStore:GetNumCraftLines(profession) == 0 then		-- if profession hasn't been scanned (or scan failed), exit
+	if not profession or DataStore:GetNumRecipeCategories(profession) == 0 then		-- if profession hasn't been scanned (or scan failed), exit
 		return
 	end
 	
@@ -249,7 +262,7 @@ local function CurrencyHeader_OnEnter(frame, currencyID)
 	tt:ClearLines()
 	tt:SetOwner(frame, "ANCHOR_BOTTOM")
 	-- tt:AddLine(select(1, GetCurrencyInfo(currencyID)), NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b)
-	tt:SetHyperlink(GetCurrencyLink(currencyID))
+	tt:SetHyperlink(GetCurrencyLink(currencyID,0))
 	tt:Show()
 end
 
@@ -1105,7 +1118,7 @@ columns["ProfFishing"] = {
 			return format("%s%s", GetSkillRankColor(rank), rank)
 		end,
 	OnEnter = function(frame)
-			Tradeskill_OnEnter(frame, GetSpellInfo(131474))
+			Tradeskill_OnEnter(frame, GetSpellInfo(131474), true)
 		end,
 }
 

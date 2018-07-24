@@ -132,6 +132,29 @@
 		</Frames>
 	</Button>
 	
+	<!-- <Frame parentKey="Recipes" parent="AltoholicTabAchievements" inherits="AltoDataPanelTemplate"> -->
+		<!-- <Frames> -->
+			<!-- <ScrollFrame parentKey="ScrollFrame" inherits="AltoBaseScrollFrameTemplate"> -->
+				<!-- <Scripts> -->
+					<!-- <OnVerticalScroll> -->
+						<!-- local parent = self:GetParent() -->
+						<!-- self:OnVerticalScroll(offset, 41, parent.Update, parent) -->
+					<!-- </OnVerticalScroll> -->
+				<!-- </Scripts> -->
+				<!-- <KeyValues> -->
+					<!-- <KeyValue key="numRows" value="8" type="number" /> -->
+					<!-- <KeyValue key="rowHeight" value="41" type="number" /> -->
+					<!-- <KeyValue key="rowTemplate" value="AltoAchievementRowTemplate" /> -->
+				<!-- </KeyValues> -->
+			<!-- </ScrollFrame> -->
+		<!-- </Frames> -->
+		<!-- <Scripts> -->
+			<!-- <OnLoad> -->
+				<!-- Altoholic:BindViewToController(self, "AltoholicUI.Recipes") -->
+			<!-- </OnLoad> -->
+		<!-- </Scripts> -->
+	<!-- </Frame> -->
+	
 	<Frame name="AltoholicFrameRecipes" parent="AltoholicTabCharacters" hidden="true">
 		<Size x="615" y="306" />
 		<Anchors>
