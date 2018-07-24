@@ -593,16 +593,6 @@ local function ProfessionsIcon_Initialize(self, level)
 			DDM_Add(colors.grey..PROFESSIONS_COOKING, nil, nil)
 		end
 		
-		-- First Aid
-		rank = DataStore:GetFirstAidRank(currentCharacterKey)
-		if last and rank then
-			DDM_Add(format("%s %s(%s)", PROFESSIONS_FIRST_AID, colors.green, rank ), PROFESSIONS_FIRST_AID, OnProfessionChange, nil, (PROFESSIONS_FIRST_AID == (currentProfession or "")))
-		else
-			DDM_Add(colors.grey..PROFESSIONS_FIRST_AID, nil, nil)
-		end
-		
-		-- rank = DataStore:GetArchaeologyRank(currentCharacterKey)
-		
 		-- Profession 1
 		local rank, professionName, _
 		rank, _, _, professionName = DataStore:GetProfession1(currentCharacterKey)
@@ -718,25 +708,32 @@ local function ProfessionsIcon_Initialize(self, level)
 			UIDropDownMenu_AddButton(info, level)
 			
 		elseif UIDROPDOWNMENU_MENU_VALUE == 3 then	-- subclass
-		
-			info.text = ALL
-			info.value = ALL
-			info.checked = (addon.TradeSkills.Recipes:GetCurrentSubClass() == ALL)
-			info.func = OnProfessionSubClassChange
-			UIDropDownMenu_AddButton(info, level)
-		
 			local profession = DataStore:GetProfession(currentCharacterKey, currentProfession)
-			for index = 1, DataStore:GetNumCraftLines(profession) do
-				local isHeader, _, name = DataStore:GetCraftLineInfo(profession, index)
-				
-				if isHeader then
-					info.text = name
-					info.value = name
-					info.checked = (addon.TradeSkills.Recipes:GetCurrentSubClass() == name)
-					info.func = OnProfessionSubClassChange
-					UIDropDownMenu_AddButton(info, level)
-				end
+			
+			for index = 1, DataStore:GetNumRecipeCategories(profession) do
+				local categoryID, name = DataStore:GetRecipeCategoryInfo(profession, index)
+				info.text = name
+				info.value = index
+				info.hasArrow = (DataStore:GetNumRecipeCategorySubItems(profession, index) > 0) and 1 or nil
+				info.checked = (addon.TradeSkills.Recipes:GetCurrentSubClass() == name)
+				info.func = OnProfessionSubClassChange
+				UIDropDownMenu_AddButton(info, level)	
 			end
+		end
+	
+	elseif level == 3 then	-- ** filters **
+		
+		local info = UIDropDownMenu_CreateInfo()
+		local profession = DataStore:GetProfession(currentCharacterKey, currentProfession)
+		local categoryIndex = UIDROPDOWNMENU_MENU_VALUE
+		
+		for subCatIndex = 1, DataStore:GetNumRecipeCategorySubItems(profession, categoryIndex) do
+			local categoryID, name = DataStore:GetRecipeSubCategoryInfo(profession, categoryIndex, subCatIndex)
+			info.text = name
+			info.value = categoryID
+			info.checked = (addon.TradeSkills.Recipes:GetCurrentSubClass() == name)
+			info.func = OnProfessionSubClassChange
+			UIDropDownMenu_AddButton(info, level)	
 		end
 	end
 end

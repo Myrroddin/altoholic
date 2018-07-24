@@ -11,13 +11,22 @@ Some fixes to work around API changes are too time consuming, so cleaning is req
 
 How to support Altoholic's development :
 
-- Use the donate button either on Curse or on WoW Interface
-- Support me on Patreon : https://www.patreon.com/Thaoky , the page is still being setup, it might take a few days before it can be used, I still need a banner.
+- For a single donation : Use the donate button either on Curse or on WoW Interface.
+- For a repeated donation : Support me on Patreon : https://www.patreon.com/Thaoky 
 - Make a gift from my amazon's wish list : http://amzn.eu/7xWdnbZ
 
 
+8.0.002 (24/07/2018)
 
-8.0.001 (xx/07/2018)
+- Fixed a Lua error in DataStore_Agenda.
+- Fixed DataStore_Containers not properly scanning some bank content (bug #998 on Curse) (Thanks Vince & probably a few others :))
+- Fixed DataStore_Agenda not properly scanning WotLK item cooldowns. (Thanks Mapekz)
+- Fixed Item cooldowns breaking the agenda view (bug #1006 on Curse). (Thanks Mapekz) 
+- Fixed the errors in the Agenda tab.
+- DataStore_Crafts: now properly scanning profession data, UI still being worked on.
+- Fixed several UI errors related to professions. Some things are still being worked on, but not Lua errors should be triggered :)
+
+8.0.001 (22/07/2018)
 
 As mentioned on Curse : 
 

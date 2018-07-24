@@ -135,14 +135,30 @@ local function BuildView()
 end
 
 function ns:Update()
-	if not _G[parent]:IsVisible() then return end		-- frame is not visible, do nothing
 	
-	if not isViewValid then
-		BuildView()
-	end
+	if not _G[parent]:IsVisible() then return end		-- frame is not visible, do nothing
+
+	-- temp
+	-- if not isViewValid then
+		-- BuildView()
+	-- end
 
 	local VisibleLines = 14
 	local entry = parent.."Entry"
+	
+	-- temp hide
+	local i = 1
+	while i <= VisibleLines do
+		_G[ entry..i ]:SetID(0)
+		_G[ entry..i ]:Hide()
+		i = i + 1
+	end
+	
+	local zz = 0
+	if zz == 0 then return end	-- temporarily force the exit ..	
+	
+	
+	
 	
 	local character = addon.Tabs.Characters:GetAltKey()
 	local profession = DataStore:GetProfession(character, currentProfession)
