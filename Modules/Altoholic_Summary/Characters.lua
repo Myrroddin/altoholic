@@ -1,5 +1,6 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local colors = addon.Colors
 
 local THIS_ACCOUNT = "Default"
@@ -211,10 +212,12 @@ local function BuildList()
 	totalLevels = 0
 	realmCount = 0 -- will be required for sorting purposes
 	ProcessRealms(AddRealm)
+
+	local levels = format("%s%s |rLv", colors.white, totalLevels)
+	local gold = format(GOLD_AMOUNT_TEXTURE, floor( totalMoney / 10000 ), 13, 13)
+	local played = format("%d%sd", floor(totalPlayed / 86400), colors.gold)
 	
-	AltoholicFrameTotalLv:SetText(format("%s |rLv", colors.white .. totalLevels))
-	AltoholicFrameTotalGold:SetText(format(GOLD_AMOUNT_TEXTURE, floor( totalMoney / 10000 ), 13, 13))
-	AltoholicFrameTotalPlayed:SetText(floor(totalPlayed / 86400) .. "|cFFFFD700d")
+	AltoholicTabSummary.Totals:SetText(format("%s: %s%s / %s%s / %s", L["Totals"], levels, colors.white, gold, colors.white, played))
 end
 
 local function AddRealmView(AccountName, RealmName)

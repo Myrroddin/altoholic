@@ -410,18 +410,15 @@ function addon:GetRecipeOwners(professionName, link, recipeLevel)
 			if spellID then			-- if spell id is known, just find its equivalent in the professions
 				isKnownByChar = DataStore:IsCraftKnown(profession, spellID)
 			else
-				for i = 1, DataStore:GetNumCraftLines(profession) do
-					local isHeader, _, info = DataStore:GetCraftLineInfo(profession, i)
-					
-					if not isHeader then
-						local skillName = GetSpellInfo(info) or ""
+				DataStore:IterateRecipes(profession, 0, 0, function(recipeData)
+					local _, recipeID = DataStore:GetRecipeInfo(recipeData)
+					local skillName = GetSpellInfo(recipeID) or ""
 
-						if string.lower(skillName) == string.lower(craftName) then
-							isKnownByChar = true
-							break
-						end				
+					if string.lower(skillName) == string.lower(craftName) then
+						isKnownByChar = true
+						return true	-- stop iteration
 					end
-				end
+				end)
 			end
 
 			local coloredName = DataStore:GetColoredCharacterName(character)

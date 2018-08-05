@@ -1028,7 +1028,7 @@ columns["Prof1"] = {
 			local rank, _, _, name = DataStore:GetProfession1(character)
 			local spellID = DataStore:GetProfessionSpellID(name)
 			local icon = spellID and format(TEXTURE_FONT, addon:GetSpellIcon(spellID), 18, 18) .. " " or ""
-			
+
 			return format("%s%s%s", icon, GetSkillRankColor(rank), rank)
 		end,
 	OnEnter = function(frame)

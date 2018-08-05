@@ -34,7 +34,6 @@ local function InitLocalization()
 	AltoAccountSharingText4:SetText(colors.orange.."Date")
 	AltoAccountSharing_UseNameText:SetText(L["Character"])
 	
-	AltoholicFrameTotals:SetText(L["Totals"])
 	AltoholicFrameSearchLabel:SetText(L["Search Containers"])
 	AltoholicFrame_ResetButton:SetText(L["Reset"])
 

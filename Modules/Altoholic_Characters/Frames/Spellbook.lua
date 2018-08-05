@@ -53,6 +53,9 @@ addon:Controller("AltoholicUI.SpellbookPanel", {
 		currentPage = pageNum
 		
 		local character = addon.Tabs.Characters:GetAltKey()
+
+		-- fix minimum page number
+		currentPage = (currentPage < 1) and 1 or currentPage
 		
 		if currentPage == 1 then
 			frame.PrevPage:Disable()
@@ -70,6 +73,9 @@ addon:Controller("AltoholicUI.SpellbookPanel", {
 			maxPages = 1
 		end
 		
+		-- fix maximum page number
+		currentPage = (currentPage > maxPages) and maxPages or currentPage
+		
 		if currentPage == maxPages then
 			frame.NextPage:Disable()
 		else
@@ -83,5 +89,12 @@ addon:Controller("AltoholicUI.SpellbookPanel", {
 	SetSchool = function(frame, school)
 		currentSchool = school
 		frame:SetPage(1)
+	end,
+	OnMouseWheel = function(frame, delta)
+		if (delta > 0) then
+			frame:GoToPreviousPage()
+		else
+			frame:GoToNextPage()
+		end
 	end,
 })

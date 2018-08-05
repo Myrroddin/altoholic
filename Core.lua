@@ -4,8 +4,8 @@ _G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "A
 
 local addon = _G[addonName]
 
-addon.Version = "v8.0.002"
-addon.VersionNum = 800002
+addon.Version = "v8.0.003"
+addon.VersionNum = 800003
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local commPrefix = addonName
@@ -95,6 +95,8 @@ local AddonDB_Defaults = {
 			["UI.Tabs.Characters.ViewBagsRarity"] = 0,						-- rarity level of items (not a boolean !)
 			["UI.Tabs.Characters.GarrisonMissions"] = 1,						-- available missions = 1, active missions = 2
 			["UI.Tabs.Characters.SortAscending"] = true,						-- ascending or descending sort order
+			["UI.Tabs.Characters.ViewLearnedRecipes"] = true,				-- View learned recipes ?
+			["UI.Tabs.Characters.ViewUnlearnedRecipes"] = false,			-- View unlearned recipes ?
 						
 			-- ** Search tab options **
 			["UI.Tabs.Search.ItemInfoAutoQuery"] = false,

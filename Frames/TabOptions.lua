@@ -120,6 +120,15 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "8.0.003 Changes",
+		bulletedList = {
+			"Slightly modified the 'totals' that appear at the bottom right so that it now fully belongs to the Summary tab.",
+			"Characters tab : the profession panel has been fully reworked.",
+			"Professions can now be filtered by categories, subcategories, color, inventory slot, learned/unlearned, and by their actual name.",
+			"Profession cooldowns should be ok, but I did not have enough material at hand for tangible testing. Please let me know if you notice anything weird.",
+			"Recipe tooltips like 'Could be learned by' etc.. should now be fully functioning again.",
+		},
+	},
 	{	name = "8.0.002 Changes",
 		bulletedList = {
 			"Fixed a Lua error in DataStore_Agenda.",

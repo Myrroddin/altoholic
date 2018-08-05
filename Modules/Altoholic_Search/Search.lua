@@ -734,29 +734,18 @@ local function BrowseCharacter(character)
 		if professions then
 			for professionName, profession in pairs(professions) do
 			
-				local crafts = profession.Crafts
-				
-				-- loop through categories
-				for catIndex = 1, DataStore:GetNumRecipeCategories(profession) do
-					-- loop through subcategories
-					for subCatIndex = 1, DataStore:GetNumRecipeCategorySubItems(profession, catIndex) do
-						local subCatID = DataStore:GetRecipeSubCategoryInfo(profession, catIndex, subCatIndex)
-						
-						-- loop through recipes
-						for i = 1, #crafts[subCatID] do
-							local _, spellID = DataStore:GetRecipeInfo(crafts[subCatID][i])
-							if CraftMatchFound(spellID, currentValue) then
-								ns:AddResult(	{
-									linetype = PLAYER_CRAFT_LINE,
-									char = currentResultKey,
-									professionName = professionName,
-									profession = profession,
-									spellID = spellID
-								} )
-							end
-						end
+				DataStore:IterateRecipes(profession, 0, 0, function(recipeData)
+					local _, spellID = DataStore:GetRecipeInfo(recipeData)
+					if CraftMatchFound(spellID, currentValue) then
+						ns:AddResult(	{
+							linetype = PLAYER_CRAFT_LINE,
+							char = currentResultKey,
+							professionName = professionName,
+							profession = profession,
+							spellID = spellID
+						} )
 					end
-				end
+				end)
 			end
 		end
 	end
