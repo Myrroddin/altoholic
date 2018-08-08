@@ -283,20 +283,6 @@ addon.Suggestions = {
 	},
 	
 	-- ** Secondary professions **
-	[TS.FIRSTAID] = {
-		{ 40, "bis zu 40: Leinenverbände" },
-		{ 80, "bis zu 80: Schwerer Leinenverband\nWerde Geselle mit 50" },
-		{ 115, "bis zu 115: Wollverband" },
-		{ 150, "bis zu 150: Schwerer Wollverband\nHol dir das Erste Hilfe Buch mit 125\nKaufe die 2 Rezepte in Stromgarde (A) or Brackenwall (H)" },
-		{ 180, "bis zu 180: Seidenverband" },
-		{ 210, "bis zu 210: Schwerer Seidenverband" },
-		{ 240, "bis zu 240: Magiestoffverband\nErste Hilfe Quest mit level 35 in\nTheramore (A) oder Hammerfall (H)" },
-		{ 260, "bis zu 260: Schwerer Magiestoffverband" },
-		{ 290, "bis zu 290: Runenstoffverband" },
-		{ 330, "bis zu 330: Schwerer Runenstoffverband\nKaufe das Erste Hilfe Buch für Meister\nTempel von Telhamat (A) oder Falkenwacht (H)" },
-		{ 360, "bis zu 360: Netherstoffverband\nKaufe das Buch im Tempel von Telhamat (A) oder in der Falkenwacht (H)" },
-		{ 375, "bis zu 375: Schwerer Netherstoffverband\nKaufe das Buch im Tempel von Telhamat (A) oder in der Falkenwacht (H)" }
-	},
 	[TS.COOKING] = {
 		{ 40, "bis zu 40: Gewürzbrot"	},
 		{ 85, "bis zu 85: Geräuchertes Bärenfleisch, Krebsküchlein" },

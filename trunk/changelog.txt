@@ -16,6 +16,17 @@ How to support Altoholic's development :
 - Make a gift from my amazon's wish list : http://amzn.eu/7xWdnbZ
 
 
+8.0.004 (08/08/2018)
+
+- Fixed a Lua error when mousing over a recipe in the search panel. (Thanks KaraKaori !)
+- Archaelogy is back on its feet :)
+- Quick note about fishing: Fishing now seems to be seen as a series of recipes, like the other professions, even though there are no actual recipes.
+This means you actually have to press the "Fishing Skills" button in the profession UI to get its proper level.
+- Fixed the "known by" tooltips, which did not properly left out "unlearned" recipes.
+- Removed the last occurences of first aid in a few places.
+- Fixed a Lua error when visiting merchants selling recipes.
+- The amount of gold displayed in various places is now shown with a thousands' separator.
+
 8.0.003 (05/08/2018)
 
 - Slightly modified the "totals" that appear at the bottom right so that it now fully belongs to the Summary tab.

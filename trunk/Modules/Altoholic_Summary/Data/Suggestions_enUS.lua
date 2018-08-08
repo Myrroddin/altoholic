@@ -410,24 +410,6 @@ addon.Suggestions = {
 	},
 	
 	-- ** Secondary professions **
-	[TS.FIRSTAID] = {
-		{ 40, "Up to 40: Linen Bandages" },
-		{ 80, "Up to 80: Heavy Linen Bandages\nBecome Journeyman at 50" },
-		{ 115, "Up to 115: Wool Bandages" },
-		{ 150, "Up to 150: Heavy Wool Bandages" },
-		{ 180, "Up to 180: Silk Bandages" },
-		{ 210, "Up to 210: Heavy Silk Bandages" },
-		{ 240, "Up to 240: Mageweave Bandages" },
-		{ 260, "Up to 260: Heavy Mageweave Bandages" },
-		{ 290, "Up to 290: Runecloth Bandages" },
-		{ 330, "Up to 330: Heavy Runecloth Bandages" },
-		{ 360, "Up to 360: Netherweave Bandages" },
-		{ 375, "Up to 375: Heavy Netherweave Bandages" },
-		{ 400, "Up to 400: Frostweave Bandages" },
-		{ 425, "Up to 425: Heavy Frostweave Bandages" },
-		{ 475, "Up to 475: Embersilk Bandages" },
-		{ 525, "Up to 525: Heavy Embersilk Bandages" },
-	},
 	[TS.COOKING] = {
 		{ 40, "Up to 40: Spice Bread"	},
 		{ 85, "Up to 85: Smoked Bear Meat, Crab Cake" },

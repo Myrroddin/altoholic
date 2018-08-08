@@ -384,24 +384,6 @@ addon.Suggestions = {
 	},
 
 	-- ** Secondary professions **
-	[TS.FIRSTAID] = {
-		{ 40, "Atteindre 40: Bandages en lin" },
-		{ 80, "Atteindre 80: Bandage \195\169pais en lin\nDevenir compagnon \195\160 50" },
-		{ 115, "Atteindre 115: Bandages en laine" },
-		{ 150, "Atteindre 150: Bandages \195\169pais en laine\nObtenir le manuel de secourisme expert \195\160 125\nAcheter le manuel \195\160 Stormgarde (A) ou \195\160 Mur-de-foug\195\168res (H)" },
-		{ 180, "Atteindre 180: Bandage en soie" },
-		{ 210, "Atteindre 210: Bandage \195\169pais en soie" },
-		{ 240, "Atteindre 240: Bandages en tisse-mage\nQu\195\170te de secourisme au niveau 35\nIle de Theramore (A) ou Tr\195\169pas d'Orgrim (H)" },
-		{ 260, "Atteindre 260: Bandage \195\169pais en tisse-mage\nValider niveau suivant au donneur de qu\195\170te secourisme" },
-		{ 290, "Atteindre 290: Bandage en \195\169toffe runique\nValider niveau suivant au donneur de qu\195\170te secourisme" },
------------     OUTRETERRE
-		{ 330, "Atteindre 330: Bandage \195\169pais en \195\169toffe runique\nAcheter le manuel de maitre en secourisme\nTemple de Telhamat (A) Guet de l'\195\169pervier (H)" },
-		{ 360, "Atteindre 360: Bandage en tisse-n\195\169ant\nAcheter le manuel au Temple de Telhamat (A) ou au Guet de l'\195\169pervier (H)" },
-		{ 375, "Atteindre 375: Bandage \195\169pais en tisse-n\195\169ant\nAcheter le manuel au Temple de Telhamat (A) ou au Guet de l'\195\169pervier (H)" },
------------     NORFENDRE
-		{ 400, "Atteindre 400: Bandage en tisse-givre\nValider niveau suivant au donneur de qu\195\170te secourisme" },
-		{ 450, "Atteindre 450: Bandage \195\169pais en tisse-givre\nLe manuel est un butin mondial est n\195\169c\195\169ssite d'\195\170tre au moins 390\nCertains conseillent les trolls de Zul'drak pour le trouver" }
-	},
 	[TS.COOKING] = {
 		{ 40, "Atteindre 40: Pain \195\169pic\195\169" },
 		{ 85, "Atteindre 85: Viande d'ours fum\195\169e, Beignet de crabe" },
