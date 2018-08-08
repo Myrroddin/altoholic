@@ -63,14 +63,13 @@ local function HideAll()
 	AltoholicTabCharacters.Talents:Hide()
 	AltoholicTabCharacters.Spellbook:Hide()
 	AltoholicTabCharacters.GarrisonMissions:Hide()
+	AltoholicTabCharacters.Recipes:Hide()
 	
 	AltoholicFrameContainers:Hide()
 
 	AltoholicFrameMail:Hide()
 	AltoholicFramePets:Hide()
 	AltoholicFrameAuctions:Hide()
-	-- AltoholicFrameRecipes:Hide()
-	AltoholicTabCharacters.Recipes:Hide()
 end
 
 local function EnableIcon(frame)

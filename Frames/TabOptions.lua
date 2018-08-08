@@ -120,6 +120,18 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "8.0.004 Changes",
+		bulletedList = {
+			"Fixed a Lua error when mousing over a recipe in the search panel. (Thanks KaraKaori !)",
+			"Archaelogy is back on its feet :)",
+			"Quick note about fishing: Fishing now seems to be seen as a series of recipes, like the other professions, even though there are no actual recipes.",
+			"This means you actually have to press the 'Fishing Skills' button in the profession UI to get its proper level.",
+			"Fixed the 'known by' tooltips, which did not properly left out 'unlearned' recipes.",
+			"Removed the last occurences of first aid in a few places.",
+			"Fixed a Lua error when visiting merchants selling recipes.",
+			"The amount of gold displayed in various places is now shown with a thousands' separator.",
+		},
+	},
 	{	name = "8.0.003 Changes",
 		bulletedList = {
 			"Slightly modified the 'totals' that appear at the bottom right so that it now fully belongs to the Summary tab.",

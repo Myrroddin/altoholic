@@ -140,20 +140,14 @@ local function AddRealm(AccountName, RealmName)
 				if rank == 0 then
 					shouldAddCharacter = false 
 				end
-				
-			elseif tradeskill == firstSecondary+1 then
-				local rank = DataStore:GetFirstAidRank(character) or 0
-				if rank == 0 then
-					shouldAddCharacter = false 
-				end
 
-			elseif tradeskill == firstSecondary+2 then
+			elseif tradeskill == firstSecondary+1 then
 				local rank = DataStore:GetFishingRank(character) or 0
 				if rank == 0 then
 					shouldAddCharacter = false 
 				end
 
-			elseif tradeskill == firstSecondary+3 then
+			elseif tradeskill == firstSecondary+2 then
 				local rank = DataStore:GetArchaeologyRank(character) or 0
 				if rank == 0 then
 					shouldAddCharacter = false 
@@ -213,9 +207,9 @@ local function BuildList()
 	realmCount = 0 -- will be required for sorting purposes
 	ProcessRealms(AddRealm)
 
-	local levels = format("%s%s |rLv", colors.white, totalLevels)
-	local gold = format(GOLD_AMOUNT_TEXTURE, floor( totalMoney / 10000 ), 13, 13)
-	local played = format("%d%sd", floor(totalPlayed / 86400), colors.gold)
+	local levels = format("%s%s |rLv", colors.white, BreakUpLargeNumbers(totalLevels))
+	local gold = format(GOLD_AMOUNT_TEXTURE_STRING, BreakUpLargeNumbers(floor( totalMoney / 10000 )), 13, 13)
+	local played = format("%s%sd", BreakUpLargeNumbers(floor(totalPlayed / 86400)), colors.gold)
 	
 	AltoholicTabSummary.Totals:SetText(format("%s: %s%s / %s%s / %s", L["Totals"], levels, colors.white, gold, colors.white, played))
 end

@@ -371,20 +371,6 @@ addon.Suggestions = {
 	},
 	
 	-- ** Secondary professions **
-	[TS.FIRSTAID] = {
-		{ 40, "До 40: Linen Bandages" },
-		{ 80, "До 80: Heavy Linen Bandages\nBecome Journeyman at 50" },
-		{ 115, "До 115: Wool Bandages" },
-		{ 150, "До 150: Heavy Wool Bandages\nGet Expert First Aid book at 125\nBuy the 2 manuals in Stromguarde (A) or Brackenwall Village (H)" },
-		{ 180, "До 180: Silk Bandages" },
-		{ 210, "До 210: Heavy Silk Bandages" },
-		{ 240, "До 240: Mageweave Bandages\nFirst Aid quest at level 35\nTheramore Isle (A) or Hammerfall (H)" },
-		{ 260, "До 260: Heavy Mageweave Bandages" },
-		{ 290, "До 290: Runecloth Bandages" },
-		{ 330, "До 330: Heavy Runecloth Bandages\nBuy Master First Aid book\nTemple of Telhamat (A) or Falcon Watch (H)" },
-		{ 360, "До 360: Netherweave Bandages\nBuy the book in the Temple of Telhamat (A) or in Falcon Watch (H)" },
-		{ 375, "До 375: Heavy Netherweave Bandages\nBuy the book in the Temple of Telhamat (A) or in Falcon Watch (H)" }
-	},
 	[TS.COOKING] = {
 		{ 40, "До 40: Хлеб с пряностями"	},
 		{ 85, "До 85: Копченая медвежатина, Пирожок с мясом краба" },

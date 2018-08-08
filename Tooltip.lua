@@ -411,10 +411,10 @@ function addon:GetRecipeOwners(professionName, link, recipeLevel)
 				isKnownByChar = DataStore:IsCraftKnown(profession, spellID)
 			else
 				DataStore:IterateRecipes(profession, 0, 0, function(recipeData)
-					local _, recipeID = DataStore:GetRecipeInfo(recipeData)
+					local _, recipeID, isLearned = DataStore:GetRecipeInfo(recipeData)
 					local skillName = GetSpellInfo(recipeID) or ""
 
-					if string.lower(skillName) == string.lower(craftName) then
+					if string.lower(skillName) == string.lower(craftName) and isLearned then
 						isKnownByChar = true
 						return true	-- stop iteration
 					end

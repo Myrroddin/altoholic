@@ -211,7 +211,9 @@ local RealmScrollFrame_Desc = {
 				end,
 			GetItemInfo = function(self, result)
 					-- return the itemID
-					return DataStore:GetCraftResultItem(result.spellID)
+					local itemID = DataStore:GetCraftResultItem(result.spellID)
+					-- do not make a direct return of the result					
+					return itemID
 				end,
 		},
 		[GUILD_CRAFT_LINE] = {
@@ -239,7 +241,9 @@ local RealmScrollFrame_Desc = {
 					return GetRealmName(), THIS_ACCOUNT, UnitFactionGroup("player")
 				end,
 			GetItemInfo = function(self, result)
-					return DataStore:GetCraftResultItem(result.spellID)
+					local itemID = DataStore:GetCraftResultItem(result.spellID)
+					-- do not make a direct return of the result					
+					return itemID
 				end,
 		},
 	}
@@ -735,8 +739,8 @@ local function BrowseCharacter(character)
 			for professionName, profession in pairs(professions) do
 			
 				DataStore:IterateRecipes(profession, 0, 0, function(recipeData)
-					local _, spellID = DataStore:GetRecipeInfo(recipeData)
-					if CraftMatchFound(spellID, currentValue) then
+					local _, spellID, isLearned = DataStore:GetRecipeInfo(recipeData)
+					if isLearned and CraftMatchFound(spellID, currentValue) then
 						ns:AddResult(	{
 							linetype = PLAYER_CRAFT_LINE,
 							char = currentResultKey,

@@ -4,8 +4,8 @@ _G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "A
 
 local addon = _G[addonName]
 
-addon.Version = "v8.0.003"
-addon.VersionNum = 800003
+addon.Version = "v8.0.004"
+addon.VersionNum = 800004
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local commPrefix = addonName
@@ -327,10 +327,10 @@ end
 addon.TradeSkills = {
 	Recipes = {},
 	-- spell IDs in alphabetical order (english), primary then secondary
-	spellIDs = { 2259, 3100, 7411, 4036, 45357, 25229, 2108, 2656, 3908, 2550, 3273 },
+	spellIDs = { 2259, 3100, 7411, 4036, 45357, 25229, 2108, 2656, 3908, 2550 },
 	firstSecondarySkillIndex = 10, -- index of the first secondary profession in the table
 	
-	AccountSummaryFiltersSpellIDs = { 2259, 3100, 7411, 4036, 2366, 45357, 25229, 2108, 2575, 8613, 3908, 2550, 3273, 131474, 78670 },
+	AccountSummaryFiltersSpellIDs = { 2259, 3100, 7411, 4036, 2366, 45357, 25229, 2108, 2575, 8613, 3908, 2550, 131474, 78670 },
 	AccountSummaryFirstSecondarySkillIndex = 12, -- index of the first secondary profession in the table
 		
 	Names = {
@@ -340,7 +340,6 @@ addon.TradeSkills = {
 		COOKING = GetSpellInfo(2550),
 		ENCHANTING = GetSpellInfo(7411),
 		ENGINEERING = GetSpellInfo(4036),
-		FIRSTAID = GetSpellInfo(3273),
 		FISHING = GetSpellInfo(131474),
 		HERBALISM = GetSpellInfo(2366),
 		INSCRIPTION = GetSpellInfo(45357),
