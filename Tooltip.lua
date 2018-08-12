@@ -342,12 +342,18 @@ local function GetItemCount(searchedID)
 	else
 		count = GetAccountItemCount(THIS_ACCOUNT, searchedID)
 	end
-		
+	
+	local showCrossFaction = addon:GetOption("UI.Tooltip.ShowCrossFactionCount")
+	
 	if addon:GetOption("UI.Tooltip.ShowGuildBankCount") then
 		for _, realm in pairs(GetRealmsList()) do
 			for guildName, guildKey in pairs(DataStore:GetGuilds(realm)) do
 				local altoGuild = addon:GetGuild(guildName)
-				if not altoGuild or (altoGuild and not altoGuild.hideInTooltip) then
+				local bankFaction = DataStore:GetGuildBankFaction(guildKey)
+								
+				-- do not show cross faction counters for guild banks if they were not requested
+				if (showCrossFaction or (not showCrossFaction and (DataStore:GetGuildBankFaction(guildKey) == UnitFactionGroup("player")))) 
+					and (not altoGuild or (altoGuild and not altoGuild.hideInTooltip)) then
 					local guildCount = 0
 					
 					if addon:GetOption("UI.Tooltip.ShowGuildBankCountPerTab") then

@@ -40,23 +40,6 @@ local VIEW_GARRISONS = 10
 
 local TEXTURE_FONT = "|T%s:%s:%s|t"
 
--- http://www.wowhead.com/currency=1171/artifact-knowledge
-local artifactXPGain = { 
-	25,50,90,140,200,
-	275,375,500,650,850,
-	1100,1400,1775,2250,2850,
-	3600,4550,5700,7200,9000,
-	11300,14200,17800,22300,24900, 
-	100000,130000,170000,220000,290000,
-	380000,490000,640000,830000,1080000,
-	1400000,1820000,2370000,3080000,4000000,
-	16000000, 20800000, 27040000, 35150000, 45700000,
-	59400000, 77250000, 100400000, 130500000, 169650000,
-	220550000,286750000,372750000, 484600000, 630000000
-	-- 5200000,6760000,8790000,11430000,14860000,
-	-- 19320000,25120000,32660000,42460000,55200000 
-}
-
 addon.Summary = {}
 
 local ns = addon.Summary		-- ns = namespace
@@ -98,36 +81,6 @@ end
 
 local function FormatBagSlots(size, free)
 	return format(L["NUM_SLOTS_AND_FREE"], colors.cyan, size, colors.white, colors.green, free, colors.white)
-end
-
-local function FormatRankPoints(rank, tier)
-	local points = C_ArtifactUI.GetCostForPointAtRank(rank, tier)
-	if rank == 1 then
-		return format("%s%s: %s%d", colors.white, rank, colors.green, points)
-	end
-	
-	local pointsPreviousLevel = C_ArtifactUI.GetCostForPointAtRank(rank-1, tier)
-	local percentage = ((points / pointsPreviousLevel) - 1) * 100
-	
-	if points >= 2000000000 then	-- rank 56 is 1.9 B
-		return format("%s%s: %s%2.1f B %s+%2.0f%%", colors.white, rank, colors.green, points/1000000000, colors.yellow, percentage)
-	elseif points >= 2000000 then	-- rank 35 is 1.915.000, still want to show it fully
-		return format("%s%s: %s%d M %s+%2.0f%%", colors.white, rank, colors.green, points/1000000, colors.yellow, percentage)
-	else
-		return format("%s%s: %s%d %s+%2.1f%%", colors.white, rank, colors.green, points, colors.yellow, percentage)
-	end
-end
-
-local function FormatXPGain(level)
-	local gain = artifactXPGain[level]
-
-	if gain >= 4000000 then
-		return format("%2.1f M", gain/1000000)
-		-- return gain
-	elseif gain >= 100000 then		-- still want to show 24.900 and below as plain values
-		return format("%d k", gain/1000)
-	end
-	return gain
 end
 
 local function FormatAiL(level)
@@ -485,8 +438,8 @@ columns["Name"] = {
 	GetText = function(character) 
 			local name = DataStore:GetColoredCharacterName(character)
 			local class = DataStore:GetCharacterClass(character)
-			local icon = icons[DataStore:GetCharacterFaction(character)]
-			
+			local icon = icons[DataStore:GetCharacterFaction(character)] or "Interface/Icons/INV_BannerPVP_03"
+
 			return format("%s %s (%s)", format(TEXTURE_FONT, icon, 18, 18), name, class)
 		end,
 	OnEnter = function(frame)
@@ -1028,7 +981,7 @@ columns["Prof1"] = {
 			local rank, _, _, name = DataStore:GetProfession1(character)
 			local spellID = DataStore:GetProfessionSpellID(name)
 			local icon = spellID and format(TEXTURE_FONT, addon:GetSpellIcon(spellID), 18, 18) .. " " or ""
-
+			
 			return format("%s%s%s", icon, GetSkillRankColor(rank), rank)
 		end,
 	OnEnter = function(frame)
@@ -1882,6 +1835,7 @@ local modes = {
 	[MODE_SUMMARY] = { "Name", "Level", "RestXP", "Money", "Played", "AiL", "LastOnline" },
 	[MODE_BAGS] = { "Name", "Level", "BagSlots", "FreeBagSlots", "BankSlots", "FreeBankSlots" },
 	[MODE_SKILLS] = { "Name", "Level", "Prof1", "Prof2", "ProfCooking", "ProfFishing", "ProfArchaeology" },
+	-- [MODE_SKILLS] = { "Name", "Level", "ProfCooking", "ProfFishing", "ProfArchaeology" },
 	[MODE_ACTIVITY] = { "Name", "Level", "Mails", "LastMailCheck", "Auctions", "Bids", "AHLastVisit", "MissionTableLastVisit" },
 	[MODE_CURRENCIES] = { "Name", "Level", "CurrencyGarrison", "CurrencyNethershard", "CurrencyWarSupplies", "CurrencySOBF", "CurrencyOrderHall" },
 	[MODE_FOLLOWERS] = { "Name", "Level", "FollowersLV100", "FollowersEpic", "FollowersLV630", "FollowersLV660", "FollowersLV675", "FollowersItems" },
@@ -1998,26 +1952,12 @@ function addon:AiLTooltip()
 	local tt = AltoTooltip
 	
 	tt:AddLine(" ")
-	tt:AddDoubleLine(format("%s%s", colors.teal, EXPANSION_NAME0), FormatAiL("60-92"))
-	tt:AddDoubleLine(format("%s%s", colors.teal, EXPANSION_NAME1), FormatAiL("115-154"))
-	tt:AddDoubleLine(format("%s%s", colors.teal, EXPANSION_NAME2), FormatAiL("200-284"))
-	tt:AddDoubleLine(format("%s%s", colors.teal, EXPANSION_NAME3), FormatAiL("333-372"))
-	tt:AddDoubleLine(format("%s%s", colors.teal, EXPANSION_NAME4), FormatAiL("358-530"))
-	tt:AddDoubleLine(format("%s%s", colors.teal, EXPANSION_NAME5), FormatAiL("550-720+"))
-	tt:AddDoubleLine(format("%s%s", colors.teal, EXPANSION_NAME6), FormatAiL("805-940+"))
-	
-	-- tt:AddLine(colors.teal .. L["Level"] .. " 90",1,1,1);
-	-- tt:AddDoubleLine(colors.yellow .. "358", format("%s%s: %s", colors.white, CALENDAR_TYPE_DUNGEON, PLAYER_DIFFICULTY1))
-	-- tt:AddDoubleLine(colors.yellow .. "425", format("%s%s: %s", colors.white, GUILD_CHALLENGE_TYPE4, PLAYER_DIFFICULTY1))
-	-- tt:AddDoubleLine(colors.yellow .. "435", format("%s%s: %s", colors.white, CALENDAR_TYPE_DUNGEON, PLAYER_DIFFICULTY2))
-	-- tt:AddDoubleLine(colors.yellow .. "480", format("%s%s: %s", colors.white, GUILD_CHALLENGE_TYPE4, PLAYER_DIFFICULTY2))
-	-- tt:AddLine(" ");
-	-- tt:AddDoubleLine(colors.yellow .. "460", format("%s%s: %s", colors.white, GetMapNameByID(896), PLAYER_DIFFICULTY3))	-- "Mogu'shan Vaults"
-	-- tt:AddDoubleLine(colors.yellow .. "470", format("%s%s: %s", colors.white, GetMapNameByID(897), PLAYER_DIFFICULTY3))	-- "Heart of Fear"
-	-- tt:AddDoubleLine(colors.yellow .. "470", format("%s%s: %s", colors.white, GetMapNameByID(886), PLAYER_DIFFICULTY3))	-- "Terrace of Endless Spring"
-	-- tt:AddDoubleLine(colors.yellow .. "480", format("%s%s: %s", colors.white, GetMapNameByID(930), PLAYER_DIFFICULTY3))	-- "Throne of Thunder"
-	-- tt:AddDoubleLine(colors.yellow .. "496", format("%s%s: %s", colors.white, GetMapNameByID(953), PLAYER_DIFFICULTY3))	-- "Siege of Ogrimmar"
-	-- tt:AddDoubleLine(colors.yellow .. "510", format("%s%s: %s", colors.white, GetMapNameByID(953), "10"))
-	-- tt:AddDoubleLine(colors.yellow .. "520", format("%s%s: %s", colors.white, GetMapNameByID(953), PLAYER_DIFFICULTY4))
-	-- tt:AddDoubleLine(colors.yellow .. "530", format("%s%s: %s", colors.white, GetMapNameByID(953), "25"))
+	tt:AddDoubleLine(format("%s%s", colors.teal, EXPANSION_NAME0), FormatAiL("1-62"))
+	tt:AddDoubleLine(format("%s%s", colors.teal, EXPANSION_NAME1), FormatAiL("63-94"))
+	tt:AddDoubleLine(format("%s%s", colors.teal, EXPANSION_NAME2), FormatAiL("95-102"))
+	tt:AddDoubleLine(format("%s%s", colors.teal, EXPANSION_NAME3), FormatAiL("103-114"))
+	tt:AddDoubleLine(format("%s%s", colors.teal, EXPANSION_NAME4), FormatAiL("115-130"))
+	tt:AddDoubleLine(format("%s%s", colors.teal, EXPANSION_NAME5), FormatAiL("131-149"))
+	tt:AddDoubleLine(format("%s%s", colors.teal, EXPANSION_NAME6), FormatAiL("150-265"))
+	tt:AddDoubleLine(format("%s%s", colors.teal, EXPANSION_NAME7), FormatAiL("266+"))
 end
