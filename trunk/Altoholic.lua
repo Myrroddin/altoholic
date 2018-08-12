@@ -133,8 +133,8 @@ SendMailNameEditBox:SetScript("OnChar", function(self, ...)
 		for characterName, character in pairs(DataStore:GetCharacters()) do
 			if DataStore:GetCharacterFaction(character) == currentFaction then
 				if ( strfind(strupper(characterName), strupper(text), 1, 1) == 1 ) then
-					--SendMailNameEditBox:SetText(characterName)
-					SendMailNameEditBox:SetText(format("%s-%s", characterName, GetRealmName()))
+					-- SendMailNameEditBox:SetText(format("%s-%s", characterName, GetRealmName()))
+					SendMailNameEditBox:SetText(characterName)
 					SendMailNameEditBox:HighlightText(textlen, -1)
 					return;
 				end
@@ -623,7 +623,7 @@ function addon:ListCharsOnQuest(questName, player, tooltip)
 	if not questName then return nil end
 
 	local charsOnQuest = DataStore:GetCharactersOnQuest(questName, player)
-	if #charsOnQuest > 0 then
+	if charsOnQuest and #charsOnQuest > 0 then
 		tooltip:AddLine(" ",1,1,1)
 		tooltip:AddLine(format("%s%s", colors.green, L["Are also on this quest:"]))
 		

@@ -120,6 +120,20 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "8.0.005 Changes",
+		bulletedList = {
+			"Closed a lot of bugs from the Curse issues list, and implemented a lot of smaller fixes (thanks to all who contributed !).",
+			"Fixed guild bank counters being displayed in the tooltip for guild banks from other factions, when the options were set not to display them. (Thanks Leo!)",
+			"Reorganized several achievement categories (Thanks AlexSUCF !!)",
+			"Added Legion Fishing Masters reputations (Thanks AlexSUCF !!)",
+			"Search tab: Character level edit boxes now accept 3-digit values (Thanks AlexSUCF !!)",
+			"Fixed scanning of transmog sets (Thanks AlexSUCF !!)",
+			"Fixed several smaller issues (Thanks AlexSUCF !!)",
+			"DataStore_Agenda: fixed calendar scanning of events with an invalid 'calendar type'. This fixes the spam of events you were maybe getting at logon. Just open your calendar on the affected alts, and you will be fine.",
+			"Added support for paragon reputation levels (Thanks all4atlantis !!)",
+			"Fixed the auto-completion of alt's names on the same realm, this should fix the 'This character might be someone you don't know.' problem.",
+		},
+	},
 	{	name = "8.0.004 Changes",
 		bulletedList = {
 			"Fixed a Lua error when mousing over a recipe in the search panel. (Thanks KaraKaori !)",
