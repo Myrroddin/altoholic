@@ -815,6 +815,12 @@ local function GarrisonIcon_Initialize(self, level)
 				3, OnGarrisonMenuChange, nil, (currentMenu == 3))
 	DDM_Add(format(GARRISON_LANDING_IN_PROGRESS, DataStore:GetNumActiveMissions(currentCharacterKey, LE_FOLLOWER_TYPE_GARRISON_7_0)), 
 				4, OnGarrisonMenuChange, nil, (currentMenu == 4))
+	DDM_AddTitle(" ")
+	DDM_AddTitle(WAR_CAMPAIGN)
+	DDM_Add(format(GARRISON_LANDING_AVAILABLE, DataStore:GetNumAvailableMissions(currentCharacterKey, LE_FOLLOWER_TYPE_GARRISON_8_0)), 
+				5, OnGarrisonMenuChange, nil, (currentMenu == 5))
+	DDM_Add(format(GARRISON_LANDING_IN_PROGRESS, DataStore:GetNumActiveMissions(currentCharacterKey, LE_FOLLOWER_TYPE_GARRISON_8_0)), 
+				6, OnGarrisonMenuChange, nil, (currentMenu == 6))
 	
 	DDM_AddCloseMenu()
 end
