@@ -16,6 +16,12 @@ How to support Altoholic's development :
 - Make a gift from my amazon's wish list : http://amzn.eu/7xWdnbZ
 
 
+8.0.006 (xx/08/2018)
+
+- Restored the emissaries panel.
+- Fixed the "All levels" filter in the account summary being limited to 110.
+- Added support for War Campaign Missions.
+
 8.0.005 (12/08/2018)
 
 - Closed a lot of bugs from the Curse issues list, and implemented a lot of smaller fixes (thanks to all who contributed !).
