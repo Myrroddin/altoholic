@@ -269,6 +269,8 @@ local Factions = {
 			name = OTHER,
 			{ name = DataStore:GetFactionName(2400), icon = "inv_faction_akoan" },
 			{ name = DataStore:GetFactionName(2391), icon = "inv_mechagon_junkyardtinkeringcrafting" },
+			{ name = DataStore:GetFactionName(2415), icon = "inv_faction_83_rajani" },
+			{ name = DataStore:GetFactionName(2417), icon = "inv_faction_83_uldumaccord" },
 		},
 	},
 	{	-- [8]

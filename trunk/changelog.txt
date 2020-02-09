@@ -17,6 +17,11 @@ How to support Altoholic's development :
 
 If you like the addon, consider supporting it, this has been the long term effort and commitment of a single person. #ArmyOfOne
 
+8.3.001 (9/02/2020)
+
+- Fixed the issues related to the new Auction House
+- Added new factions.
+
 8.2.001 (29/06/2019)
 
 - Minor fixes.

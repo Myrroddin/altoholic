@@ -1,4 +1,4 @@
-﻿## Interface: 80200
+﻿## Interface: 80300
 ## Title: Altoholic_Search
 ## Notes: Altoholic's Search UI
 ## Author: Thaoky (EU-Marécages de Zangar)
