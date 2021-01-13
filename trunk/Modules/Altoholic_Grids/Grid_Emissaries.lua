@@ -33,16 +33,19 @@ local function BuildView()
 	for _, character in pairs(DataStore:GetCharacters(realm, account)) do	-- all alts on this realm
 		for questID, _ in pairs(DataStore:GetEmissaryQuests()) do
 			local isOnQuest, questLogIndex = DataStore:IsCharacterOnQuest(character, questID)
-			local _, _, timeLeft = DataStore:GetEmissaryQuestInfo(character, questID)
-			
+			local _, _, timeLeft, _, _, expansionLevel = DataStore:GetEmissaryQuestInfo(character, questID)
+
 			if isOnQuest and timeLeft and timeLeft > 0 then
-				local questName = DataStore:GetQuestLogInfo(character, questLogIndex)
+				-- 2021-01-10 : Callings injected as emissaries will cause the player not yet to be "on the quest"
+				-- Param 3 : questID important if it is a calling, not used otherwise
+				local questName = DataStore:GetQuestLogInfo(character, questLogIndex, questID)
 
 				if not questList[questID] then
 					questList[questID] = {}
 					questList[questID].title = questName
 					questList[questID].timeLeft = timeLeft
 					questList[questID].completionStatus = {}
+					questList[questID].expansionLevel = expansionLevel
 				end				
 
 				questList[questID].completionStatus[character] = QUEST_IN_PROGRESS
@@ -76,9 +79,13 @@ local callbacks = {
 		end,
 	GetSize = function() return #view end,
 	RowSetup = function(self, rowFrame, dataRowID)
-			local name = questList[ view[dataRowID] ].title
+			local quest = questList[ view[dataRowID] ]
+			local level = quest.expansionLevel
+			local name = quest.title
+
 			if name then
-				rowFrame.Name.Text:SetText(format("%s%s", colors.white, name))
+				rowFrame.Name.Text:SetText(format("%s%s\n%s", colors.white, name, 
+					format("%s[%s%s.0%s] %s%s", colors.white, colors.green, level+1, colors.white, colors.gold, _G["EXPANSION_NAME" .. level])))
 				rowFrame.Name.Text:SetJustifyH("LEFT")
 			end
 		end,

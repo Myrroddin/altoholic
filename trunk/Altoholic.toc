@@ -1,4 +1,4 @@
-﻿## Interface: 80300
+﻿## Interface: 90002
 ## Title: Altoholic by |cFF69CCF0Thaoky|r
 ## Title-zhCN: |cffeedd99 [物品] |r: 全角色统计 Altoholic
 
