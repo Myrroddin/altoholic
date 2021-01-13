@@ -231,6 +231,7 @@ local Factions = {
 			{ name = DataStore:GetFactionName(2045), icon = "achievement_faction_legionfall" },			-- Armies of Legionfall
 			{ name = DataStore:GetFactionName(2165), icon = "achievement_admiral_of_the_light" },			-- Army of the Light
 			{ name = DataStore:GetFactionName(2170), icon = "achievement_master_of_argussian_reach" },			-- Argussian Reach
+			{ name = DataStore:GetFactionName(2135), icon = "achievement_reputation_wyrmresttemple" },          -- Chromie
 		},		
 		{ -- [2]
 			name = L["Fishing Masters"],
@@ -267,13 +268,28 @@ local Factions = {
 		},
 		{	-- [3]
 			name = OTHER,
-			{ name = DataStore:GetFactionName(2400), icon = "inv_faction_akoan" },
+			{ name = DataStore:GetFactionName(2164), icon = "Inv_tabard_championsofazeroth" },
+			{ name = DataStore:GetFactionName(2163), icon = "Inv_tabard_tortollanseekers" },
 			{ name = DataStore:GetFactionName(2391), icon = "inv_mechagon_junkyardtinkeringcrafting" },
 			{ name = DataStore:GetFactionName(2415), icon = "inv_faction_83_rajani" },
 			{ name = DataStore:GetFactionName(2417), icon = "inv_faction_83_uldumaccord" },
 		},
 	},
-	{	-- [8]
+	{ -- [9]
+		name = EXPANSION_NAME8, -- "Shadowlands"
+		{	-- [1]
+			name = OTHER,
+			{ name = DataStore:GetFactionName(2413), icon = "inv_tabard_revendreth_d_01" },         -- Court of Harvesters
+			{ name = DataStore:GetFactionName(2464), icon = "inv_ardenwealdstagmount_white" },      -- Court of Night
+			--{ name = DataStore:GetFactionName(2463), icon = "inv_mothardenwealdmount_mint"},        -- Marasimus                   [uncomment if this is ever fixed]
+			{ name = DataStore:GetFactionName(2407), icon = "inv_tabard_bastion_d_01" },            -- The Ascended
+			{ name = DataStore:GetFactionName(2439), icon = "inv_deathwargmountpurple" },           -- The Avowed
+			{ name = DataStore:GetFactionName(2410), icon = "inv_tabard_maldraxxus_d_01" },         -- The Undying Army
+			{ name = DataStore:GetFactionName(2465), icon = "inv_tabard_ardenweald_d_01" },         -- The Wild Hunt
+			{ name = DataStore:GetFactionName(2432), icon = "inv_helm_cloth_oribosdungeon_c_01" },  -- Ve'nari
+		},
+	},
+	{	-- [10]
 		name = GUILD,
 		{	-- [1]
 			name = GUILD,

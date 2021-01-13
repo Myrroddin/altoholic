@@ -1,6 +1,8 @@
 local addonName = "Altoholic"
 local addon = _G[addonName]
 
+local OPTION_FORMAT = "Tabs.%s.%s.%s.Column%d"
+
 addon:Controller("AltoholicUI.ClassIconsContainer", {
 	OnBind = function(frame)
 		local prefix = frame.iconPrefix
@@ -20,30 +22,37 @@ addon:Controller("AltoholicUI.ClassIconsContainer", {
 			frame[prefix..i] = button
 		end	
 	end,
-	Update = function(frame, account, realm)
+	SetIDs = function(frame, page)
+		for i = 1, frame.numIcons do
+			local index = ((page - 1) * 12) + i		-- Pages = 1-12, 13-24, etc..
+			
+			frame[frame.iconPrefix..i]:SetID(index)
+		end		
+	end,
+	Update = function(frame, account, realm, page)
+		frame:SetIDs(page)
+	
 		local tabName = frame.tabName
 		local numIcons = frame.numIcons
 		
-		local key = addon:GetOption(format("Tabs.%s.%s.%s.Column1", tabName, account, realm))
+		local key = addon:GetOption(format(OPTION_FORMAT, tabName, account, realm, 1))
 		if not key then	-- first time this realm is displayed, or reset by player
 		
 			local index = 1
 
+			-- Clear all options for this tab, for all pages
+			addon:ClearOptions(format("Tabs.%s.%s.%s.Column", tabName, account, realm))
+			
 			-- add the first 11 keys found on this realm
 			for characterName, characterKey in pairs(DataStore:GetCharacters(realm, account)) do	
 				-- ex: : ["Tabs.Grids.Default.MyRealm.Column4"] = "Account.realm.alt7"
 
-				addon:SetOption(format("Tabs.%s.%s.%s.Column%d", tabName, account, realm, index), characterKey)
+				addon:SetOption(format(OPTION_FORMAT, tabName, account, realm, index), characterKey)
 				
 				index = index + 1
 				if index > numIcons then
 					break
 				end
-			end
-			
-			while index <= numIcons do
-				addon:SetOption(format("Tabs.%s.%s.%s.Column%d", tabName, account, realm, index), nil)
-				index = index + 1
 			end
 		end
 
@@ -51,7 +60,9 @@ addon:Controller("AltoholicUI.ClassIconsContainer", {
 		for i = 1, numIcons do
 			local class, faction, _
 			
-			key = addon:GetOption(format("Tabs.%s.%s.%s.Column%d", tabName, account, realm, i))
+			local index = ((page - 1) * 12) + i		-- Pages = 1-12, 13-24, etc..
+			
+			key = addon:GetOption(format(OPTION_FORMAT, tabName, account, realm, index))
 			if key then
 				_, class = DataStore:GetCharacterClass(key)
 				faction = DataStore:GetCharacterFaction(key)

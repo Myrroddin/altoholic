@@ -148,6 +148,18 @@ L["COLUMN_ARTIFACT_RESEARCH_SUBTITLE"] = "Time until the next note is ready"
 L["COLUMN_ARTIFACT_RESEARCH_DETAIL_1"] = "At least one note is ready for pickup"
 L["COLUMN_ARTIFACT_RESEARCH_DETAIL_2"] = "All notes are ready for pickup"
 
+-- *** Tab Summary / Covenant ***
+
+L["COLUMN_COVENANT_SUBTITLE"] = "Click to view your soulbinds"
+L["COLUMN_COVENANT_TITLE"] = "Chosen Covenant"
+L["COLUMN_COVENANT_TITLE_SHORT"] = "Covenant"
+
+L["COLUMN_SOULBIND_SUBTITLE"] = "Click to view your soulbinds"
+L["COLUMN_SOULBIND_TITLE"] = "Active Soulbind"
+L["COLUMN_SOULBIND_TITLE_SHORT"] = "Soulbind"
+
+L["COLUMN_RENOWN_SUBTITLE"] = "Click to view your renown level and rewards"
+L["COLUMN_RENOWN_TITLE"] = "Renown Level"
 
 -- *************************
 -- *** Tab Characters

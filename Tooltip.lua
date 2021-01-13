@@ -651,14 +651,14 @@ end
 local function Hook_SetCurrencyToken(self,index,...)
 	if not index then return end
 
-	local currency = GetCurrencyListInfo(index)
+	local currency = C_CurrencyInfo.GetCurrencyListInfo(index)
 	if not currency then return end
 
 	GameTooltip:AddLine(" ",1,1,1);
 
 	local total = 0
 	for _, character in pairs(DataStore:GetCharacters()) do
-		local _, _, count = DataStore:GetCurrencyInfoByName(character, currency)
+		local _, count = DataStore:GetCurrencyInfoByName(character, currency)
 		if count and count > 0 then
 			GameTooltip:AddDoubleLine(DataStore:GetColoredCharacterName(character),  colors.teal .. count);
 			total = total + count
@@ -667,9 +667,9 @@ local function Hook_SetCurrencyToken(self,index,...)
 	end
 	
 	if total > 0 then
-		GameTooltip:AddLine(" ",1,1,1);
+		GameTooltip:AddLine(" ",1,1,1)
 	end
-	GameTooltip:AddLine(format("%s: %s", colors.gold..L["Total owned"], colors.teal..total ) ,1,1,1);
+	GameTooltip:AddLine(format("%s: %s", colors.gold..L["Total owned"], colors.teal..total ) ,1,1,1)
 	GameTooltip:Show()
 end
 

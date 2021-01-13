@@ -9,33 +9,43 @@ local view = {}
 local modes = {
 	[1] = {	-- available missions
 		GetName = function() return GARRISON_LANDING_AVAILABLE end,
-		GetMissions = function(c) return DataStore:GetAvailableMissions(c, LE_FOLLOWER_TYPE_GARRISON_6_0) end,
-		GetNumMissions = function(c) return DataStore:GetNumAvailableMissions(c, LE_FOLLOWER_TYPE_GARRISON_6_0) end,
+		GetMissions = function(c) return DataStore:GetAvailableMissions(c, Enum.GarrisonFollowerType.FollowerType_6_0) end,
+		GetNumMissions = function(c) return DataStore:GetNumAvailableMissions(c, Enum.GarrisonFollowerType.FollowerType_6_0) end,
 	},
 	[2] = {	-- active missions
 		GetName = function() return GARRISON_LANDING_IN_PROGRESS end,
-		GetMissions = function(c) return DataStore:GetActiveMissions(c, LE_FOLLOWER_TYPE_GARRISON_6_0) end,
-		GetNumMissions = function(c) return DataStore:GetNumActiveMissions(c, LE_FOLLOWER_TYPE_GARRISON_6_0) end,
+		GetMissions = function(c) return DataStore:GetActiveMissions(c, Enum.GarrisonFollowerType.FollowerType_6_0) end,
+		GetNumMissions = function(c) return DataStore:GetNumActiveMissions(c, Enum.GarrisonFollowerType.FollowerType_6_0) end,
 	},
 	[3] = {	-- available missions
 		GetName = function() return GARRISON_LANDING_AVAILABLE end,
-		GetMissions = function(c) return DataStore:GetAvailableMissions(c, LE_FOLLOWER_TYPE_GARRISON_7_0) end,
-		GetNumMissions = function(c) return DataStore:GetNumAvailableMissions(c, LE_FOLLOWER_TYPE_GARRISON_7_0) end,
+		GetMissions = function(c) return DataStore:GetAvailableMissions(c, Enum.GarrisonFollowerType.FollowerType_7_0) end,
+		GetNumMissions = function(c) return DataStore:GetNumAvailableMissions(c, Enum.GarrisonFollowerType.FollowerType_7_0) end,
 	},
 	[4] = {	-- active missions
 		GetName = function() return GARRISON_LANDING_IN_PROGRESS end,
-		GetMissions = function(c) return DataStore:GetActiveMissions(c, LE_FOLLOWER_TYPE_GARRISON_7_0) end,
-		GetNumMissions = function(c) return DataStore:GetNumActiveMissions(c, LE_FOLLOWER_TYPE_GARRISON_7_0) end,
+		GetMissions = function(c) return DataStore:GetActiveMissions(c, Enum.GarrisonFollowerType.FollowerType_7_0) end,
+		GetNumMissions = function(c) return DataStore:GetNumActiveMissions(c, Enum.GarrisonFollowerType.FollowerType_7_0) end,
 	},
 	[5] = {	-- available missions
 		GetName = function() return GARRISON_LANDING_AVAILABLE end,
-		GetMissions = function(c) return DataStore:GetAvailableMissions(c, LE_FOLLOWER_TYPE_GARRISON_8_0) end,
-		GetNumMissions = function(c) return DataStore:GetNumAvailableMissions(c, LE_FOLLOWER_TYPE_GARRISON_8_0) end,
+		GetMissions = function(c) return DataStore:GetAvailableMissions(c, Enum.GarrisonFollowerType.FollowerType_8_0) end,
+		GetNumMissions = function(c) return DataStore:GetNumAvailableMissions(c, Enum.GarrisonFollowerType.FollowerType_8_0) end,
 	},
 	[6] = {	-- active missions
 		GetName = function() return GARRISON_LANDING_IN_PROGRESS end,
-		GetMissions = function(c) return DataStore:GetActiveMissions(c, LE_FOLLOWER_TYPE_GARRISON_8_0) end,
-		GetNumMissions = function(c) return DataStore:GetNumActiveMissions(c, LE_FOLLOWER_TYPE_GARRISON_8_0) end,
+		GetMissions = function(c) return DataStore:GetActiveMissions(c, Enum.GarrisonFollowerType.FollowerType_8_0) end,
+		GetNumMissions = function(c) return DataStore:GetNumActiveMissions(c, Enum.GarrisonFollowerType.FollowerType_8_0) end,
+	},
+	[7] = {	-- available missions
+		GetName = function() return GARRISON_LANDING_AVAILABLE end,
+		GetMissions = function(c) return DataStore:GetAvailableMissions(c, Enum.GarrisonFollowerType.FollowerType_9_0) end,
+		GetNumMissions = function(c) return DataStore:GetNumAvailableMissions(c, Enum.GarrisonFollowerType.FollowerType_9_0) end,
+	},
+	[8] = {	-- active missions
+		GetName = function() return GARRISON_LANDING_IN_PROGRESS end,
+		GetMissions = function(c) return DataStore:GetActiveMissions(c, Enum.GarrisonFollowerType.FollowerType_9_0) end,
+		GetNumMissions = function(c) return DataStore:GetNumActiveMissions(c, Enum.GarrisonFollowerType.FollowerType_9_0) end,
 	},
 }
 

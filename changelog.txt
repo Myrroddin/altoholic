@@ -1,9 +1,8 @@
 Altoholic Changelog (dates in dd/mm/yyyy)
 ===================
 
-Join the #altoholic IRC channel on Freenode : irc://irc.freenode.net:6667/
 
-IMPORTANT NOTE FOR 8.0 : As with every new expansion, many things have changed in the API, and it is REQUIRED to clear your Saved Variables for the addon.
+IMPORTANT NOTE FOR 9.0.003 : As with every new expansion, many things have changed in the API, and it is REQUIRED to clear your Saved Variables for the addon.
 This means cleaning the following files in \WTF\Account\<your_account>\SavedVariables : Altoholic.lua & All DataStore*.lua
 
 There WILL be bugs if you use your old files without cleaning them first. 
@@ -12,10 +11,29 @@ Some fixes to work around API changes are too time consuming, so cleaning is req
 How to support Altoholic's development :
 
 - For a single donation : Use the donate button either on Curse or on WoW Interface.
-- For a repeated donation : Support me on Patreon : https://www.patreon.com/Thaoky 
-- Make a gift from my amazon's wish list : http://amzn.eu/7xWdnbZ
 
 If you like the addon, consider supporting it, this has been the long term effort and commitment of a single person. #ArmyOfOne
+
+9.0.003 (10/01/2021)
+
+CLEARING YOUR PREVIOUS INSTALLATION IS MANDATORY FOR THIS RELEASE, AS WELL AS YOUR SAVED VARIABLES !!!!
+
+- Following the addition of the offensive code by Teelo in the latest release, I have taken back control of the development based on 8.3.001.
+- All changes by Teelo have disappeared and will not come back, at least not in their original form.
+- Code has been updated to support 9.0 API changes.
+- Summary Tab : added a new menu item for Covenant Sanctum data.
+- Characters Tab : minor fixes in several places
+- Characters Tab => Garrison Icon : added support for the command table missions of the covenant.
+- Characters Tab => Covenant Icon (new) : added 2 panels for renown & soulbinds. More to come here.
+- Grids Tab => Emissaries Icon : modified string formatting a bit to show to which extension an emissary quest belongs
+- Grids Tab => Emissaries Icon : added support for Callings
+- The following DataStore modules are no longer part of the project, and are not supported : DataStore_Rares, DataStore_Keystones, DataStore_Covenants.
+
+Note: I reactivated my subscription on 28/12/2020, so not everything is in yet, and I still have to make further in-game progress on some things before they get into the add-on.
+
+Many of you will probably wonder which features will come back or not, all I can say is some will, some won't.
+
+
 
 8.3.001 (9/02/2020)
 

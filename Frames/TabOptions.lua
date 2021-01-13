@@ -120,86 +120,18 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
-	{	name = "8.2.001 Changes",
+	{	name = "9.0.003 Changes",
 		bulletedList = {
-			"Minor fixes.",
-			"Added new factions.",
-		},
-	},
-	{	name = "8.0.008 Changes",
-		bulletedList = {
-			"Added BfA factions. (Thanks AlexSUCF !!)",
-			"Added BfA currencies.",
-			"Added BfA emissary quests.",
-			"Some quest achievements for BfA were rearranged to better reflect a character's progress.",
-			"Fixed the percentage of rest xp for pandaren to now properly show 200% or 300% depending on the mode.",
-			"Reworked the way rest xp is displayed in the addon, there is now a tooltip giving more info about rest xp, including when an alt will be fully rested."
-		},
-	},
-	{	name = "8.0.007 Changes",
-		bulletedList = {
-			"Account Summary : Removed a test that prevented the herbalism & skinning tooltip from showing the proper per expansion information.",
-		},
-	},
-	{	name = "8.0.006 Changes",
-		bulletedList = {
-			"Restored the emissaries panel.",
-			"Fixed the 'All levels' filter in the account summary being limited to 110.",
-			"Added support for War Campaign Missions."
-		},
-	},
-	{	name = "8.0.005 Changes",
-		bulletedList = {
-			"Closed a lot of bugs from the Curse issues list, and implemented a lot of smaller fixes (thanks to all who contributed !).",
-			"Fixed guild bank counters being displayed in the tooltip for guild banks from other factions, when the options were set not to display them. (Thanks Leo!)",
-			"Reorganized several achievement categories (Thanks AlexSUCF !!)",
-			"Added Legion Fishing Masters reputations (Thanks AlexSUCF !!)",
-			"Search tab: Character level edit boxes now accept 3-digit values (Thanks AlexSUCF !!)",
-			"Fixed scanning of transmog sets (Thanks AlexSUCF !!)",
-			"Fixed several smaller issues (Thanks AlexSUCF !!)",
-			"DataStore_Agenda: fixed calendar scanning of events with an invalid 'calendar type'. This fixes the spam of events you were maybe getting at logon. Just open your calendar on the affected alts, and you will be fine.",
-			"Added support for paragon reputation levels (Thanks all4atlantis !!)",
-			"Fixed the auto-completion of alt's names on the same realm, this should fix the 'This character might be someone you don't know.' problem.",
-		},
-	},
-	{	name = "8.0.004 Changes",
-		bulletedList = {
-			"Fixed a Lua error when mousing over a recipe in the search panel. (Thanks KaraKaori !)",
-			"Archaelogy is back on its feet :)",
-			"Quick note about fishing: Fishing now seems to be seen as a series of recipes, like the other professions, even though there are no actual recipes.",
-			"This means you actually have to press the 'Fishing Skills' button in the profession UI to get its proper level.",
-			"Fixed the 'known by' tooltips, which did not properly left out 'unlearned' recipes.",
-			"Removed the last occurences of first aid in a few places.",
-			"Fixed a Lua error when visiting merchants selling recipes.",
-			"The amount of gold displayed in various places is now shown with a thousands' separator.",
-		},
-	},
-	{	name = "8.0.003 Changes",
-		bulletedList = {
-			"Slightly modified the 'totals' that appear at the bottom right so that it now fully belongs to the Summary tab.",
-			"Characters tab : the profession panel has been fully reworked.",
-			"Professions can now be filtered by categories, subcategories, color, inventory slot, learned/unlearned, and by their actual name.",
-			"Profession cooldowns should be ok, but I did not have enough material at hand for tangible testing. Please let me know if you notice anything weird.",
-			"Recipe tooltips like 'Could be learned by' etc.. should now be fully functioning again.",
-		},
-	},
-	{	name = "8.0.002 Changes",
-		bulletedList = {
-			"Fixed a Lua error in DataStore_Agenda.",
-			"Fixed DataStore_Containers not properly scanning some bank content.",
-			"Fixed DataStore_Agenda not properly scanning WotLK item cooldowns.",
-			"Fixed Item cooldowns breaking the agenda view.",
-			"Fixed the errors in the Agenda tab.",
-			"DataStore_Crafts: now properly scanning profession data, UI still being worked on.",
-			"Fixed several UI errors related to professions."
-		},
-	},
-	{	name = "8.0.001 Changes",
-		bulletedList = {
-			"Fixed a ton of Lua errors.",
-			"Summary tab : the artifact menu has been disabled, since no data can be retrieved anymore.",
-			"Summary tab : the first aid profession has been removed.",
-			"Note : Quests and professions are still being reworked."
+			"Following the addition of the offensive code by Teelo in the latest release, I have taken back control of the development based on 8.3.001.",
+			"All changes by Teelo have disappeared and will not come back, at least not in their original form.",
+			"Code has been updated to support 9.0 API changes.",
+			"Summary Tab : added a new menu item for Covenant Sanctum data.",
+			"Characters Tab : minor fixes in several places",
+			"Characters Tab => Garrison Icon : added support for the command table missions of the covenant.",
+			"Characters Tab => Covenant Icon (new) : added 2 panels for renown & soulbinds. More to come here.",
+			"Grids Tab => Emissaries Icon : modified string formatting a bit to show to which extension an emissary quest belongs",
+			"Grids Tab => Emissaries Icon : added support for Callings",
+			"The following DataStore modules are no longer part of the project, and are not supported : DataStore_Rares, DataStore_Keystones, DataStore_Covenants.",
 		},
 	},
 	{	name = "Earlier changes",
@@ -426,6 +358,19 @@ function addon:SetupOptions()
 	UIDropDownMenu_SetText(AltoholicCalendarOptions_WarningType2, "Dungeon Resets")
 	UIDropDownMenu_SetText(AltoholicCalendarOptions_WarningType3, "Calendar Events")
 	UIDropDownMenu_SetText(AltoholicCalendarOptions_WarningType4, "Item Timers")
+end
+
+function addon:ClearOptions(startsWith)
+	-- Clear all options starting with a given prefix
+	
+	local options = addon.db.global.options
+	
+	for option, _ in pairs(options) do
+		-- does the option name start with the string passed as argument ?
+		if option:sub(1, #startsWith) == startsWith then
+			options[option] = nil
+		end
+	end
 end
 
 function addon:RestoreOptionsToUI()

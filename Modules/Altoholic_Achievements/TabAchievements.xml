@@ -37,6 +37,11 @@
 					</Anchors>
 					<Color r="255" g="255" b="255" />
 				</FontString>
+				<FontString parentKey="PageNumber" inherits="GameFontHighlightSmallOutline" justifyH="RIGHT">
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" x="-50" y="20" />
+					</Anchors>
+				</FontString>
 			</Layer>
 		</Layers>
 		<Frames>
@@ -78,6 +83,37 @@
 					<KeyValue key="yOffset" value="-105" type="number" />
 				</KeyValues>
 			</ScrollFrame>
+			
+			<Button parentKey="PrevPage">
+				<Size x="32" y="32" />
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" x="730" y="10" />
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						self:GetParent():GoToPreviousPage()
+					</OnClick>
+				</Scripts>
+				<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Up"/>
+				<PushedTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Down"/>
+				<DisabledTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Disabled"/>
+				<HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD"/>
+			</Button>
+			<Button parentKey="NextPage">
+				<Size x="32" y="32" />
+				<Anchors>
+					<Anchor point="LEFT" relativeKey="$Parent.PrevPage" relativePoint="RIGHT" x="10" y="0" />
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						self:GetParent():GoToNextPage()
+					</OnClick>
+				</Scripts>
+				<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Up"/>
+				<PushedTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Down"/>
+				<DisabledTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Disabled"/>
+				<HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD"/>
+			</Button>
 		</Frames>
 		<Scripts>
 			<OnLoad>

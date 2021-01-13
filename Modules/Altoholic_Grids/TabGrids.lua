@@ -3,11 +3,16 @@ local addon = _G[addonName]
 local colors = addon.Colors
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
+local currentPage
+local MAX_PAGES = 12	-- good for 144 alts, should be enough, 1 page per class is even possible
 local CHARS_PER_FRAME = 12
 local gridCallbacks = {}
 
 addon:Controller("AltoholicUI.TabGrids", {
 	OnBind = function(frame)
+		currentPage = 1
+		frame.PageNumber:SetText(format(MERCHANT_PAGE_NUMBER, currentPage, MAX_PAGES))
+	
 		frame.Label1:SetText(L["Realm"])
 		frame.Equipment.text = L["Equipment"]
 		frame.Factions.text = L["Reputations"]
@@ -39,7 +44,7 @@ addon:Controller("AltoholicUI.TabGrids", {
 	end,
 	Update = function(frame)
 		local account, realm = frame.SelectRealm:GetCurrentRealm()
-		frame.ClassIcons:Update(account, realm)
+		frame.ClassIcons:Update(account, realm, currentPage)
 
 		local grids = AltoholicFrameGrids
 		local scrollFrame = grids.ScrollFrame
@@ -69,7 +74,9 @@ addon:Controller("AltoholicUI.TabGrids", {
 					itemButton = rowFrame["Item"..colIndex]
 					itemButton.IconBorder:Hide()
 					
-					character = addon:GetOption(format("Tabs.Grids.%s.%s.Column%d", account, realm, colIndex))
+					local optionIndex = ((currentPage - 1) * 12) + colIndex		-- Pages = 1-12, 13-24, etc..
+					
+					character = addon:GetOption(format("Tabs.Grids.%s.%s.Column%d", account, realm, optionIndex))
 					if character then
 						itemButton:SetScript("OnEnter", obj.OnEnter)
 						itemButton:SetScript("OnClick", obj.OnClick)
@@ -143,6 +150,39 @@ addon:Controller("AltoholicUI.TabGrids", {
 	end,
 	SetViewDDMText = function(frame, text)
 		frame.SelectView:SetText(text)
+	end,
+	GoToPreviousPage = function(frame)
+		frame:SetPage(currentPage - 1)
+	end,
+	GoToNextPage = function(frame)
+		frame:SetPage(currentPage + 1)
+	end,
+	GetPage = function(frame)
+		return currentPage
+	end,
+	SetPage = function(frame, pageNum)
+		currentPage = pageNum
+
+		-- fix minimum page number
+		currentPage = (currentPage < 1) and 1 or currentPage
+		
+		if currentPage == 1 then
+			frame.PrevPage:Disable()
+		else
+			frame.PrevPage:Enable()
+		end
+		
+		-- fix maximum page number
+		currentPage = (currentPage > MAX_PAGES) and MAX_PAGES or currentPage
+		
+		if currentPage == MAX_PAGES then
+			frame.NextPage:Disable()
+		else
+			frame.NextPage:Enable()
+		end
+
+		frame.PageNumber:SetText(format(MERCHANT_PAGE_NUMBER, currentPage, MAX_PAGES))	
+		frame:Update()
 	end,
 	GetRealm = function(frame)
 		return frame.SelectRealm:GetCurrentRealm()	-- returns : account, realm

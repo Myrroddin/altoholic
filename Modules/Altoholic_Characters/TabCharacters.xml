@@ -99,6 +99,14 @@
 							<KeyValue key="iconFile" value="Interface\Icons\inv_garrison_resource" />
 						</KeyValues>
 					</Button>
+					<Button parentKey="CovenantIcon" inherits="AltoTabCharactersIconTemplate" id="10">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeKey="$parent.GarrisonIcon" relativePoint="TOPRIGHT" x="5" y="0" />
+						</Anchors>
+						<KeyValues>
+							<KeyValue key="iconFile" value="Interface\Icons\achievement_mythicdungeons_shadowlands" />
+						</KeyValues>
+					</Button>
 				</Frames>
 			</Frame>
 	

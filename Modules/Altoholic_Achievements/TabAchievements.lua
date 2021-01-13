@@ -10,6 +10,8 @@ local ICON_COMPLETED = "Interface\\RaidFrame\\ReadyCheck-Ready"
 
 local view
 local highlightIndex
+local currentPage
+local MAX_PAGES = 12	-- good for 144 alts, should be enough, 1 page per class is even possible
 
 local function BuildView()
 	view = view or {}
@@ -62,8 +64,11 @@ end
 
 addon:Controller("AltoholicUI.TabAchievements", {
 	OnBind = function(frame)
+		currentPage = 1
+		frame.PageNumber:SetText(format(MERCHANT_PAGE_NUMBER, currentPage, MAX_PAGES))
+	
 		frame.SelectRealm:RegisterClassEvent("RealmChanged", function(self, account, realm) 
-				frame.ClassIcons:Update(account, realm)
+				frame.ClassIcons:Update(account, realm, 1)	-- page 1 when changing realm
 				frame.Status:SetText("")
 				frame.Achievements:Update()
 			end)
@@ -77,7 +82,7 @@ addon:Controller("AltoholicUI.TabAchievements", {
 			
 		frame.ClassIcons.OnCharacterChanged = function(self)
 				local account, realm = frame.SelectRealm:GetCurrentRealm()
-				self:Update(account, realm)
+				self:Update(account, realm, currentPage)
 				frame.Achievements:Update()
 			end
 			
@@ -109,7 +114,7 @@ addon:Controller("AltoholicUI.TabAchievements", {
 	end,
 	Update = function(frame)
 		local account, realm = frame.SelectRealm:GetCurrentRealm()
-		frame.ClassIcons:Update(account, realm)
+		frame.ClassIcons:Update(account, realm, currentPage)
 
 		if not view then
 			BuildView()
@@ -188,6 +193,40 @@ addon:Controller("AltoholicUI.TabAchievements", {
 		end
 		
 		scrollFrame:Update(#MenuCache)
+	end,
+	GoToPreviousPage = function(frame)
+		frame:SetPage(currentPage - 1)
+	end,
+	GoToNextPage = function(frame)
+		frame:SetPage(currentPage + 1)
+	end,
+	GetPage = function(frame)
+		return currentPage
+	end,
+	SetPage = function(frame, pageNum)
+		currentPage = pageNum
+
+		-- fix minimum page number
+		currentPage = (currentPage < 1) and 1 or currentPage
+		
+		if currentPage == 1 then
+			frame.PrevPage:Disable()
+		else
+			frame.PrevPage:Enable()
+		end
+		
+		-- fix maximum page number
+		currentPage = (currentPage > MAX_PAGES) and MAX_PAGES or currentPage
+		
+		if currentPage == MAX_PAGES then
+			frame.NextPage:Disable()
+		else
+			frame.NextPage:Enable()
+		end
+
+		frame.PageNumber:SetText(format(MERCHANT_PAGE_NUMBER, currentPage, MAX_PAGES))	
+		frame:Update()
+		frame.Achievements:Update()
 	end,
 	GetRealm = function(frame)
 		local account, realm = frame.SelectRealm:GetCurrentRealm()

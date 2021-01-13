@@ -4,7 +4,7 @@ local colors = addon.Colors
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 addon:Controller("AltoholicUI.AchievementRow", {
-	Update = function(frame, account, realm, allianceID, hordeID)
+	Update = function(frame, account, realm, page, allianceID, hordeID)
 		local _, achName, _, isComplete, _, _, _, _, flags = GetAchievementInfo(allianceID)
 		
 		-- if not achName then 
@@ -26,7 +26,9 @@ addon:Controller("AltoholicUI.AchievementRow", {
 			button = frame["Item"..colIndex]
 			button.IconBorder:Hide()
 			
-			character = addon:GetOption(format("Tabs.Achievements.%s.%s.Column%d", account, realm, colIndex))
+			local optionIndex = ((page - 1) * 12) + colIndex		-- Pages = 1-12, 13-24, etc..
+			
+			character = addon:GetOption(format("Tabs.Achievements.%s.%s.Column%d", account, realm, optionIndex))
 			if character then
 				if hordeID and DataStore:GetCharacterFaction(character) ~= "Alliance" then
 					achievementID = hordeID

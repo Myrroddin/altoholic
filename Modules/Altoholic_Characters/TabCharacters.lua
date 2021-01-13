@@ -29,6 +29,8 @@ local VIEW_COMPANIONS = 7
 local VIEW_SPELLS = 8
 local VIEW_PROFESSION = 9
 local VIEW_GARRISONS = 10
+local VIEW_COVENANT_RENOWN = 11
+local VIEW_COVENANT_SOULBINDS = 12
 
 -- Second mini easter egg, the bag icon changes depending on the amount of chars at level max (on the current realm), or based on the time of the year
 local BAG_ICONS = {
@@ -64,6 +66,8 @@ local function HideAll()
 	AltoholicTabCharacters.Spellbook:Hide()
 	AltoholicTabCharacters.GarrisonMissions:Hide()
 	AltoholicTabCharacters.Recipes:Hide()
+	AltoholicTabCharacters.Renown:Hide()
+	AltoholicTabCharacters.Soulbinds:Hide()
 	
 	AltoholicFrameContainers:Hide()
 
@@ -102,6 +106,7 @@ function ns:MenuItem_OnClick(frame, button)
 	menuIcons.SpellbookIcon:Show()
 	menuIcons.ProfessionsIcon:Show()
 	menuIcons.GarrisonIcon:Show()
+	menuIcons.CovenantIcon:Show()
 end
 
 function ns:ViewCharInfo(index)
@@ -151,6 +156,10 @@ function ns:ShowCharInfo(view)
 				
 	elseif view == VIEW_GARRISONS then
 		AltoholicTabCharacters.GarrisonMissions:Update()
+	elseif view == VIEW_COVENANT_RENOWN then
+		AltoholicTabCharacters.Renown:Update()
+	elseif view == VIEW_COVENANT_SOULBINDS then
+		AltoholicTabCharacters.Soulbinds:Update()
 	end
 end
 
@@ -247,6 +256,7 @@ local function OnCharacterChange(self)
 	EnableIcon(menuIcons.SpellbookIcon)
 	EnableIcon(menuIcons.ProfessionsIcon)
 	EnableIcon(menuIcons.GarrisonIcon)
+	EnableIcon(menuIcons.CovenantIcon)
 	
 	DropDownList1:Hide()
 	
@@ -287,7 +297,6 @@ local function OnQuestHeaderChange(self)
 	AltoholicTabCharacters.QuestLog:SetCategory(self.value or 0)
 	ns:ViewCharInfo(VIEW_QUESTS)
 end
-
 
 local function OnTalentChange(self)
 	CloseDropDownMenus()
@@ -366,6 +375,16 @@ local function OnGarrisonMenuChange(self)
 	addon:SetOption("UI.Tabs.Characters.GarrisonMissions", self.value)
 	CloseDropDownMenus()
 	ns:ViewCharInfo(VIEW_GARRISONS)
+end
+
+local function OnCovenantChange(self)
+	CloseDropDownMenus()
+	
+	if self.value == 1 then
+		ns:ViewCharInfo(VIEW_COVENANT_RENOWN)
+	elseif self.value == 2 then
+		ns:ViewCharInfo(VIEW_COVENANT_SOULBINDS)
+	end
 end
 
 local function OnViewChange(self)
@@ -481,7 +500,7 @@ local function BagsIcon_Initialize(self, level)
 	local rarity = addon:GetOption("UI.Tabs.Characters.ViewBagsRarity")
 	DDM_Add(L["Any"], 0, OnRarityChange, nil, (rarity == 0))
 	
-	for i = LE_ITEM_QUALITY_UNCOMMON, LE_ITEM_QUALITY_HEIRLOOM do		-- Quality: 0 = poor .. 5 = legendary
+	for i = Enum.ItemQuality.Uncommon, Enum.ItemQuality.Heirloom do		-- Quality: 0 = poor .. 5 = legendary
 		DDM_Add(format("|c%s%s", select(4, GetItemQualityColor(i)), _G["ITEM_QUALITY"..i.."_DESC"]), i, OnRarityChange, nil, (rarity == i))
 	end
 	
@@ -804,6 +823,20 @@ local function ProfessionsIcon_Initialize(self, level)
 	end
 end
 
+local garrisonTypes = {
+	Enum.GarrisonFollowerType.FollowerType_6_0,
+	Enum.GarrisonFollowerType.FollowerType_7_0,
+	Enum.GarrisonFollowerType.FollowerType_8_0,
+	Enum.GarrisonFollowerType.FollowerType_9_0
+}
+
+local garrisonHeaders = {
+	GARRISON_MISSIONS_TITLE,
+	ORDER_HALL_MISSIONS,
+	WAR_CAMPAIGN,
+	GARRISON_TYPE_9_0_LANDING_PAGE_TITLE
+}
+
 local function GarrisonIcon_Initialize(self, level)
 	if not DataStore_Garrisons then return end
 	
@@ -811,25 +844,37 @@ local function GarrisonIcon_Initialize(self, level)
 	if not currentCharacterKey then return end
 	
 	local currentMenu = addon:GetOption("UI.Tabs.Characters.GarrisonMissions")
+	local index = 1
+	local num
 	
-	DDM_AddTitle(GARRISON_MISSIONS_TITLE)
-	DDM_Add(format(GARRISON_LANDING_AVAILABLE, DataStore:GetNumAvailableMissions(currentCharacterKey, LE_FOLLOWER_TYPE_GARRISON_6_0)), 
-				1, OnGarrisonMenuChange, nil, (currentMenu == 1))
-	DDM_Add(format(GARRISON_LANDING_IN_PROGRESS, DataStore:GetNumActiveMissions(currentCharacterKey, LE_FOLLOWER_TYPE_GARRISON_6_0)), 
-				2, OnGarrisonMenuChange, nil, (currentMenu == 2))
-	DDM_AddTitle(" ")
-	DDM_AddTitle(ORDER_HALL_MISSIONS)
-	DDM_Add(format(GARRISON_LANDING_AVAILABLE, DataStore:GetNumAvailableMissions(currentCharacterKey, LE_FOLLOWER_TYPE_GARRISON_7_0)), 
-				3, OnGarrisonMenuChange, nil, (currentMenu == 3))
-	DDM_Add(format(GARRISON_LANDING_IN_PROGRESS, DataStore:GetNumActiveMissions(currentCharacterKey, LE_FOLLOWER_TYPE_GARRISON_7_0)), 
-				4, OnGarrisonMenuChange, nil, (currentMenu == 4))
-	DDM_AddTitle(" ")
-	DDM_AddTitle(WAR_CAMPAIGN)
-	DDM_Add(format(GARRISON_LANDING_AVAILABLE, DataStore:GetNumAvailableMissions(currentCharacterKey, LE_FOLLOWER_TYPE_GARRISON_8_0)), 
-				5, OnGarrisonMenuChange, nil, (currentMenu == 5))
-	DDM_Add(format(GARRISON_LANDING_IN_PROGRESS, DataStore:GetNumActiveMissions(currentCharacterKey, LE_FOLLOWER_TYPE_GARRISON_8_0)), 
-				6, OnGarrisonMenuChange, nil, (currentMenu == 6))
+	for i, garrisonType in ipairs(garrisonTypes) do
+		DDM_AddTitle(garrisonHeaders[i])
+		
+		-- Available missions
+		num = DataStore:GetNumAvailableMissions(currentCharacterKey, garrisonType)
+		DDM_Add(format(GARRISON_LANDING_AVAILABLE, num), index, OnGarrisonMenuChange, nil, (currentMenu == index))
+		index = index + 1
+		
+		-- Active missions
+		num = DataStore:GetNumActiveMissions(currentCharacterKey, garrisonType)
+		DDM_Add(format(GARRISON_LANDING_IN_PROGRESS, num), index, OnGarrisonMenuChange, nil, (currentMenu == index))
+		index = index + 1
+		DDM_AddTitle(" ")
+	end
 	
+	DDM_AddCloseMenu()
+end
+
+local function CovenantIcon_Initialize(self, level)
+
+	DDM_AddTitle(GARRISON_TYPE_9_0_LANDING_PAGE_TITLE)
+	
+	DDM_Add(LANDING_PAGE_RENOWN_LABEL, 1, OnCovenantChange)			-- Renown
+	DDM_Add(COVENANT_PREVIEW_SOULBINDS, 2, OnCovenantChange)			-- Soulbinds
+	-- DDM_Add(COVENANT_SANCTUM_TAB_UPGRADES, 3, OnCovenantChange)		-- Sanctum Reservoir
+	-- DDM_Add(ANIMA_DIVERSION_ORIGIN_TOOLTIP, 4, OnCovenantChange)	-- Anima Conductor
+	
+	DDM_AddTitle(" ")
 	DDM_AddCloseMenu()
 end
 
@@ -843,6 +888,7 @@ local menuIconCallbacks = {
 	SpellbookIcon_Initialize,
 	ProfessionsIcon_Initialize,
 	GarrisonIcon_Initialize,
+	CovenantIcon_Initialize,
 }
 
 function ns:Icon_OnEnter(frame)

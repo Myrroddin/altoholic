@@ -64,7 +64,7 @@
 								self:RefreshUnit();
 							</OnEvent>
 							<OnUpdate>
-								Model_OnUpdate(self, elapsed);
+								--Model_OnUpdate(self, elapsed);
 							</OnUpdate>
 						</Scripts>
 						<Frames>
@@ -78,7 +78,8 @@
 										self:RegisterForClicks("LeftButtonDown", "LeftButtonUp");
 									</OnLoad>
 									<OnClick>
-										Model_RotateLeft(self:GetParent());
+										Model_UpdateRotation(self:GetParent(), self, nil, 0.02)
+										--Model_RotateLeft(self:GetParent());
 									</OnClick>
 								</Scripts>
 								<NormalTexture file="Interface\Buttons\UI-RotationLeft-Button-Up"/>
@@ -95,7 +96,8 @@
 										self:RegisterForClicks("LeftButtonDown", "LeftButtonUp");
 									</OnLoad>
 									<OnClick>
-										Model_RotateRight(self:GetParent());
+										Model_UpdateRotation(self:GetParent(), nil, self, 0.02)
+										--Model_RotateRight(self:GetParent());
 									</OnClick>
 								</Scripts>
 								<NormalTexture file="Interface\Buttons\UI-RotationRight-Button-Up"/>

@@ -11,6 +11,7 @@ local MODE_SKILLS = 3
 local MODE_ACTIVITY = 4
 local MODE_CURRENCIES = 5
 local MODE_FOLLOWERS = 6
+local MODE_COVENANT = 7
 
 local SKILL_CAP = 900
 local CURRENCY_ID_JUSTICE = 395
@@ -27,6 +28,8 @@ local CURRENCY_ID_BFA_SOWF = 1580				-- BfA: Seals of the Wartorn Fate
 local CURRENCY_ID_BFA_DUBLOONS = 1710			-- BfA: Seafarer's Dubloon
 local CURRENCY_ID_BFA_WAR_SUPPLIES = 1587		-- BfA: War Supplies
 local CURRENCY_ID_BFA_AZERITE = 1565			-- BfA: Rich Azerite Fragment
+local CURRENCY_ID_REDEEMED_SOUL = 1810			-- Shadowlands: Redeemed Soul
+local CURRENCY_ID_ANIMA = 1813			-- Shadowlands: Reservoir Anima
 
 local INFO_REALM_LINE = 0
 local INFO_CHARACTER_LINE = 1
@@ -42,6 +45,8 @@ local VIEW_COMPANIONS = 7
 local VIEW_SPELLS = 8
 local VIEW_PROFESSION = 9
 local VIEW_GARRISONS = 10
+local VIEW_COVENANT_RENOWN = 11
+local VIEW_COVENANT_SOULBINDS = 12
 
 local TEXTURE_FONT = "|T%s:%s:%s|t"
 
@@ -149,8 +154,16 @@ local function Tradeskill_OnEnter(frame, skillName, showRecipeStats)
 					local _, name, rank, maxRank = DataStore:GetRecipeCategoryInfo(profession, i)
 					
 					if name and rank and maxRank then
-						local color = (maxRank == 0) and colors.red or colors.green
-						tt:AddDoubleLine(name, format("%s%s|r / %s%s", color, rank, color, maxRank))
+						-- display the rank in the right color
+						if (maxRank == 0) or (rank < (maxRank * 0.5)) then		-- red if no maxrank, or below 50%
+							color = colors.red
+						elseif rank < maxRank then										-- yellow when below max
+							color = colors.yellow
+						else																	-- green otherwise	
+							color = colors.green
+						end
+						
+						tt:AddDoubleLine(name, format("%s%s|r / %s%s", color, rank, colors.green, maxRank))
 					-- else
 						-- tt:AddLine(name)
 					end
@@ -159,7 +172,9 @@ local function Tradeskill_OnEnter(frame, skillName, showRecipeStats)
 				local orange, yellow, green, grey = DataStore:GetNumRecipesByColor(profession)
 				
 				tt:AddLine(" ")
-				tt:AddLine(orange+yellow+green+grey .. " " .. TRADESKILL_SERVICE_LEARN,1,1,1)
+				tt:AddLine(format("%d %s",
+					(orange + yellow + green + grey),
+					TRADESKILL_SERVICE_LEARN),1,1,1)
 				tt:AddLine(format("%s%d %s%s|r / %s%d %s%s|r / %s%d %s%s",
 					colors.white, green, colors.recipeGreen, L["COLOR_GREEN"],
 					colors.white, yellow, colors.yellow, L["COLOR_YELLOW"],
@@ -227,8 +242,7 @@ local function CurrencyHeader_OnEnter(frame, currencyID)
 	
 	tt:ClearLines()
 	tt:SetOwner(frame, "ANCHOR_BOTTOM")
-	-- tt:AddLine(select(1, GetCurrencyInfo(currencyID)), NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b)
-	tt:SetHyperlink(GetCurrencyLink(currencyID,0))
+	tt:SetHyperlink(C_CurrencyInfo.GetCurrencyLink(currencyID, 0))
 	tt:Show()
 end
 
@@ -432,6 +446,10 @@ local function GetFollowersItemLevel(self, character)
 	avgArmor = math.floor(avgArmor*10)
 	
 	return avgWeapon + (avgArmor / 10000)
+end
+
+local function GetRenownLevel(self, character)
+	return select(3, DataStore:GetCovenantInfo(character)) or 0
 end
 
 -- *** Column definitions ***
@@ -1387,12 +1405,18 @@ columns["MissionTableLastVisit"] = {
 	Width = 65,
 	JustifyH = "RIGHT",
 	GetText = function(character)
-			local numAvail = 	(DataStore:GetNumAvailableMissions(character, LE_FOLLOWER_TYPE_GARRISON_6_0) or 0) + 
-									(DataStore:GetNumAvailableMissions(character, LE_FOLLOWER_TYPE_GARRISON_7_0) or 0)
-			local numActive = (DataStore:GetNumActiveMissions(character, LE_FOLLOWER_TYPE_GARRISON_6_0) or 0) + 
-									(DataStore:GetNumActiveMissions(character, LE_FOLLOWER_TYPE_GARRISON_7_0) or 0)
-			local numCompleted = (DataStore:GetNumCompletedMissions(character, LE_FOLLOWER_TYPE_GARRISON_6_0) or 0) + 
-										(DataStore:GetNumCompletedMissions(character, LE_FOLLOWER_TYPE_GARRISON_7_0) or 0)
+			local numAvail = 	(DataStore:GetNumAvailableMissions(character, Enum.GarrisonFollowerType.FollowerType_6_0) or 0) + 
+									(DataStore:GetNumAvailableMissions(character, Enum.GarrisonFollowerType.FollowerType_7_0) or 0) +
+									(DataStore:GetNumAvailableMissions(character, Enum.GarrisonFollowerType.FollowerType_8_0) or 0) +
+									(DataStore:GetNumAvailableMissions(character, Enum.GarrisonFollowerType.FollowerType_9_0) or 0)
+			local numActive = (DataStore:GetNumActiveMissions(character, Enum.GarrisonFollowerType.FollowerType_6_0) or 0) + 
+									(DataStore:GetNumActiveMissions(character, Enum.GarrisonFollowerType.FollowerType_7_0) or 0) +
+									(DataStore:GetNumActiveMissions(character, Enum.GarrisonFollowerType.FollowerType_8_0) or 0) +
+									(DataStore:GetNumActiveMissions(character, Enum.GarrisonFollowerType.FollowerType_9_0) or 0) 
+			local numCompleted = (DataStore:GetNumCompletedMissions(character, Enum.GarrisonFollowerType.FollowerType_6_0) or 0) + 
+										(DataStore:GetNumCompletedMissions(character, Enum.GarrisonFollowerType.FollowerType_7_0) or 0) +
+										(DataStore:GetNumCompletedMissions(character, Enum.GarrisonFollowerType.FollowerType_8_0) or 0) +
+										(DataStore:GetNumCompletedMissions(character, Enum.GarrisonFollowerType.FollowerType_9_0) or 0) 
 			local text = ""
 			
 			if numCompleted > 0 then		-- add a '*' to show that there are some completed missions
@@ -1426,9 +1450,9 @@ columns["MissionTableLastVisit"] = {
 			
 			-- ** Garrison Missions **
 			
-			local numAvail = DataStore:GetNumAvailableMissions(character, LE_FOLLOWER_TYPE_GARRISON_6_0) or 0
-			local numActive = DataStore:GetNumActiveMissions(character, LE_FOLLOWER_TYPE_GARRISON_6_0) or 0
-			local numCompleted = DataStore:GetNumCompletedMissions(character, LE_FOLLOWER_TYPE_GARRISON_6_0) or 0
+			local numAvail = DataStore:GetNumAvailableMissions(character, Enum.GarrisonFollowerType.FollowerType_6_0) or 0
+			local numActive = DataStore:GetNumActiveMissions(character, Enum.GarrisonFollowerType.FollowerType_6_0) or 0
+			local numCompleted = DataStore:GetNumCompletedMissions(character, Enum.GarrisonFollowerType.FollowerType_6_0) or 0
 			local color = colors.green
 			
 			tt:AddLine(GARRISON_MISSIONS_TITLE)
@@ -1445,9 +1469,9 @@ columns["MissionTableLastVisit"] = {
 			
 			-- ** Order Hall Missions **
 			
-			numAvail = DataStore:GetNumAvailableMissions(character, LE_FOLLOWER_TYPE_GARRISON_7_0) or 0
-			numActive = DataStore:GetNumActiveMissions(character, LE_FOLLOWER_TYPE_GARRISON_7_0) or 0
-			numCompleted = DataStore:GetNumCompletedMissions(character, LE_FOLLOWER_TYPE_GARRISON_7_0) or 0			
+			numAvail = DataStore:GetNumAvailableMissions(character, Enum.GarrisonFollowerType.FollowerType_7_0) or 0
+			numActive = DataStore:GetNumActiveMissions(character, Enum.GarrisonFollowerType.FollowerType_7_0) or 0
+			numCompleted = DataStore:GetNumCompletedMissions(character, Enum.GarrisonFollowerType.FollowerType_7_0) or 0			
 			color = colors.green
 			
 			tt:AddLine(ORDER_HALL_MISSIONS)
@@ -1460,6 +1484,45 @@ columns["MissionTableLastVisit"] = {
 			
 			color = (numCompleted > 0) and colors.cyan or colors.white
 			tt:AddLine(format("%sCompleted Missions: %s%d", color, colors.green, numCompleted),1,1,1)
+			tt:AddLine(" ")
+			
+			-- ** War Campaign Missions **
+            
+			numAvail = DataStore:GetNumAvailableMissions(character, Enum.GarrisonFollowerType.FollowerType_8_0) or 0
+			numActive = DataStore:GetNumActiveMissions(character, Enum.GarrisonFollowerType.FollowerType_8_0) or 0
+			numCompleted = DataStore:GetNumCompletedMissions(character, Enum.GarrisonFollowerType.FollowerType_8_0) or 0			
+			color = colors.green
+			
+			tt:AddLine(format("%s %s", WAR_CAMPAIGN, WAR_MISSIONS)) 	-- "War Campaign Missions"
+			tt:AddLine(format("Available Missions: %s%d", color, numAvail),1,1,1)
+			
+			if numActive == 0 and numAvail ~= 0 then
+				color = colors.red
+			end
+			tt:AddLine(format("In Progress: %s%d", color, numActive),1,1,1)
+			
+			color = (numCompleted > 0) and colors.cyan or colors.white
+			tt:AddLine(format("%sCompleted Missions: %s%d", color, colors.green, numCompleted),1,1,1)			
+			tt:AddLine(" ")
+			
+			-- ** Covenant Sanctum Missions **
+            
+			numAvail = DataStore:GetNumAvailableMissions(character, Enum.GarrisonFollowerType.FollowerType_9_0) or 0
+			numActive = DataStore:GetNumActiveMissions(character, Enum.GarrisonFollowerType.FollowerType_9_0) or 0
+			numCompleted = DataStore:GetNumCompletedMissions(character, Enum.GarrisonFollowerType.FollowerType_9_0) or 0			
+			color = colors.green
+			
+			tt:AddLine(format("%s %s", GARRISON_TYPE_9_0_LANDING_PAGE_TITLE, GARRISON_TYPE_8_0_LANDING_PAGE_TITLE))
+			tt:AddLine(format("Available Missions: %s%d", color, numAvail),1,1,1)
+			
+			if numActive == 0 and numAvail ~= 0 then
+				color = colors.red
+			end
+			tt:AddLine(format("In Progress: %s%d", color, numActive),1,1,1)
+			
+			color = (numCompleted > 0) and colors.cyan or colors.white
+			tt:AddLine(format("%sCompleted Missions: %s%d", color, colors.green, numCompleted),1,1,1)			
+			
 			tt:Show()
 		end,
 		
@@ -1682,7 +1745,7 @@ columns["CurrencyBfAWarResources"] = {
 	headerOnEnter = function(frame, tooltip)
 			CurrencyHeader_OnEnter(frame, CURRENCY_ID_BFA_WAR_RES)
 		end,
-	headerOnClick = function() SortView("CurrencySOBF") end,
+	headerOnClick = function() SortView("CurrencyBfAWarResources") end,
 	headerSort = DataStore.GetBfAWarResources,
 	
 	-- Content
@@ -1703,7 +1766,7 @@ columns["CurrencyBfASOWF"] = {
 	headerOnEnter = function(frame, tooltip)
 			CurrencyHeader_OnEnter(frame, CURRENCY_ID_BFA_SOWF)
 		end,
-	headerOnClick = function() SortView("CurrencySOBF") end,
+	headerOnClick = function() SortView("CurrencyBfASOWF") end,
 	headerSort = DataStore.GetBfASealsOfWartornFate,
 	
 	-- Content
@@ -1724,7 +1787,7 @@ columns["CurrencyBfADubloons"] = {
 	headerOnEnter = function(frame, tooltip)
 			CurrencyHeader_OnEnter(frame, CURRENCY_ID_BFA_DUBLOONS)
 		end,
-	headerOnClick = function() SortView("CurrencySOBF") end,
+	headerOnClick = function() SortView("CurrencyBfADubloons") end,
 	headerSort = DataStore.GetBfADubloons,
 	
 	-- Content
@@ -1745,7 +1808,7 @@ columns["CurrencyBfAWarSupplies"] = {
 	headerOnEnter = function(frame, tooltip)
 			CurrencyHeader_OnEnter(frame, CURRENCY_ID_BFA_WAR_SUPPLIES)
 		end,
-	headerOnClick = function() SortView("CurrencySOBF") end,
+	headerOnClick = function() SortView("CurrencyBfAWarSupplies") end,
 	headerSort = DataStore.GetBfAWarSupplies,
 	
 	-- Content
@@ -1766,7 +1829,7 @@ columns["CurrencyBfARichAzerite"] = {
 	headerOnEnter = function(frame, tooltip)
 			CurrencyHeader_OnEnter(frame, CURRENCY_ID_BFA_AZERITE)
 		end,
-	headerOnClick = function() SortView("CurrencySOBF") end,
+	headerOnClick = function() SortView("CurrencyBfARichAzerite") end,
 	headerSort = DataStore.GetBfARichAzerite,
 	
 	-- Content
@@ -1782,13 +1845,13 @@ columns["CurrencyBfARichAzerite"] = {
 
 
 -- ** Garrison Followers **
-columns["FollowersLV100"] = {
+columns["FollowersLV40"] = {
 	-- Header
 	headerWidth = 70,
-	headerLabel = L["COLUMN_FOLLOWERS_LV100_TITLE_SHORT"],
-	tooltipTitle = L["COLUMN_FOLLOWERS_LV100_TITLE"],
-	tooltipSubTitle = L["COLUMN_FOLLOWERS_LV100_SUBTITLE"],
-	headerOnClick = function() SortView("FollowersLV100") end,
+	headerLabel = L["COLUMN_FOLLOWERS_LV40_TITLE_SHORT"],
+	tooltipTitle = L["COLUMN_FOLLOWERS_LV40_TITLE"],
+	tooltipSubTitle = L["COLUMN_FOLLOWERS_LV40_SUBTITLE"],
+	headerOnClick = function() SortView("FollowersLV40") end,
 	headerSort = DataStore.GetNumFollowersAtLevel100,
 	
 	-- Content
@@ -1934,6 +1997,136 @@ columns["FollowersItems"] = {
 }
 
 
+-- ** Covenant Sanctum **
+columns["CovenantName"] = {
+	-- Header
+	headerWidth = 90,
+	headerLabel = L["COLUMN_COVENANT_TITLE_SHORT"],
+	tooltipTitle = L["COLUMN_COVENANT_TITLE"],
+	tooltipSubTitle = L["COLUMN_COVENANT_SUBTITLE"],
+	headerOnClick = function() SortView("Level") end,
+	headerSort = GetCovenantName,
+	
+	-- Content
+	Width = 90,
+	JustifyH = "CENTER",
+	GetText = function(character) 
+		return format("%s%s", colors.white, DataStore:GetCovenantName(character))
+	end,
+	OnClick = function(frame)
+			local character = frame:GetParent().character
+			if not character then return end
+			
+			local covenantID = DataStore:GetCovenantInfo(character)
+			if not covenantID or covenantID == 0 then return end
+
+			addon.Tabs:OnClick("Characters")
+			addon.Tabs.Characters:SetAltKey(character)
+			addon.Tabs.Characters:MenuItem_OnClick(AltoholicTabCharacters.Characters, "LeftButton")
+			addon.Tabs.Characters:ViewCharInfo(VIEW_COVENANT_SOULBINDS)
+		end,
+}
+
+columns["SoulbindName"] = {
+	-- Header
+	headerWidth = 80,
+	headerLabel = L["COLUMN_SOULBIND_TITLE_SHORT"],
+	tooltipTitle = L["COLUMN_SOULBIND_TITLE"],
+	tooltipSubTitle = L["COLUMN_SOULBIND_SUBTITLE"],
+	headerOnClick = function() SortView("Level") end,
+	headerSort = GetActiveSoulbindName,
+	
+	-- Content
+	Width = 80,
+	JustifyH = "CENTER",
+	GetText = function(character) 
+		return format("%s%s", colors.white, DataStore:GetActiveSoulbindName(character))
+	end,
+	OnClick = function(frame)
+			local character = frame:GetParent().character
+			if not character then return end
+			
+			local covenantID = DataStore:GetCovenantInfo(character)
+			if not covenantID or covenantID == 0 then return end
+
+			addon.Tabs:OnClick("Characters")
+			addon.Tabs.Characters:SetAltKey(character)
+			addon.Tabs.Characters:MenuItem_OnClick(AltoholicTabCharacters.Characters, "LeftButton")
+			addon.Tabs.Characters:ViewCharInfo(VIEW_COVENANT_SOULBINDS)
+		end,
+}
+
+columns["Renown"] = {
+	-- Header
+	headerWidth = 70,
+	headerLabel = COVENANT_SANCTUM_TAB_RENOWN ,
+	tooltipTitle = L["COLUMN_RENOWN_TITLE"],
+	tooltipSubTitle = L["COLUMN_RENOWN_SUBTITLE"],
+	headerOnClick = function() SortView("Level") end,
+	headerSort = GetRenownLevel,
+	
+	-- Content
+	Width = 70,
+	JustifyH = "CENTER",
+	GetText = function(character) 
+		return format("%s%s", colors.white, select(3, DataStore:GetCovenantInfo(character)))
+	end,
+	OnClick = function(frame)
+			local character = frame:GetParent().character
+			if not character then return end
+			
+			local covenantID = DataStore:GetCovenantInfo(character)
+			if not covenantID or covenantID == 0 then return end
+
+			addon.Tabs:OnClick("Characters")
+			addon.Tabs.Characters:SetAltKey(character)
+			addon.Tabs.Characters:MenuItem_OnClick(AltoholicTabCharacters.Characters, "LeftButton")
+			addon.Tabs.Characters:ViewCharInfo(VIEW_COVENANT_RENOWN)
+		end,
+}
+
+columns["CurrencyAnima"] = {
+	-- Header
+	headerWidth = 80,
+	headerLabel = "   " .. format(TEXTURE_FONT, "Interface\\Icons\\spell_animabastion_orb", 18, 18),
+	headerOnEnter = function(frame, tooltip)
+			CurrencyHeader_OnEnter(frame, CURRENCY_ID_ANIMA)
+		end,
+	headerOnClick = function() SortView("CurrencyAnima") end,
+	headerSort = DataStore.GetReservoirAnima,
+	
+	-- Content
+	Width = 80,
+	JustifyH = "CENTER",
+	GetText = function(character)
+			local amount, _, _, totalMax = DataStore:GetCurrencyTotals(character, CURRENCY_ID_ANIMA)
+			local color = (amount == 0) and colors.grey or colors.white
+			
+			return format("%s%s%s/%s%s", color, amount, colors.white, colors.yellow, totalMax)
+		end,
+}
+
+columns["CurrencyRedeemedSoul"] = {
+	-- Header
+	headerWidth = 80,
+	headerLabel = "   " .. format(TEXTURE_FONT, "Interface\\Icons\\sha_spell_warlock_demonsoul_nightborne", 18, 18),
+	headerOnEnter = function(frame, tooltip)
+			CurrencyHeader_OnEnter(frame, CURRENCY_ID_REDEEMED_SOUL)
+		end,
+	headerOnClick = function() SortView("CurrencyRedeemedSoul") end,
+	headerSort = DataStore.GetRedeemedSouls,
+	
+	-- Content
+	Width = 80,
+	JustifyH = "CENTER",
+	GetText = function(character)
+			local amount, _, _, totalMax = DataStore:GetCurrencyTotals(character, CURRENCY_ID_REDEEMED_SOUL)
+			local color = (amount == 0) and colors.grey or colors.white
+			
+			return format("%s%s%s/%s%s", color, amount, colors.white, colors.yellow, totalMax)
+		end,
+}
+
 local function ColumnHeader_OnEnter(frame)
 	local column = frame.column
 	if not frame.column then return end		-- invalid data ? exit
@@ -1969,7 +2162,8 @@ local modes = {
 	[MODE_ACTIVITY] = { "Name", "Level", "Mails", "LastMailCheck", "Auctions", "Bids", "AHLastVisit", "MissionTableLastVisit" },
 	-- [MODE_CURRENCIES] = { "Name", "Level", "CurrencyGarrison", "CurrencyNethershard", "CurrencyLegionWarSupplies", "CurrencySOBF", "CurrencyOrderHall" },
 	[MODE_CURRENCIES] = { "Name", "Level", "CurrencyBfAWarResources", "CurrencyBfASOWF", "CurrencyBfADubloons", "CurrencyBfAWarSupplies", "CurrencyBfARichAzerite" },
-	[MODE_FOLLOWERS] = { "Name", "Level", "FollowersLV100", "FollowersEpic", "FollowersLV630", "FollowersLV660", "FollowersLV675", "FollowersItems" },
+	[MODE_FOLLOWERS] = { "Name", "Level", "FollowersLV40", "FollowersEpic", "FollowersLV630", "FollowersLV660", "FollowersLV675", "FollowersItems" },
+	[MODE_COVENANT] = { "Name", "Level", "CovenantName", "SoulbindName", "Renown", "CurrencyAnima", "CurrencyRedeemedSoul" },
 }
 
 function ns:SetMode(mode)
