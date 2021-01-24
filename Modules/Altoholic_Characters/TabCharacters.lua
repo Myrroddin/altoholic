@@ -8,6 +8,7 @@ local parentName = "AltoholicTabCharacters"
 local parent
 
 local currentView = 0		-- current view in the characters category
+local currentSpellTab
 local currentProfession			-- currently selected profession
 local currentMenuProfession	-- profession currently being navigated in the DDM
 
@@ -262,6 +263,7 @@ local function OnCharacterChange(self)
 	
 	if (not oldAlt) or (oldAlt == newAlt) then return end
 
+	currentSpellTab = nil
 	currentProfession = nil
 	
 	if currentView ~= VIEW_SPELLS and currentView ~= VIEW_PROFESSION then
@@ -308,6 +310,7 @@ local function OnSpellTabChange(self)
 	CloseDropDownMenus()
 	
 	if self.value then
+		currentSpellTab = self.value
 		AltoholicTabCharacters.Spellbook:SetSchool(self.value)
 		ns:ViewCharInfo(VIEW_SPELLS)
 	end
@@ -613,7 +616,7 @@ local function SpellbookIcon_Initialize(self, level)
 	DDM_AddTitle(format("%s / %s", SPELLBOOK, DataStore:GetColoredCharacterName(currentCharacterKey)))
 	
 	for index, spellTab in ipairs(DataStore:GetSpellTabs(currentCharacterKey)) do
-		DDM_Add(spellTab, spellTab, OnSpellTabChange)
+		DDM_Add(spellTab, spellTab, OnSpellTabChange, nil, (currentSpellTab == spellTab))
 	end
 	
 	DDM_AddTitle(" ")

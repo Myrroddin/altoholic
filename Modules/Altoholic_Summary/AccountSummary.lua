@@ -49,6 +49,9 @@ local VIEW_COVENANT_RENOWN = 11
 local VIEW_COVENANT_SOULBINDS = 12
 
 local TEXTURE_FONT = "|T%s:%s:%s|t"
+local CRITERIA_COMPLETE_ICON = "\124TInterface\\AchievementFrame\\UI-Achievement-Criteria-Check:14\124t"
+
+
 
 addon.Summary = {}
 
@@ -110,7 +113,16 @@ local skillColors = { colors.recipeGrey, colors.red, colors.orange, colors.yello
 local function GetSkillRankColor(rank, skillCap)
 	rank = rank or 0
 	skillCap = skillCap or SKILL_CAP
-	return skillColors[ floor(rank / (skillCap/4)) + 1 ]
+
+	-- Get the index in the colors table
+	local index = floor(rank / (skillCap/4)) + 1
+	
+	-- players with a high skill level may trigger an out of bounds index, so cap it
+	if index > #skillColors then
+		index = #skillColors
+	end
+	
+	return skillColors[index]
 end
 
 local function TradeskillHeader_OnEnter(frame, tooltip)
@@ -1998,21 +2010,78 @@ columns["FollowersItems"] = {
 
 
 -- ** Covenant Sanctum **
+local playStyles = {
+	["main"] = L["Overall"],
+	["raid"] = CALENDAR_TYPE_RAID,
+	["mythic"] = MYTHIC_DUNGEONS,
+	["torghast"] = L["Torghast"],
+	["single"] = L["Single target build"],
+	["aoe"] = L["AOE build"],
+}
+
 columns["CovenantName"] = {
 	-- Header
-	headerWidth = 90,
+	headerWidth = 80,
 	headerLabel = L["COLUMN_COVENANT_TITLE_SHORT"],
 	tooltipTitle = L["COLUMN_COVENANT_TITLE"],
 	tooltipSubTitle = L["COLUMN_COVENANT_SUBTITLE"],
-	headerOnClick = function() SortView("Level") end,
-	headerSort = GetCovenantName,
+	headerOnClick = function() SortView("CovenantName") end,
+	headerSort = DataStore.GetCovenantName,
 	
 	-- Content
-	Width = 90,
+	Width = 80,
 	JustifyH = "CENTER",
 	GetText = function(character) 
-		return format("%s%s", colors.white, DataStore:GetCovenantName(character))
+		local name = DataStore:GetCovenantName(character)
+		local color = colors.white
+		
+		if name == "" then
+			name = NONE
+			color = colors.grey
+		end
+	
+		return format("%s%s", color, name)
 	end,
+	OnEnter = function(frame)
+			local character = frame:GetParent().character
+			if not character then return end
+			
+			-- Get the class ID, may be unknown if the character has not been logged in yet.
+			local _, englishClass, classID = DataStore:GetCharacterClass(character)
+			if not classID then return end
+			
+			local tt = AltoTooltip
+			tt:ClearLines()
+			tt:SetOwner(frame, "ANCHOR_RIGHT")
+			tt:AddDoubleLine(DataStore:GetColoredCharacterName(character), L["Recommended Covenant"])
+			
+			for i = 1, GetNumSpecializationsForClassID(classID) do
+				local _, specName, _, iconID = GetSpecializationInfoForClassID(classID, i)
+				-- local icon = addon:GetSpellIcon(iconID)
+				
+				tt:AddLine(" ")
+				tt:AddLine(format("%s%s", colors.gold, specName))
+				-- tt:AddDoubleLine(format("%s%s", colors.white, specName), format(TEXTURE_FONT, icon, 18, 18))
+				
+				local info = DataStore:GetRecommendedCovenant(englishClass, i)
+				
+				for context, bestCovenantID in pairs(info) do
+					local text = (playStyles[context]) and playStyles[context]
+
+					if context == "choice1" then
+						-- Maybe we have 2 equally viable choices
+						tt:AddLine(format("%s%s : %s%s, %s", colors.white, L["Equally viable"], colors.cyan,
+							DataStore:GetCovenantNameByID(info.choice1), 
+							DataStore:GetCovenantNameByID(info.choice2)))
+					elseif text then
+						tt:AddLine(format("%s%s : %s%s", colors.white, text, colors.cyan, DataStore:GetCovenantNameByID(bestCovenantID)))
+					end
+					
+				end
+			end
+			
+			tt:Show()
+		end,
 	OnClick = function(frame)
 			local character = frame:GetParent().character
 			if not character then return end
@@ -2029,18 +2098,26 @@ columns["CovenantName"] = {
 
 columns["SoulbindName"] = {
 	-- Header
-	headerWidth = 80,
+	headerWidth = 70,
 	headerLabel = L["COLUMN_SOULBIND_TITLE_SHORT"],
 	tooltipTitle = L["COLUMN_SOULBIND_TITLE"],
 	tooltipSubTitle = L["COLUMN_SOULBIND_SUBTITLE"],
-	headerOnClick = function() SortView("Level") end,
-	headerSort = GetActiveSoulbindName,
+	headerOnClick = function() SortView("SoulbindName") end,
+	headerSort = DataStore.GetActiveSoulbindName,
 	
 	-- Content
-	Width = 80,
+	Width = 70,
 	JustifyH = "CENTER",
 	GetText = function(character) 
-		return format("%s%s", colors.white, DataStore:GetActiveSoulbindName(character))
+		local name = DataStore:GetActiveSoulbindName(character) or ""
+		local color = colors.white
+		
+		if name == "" then
+			name = NONE
+			color = colors.grey
+		end	
+	
+		return format("%s%s", color, name)
 	end,
 	OnClick = function(frame)
 			local character = frame:GetParent().character
@@ -2058,15 +2135,15 @@ columns["SoulbindName"] = {
 
 columns["Renown"] = {
 	-- Header
-	headerWidth = 70,
+	headerWidth = 60,
 	headerLabel = COVENANT_SANCTUM_TAB_RENOWN ,
 	tooltipTitle = L["COLUMN_RENOWN_TITLE"],
 	tooltipSubTitle = L["COLUMN_RENOWN_SUBTITLE"],
-	headerOnClick = function() SortView("Level") end,
+	headerOnClick = function() SortView("Renown") end,
 	headerSort = GetRenownLevel,
 	
 	-- Content
-	Width = 70,
+	Width = 60,
 	JustifyH = "CENTER",
 	GetText = function(character) 
 		return format("%s%s", colors.white, select(3, DataStore:GetCovenantInfo(character)))
@@ -2085,9 +2162,66 @@ columns["Renown"] = {
 		end,
 }
 
+columns["CampaignProgress"] = {
+	-- Header
+	headerWidth = 70,
+	headerLabel = L["COLUMN_CAMPAIGNPROGRESS_TITLE_SHORT"],
+	tooltipTitle = L["COLUMN_CAMPAIGNPROGRESS_TITLE"],
+	tooltipSubTitle = L["COLUMN_CAMPAIGNPROGRESS_SUBTITLE"],
+	headerOnClick = function() SortView("CampaignProgress") end,
+	headerSort = DataStore.GetCovenantCampaignProgress,
+	
+	-- Content
+	Width = 70,
+	JustifyH = "CENTER",
+	GetText = function(character) 
+		local numCompleted = DataStore:GetCovenantCampaignProgress(character)
+		local numQuests = DataStore:GetCovenantCampaignLength(character)
+
+		local colorCompleted = (numCompleted == 0) and colors.grey or colors.white
+		local colorNumQuests = (numQuests == 0) and colors.grey or colors.yellow
+		
+		return format("%s%s%s/%s%s", colorCompleted, numCompleted, colors.white, colorNumQuests, numQuests)
+	end,
+	OnEnter = function(frame)
+			local character = frame:GetParent().character
+			if not character then return end
+			
+			local numCompleted = DataStore:GetCovenantCampaignProgress(character)
+			local numQuests = DataStore:GetCovenantCampaignLength(character)
+			
+			local tt = AltoTooltip
+			tt:ClearLines()
+			tt:SetOwner(frame, "ANCHOR_RIGHT")
+			tt:AddDoubleLine(DataStore:GetColoredCharacterName(character), DataStore:GetCovenantName(character))
+			tt:AddLine(" ")
+			tt:AddLine(format(CAMPAIGN_PROGRESS_CHAPTERS_TOOLTIP, numCompleted, numQuests))
+			
+			for _, info in pairs(DataStore:GetCovenantCampaignChaptersInfo(character)) do
+				local color
+				local icon = " - "
+				
+				if info.completed then
+					if info.completed == true then
+						color = colors.green				-- green for completed
+						icon = CRITERIA_COMPLETE_ICON
+					else
+						color = colors.white				-- white for ongoing
+						
+					end
+				else
+					color = colors.grey					-- grey for not started
+				end
+				
+				tt:AddLine(format("%s%s%s", icon, color, info.name))
+			end
+			tt:Show()
+		end,
+}
+
 columns["CurrencyAnima"] = {
 	-- Header
-	headerWidth = 80,
+	headerWidth = 70,
 	headerLabel = "   " .. format(TEXTURE_FONT, "Interface\\Icons\\spell_animabastion_orb", 18, 18),
 	headerOnEnter = function(frame, tooltip)
 			CurrencyHeader_OnEnter(frame, CURRENCY_ID_ANIMA)
@@ -2096,11 +2230,16 @@ columns["CurrencyAnima"] = {
 	headerSort = DataStore.GetReservoirAnima,
 	
 	-- Content
-	Width = 80,
+	Width = 70,
 	JustifyH = "CENTER",
 	GetText = function(character)
 			local amount, _, _, totalMax = DataStore:GetCurrencyTotals(character, CURRENCY_ID_ANIMA)
 			local color = (amount == 0) and colors.grey or colors.white
+			
+			-- save some space by shortening the label
+			if totalMax > 0 then
+				totalMax = format("%sk", (totalMax / 1000))
+			end
 			
 			return format("%s%s%s/%s%s", color, amount, colors.white, colors.yellow, totalMax)
 		end,
@@ -2108,8 +2247,8 @@ columns["CurrencyAnima"] = {
 
 columns["CurrencyRedeemedSoul"] = {
 	-- Header
-	headerWidth = 80,
-	headerLabel = "   " .. format(TEXTURE_FONT, "Interface\\Icons\\sha_spell_warlock_demonsoul_nightborne", 18, 18),
+	headerWidth = 60,
+	headerLabel = "  " .. format(TEXTURE_FONT, "Interface\\Icons\\sha_spell_warlock_demonsoul_nightborne", 18, 18),
 	headerOnEnter = function(frame, tooltip)
 			CurrencyHeader_OnEnter(frame, CURRENCY_ID_REDEEMED_SOUL)
 		end,
@@ -2117,7 +2256,7 @@ columns["CurrencyRedeemedSoul"] = {
 	headerSort = DataStore.GetRedeemedSouls,
 	
 	-- Content
-	Width = 80,
+	Width = 60,
 	JustifyH = "CENTER",
 	GetText = function(character)
 			local amount, _, _, totalMax = DataStore:GetCurrencyTotals(character, CURRENCY_ID_REDEEMED_SOUL)
@@ -2163,7 +2302,7 @@ local modes = {
 	-- [MODE_CURRENCIES] = { "Name", "Level", "CurrencyGarrison", "CurrencyNethershard", "CurrencyLegionWarSupplies", "CurrencySOBF", "CurrencyOrderHall" },
 	[MODE_CURRENCIES] = { "Name", "Level", "CurrencyBfAWarResources", "CurrencyBfASOWF", "CurrencyBfADubloons", "CurrencyBfAWarSupplies", "CurrencyBfARichAzerite" },
 	[MODE_FOLLOWERS] = { "Name", "Level", "FollowersLV40", "FollowersEpic", "FollowersLV630", "FollowersLV660", "FollowersLV675", "FollowersItems" },
-	[MODE_COVENANT] = { "Name", "Level", "CovenantName", "SoulbindName", "Renown", "CurrencyAnima", "CurrencyRedeemedSoul" },
+	[MODE_COVENANT] = { "Name", "Level", "CovenantName", "SoulbindName", "Renown", "CampaignProgress", "CurrencyAnima", "CurrencyRedeemedSoul" },
 }
 
 function ns:SetMode(mode)

@@ -161,6 +161,18 @@ L["COLUMN_SOULBIND_TITLE_SHORT"] = "Soulbind"
 L["COLUMN_RENOWN_SUBTITLE"] = "Click to view your renown level and rewards"
 L["COLUMN_RENOWN_TITLE"] = "Renown Level"
 
+L["COLUMN_CAMPAIGNPROGRESS_TITLE_SHORT"] = "Story"
+L["COLUMN_CAMPAIGNPROGRESS_TITLE"] = "Campaign Progress"
+L["COLUMN_CAMPAIGNPROGRESS_SUBTITLE"] = "Number of completed chapters in the covenant campaign"
+
+L["Overall"] = true
+L["Torghast"] = true
+L["Single target build"] = true
+L["AOE build"] = true
+L["Recommended Covenant"] = true
+L["Equally viable"] = true
+
+
 -- *************************
 -- *** Tab Characters
 -- *************************
