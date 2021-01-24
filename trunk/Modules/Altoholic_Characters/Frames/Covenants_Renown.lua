@@ -17,6 +17,9 @@ addon:Controller("AltoholicUI.RenownLevel", {
 		return frame.info and frame.info.level or 0
 	end,
    TryInit = function(frame)
+		-- not in Blizzard's implementation, reset the rewardInfo to nil, in case we switch character, they obviously do not need it.
+		--frame.rewardInfo = nil
+		
 		if frame.init then return end
 
 		frame.init = true
@@ -36,6 +39,7 @@ addon:Controller("AltoholicUI.RenownLevel", {
 		end
 
 		local rewards = C_CovenantSanctumUI.GetRenownRewardsForLevel(currentCovenantID, frame:GetLevel())
+		
 		-- use first reward for icon
 		frame.rewardInfo = rewards[1]
 		frame:SetIcon()
@@ -75,7 +79,9 @@ addon:Controller("AltoholicUI.RenownLevel", {
 		frame.Check:SetShown(level <= actualLevel)
 	end,
 	SetIcon = function(frame)
-		local icon, name, description = CovenantUtil.GetRenownRewardInfo(frame.rewardInfo, GenerateClosure(frame.SetIcon, frame))
+		if not frame.rewardInfo then return end
+	
+		local icon = CovenantUtil.GetRenownRewardInfo(frame.rewardInfo, GenerateClosure(frame.SetIcon, frame))
 		frame.Icon:SetTexture(icon)
 	end,
 	OnEnter = function(frame)

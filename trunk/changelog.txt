@@ -14,6 +14,25 @@ How to support Altoholic's development :
 
 If you like the addon, consider supporting it, this has been the long term effort and commitment of a single person. #ArmyOfOne
 
+9.0.004
+
+- Summary Tab => Covenant Sanctum : added a new column to track campaign progress.
+- Summary Tab => Covenant Sanctum : added a tooltip of the covenant name to show the best covenant for this character (sources: Icy Veins & Wowhead)
+	=> You have to login with the alt once for the tooltip to show !
+- Fixed a Lua error again when trying to get the soulbind's name of a low level alt.
+- Characters Tab => Renown Panel : Fixed a Lua error when viewing an alt's renown levels.
+- Fixed a minor bug that preventing alt's currencies to be shown in the tooltip.
+
+9.0.003c (15/01/2021)
+
+- Fixed a bug where a soulbind's name could be returned as nil and cause a Lua error.
+- Fixed 2 Lua errors in the Skills panel of the Account Summary Tab.
+
+
+9.0.003b (14/01/2021)
+
+- Minor fix, forgot to include files in the Altoholic_Characters .TOC file.
+
 9.0.003 (10/01/2021)
 
 CLEARING YOUR PREVIOUS INSTALLATION IS MANDATORY FOR THIS RELEASE, AS WELL AS YOUR SAVED VARIABLES !!!!
