@@ -396,6 +396,14 @@
 					<KeyValue key="option" value="UI.Tooltip.ShowGuildBankCountPerTab" />
 				</KeyValues>
 			</CheckButton>
+			<CheckButton parentKey="ShowHearthstoneCount" inherits="AltoToggleableOptionTemplate">
+				<Anchors> 
+					<Anchor point="TOPLEFT" relativeKey="$parent.ShowGuildBankCountPerTab" relativePoint="BOTTOMLEFT" x="0" y="-10" />
+				</Anchors>
+				<KeyValues>
+					<KeyValue key="option" value="UI.Tooltip.ShowHearthstoneCount" />
+				</KeyValues>
+			</CheckButton>
 		</Frames>
 	</Frame>
 	

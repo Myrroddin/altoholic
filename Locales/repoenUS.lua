@@ -1014,6 +1014,7 @@ L["Show counters for all accounts"] =
 L["Show counters for connected realms"] = true
 L["Include guild bank count in the total count"] = true
 L["Detailed guild bank count"] = true
+L["Show counters for hearthstones"] = true
 
 -- ** Frame 6 : Calendar **
 L["Week starts on Monday"] = true

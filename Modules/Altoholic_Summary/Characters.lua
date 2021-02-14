@@ -175,7 +175,7 @@ local function AddRealm(AccountName, RealmName)
 
 	-- 3) Add the totals
 	table.insert(characterList, { linetype = INFO_TOTAL_LINE + realmOffset,
-		level = colors.white .. realmLevels,
+		level = format("%s%d", colors.white, realmLevels),
 		money = realmMoney,
 		played = Altoholic:GetTimeString(realmPlayed),
 		bagSlots = realmBagSlots,

@@ -32,6 +32,7 @@ local VIEW_PROFESSION = 9
 local VIEW_GARRISONS = 10
 local VIEW_COVENANT_RENOWN = 11
 local VIEW_COVENANT_SOULBINDS = 12
+local VIEW_COVENANT_RESERVOIR = 13
 
 -- Second mini easter egg, the bag icon changes depending on the amount of chars at level max (on the current realm), or based on the time of the year
 local BAG_ICONS = {
@@ -69,6 +70,7 @@ local function HideAll()
 	AltoholicTabCharacters.Recipes:Hide()
 	AltoholicTabCharacters.Renown:Hide()
 	AltoholicTabCharacters.Soulbinds:Hide()
+	AltoholicTabCharacters.Reservoir:Hide()
 	
 	AltoholicFrameContainers:Hide()
 
@@ -161,6 +163,8 @@ function ns:ShowCharInfo(view)
 		AltoholicTabCharacters.Renown:Update()
 	elseif view == VIEW_COVENANT_SOULBINDS then
 		AltoholicTabCharacters.Soulbinds:Update()
+	elseif view == VIEW_COVENANT_RESERVOIR then
+		AltoholicTabCharacters.Reservoir:Update()
 	end
 end
 
@@ -381,13 +385,9 @@ local function OnGarrisonMenuChange(self)
 end
 
 local function OnCovenantChange(self)
+	addon:SetOption("UI.Tabs.Characters.CovenantSanctum", self.value)
 	CloseDropDownMenus()
-	
-	if self.value == 1 then
-		ns:ViewCharInfo(VIEW_COVENANT_RENOWN)
-	elseif self.value == 2 then
-		ns:ViewCharInfo(VIEW_COVENANT_SOULBINDS)
-	end
+	ns:ViewCharInfo(self.value)
 end
 
 local function OnViewChange(self)
@@ -870,11 +870,13 @@ end
 
 local function CovenantIcon_Initialize(self, level)
 
+	local currentMenu = addon:GetOption("UI.Tabs.Characters.CovenantSanctum") or 0
+
 	DDM_AddTitle(GARRISON_TYPE_9_0_LANDING_PAGE_TITLE)
 	
-	DDM_Add(LANDING_PAGE_RENOWN_LABEL, 1, OnCovenantChange)			-- Renown
-	DDM_Add(COVENANT_PREVIEW_SOULBINDS, 2, OnCovenantChange)			-- Soulbinds
-	-- DDM_Add(COVENANT_SANCTUM_TAB_UPGRADES, 3, OnCovenantChange)		-- Sanctum Reservoir
+	DDM_Add(LANDING_PAGE_RENOWN_LABEL, VIEW_COVENANT_RENOWN, OnCovenantChange, nil, (currentMenu == VIEW_COVENANT_RENOWN))					-- Renown
+	DDM_Add(COVENANT_PREVIEW_SOULBINDS, VIEW_COVENANT_SOULBINDS, OnCovenantChange, nil, (currentMenu == VIEW_COVENANT_SOULBINDS))			-- Soulbinds
+	DDM_Add(COVENANT_SANCTUM_TAB_UPGRADES, VIEW_COVENANT_RESERVOIR, OnCovenantChange, nil, (currentMenu == VIEW_COVENANT_RESERVOIR))		-- Sanctum Reservoir
 	-- DDM_Add(ANIMA_DIVERSION_ORIGIN_TOOLTIP, 4, OnCovenantChange)	-- Anima Conductor
 	
 	DDM_AddTitle(" ")

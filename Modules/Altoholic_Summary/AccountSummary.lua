@@ -2201,16 +2201,13 @@ columns["CampaignProgress"] = {
 				local color
 				local icon = " - "
 				
-				if info.completed then
-					if info.completed == true then
-						color = colors.green				-- green for completed
-						icon = CRITERIA_COMPLETE_ICON
-					else
-						color = colors.white				-- white for ongoing
-						
-					end
-				else
-					color = colors.grey					-- grey for not started
+				if info.completed == nil then
+					color = colors.grey				-- grey for not started
+				elseif info.completed == false then
+					color = colors.white				-- white for ongoing
+				elseif info.completed == true then
+					color = colors.green				-- green for completed
+					icon = CRITERIA_COMPLETE_ICON
 				end
 				
 				tt:AddLine(format("%s%s%s", icon, color, info.name))

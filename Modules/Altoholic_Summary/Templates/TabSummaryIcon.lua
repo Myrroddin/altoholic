@@ -114,6 +114,10 @@ local function LevelIcon_Initialize(frame, level)
 	frame:AddButtonWithArgs("40-49", 6, OnLevelFilterChange, 40, 49, (option == 6))
 	frame:AddButtonWithArgs("50-59", 7, OnLevelFilterChange, 50, 59, (option == 7))
 	frame:AddButtonWithArgs("60", 8, OnLevelFilterChange, 60, 60, (option == 8))
+	frame:AddTitle()
+	frame:AddButtonWithArgs("1-44", 9, OnLevelFilterChange, 1, 44, (option == 9))
+	frame:AddButtonWithArgs(format("45+ %s(%s)", colors.green, EXPANSION_NAME7), 10, OnLevelFilterChange, 45, 60, (option == 10))
+	frame:AddButtonWithArgs(format("50+ %s(%s)", colors.green, EXPANSION_NAME8), 11, OnLevelFilterChange, 50, 60, (option == 11))
 	frame:AddCloseMenu()
 end
 
@@ -165,6 +169,16 @@ local function ClassIcon_Initialize(frame, level)
 			key, OnClassFilterChange, nil, (option == key)
 		)
 	end
+	frame:AddTitle()
+	
+	-- TO DO: ok here, but finish filtering in characters.lua
+	local armorTypes = addon.Enum.ArmorTypes
+	
+	-- Add the armor types
+	-- for i = 1, #armorTypes do
+		-- frame:AddButton(armorTypes[i], armorTypes[i], OnClassFilterChange, nil, (option == armorTypes[i]))	
+	-- end
+	
 	frame:AddCloseMenu()
 end
 

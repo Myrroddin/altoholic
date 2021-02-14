@@ -14,7 +14,17 @@ How to support Altoholic's development :
 
 If you like the addon, consider supporting it, this has been the long term effort and commitment of a single person. #ArmyOfOne
 
-9.0.004
+9.0.005 (14/02/2021)
+
+- Summary Tab => Added two more options to filter alts by level : 1-44, 45+ & 50+
+- Summary Tab => Covenant Sanctum : Fixed a color issue for the current chapter being displayed as grey instead of white in the campaign progress tooltip.
+- DataStore_Quests => Fixed the campaign progress quest status (related to previous line)
+- Added a tooltip option to hide counters for hearthstones. 
+	Namely : Hearthstone, Dalaran Hearthstone, Garrison Hearthstone, Admiral's Compass and Flight Master's Whistle
+- Grids Tab => Added a drop down in the emissaries, to allow filtering quests by expansion pack.
+- Grids Tab => Reputations : Fixed a lua error when selecting the "All-in-one" view, due to the "Chromie" reputation being missing.
+
+9.0.004 (24/01/2021)
 
 - Summary Tab => Covenant Sanctum : added a new column to track campaign progress.
 - Summary Tab => Covenant Sanctum : added a tooltip of the covenant name to show the best covenant for this character (sources: Icy Veins & Wowhead)

@@ -120,6 +120,38 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "9.0.005 Changes",
+		bulletedList = {
+			"Summary Tab => Added two more options to filter alts by level : 1-44, 45+ & 50+",
+			"Summary Tab => Covenant Sanctum : Fixed a color issue for the current chapter being displayed as grey instead of white in the campaign progress tooltip.",
+			"DataStore_Quests => Fixed the campaign progress quest status (related to previous line)",
+			"Added a tooltip option to hide counters for hearthstones.",
+			"Namely : Hearthstone, Dalaran Hearthstone, Garrison Hearthstone, Admiral's Compass and Flight Master's Whistle",
+			"Grids Tab => Added a drop down in the emissaries, to allow filtering quests by expansion pack.",
+			"Grids Tab => Reputations : Fixed a lua error when selecting the 'All-in-one' view, due to the 'Chromie' reputation being missing."
+		},
+	},
+	{	name = "9.0.004 Changes",
+		bulletedList = {
+			"Summary Tab => Covenant Sanctum : added a new column to track campaign progress.",
+			"Summary Tab => Covenant Sanctum : added a tooltip of the covenant name to show the best covenant for this character (sources: Icy Veins & Wowhead)",
+			"	=> You have to login with the alt once for the tooltip to show !",
+			"Fixed a Lua error again when trying to get the soulbind's name of a low level alt.",
+			"Characters Tab => Renown Panel : Fixed a Lua error when viewing an alt's renown levels.",
+			"Fixed a minor bug that preventing alt's currencies to be shown in the tooltip.",
+		},
+	},
+	{	name = "9.0.003c Changes",
+		bulletedList = {
+			"Fixed a bug where a soulbind's name could be returned as nil and cause a Lua error.",
+			"Fixed 2 Lua errors in the Skills panel of the Account Summary Tab.",
+		},
+	},
+	{	name = "9.0.003b Changes",
+		bulletedList = {
+			"Minor fix, forgot to include files in the Altoholic_Characters .TOC file."
+		},
+	},
 	{	name = "9.0.003 Changes",
 		bulletedList = {
 			"Following the addition of the offensive code by Teelo in the latest release, I have taken back control of the development based on 8.3.001.",
@@ -329,6 +361,7 @@ function addon:SetupOptions()
 	f.ShowGuildBankCount.Text:SetText(L["Show guild bank count"])
 	f.IncludeGuildBankInTotal.Text:SetText(L["Include guild bank count in the total count"])
 	f.ShowGuildBankCountPerTab.Text:SetText(L["Detailed guild bank count"])
+	f.ShowHearthstoneCount.Text:SetText(L["Show counters for hearthstones"])
 	L["Show item source"] = nil
 	L["Show item count per character"] = nil
 	L["Show item count without details"] = nil
@@ -341,6 +374,7 @@ function addon:SetupOptions()
 	L["Show counters for both factions"] = nil
 	L["Show counters for all accounts"] = nil
 	L["Include guild bank count in the total count"] = nil
+	L["Show counters for hearthstones"] = nil
 	
 	-- ** Calendar **
 	f = AltoholicCalendarOptions
