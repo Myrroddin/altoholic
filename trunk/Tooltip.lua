@@ -9,6 +9,14 @@ local THIS_REALM = GetRealmName()
 
 local storedLink = nil
 
+local hearthstoneItemIDs = {
+	[6948] = true,				-- Hearthstone
+	[140192] = true,			-- Dalaran Hearthstone
+	[110560] = true,			-- Garrison Hearthstone
+	[128353] = true,			-- Admiral's Compass
+	[141605] = true,			-- Flight Master's Whistle
+}
+
 local GatheringNodes = {			-- Add herb/ore possession info to Plants/Mines, thanks to Tempus on wowace for gathering this.
 
 	-- Mining nodes
@@ -533,8 +541,9 @@ local function ProcessTooltip(tooltip, link)
 			end
 		end
 	end
-	 
+	
 	if (itemID == 0) then return end
+	
 	-- if there's no cached item id OR if it's different from the previous one ..
 	if (not cachedItemID) or 
 		(cachedItemID and (itemID ~= cachedItemID)) then
@@ -549,14 +558,16 @@ local function ProcessTooltip(tooltip, link)
 			cachedItemID = itemID			-- we have searched this ID ..
 			if domain then
 				subDomain = (subDomain) and format(", %s", subDomain) or ""
-				cachedSource = format("%s: %s%s", colors.gold..L["Source"], colors.teal..domain, subDomain)
+				cachedSource = format("%s%s: %s%s%s", colors.gold, L["Source"], colors.teal, domain, subDomain)
 			end
 		end
+
+
 		
 		-- .. then check player bags to see how many times he owns this item, and where
 		if addon:GetOption("UI.Tooltip.ShowItemCount") or addon:GetOption("UI.Tooltip.ShowTotalItemCount") then
 			cachedCount = GetItemCount(itemID) -- if one of the 2 options is active, do the count
-			cachedTotal = (cachedCount > 0) and format("%s: %s", colors.gold..L["Total owned"], colors.teal..cachedCount) or nil
+			cachedTotal = (cachedCount > 0) and format("%s%s: %s%s", colors.gold, L["Total owned"], colors.teal, cachedCount) or nil
 		end
 	end
 
@@ -566,12 +577,17 @@ local function ProcessTooltip(tooltip, link)
 		tooltip:AddLine(format(ITEM_COOLDOWN_TIME, SecondsToTime(owner.duration - (GetTime() - owner.startTime))),1,1,1);
 	end
 
-	WriteCounterLines(tooltip)
-	WriteTotal(tooltip)
+	local isHearth = hearthstoneItemIDs[itemID] 
+	local showHearth = addon:GetOption("UI.Tooltip.ShowHearthstoneCount")
+	
+	if showHearth or (not showHearth and not isHearth) then
+		WriteCounterLines(tooltip)
+		WriteTotal(tooltip)
+	end
 	
 	if cachedSource then		-- add item source
-		tooltip:AddLine(" ",1,1,1);
-		tooltip:AddLine(cachedSource,1,1,1);
+		tooltip:AddLine(" ",1,1,1)
+		tooltip:AddLine(cachedSource, 1,1,1)
 	end
 	
 	-- addon:CheckMaterialUtility(itemID)
@@ -580,8 +596,8 @@ local function ProcessTooltip(tooltip, link)
 		local iLevel = select(4, GetItemInfo(itemID))
 		
 		if iLevel then
-			tooltip:AddLine(" ",1,1,1);
-			tooltip:AddDoubleLine("Item ID: " .. colors.green .. itemID,  "iLvl: " .. colors.green .. iLevel);
+			tooltip:AddLine(" ",1,1,1)
+			tooltip:AddDoubleLine(format("Item ID: %s%s", colors.green, itemID), format("iLvl: %s%s", colors.green, iLevel))
 		end
 	end
 	

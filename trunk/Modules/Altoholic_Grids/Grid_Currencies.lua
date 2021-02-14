@@ -55,6 +55,7 @@ local function DropDown_Initialize(frame)
 	for _, header in ipairs(DataStore:GetCurrencyHeaders()) do		-- and add them to the DDM
 		frame:AddButtonWithArgs(header, nil, OnTokenChange, header, nil, (addon:GetOption(OPTION_TOKEN) == header))
 	end
+	
 	frame:AddButtonWithArgs(L["All-in-one"], nil, OnTokensAllInOne, nil, nil, (addon:GetOption(OPTION_TOKEN) == nil))
 	frame:AddCloseMenu()
 end

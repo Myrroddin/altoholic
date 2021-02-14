@@ -7,9 +7,18 @@ local ICON_VIEW_QUESTS = "Interface\\LFGFrame\\LFGIcon-Quest"
 
 local questList
 local view
+local isViewValid
 
 local QUEST_IN_PROGRESS = 1
 local QUEST_COMPLETE = 2
+
+local OPTION_XPACK = "UI.Tabs.Grids.Emissaries.ShowXPack%d"
+
+local function GetExpansionLabel(level, withVersion)
+	return (withVersion) 
+		and format("%s[%s%s.0%s] %s%s", colors.white, colors.green, level+1, colors.white, colors.gold, _G["EXPANSION_NAME" .. level])
+		or format("%s%s", colors.white, _G["EXPANSION_NAME" .. level])
+end
 
 local function GetPercentageColor(percent)
 	if percent >= 75 then
@@ -35,7 +44,7 @@ local function BuildView()
 			local isOnQuest, questLogIndex = DataStore:IsCharacterOnQuest(character, questID)
 			local _, _, timeLeft, _, _, expansionLevel = DataStore:GetEmissaryQuestInfo(character, questID)
 
-			if isOnQuest and timeLeft and timeLeft > 0 then
+			if isOnQuest and timeLeft and timeLeft > 0 and addon:GetOption(format(OPTION_XPACK, expansionLevel)) then
 				-- 2021-01-10 : Callings injected as emissaries will cause the player not yet to be "on the quest"
 				-- Param 3 : questID important if it is a calling, not used otherwise
 				local questName = DataStore:GetQuestLogInfo(character, questLogIndex, questID)
@@ -73,9 +82,27 @@ local function BuildView()
 	end)
 end
 
+local function OnExpansionChange(self)
+	addon:ToggleOption(nil, format(OPTION_XPACK, self.value))
+
+	isViewValid = nil
+	AltoholicTabGrids:Update()
+end
+
+local function DropDown_Initialize(frame)
+	-- add from the 6th to the 8th expansion
+	for i = 6, 8 do
+		frame:AddButtonWithArgs(GetExpansionLabel(i, true), i, OnExpansionChange, nil, nil, addon:GetOption(format(OPTION_XPACK, i)))
+	end
+	
+	frame:AddCloseMenu()
+end
+
 local callbacks = {
 	OnUpdate = function() 
-			BuildView()
+			if not isViewValid then
+				BuildView()
+			end
 		end,
 	GetSize = function() return #view end,
 	RowSetup = function(self, rowFrame, dataRowID)
@@ -84,8 +111,7 @@ local callbacks = {
 			local name = quest.title
 
 			if name then
-				rowFrame.Name.Text:SetText(format("%s%s\n%s", colors.white, name, 
-					format("%s[%s%s.0%s] %s%s", colors.white, colors.green, level+1, colors.white, colors.gold, _G["EXPANSION_NAME" .. level])))
+				rowFrame.Name.Text:SetText(format("%s%s\n%s", colors.white, name, GetExpansionLabel(level, true)))
 				rowFrame.Name.Text:SetJustifyH("LEFT")
 			end
 		end,
@@ -168,8 +194,13 @@ local callbacks = {
 		end,
 		
 	InitViewDDM = function(frame, title) 
-			frame:Hide()
-			title:Hide()
+			frame:Show()
+			title:Show()
+			
+			frame:SetMenuWidth(100) 
+			frame:SetButtonWidth(20)
+			frame:SetText(EXPANSION_FILTER_TEXT)
+			frame:Initialize(DropDown_Initialize, "MENU_NO_BORDERS")
 		end,
 }
 
