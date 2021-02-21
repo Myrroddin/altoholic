@@ -259,6 +259,14 @@ local function SortByFunction(a, b, func, ascending)
 
 		local retA = func(self, a.key) or 0		-- set to zero if a return value is nil, so that they can be compared
 		local retB = func(self, b.key) or 0
+
+		-- 2021/02/15
+		-- It may happen that an alt's key is not known at all in a DataStore module (ex: talents on low level alts)
+		-- In such case, DataStore itself will not see the character key and alway return null (converted to 0 just above)
+		-- If the other key is valid and returns a string, we might have a type conflict, so let's not swap lines
+		if type(retA) ~= type(retB) then
+			return false
+		end
 		
 		if ascending then
 			return retA < retB

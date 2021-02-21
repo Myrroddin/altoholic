@@ -120,6 +120,15 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "9.0.006 Changes",
+		bulletedList = {
+			"Fixed a bug that probably existed since a very long time in the account summary, when randomly sorting on a column that would try to get data from a DataStore module where a character key was completely missing.",
+			"This impacts alts that do not have talents yet for example.",
+			"If you have low level alts (<15) you haven't logged in in a long time .. now would be a good time to do it.",
+			"Summary Tab => Skills : Added the 'Riding skill' column.",
+			"Summary Tab => Added a new menu item with miscellaneous information : guild name, hearthstone, class & active talent spec.",
+		},
+	},
 	{	name = "9.0.005 Changes",
 		bulletedList = {
 			"Summary Tab => Added two more options to filter alts by level : 1-44, 45+ & 50+",

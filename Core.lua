@@ -4,8 +4,8 @@ _G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "A
 
 local addon = _G[addonName]
 
-addon.Version = "v9.0.005"
-addon.VersionNum = 900005
+addon.Version = "v9.0.006"
+addon.VersionNum = 900006
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local commPrefix = addonName
@@ -85,6 +85,7 @@ local AddonDB_Defaults = {
 			["UI.Tabs.Summary.SortAscending"] = true,							-- ascending or descending sort order
 			["UI.Tabs.Summary.ShowLevelDecimals"] = true,					-- display character level with decimals or not
 			["UI.Tabs.Summary.ShowILevelDecimals"] = true,					-- display character level with decimals or not
+			["UI.Tabs.Summary.ShowGuildRank"] = false,						-- display the guild rank or the guild name
 			
 			-- ** Character tab options **
 			["UI.Tabs.Characters.ViewBags"] = true,
