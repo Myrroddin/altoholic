@@ -20,4 +20,5 @@ Frames\Spellbook.xml
 Frames\Talents.xml
 Frames\Garrisons.xml
 Frames\Covenants_Renown.xml
+Frames\Covenants_Reservoir.xml
 Frames\Covenants_Soulbinds.xml
