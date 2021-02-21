@@ -172,7 +172,13 @@ L["AOE build"] = true
 L["Recommended Covenant"] = true
 L["Equally viable"] = true
 
+-- *** Tab Summary / Miscellaneous ***
 
+L["COLUMN_GUILD_SUBTITLE"] = "Click guild name to toggle the guild rank"
+L["COLUMN_GUILD_TITLE"] = "Guild information"
+L["COLUMN_HEARTHSTONE_SUBTITLE"] = "That special place you call home"
+L["COLUMN_CLASS_SUBTITLE"] = "Character class and active specialization"
+L["COLUMN_RIDING_UPGRADEABLE"] = "This character could upgrade his riding skill"
 -- *************************
 -- *** Tab Characters
 -- *************************

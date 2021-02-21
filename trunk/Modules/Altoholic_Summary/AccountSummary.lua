@@ -12,6 +12,7 @@ local MODE_ACTIVITY = 4
 local MODE_CURRENCIES = 5
 local MODE_FOLLOWERS = 6
 local MODE_COVENANT = 7
+local MODE_MISCELLANEOUS = 8
 
 local SKILL_CAP = 900
 local CURRENCY_ID_JUSTICE = 395
@@ -38,6 +39,7 @@ local THIS_ACCOUNT = "Default"
 
 local VIEW_BAGS = 1
 local VIEW_QUESTS = 2
+local VIEW_TALENTS = 3
 local VIEW_AUCTIONS = 4
 local VIEW_BIDS = 5
 local VIEW_MAILS = 6
@@ -50,8 +52,6 @@ local VIEW_COVENANT_SOULBINDS = 12
 
 local TEXTURE_FONT = "|T%s:%s:%s|t"
 local CRITERIA_COMPLETE_ICON = "\124TInterface\\AchievementFrame\\UI-Achievement-Criteria-Check:14\124t"
-
-
 
 addon.Summary = {}
 
@@ -90,6 +90,20 @@ local function GetRestedXP(character)
 	return format("%s%2.0f", color, rate).."%", rate, savedXP, savedRate * maxCoeff, rateEarnedResting * maxCoeff, xpEarnedResting, maxXP, isFullyRested, timeUntilFullyRested
 end
 
+local function CanUpgradeRidingSkill(character, speed)
+	local characterLevel = DataStore:GetCharacterLevel(character)
+	local couldUpgrade = false
+		
+	-- Could the player upgrade ?
+	DataStore:IterateRidingSkills(function(skill) 
+		if characterLevel >= skill.minLevel and speed < skill.speed then
+			couldUpgrade = true
+		end
+	end)
+	
+	return couldUpgrade
+end
+
 local function FormatBagType(link, bagType)
 	link = link or ""
 	if bagType and strlen(bagType) > 0 then
@@ -107,6 +121,23 @@ end
 local function FormatAiL(level)
 	return format("%s%s %s%s", colors.yellow, L["COLUMN_ILEVEL_TITLE_SHORT"], colors.green, level)
 end
+
+local function FormatTexture(texture)
+	-- all textures are formatted to be 18x18 on this panel
+	return format("|T%s:18:18|t", texture)
+end
+
+local function FormatGreyIfEmpty(text, color)
+	color = color or colors.white
+		
+	if not text or text == "" then
+		text = NONE
+		color = colors.grey
+	end
+	
+	return format("%s%s", color, text)
+end
+
 
 local skillColors = { colors.recipeGrey, colors.red, colors.orange, colors.yellow, colors.green }
 
@@ -132,6 +163,16 @@ local function TradeskillHeader_OnEnter(frame, tooltip)
 	tooltip:AddLine(format("%s%s|r %s %s", colors.orange, L["COLOR_ORANGE"], L["up to"], (floor(SKILL_CAP*0.75)-1)),1,1,1)
 	tooltip:AddLine(format("%s%s|r %s %s", colors.yellow, YELLOW_GEM, L["up to"], (SKILL_CAP-1)),1,1,1)
 	tooltip:AddLine(format("%s%s|r %s %s %s", colors.green, L["COLOR_GREEN"], L["at"], SKILL_CAP, L["and above"]),1,1,1)
+end
+
+local function RidingSkillHeader_OnEnter(frame, tooltip)
+	tooltip:AddLine(" ")
+	
+	DataStore:IterateRidingSkills(function(skill) 
+		tooltip:AddDoubleLine(
+			format("%s%s %s%d", colors.white, LEVEL, colors.green, skill.minLevel), 
+			format("%s%s%%", colors.white, skill.speed))
+	end)
 end
 
 local function Tradeskill_OnEnter(frame, skillName, showRecipeStats)
@@ -464,6 +505,15 @@ local function GetRenownLevel(self, character)
 	return select(3, DataStore:GetCovenantInfo(character)) or 0
 end
 
+local function GetGuildOrRank(self, character)
+	local guildName, guildRank, rankIndex = DataStore:GetGuildInfo(character)
+
+	--	return the combination of guild, rank + index to ensure sort order is preserved on refresh !
+	return format("%s.%s.%s", guildName or "", rankIndex or "", guildRank or "")
+end
+
+
+
 -- *** Column definitions ***
 local columns = {}
 
@@ -483,7 +533,7 @@ columns["Name"] = {
 			local class = DataStore:GetCharacterClass(character)
 			local icon = icons[DataStore:GetCharacterFaction(character)] or "Interface/Icons/INV_BannerPVP_03"
 
-			return format("%s %s (%s)", format(TEXTURE_FONT, icon, 18, 18), name, class)
+			return format("%s %s (%s)", FormatTexture(icon), name, class)
 		end,
 	OnEnter = function(frame)
 			local character = frame:GetParent().character
@@ -510,7 +560,7 @@ columns["Name"] = {
 			if suggestion then
 				tt:AddLine(" ")
 				tt:AddLine(L["Suggested leveling zone: "],1,1,1)
-				tt:AddLine(colors.teal .. suggestion,1,1,1)
+				tt:AddLine(format("%s%s:", colors.teal, suggestion),1,1,1)
 			end
 
 			-- parse saved instances
@@ -1034,7 +1084,7 @@ columns["Prof1"] = {
 	GetText = function(character)
 			local rank, _, _, name = DataStore:GetProfession1(character)
 			local spellID = DataStore:GetProfessionSpellID(name)
-			local icon = spellID and format(TEXTURE_FONT, addon:GetSpellIcon(spellID), 18, 18) .. " " or ""
+			local icon = spellID and FormatTexture(addon:GetSpellIcon(spellID)) .. " " or ""
 			
 			return format("%s%s%s", icon, GetSkillRankColor(rank), rank)
 		end,
@@ -1066,7 +1116,7 @@ columns["Prof2"] = {
 	GetText = function(character)
 			local rank, _, _, name = DataStore:GetProfession2(character)
 			local spellID = DataStore:GetProfessionSpellID(name)
-			local icon = spellID and format(TEXTURE_FONT, addon:GetSpellIcon(spellID), 18, 18) .. " " or ""
+			local icon = spellID and FormatTexture(addon:GetSpellIcon(spellID)) .. " " or ""
 			
 			return format("%s%s%s", icon, GetSkillRankColor(rank), rank)
 		end,
@@ -1085,7 +1135,7 @@ columns["Prof2"] = {
 columns["ProfCooking"] = {
 	-- Header
 	headerWidth = 60,
-	headerLabel = "   " .. format(TEXTURE_FONT, addon:GetSpellIcon(2550), 18, 18),
+	headerLabel = format("   %s", FormatTexture(addon:GetSpellIcon(2550))),
 	tooltipTitle = GetSpellInfo(2550),
 	tooltipSubTitle = nil,
 	headerOnEnter = TradeskillHeader_OnEnter,
@@ -1110,7 +1160,7 @@ columns["ProfCooking"] = {
 columns["ProfFishing"] = {
 	-- Header
 	headerWidth = 60,
-	headerLabel = "   " .. format(TEXTURE_FONT, addon:GetSpellIcon(131474), 18, 18),
+	headerLabel = format("   %s", FormatTexture(addon:GetSpellIcon(131474))),
 	tooltipTitle = GetSpellInfo(131474),
 	tooltipSubTitle = nil,
 	headerOnEnter = TradeskillHeader_OnEnter,
@@ -1132,7 +1182,7 @@ columns["ProfFishing"] = {
 columns["ProfArchaeology"] = {
 	-- Header
 	headerWidth = 60,
-	headerLabel = "   " .. format(TEXTURE_FONT, addon:GetSpellIcon(78670), 18, 18),
+	headerLabel = format("   %s", FormatTexture(addon:GetSpellIcon(78670))),
 	tooltipTitle = GetSpellInfo(78670),
 	tooltipSubTitle = nil,
 	headerOnEnter = TradeskillHeader_OnEnter,
@@ -1148,6 +1198,91 @@ columns["ProfArchaeology"] = {
 		end,
 	OnEnter = function(frame)
 			Tradeskill_OnEnter(frame, GetSpellInfo(78670))
+		end,
+}
+
+columns["Riding"] = {
+	-- Header
+	headerWidth = 80,
+	headerLabel = format("    %s", FormatTexture("Interface\\Icons\\spell_nature_swiftness")),
+	tooltipTitle = L["Riding"],
+	tooltipSubTitle = nil,
+	headerOnEnter = RidingSkillHeader_OnEnter,
+	headerOnClick = function() SortView("Riding") end,
+	headerSort = DataStore.GetRidingSkill,
+	
+	-- Content
+	Width = 80,
+	JustifyH = "CENTER",
+	GetText = function(character) 
+		local speed, _, _, equipmentID = DataStore:GetRidingSkill(character)
+		local color = colors.white
+		
+		if speed == 0 then
+			color = colors.grey
+		elseif speed == 150 then
+			color = colors.orange
+		elseif speed == 280 then
+			color = colors.yellow
+		elseif speed == 310 then
+			color = colors.green
+		end
+		
+		local text = (CanUpgradeRidingSkill(character, speed)) 
+			and format("%s%d%% %s!", color, speed, colors.gold)
+			or format("%s%d%%", color, speed)
+		
+		-- If the mount is equipped, display its icon, info will be in the tooltip
+		if equipmentID then 
+			local icon = select(5, GetItemInfoInstant(equipmentID))
+			
+			if icon then
+				return format("%s %s", text, FormatTexture(icon))
+			end
+		end
+		
+		return text	
+	end,
+	OnEnter = function(frame)
+			local character = frame:GetParent().character
+			if not character then return end
+			
+			local speed, spellName, spellID, equipmentID = DataStore:GetRidingSkill(character)
+			
+			local tt = AltoTooltip
+			tt:ClearLines()
+			tt:SetOwner(frame, "ANCHOR_RIGHT")
+			tt:AddDoubleLine(DataStore:GetColoredCharacterName(character), L["Riding"])
+			tt:AddLine(" ")
+
+			if speed == 0 then 
+
+			else
+				tt:AddLine(spellName, 1, 1, 1)
+				tt:AddLine(GetSpellDescription(spellID), nil, nil, nil, true)
+			end
+			
+			-- Add the mount equipment
+			if equipmentID then
+				tt:AddLine(" ")
+				local _, link, _, _, _, _, itemSubType, _, _, icon = GetItemInfo(equipmentID)
+				
+				if itemSubType then
+					tt:AddLine(format("%s%s", colors.white, itemSubType))
+				end
+				
+				if link and icon then
+					tt:AddLine(format("%s %s", FormatTexture(icon), link))
+				end
+			end
+
+			-- Add a line if riding skill is upgradeable
+			if CanUpgradeRidingSkill(character, speed) then
+				tt:AddLine(" ")
+				tt:AddLine(L["COLUMN_RIDING_UPGRADEABLE"], 0, 1, 0)
+			end
+			
+			tt:Show()
 		end,
 }
 
@@ -1554,7 +1689,7 @@ columns["MissionTableLastVisit"] = {
 columns["CurrencyGarrison"] = {
 	-- Header
 	headerWidth = 80,
-	headerLabel = format("  %s  6.0", format(TEXTURE_FONT, "Interface\\Icons\\inv_garrison_resource", 18, 18)),
+	headerLabel = format("  %s  6.0", FormatTexture("Interface\\Icons\\inv_garrison_resource")),
 	headerOnEnter = function(frame, tooltip)
 			CurrencyHeader_OnEnter(frame, CURRENCY_ID_GARRISON)
 		end,
@@ -1615,7 +1750,7 @@ columns["CurrencyGarrison"] = {
 columns["CurrencyNethershard"] = {
 	-- Header
 	headerWidth = 80,
-	headerLabel = "        " .. format(TEXTURE_FONT, "Interface\\Icons\\inv_datacrystal01", 18, 18),
+	headerLabel = format("        %s", FormatTexture("Interface\\Icons\\inv_datacrystal01")),
 	headerOnEnter = function(frame, tooltip)
 			CurrencyHeader_OnEnter(frame, CURRENCY_ID_NETHERSHARD)
 		end,
@@ -1636,7 +1771,7 @@ columns["CurrencyNethershard"] = {
 columns["CurrencyLegionWarSupplies"] = {
 	-- Header
 	headerWidth = 80,
-	headerLabel = "      " .. format(TEXTURE_FONT, "Interface\\Icons\\inv_misc_summonable_boss_token", 18, 18),
+	headerLabel = format("      %s", FormatTexture("Interface\\Icons\\inv_misc_summonable_boss_token")),
 	headerOnEnter = function(frame, tooltip)
 			CurrencyHeader_OnEnter(frame, CURRENCY_ID_LFWS)
 		end,
@@ -1657,7 +1792,7 @@ columns["CurrencyLegionWarSupplies"] = {
 columns["CurrencySOBF"] = {
 	-- Header
 	headerWidth = 60,
-	headerLabel = "   " .. format(TEXTURE_FONT, "Interface\\Icons\\inv_misc_elvencoins", 18, 18),
+	headerLabel = format("   %s", FormatTexture("Interface\\Icons\\inv_misc_elvencoins")),
 	headerOnEnter = function(frame, tooltip)
 			CurrencyHeader_OnEnter(frame, CURRENCY_ID_SOBF)
 		end,
@@ -1678,7 +1813,7 @@ columns["CurrencySOBF"] = {
 columns["CurrencyOrderHall"] = {
 	-- Header
 	headerWidth = 80,
-	headerLabel = format("  %s  7.0", format(TEXTURE_FONT, "Interface\\Icons\\inv_garrison_resource", 18, 18)),
+	headerLabel = format("  %s  7.0", FormatTexture("Interface\\Icons\\inv_garrison_resource")),
 	headerOnEnter = function(frame, tooltip)
 			CurrencyHeader_OnEnter(frame, CURRENCY_ID_ORDER_HALL)
 		end,
@@ -1727,7 +1862,7 @@ columns["CurrencyOrderHall"] = {
 			end
 
 			tt:AddLine(" ")
-			tt:AddLine(colors.gold..CURRENCY..":",1,1,1)
+			tt:AddLine(format("%s%s:", colors.gold, CURRENCY),1,1,1)
 			
 			local num = DataStore:GetNumCurrencies(character) or 0
 			for i = 1, num do
@@ -1742,7 +1877,7 @@ columns["CurrencyOrderHall"] = {
 			end
 			
 			if num == 0 then
-				tt:AddLine(colors.white..NONE,1,1,1)
+				tt:AddLine(format("%s%s", colors.white, NONE),1,1,1)
 			end
 			
 			tt:Show()
@@ -1753,7 +1888,7 @@ columns["CurrencyOrderHall"] = {
 columns["CurrencyBfAWarResources"] = {
 	-- Header
 	headerWidth = 80,
-	headerLabel = "      " .. format(TEXTURE_FONT, "Interface\\Icons\\inv__faction_warresources", 18, 18),
+	headerLabel = format("      %s", FormatTexture("Interface\\Icons\\inv__faction_warresources")),
 	headerOnEnter = function(frame, tooltip)
 			CurrencyHeader_OnEnter(frame, CURRENCY_ID_BFA_WAR_RES)
 		end,
@@ -1774,7 +1909,7 @@ columns["CurrencyBfAWarResources"] = {
 columns["CurrencyBfASOWF"] = {
 	-- Header
 	headerWidth = 60,
-	headerLabel = "   " .. format(TEXTURE_FONT, "Interface\\Icons\\timelesscoin_yellow", 18, 18),
+	headerLabel = format("   %s", FormatTexture("Interface\\Icons\\timelesscoin_yellow")),
 	headerOnEnter = function(frame, tooltip)
 			CurrencyHeader_OnEnter(frame, CURRENCY_ID_BFA_SOWF)
 		end,
@@ -1795,7 +1930,7 @@ columns["CurrencyBfASOWF"] = {
 columns["CurrencyBfADubloons"] = {
 	-- Header
 	headerWidth = 80,
-	headerLabel = "      " .. format(TEXTURE_FONT, "Interface\\Icons\\inv_misc_azsharacoin", 18, 18),
+	headerLabel = format("      %s", FormatTexture("Interface\\Icons\\inv_misc_azsharacoin")),
 	headerOnEnter = function(frame, tooltip)
 			CurrencyHeader_OnEnter(frame, CURRENCY_ID_BFA_DUBLOONS)
 		end,
@@ -1816,7 +1951,7 @@ columns["CurrencyBfADubloons"] = {
 columns["CurrencyBfAWarSupplies"] = {
 	-- Header
 	headerWidth = 80,
-	headerLabel = "      " .. format(TEXTURE_FONT, "Interface\\Icons\\pvpcurrency-conquest-horde", 18, 18),
+	headerLabel = format("      %s", FormatTexture("Interface\\Icons\\pvpcurrency-conquest-horde")),
 	headerOnEnter = function(frame, tooltip)
 			CurrencyHeader_OnEnter(frame, CURRENCY_ID_BFA_WAR_SUPPLIES)
 		end,
@@ -1837,7 +1972,7 @@ columns["CurrencyBfAWarSupplies"] = {
 columns["CurrencyBfARichAzerite"] = {
 	-- Header
 	headerWidth = 80,
-	headerLabel = "      " .. format(TEXTURE_FONT, "Interface\\Icons\\inv_smallazeriteshard", 18, 18),
+	headerLabel = format("      %s", FormatTexture("Interface\\Icons\\inv_smallazeriteshard")),
 	headerOnEnter = function(frame, tooltip)
 			CurrencyHeader_OnEnter(frame, CURRENCY_ID_BFA_AZERITE)
 		end,
@@ -2032,15 +2167,7 @@ columns["CovenantName"] = {
 	Width = 80,
 	JustifyH = "CENTER",
 	GetText = function(character) 
-		local name = DataStore:GetCovenantName(character)
-		local color = colors.white
-		
-		if name == "" then
-			name = NONE
-			color = colors.grey
-		end
-	
-		return format("%s%s", color, name)
+		return FormatGreyIfEmpty(DataStore:GetCovenantName(character))
 	end,
 	OnEnter = function(frame)
 			local character = frame:GetParent().character
@@ -2109,15 +2236,7 @@ columns["SoulbindName"] = {
 	Width = 70,
 	JustifyH = "CENTER",
 	GetText = function(character) 
-		local name = DataStore:GetActiveSoulbindName(character) or ""
-		local color = colors.white
-		
-		if name == "" then
-			name = NONE
-			color = colors.grey
-		end	
-	
-		return format("%s%s", color, name)
+		return FormatGreyIfEmpty(DataStore:GetActiveSoulbindName(character))
 	end,
 	OnClick = function(frame)
 			local character = frame:GetParent().character
@@ -2219,7 +2338,7 @@ columns["CampaignProgress"] = {
 columns["CurrencyAnima"] = {
 	-- Header
 	headerWidth = 70,
-	headerLabel = "   " .. format(TEXTURE_FONT, "Interface\\Icons\\spell_animabastion_orb", 18, 18),
+	headerLabel = format("   %s", FormatTexture("Interface\\Icons\\spell_animabastion_orb")),
 	headerOnEnter = function(frame, tooltip)
 			CurrencyHeader_OnEnter(frame, CURRENCY_ID_ANIMA)
 		end,
@@ -2245,7 +2364,7 @@ columns["CurrencyAnima"] = {
 columns["CurrencyRedeemedSoul"] = {
 	-- Header
 	headerWidth = 60,
-	headerLabel = "  " .. format(TEXTURE_FONT, "Interface\\Icons\\sha_spell_warlock_demonsoul_nightborne", 18, 18),
+	headerLabel = format("  %s", FormatTexture("Interface\\Icons\\sha_spell_warlock_demonsoul_nightborne")),
 	headerOnEnter = function(frame, tooltip)
 			CurrencyHeader_OnEnter(frame, CURRENCY_ID_REDEEMED_SOUL)
 		end,
@@ -2262,6 +2381,129 @@ columns["CurrencyRedeemedSoul"] = {
 			return format("%s%s%s/%s%s", color, amount, colors.white, colors.yellow, totalMax)
 		end,
 }
+
+
+-- ** Miscellaneous **
+columns["GuildName"] = {
+	-- Header
+	headerWidth = 120,
+	headerLabel = format("%s  %s", FormatTexture("Interface\\Icons\\inv_shirt_guildtabard_01"), GUILD),
+	tooltipTitle = L["COLUMN_GUILD_TITLE"],
+	tooltipSubTitle = L["COLUMN_GUILD_SUBTITLE"],
+	headerOnClick = function() SortView("GuildName") end,
+	headerSort = GetGuildOrRank,
+	
+	-- Content
+	Width = 120,
+	JustifyH = "CENTER",
+	GetText = function(character) 
+		local guildName, guildRank = DataStore:GetGuildInfo(character)
+		
+		if addon:GetOption("UI.Tabs.Summary.ShowGuildRank") then
+			return FormatGreyIfEmpty(guildRank)
+		else
+			return FormatGreyIfEmpty(guildName, colors.green)
+		end
+	end,
+	
+	OnClick = function(frame, button)
+			addon:ToggleOption(nil, "UI.Tabs.Summary.ShowGuildRank")
+			addon.Summary:Update()
+		end,	
+}
+
+columns["Hearthstone"] = {
+	-- Header
+	headerWidth = 120,
+	headerLabel = format("%s  %s",	FormatTexture("Interface\\Icons\\inv_misc_rune_01"), GetItemInfo(6948)),
+	tooltipTitle = GetItemInfo(6948),
+	tooltipSubTitle = L["COLUMN_HEARTHSTONE_SUBTITLE"],
+	headerOnClick = function() SortView("Hearthstone") end,
+	headerSort = DataStore.GetBindLocation,
+	
+	-- Content
+	Width = 120,
+	JustifyH = "CENTER",
+	GetText = function(character) 
+		return FormatGreyIfEmpty(DataStore:GetBindLocation(character))
+	end,
+}
+
+columns["ClassAndSpec"] = {
+	-- Header
+	headerWidth = 160,
+	headerLabel = format("%s   %s / %s", FormatTexture("Interface\\Icons\\Spell_Nature_NatureGuardian"), CLASS, SPECIALIZATION),
+	tooltipTitle = format("%s / %s", CLASS, SPECIALIZATION),
+	tooltipSubTitle = L["COLUMN_CLASS_SUBTITLE"],
+	headerOnClick = function() SortView("ClassAndSpec") end,
+	headerSort = DataStore.GetCharacterClass,
+	
+	-- Content
+	Width = 160,
+	JustifyH = "CENTER",
+	GetText = function(character)
+	
+		local class = DataStore:GetCharacterClass(character)
+		local spec = DataStore:GetActiveSpecInfo(character)
+		local color = DataStore:GetCharacterClassColor(character)
+		
+		return format("%s%s |r/ %s", color, class, FormatGreyIfEmpty(spec, color))
+	end,
+	OnEnter = function(frame)
+			local character = frame:GetParent().character
+			if not character or not DataStore:GetModuleLastUpdateByKey("DataStore_Talents", character) then
+				return
+			end
+			
+			-- Exit if no specialization yet
+			local specName, specIndex, role = DataStore:GetActiveSpecInfo(character)
+			if not specIndex or not specName or specName == "" then return end
+			
+			local tt = AltoTooltip
+			tt:ClearLines()
+			tt:SetOwner(frame, "ANCHOR_RIGHT")
+			tt:AddDoubleLine(DataStore:GetColoredCharacterName(character), SPECIALIZATION)			-- Warlock
+			tt:AddDoubleLine(
+				format("%s%s", DataStore:GetCharacterClassColor(character), specName), 
+				_G[role])
+
+			tt:AddLine(" ")
+			
+			local _, class = DataStore:GetCharacterClass(character)
+			
+			DataStore:IterateTalentTiers(function(tierIndex, level) 
+				
+				-- Get the selected talent in this tier ..
+				local choice = DataStore:GetSpecializationTierChoice(character, specIndex, tierIndex)
+				
+				-- Has talent been set yet ?
+				if choice == 0 then
+					tt:AddLine(format("%s%d: |r%s", colors.green, level, TALENT_NOT_SELECTED ))
+				else
+					-- .. then get the talent information ..
+					local _, talentName, icon = DataStore:GetTalentInfo(class, specIndex, tierIndex, choice)
+					tt:AddLine(format("%s%d: %s %s%s", colors.green, level, FormatTexture(icon), colors.white, talentName))
+				end
+			end)
+
+			tt:Show()
+		end,
+	
+	OnClick = function(frame, button)
+			local character = frame:GetParent().character
+			if not character then return end
+
+			-- Exit if no specialization yet
+			local spec = DataStore:GetActiveSpecInfo(character)
+			if not spec or spec == "" then return end
+
+			addon.Tabs:OnClick("Characters")
+			addon.Tabs.Characters:SetAltKey(character)
+			addon.Tabs.Characters:MenuItem_OnClick(AltoholicTabCharacters.Characters, "LeftButton")
+			addon.Tabs.Characters:ViewCharInfo(VIEW_TALENTS)
+		end,	
+}
+
 
 local function ColumnHeader_OnEnter(frame)
 	local column = frame.column
@@ -2293,13 +2535,15 @@ end
 local modes = {
 	[MODE_SUMMARY] = { "Name", "Level", "RestXP", "Money", "Played", "AiL", "LastOnline" },
 	[MODE_BAGS] = { "Name", "Level", "BagSlots", "FreeBagSlots", "BankSlots", "FreeBankSlots" },
-	[MODE_SKILLS] = { "Name", "Level", "Prof1", "Prof2", "ProfCooking", "ProfFishing", "ProfArchaeology" },
+	[MODE_SKILLS] = { "Name", "Level", "Prof1", "Prof2", "ProfCooking", "ProfFishing", "ProfArchaeology", "Riding" },
 	-- [MODE_SKILLS] = { "Name", "Level", "ProfCooking", "ProfFishing", "ProfArchaeology" },
 	[MODE_ACTIVITY] = { "Name", "Level", "Mails", "LastMailCheck", "Auctions", "Bids", "AHLastVisit", "MissionTableLastVisit" },
 	-- [MODE_CURRENCIES] = { "Name", "Level", "CurrencyGarrison", "CurrencyNethershard", "CurrencyLegionWarSupplies", "CurrencySOBF", "CurrencyOrderHall" },
 	[MODE_CURRENCIES] = { "Name", "Level", "CurrencyBfAWarResources", "CurrencyBfASOWF", "CurrencyBfADubloons", "CurrencyBfAWarSupplies", "CurrencyBfARichAzerite" },
 	[MODE_FOLLOWERS] = { "Name", "Level", "FollowersLV40", "FollowersEpic", "FollowersLV630", "FollowersLV660", "FollowersLV675", "FollowersItems" },
 	[MODE_COVENANT] = { "Name", "Level", "CovenantName", "SoulbindName", "Renown", "CampaignProgress", "CurrencyAnima", "CurrencyRedeemedSoul" },
+	-- [MODE_MISCELLANEOUS] = { "Name", "Level", "GuildName", "Hearthstone" },
+	[MODE_MISCELLANEOUS] = { "Name", "Level", "GuildName", "Hearthstone", "ClassAndSpec" },
 }
 
 function ns:SetMode(mode)
