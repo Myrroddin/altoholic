@@ -14,6 +14,14 @@ How to support Altoholic's development :
 
 If you like the addon, consider supporting it, this has been the long term effort and commitment of a single person. #ArmyOfOne
 
+9.0.006c (21/02/2021)
+
+- Fixed another packaging error of the Characters tab sources.
+
+9.0.006b (21/02/2021)
+
+- Fixed packaging error of DataStore_Characters (missing locales).
+
 9.0.006 (21/02/2021)
 
 - Fixed a bug that probably existed since a very long time in the account summary, when randomly sorting on a column that would try to get data 

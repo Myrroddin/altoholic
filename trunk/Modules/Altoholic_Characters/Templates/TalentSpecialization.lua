@@ -4,23 +4,24 @@ local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local STAT_PRIO = 1
 local STAT_UNKNOWN = 2
-local NUM_TALENT_TIERS = 7
 
 addon:Controller("AltoholicUI.TalentSpecialization", {
 	Update = function(frame, character, class, specializationIndex)
 		local _, specName = DataStore:GetSpecializationInfo(class, specializationIndex)
 		
 		if specName then
-			for tier = 1, NUM_TALENT_TIERS do
-				frame["Tier"..tier]:Update(character, class, specializationIndex)
-			end
+			DataStore:IterateTalentTiers(function(tierIndex, level) 
+				frame["Tier"..tierIndex]:Update(character, class, specializationIndex)
+			end)
+
 			frame.tooltip = STAT_PRIO
 			frame.class = class
 			frame.spec = specializationIndex
 		else
-			for tier = 1, NUM_TALENT_TIERS do
-				frame["Tier"..tier]:Hide()
-			end
+			DataStore:IterateTalentTiers(function(tierIndex, level) 
+				frame["Tier"..tierIndex]:Hide()
+			end)
+			
 			frame.tooltip = STAT_UNKNOWN
 		end
 		
