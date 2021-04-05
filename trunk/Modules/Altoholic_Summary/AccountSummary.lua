@@ -13,6 +13,7 @@ local MODE_CURRENCIES = 5
 local MODE_FOLLOWERS = 6
 local MODE_COVENANT = 7
 local MODE_MISCELLANEOUS = 8
+local MODE_KEYSTONES = 9
 
 local SKILL_CAP = 900
 local CURRENCY_ID_JUSTICE = 395
@@ -138,6 +139,17 @@ local function FormatGreyIfEmpty(text, color)
 	return format("%s%s", color, text)
 end
 
+local function FormatDuration(seconds)
+	local color = (seconds == 0) and colors.grey or colors.white
+
+	local hours = floor(seconds / 3600)
+	seconds = mod(seconds, 3600)
+	local minutes = floor(seconds / 60)
+	seconds = mod(seconds, 60)
+
+	return format("%s%02d:%02d:%02d", color, hours, minutes, seconds)	
+end
+
 
 local skillColors = { colors.recipeGrey, colors.red, colors.orange, colors.yellow, colors.green }
 
@@ -170,7 +182,11 @@ local function RidingSkillHeader_OnEnter(frame, tooltip)
 	
 	DataStore:IterateRidingSkills(function(skill) 
 		tooltip:AddDoubleLine(
-			format("%s%s %s%d", colors.white, LEVEL, colors.green, skill.minLevel), 
+			format("%s%s %s%d |r(%s %s%s|r)", 
+				colors.white, LEVEL, 
+				colors.green, skill.minLevel, 
+				COSTS_LABEL,
+				colors.gold, format(GOLD_AMOUNT_TEXTURE_STRING, BreakUpLargeNumbers(skill.cost), 13, 13)), 
 			format("%s%s%%", colors.white, skill.speed))
 	end)
 end
@@ -664,7 +680,7 @@ columns["RestXP"] = {
 	JustifyH = "CENTER",
 	GetText = function(character) 
 		if DataStore:GetCharacterLevel(character) == MAX_PLAYER_LEVEL then
-			return colors.white .. "0%"	-- show 0% at max level
+			return format("%s0%%", colors.white)	-- show 0% at max level
 		end
 
 		return GetRestedXP(character)
@@ -708,7 +724,7 @@ columns["RestXP"] = {
 columns["Money"] = {
 	-- Header
 	headerWidth = 115,
-	headerLabel = L["COLUMN_MONEY_TITLE_SHORT"],
+	headerLabel = format("%s  %s", FormatTexture("Interface\\Icons\\inv_misc_coin_01"), L["COLUMN_MONEY_TITLE_SHORT"]),
 	tooltipTitle = L["COLUMN_MONEY_TITLE"],
 	tooltipSubTitle = L["COLUMN_MONEY_SUBTITLE_"..random(5)],
 	headerOnClick = function() SortView("Money") end,
@@ -844,7 +860,7 @@ columns["LastOnline"] = {
 columns["BagSlots"] = {
 	-- Header
 	headerWidth = 100,
-	headerLabel = L["COLUMN_BAGS_TITLE_SHORT"],
+	headerLabel = format("%s  %s", FormatTexture("Interface\\Icons\\inv_misc_bag_08"), L["COLUMN_BAGS_TITLE_SHORT"]),
 	tooltipTitle = L["COLUMN_BAGS_TITLE"],
 	tooltipSubTitle = L["COLUMN_BAGS_SUBTITLE_"..random(2)],
 	headerOnClick = function() SortView("BagSlots") end,
@@ -937,7 +953,7 @@ columns["FreeBagSlots"] = {
 columns["BankSlots"] = {
 	-- Header
 	headerWidth = 160,
-	headerLabel = L["COLUMN_BANK_TITLE_SHORT"],
+	headerLabel = format("%s  %s", FormatTexture("Interface\\Icons\\achievement_guildperk_mobilebanking"), L["COLUMN_BANK_TITLE_SHORT"]),
 	tooltipTitle = L["COLUMN_BANK_TITLE"],
 	tooltipSubTitle = L["COLUMN_BANK_SUBTITLE_"..random(2)],
 	headerOnClick = function() SortView("BankSlots") end,
@@ -1870,7 +1886,7 @@ columns["CurrencyOrderHall"] = {
 				name = name or ""
 				
 				if isHeader then
-					tt:AddLine(colors.yellow..name)
+					tt:AddLine(format("%s%s", colors.yellow, name))
 				else
 					tt:AddLine(format("  %s: %s%s", name, colors.green, count),1,1,1)
 				end
@@ -2265,7 +2281,10 @@ columns["Renown"] = {
 	Width = 60,
 	JustifyH = "CENTER",
 	GetText = function(character) 
-		return format("%s%s", colors.white, select(3, DataStore:GetCovenantInfo(character)))
+		local level = select(3, DataStore:GetCovenantInfo(character))
+		local color = (level == 40) and colors.gold or colors.white
+	
+		return format("%s%s", color, level)
 	end,
 	OnClick = function(frame)
 			local character = frame:GetParent().character
@@ -2415,8 +2434,8 @@ columns["GuildName"] = {
 columns["Hearthstone"] = {
 	-- Header
 	headerWidth = 120,
-	headerLabel = format("%s  %s",	FormatTexture("Interface\\Icons\\inv_misc_rune_01"), GetItemInfo(6948)),
-	tooltipTitle = GetItemInfo(6948),
+	headerLabel = format("%s  %s",	FormatTexture("Interface\\Icons\\inv_misc_rune_01"), L["COLUMN_HEARTHSTONE_TITLE"]),
+	tooltipTitle = L["COLUMN_HEARTHSTONE_TITLE"],
 	tooltipSubTitle = L["COLUMN_HEARTHSTONE_SUBTITLE"],
 	headerOnClick = function() SortView("Hearthstone") end,
 	headerSort = DataStore.GetBindLocation,
@@ -2505,6 +2524,156 @@ columns["ClassAndSpec"] = {
 }
 
 
+-- ** Keystones **
+columns["KeyName"] = {
+	-- Header
+	headerWidth = 100,
+	headerLabel = format("%s  %s", FormatTexture("Interface\\Icons\\inv_relics_hourglass"), L["COLUMN_KEYNAME_TITLE_SHORT"]),
+	tooltipTitle = L["COLUMN_KEYNAME_TITLE"],
+	tooltipSubTitle = L["COLUMN_KEYNAME_SUBTITLE"],
+	headerOnClick = function() SortView("KeyName") end,
+	headerSort = DataStore.GetKeystoneName,
+	
+	-- Content
+	Width = 100,
+	JustifyH = "CENTER",
+	GetText = function(character) 
+		return FormatGreyIfEmpty(DataStore:GetKeystoneName(character))
+	end,
+}
+
+columns["KeyLevel"] = {
+	-- Header
+	headerWidth = 60,
+	headerLabel = L["COLUMN_LEVEL_TITLE_SHORT"],
+	tooltipTitle = L["COLUMN_KEYLEVEL_TITLE"],
+	tooltipSubTitle = L["COLUMN_KEYLEVEL_SUBTITLE"],
+	headerOnClick = function() SortView("KeyLevel") end,
+	headerSort = DataStore.GetKeystoneLevel,
+	
+	-- Content
+	Width = 60,
+	JustifyH = "CENTER",
+	GetText = function(character) 
+		local level = DataStore:GetKeystoneLevel(character) or 0
+		local color = (level == 0) and colors.grey or colors.yellow
+	
+		return format("%s%d", color, level)	
+	end,
+}
+
+columns["WeeklyBestKeyName"] = {
+	-- Header
+	headerWidth = 110,
+	headerLabel = format("%s  %s", FormatTexture("Interface\\Icons\\achievement_challengemode_gold"), CHALLENGE_MODE_WEEKLY_BEST),
+	tooltipTitle = L["COLUMN_WEEKLYBEST_KEYNAME_TITLE"],
+	tooltipSubTitle = L["COLUMN_WEEKLYBEST_KEYNAME_SUBTITLE"],
+	headerOnClick = function() SortView("WeeklyBestKeyName") end,
+	headerSort = DataStore.GetWeeklyBestKeystoneName,
+	
+	-- Content
+	Width = 110,
+	JustifyH = "CENTER",
+	GetText = function(character) 
+		return FormatGreyIfEmpty(DataStore:GetWeeklyBestKeystoneName(character))
+	end,
+	OnEnter = function(frame)
+			local character = frame:GetParent().character
+			if not character or not DataStore:GetModuleLastUpdateByKey("DataStore_Stats", character) then
+				return
+			end
+			
+			local level = DataStore:GetWeeklyBestKeystoneLevel(character) or 0
+			if level == 0 then return end
+			
+			local tt = AltoTooltip
+			tt:ClearLines()
+			tt:SetOwner(frame, "ANCHOR_RIGHT")
+			tt:AddDoubleLine(DataStore:GetColoredCharacterName(character), CHALLENGE_MODE_WEEKLY_BEST)
+			tt:AddLine(" ")
+			
+			for _, map in pairs(DataStore:GetWeeklyBestMaps(character)) do
+				tt:AddDoubleLine(format("%s %s %s+%d", FormatTexture(map.texture), map.name, colors.green, map.level), FormatDuration(map.timeInSeconds))
+			end
+
+			tt:Show()
+		end,	
+}
+
+columns["WeeklyBestKeyLevel"] = {
+	-- Header
+	headerWidth = 60,
+	headerLabel = L["COLUMN_LEVEL_TITLE_SHORT"],
+	tooltipTitle = L["COLUMN_WEEKLYBEST_KEYLEVEL_TITLE"],
+	tooltipSubTitle = L["COLUMN_WEEKLYBEST_KEYLEVEL_SUBTITLE"],
+	headerOnClick = function() SortView("WeeklyBestKeyLevel") end,
+	headerSort = DataStore.GetWeeklyBestKeystoneLevel,
+	
+	-- Content
+	Width = 60,
+	JustifyH = "CENTER",
+	GetText = function(character) 
+		local level = DataStore:GetWeeklyBestKeystoneLevel(character) or 0
+		local color = (level == 0) and colors.grey or colors.yellow
+	
+		return format("%s%d", color, level)	
+	end,
+}
+
+columns["WeeklyBestKeyTime"] = {
+	-- Header
+	headerWidth = 90,
+	headerLabel = format("%s  %s", FormatTexture("Interface\\Icons\\spell_holy_borrowedtime"), BEST),
+	tooltipTitle = L["COLUMN_WEEKLYBEST_KEYTIME_TITLE"],
+	tooltipSubTitle = L["COLUMN_WEEKLYBEST_KEYTIME_SUBTITLE"],
+	headerOnClick = function() SortView("WeeklyBestKeyTime") end,
+	headerSort = DataStore.GetWeeklyBestKeystoneTime,
+
+	-- Content
+	Width = 90,
+	JustifyH = "CENTER",
+	GetText = function(character) 
+		local seconds = DataStore:GetWeeklyBestKeystoneTime(character) or 0
+		return FormatDuration(seconds)
+	end,
+	OnEnter = function(frame)
+			local character = frame:GetParent().character
+			if not character or not DataStore:GetModuleLastUpdateByKey("DataStore_Stats", character) then
+				return
+			end
+			
+			local level = DataStore:GetWeeklyBestKeystoneLevel(character) or 0
+			if level == 0 then return end
+			
+			local tt = AltoTooltip
+			tt:ClearLines()
+			tt:SetOwner(frame, "ANCHOR_RIGHT")
+			tt:AddDoubleLine(DataStore:GetColoredCharacterName(character), MYTHIC_PLUS_SEASON_BEST)
+			tt:AddLine(" ")
+			
+			for _, map in pairs(DataStore:GetSeasonBestMaps(character)) do
+				tt:AddDoubleLine(format("%s %s %s+%d", FormatTexture(map.texture), map.name, colors.green, map.level), FormatDuration(map.timeInSeconds))
+			end
+			
+			
+			local maps = DataStore:GetSeasonBestMapsOvertime(character)
+
+			if DataStore:GetHashSize(maps) > 0 then
+				tt:AddLine(" ")
+				tt:AddLine(MYTHIC_PLUS_OVERTIME_SEASON_BEST, 1, 1, 1)
+				tt:AddLine(" ")
+			
+				for _, map in pairs(maps) do
+					tt:AddDoubleLine(format("%s %s %s+%d", FormatTexture(map.texture), map.name, colors.green, map.level), FormatDuration(map.timeInSeconds))
+				end			
+			end
+
+			tt:Show()
+		end,	
+}
+
+
+
 local function ColumnHeader_OnEnter(frame)
 	local column = frame.column
 	if not frame.column then return end		-- invalid data ? exit
@@ -2542,8 +2711,8 @@ local modes = {
 	[MODE_CURRENCIES] = { "Name", "Level", "CurrencyBfAWarResources", "CurrencyBfASOWF", "CurrencyBfADubloons", "CurrencyBfAWarSupplies", "CurrencyBfARichAzerite" },
 	[MODE_FOLLOWERS] = { "Name", "Level", "FollowersLV40", "FollowersEpic", "FollowersLV630", "FollowersLV660", "FollowersLV675", "FollowersItems" },
 	[MODE_COVENANT] = { "Name", "Level", "CovenantName", "SoulbindName", "Renown", "CampaignProgress", "CurrencyAnima", "CurrencyRedeemedSoul" },
-	-- [MODE_MISCELLANEOUS] = { "Name", "Level", "GuildName", "Hearthstone" },
 	[MODE_MISCELLANEOUS] = { "Name", "Level", "GuildName", "Hearthstone", "ClassAndSpec" },
+	[MODE_KEYSTONES] = { "Name", "Level", "KeyName", "KeyLevel", "WeeklyBestKeyName", "WeeklyBestKeyLevel", "WeeklyBestKeyTime" },
 }
 
 function ns:SetMode(mode)
@@ -2557,9 +2726,11 @@ function ns:SetMode(mode)
 		local column = columns[columnName]
 		
 		parent.SortButtons:SetButton(i, column.headerLabel, column.headerWidth, column.headerOnClick)
-		parent.SortButtons["Sort"..i].column = column
-		parent.SortButtons["Sort"..i]:SetScript("OnEnter", ColumnHeader_OnEnter)
-		parent.SortButtons["Sort"..i]:SetScript("OnLeave", function() AltoTooltip:Hide() end)
+		
+		local button = parent.SortButtons["Sort"..i]
+		button.column = column
+		button:SetScript("OnEnter", ColumnHeader_OnEnter)
+		button:SetScript("OnLeave", function() AltoTooltip:Hide() end)
 	end
 end
 
@@ -2657,6 +2828,34 @@ function addon:AiLTooltip()
 	local tt = AltoTooltip
 	
 	tt:AddLine(" ")
+	
+-- https://www.wowhead.com/guides/shadowlands-season-1-mythic-dungeon-guide-affix-changes	
+	
+-- Keystone Level	End of Dungeon	Weekly Great Vault
+-- Mythic 2	187	200
+-- Mythic 3	190	203
+-- Mythic 4	194	207
+-- Mythic 5	194	210
+-- Mythic 6	197	210
+-- Mythic 7	200	213
+-- Mythic 8	200	216
+-- Mythic 9	200	216
+-- Mythic 10	203	220
+-- Mythic 11	203	220
+-- Mythic 12	207	223
+-- Mythic 13	207	223
+-- Mythic 14	207	226
+-- Mythic 15	210	226	
+
+-- CHALLENGE_MODE_ITEM_POWER_LEVEL = "Mythic Level %d";
+-- PVP_WEEKLY_REWARD = "Weekly Reward";
+-- RATED_PVP_WEEKLY_VAULT = "Weekly Vault";
+
+	-- tt:AddDoubleLine(
+		-- format("%s (%s)", format(CHALLENGE_MODE_ITEM_POWER_LEVEL, 2), FormatAiL("187")),
+		-- )
+	
+	
 	tt:AddDoubleLine(format("%s%s", colors.teal, EXPANSION_NAME0), FormatAiL("1-62"))
 	tt:AddDoubleLine(format("%s%s", colors.teal, EXPANSION_NAME1), FormatAiL("63-94"))
 	tt:AddDoubleLine(format("%s%s", colors.teal, EXPANSION_NAME2), FormatAiL("95-102"))

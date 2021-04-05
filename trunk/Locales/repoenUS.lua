@@ -1,4 +1,4 @@
-﻿local L = LibStub("AceLocale-3.0"):NewLocale("Altoholic", "enUS", true, true)
+local L = LibStub("AceLocale-3.0"):NewLocale("Altoholic", "enUS", true, true)
 
 if not L then return end
 
@@ -176,9 +176,26 @@ L["Equally viable"] = true
 
 L["COLUMN_GUILD_SUBTITLE"] = "Click guild name to toggle the guild rank"
 L["COLUMN_GUILD_TITLE"] = "Guild information"
+L["COLUMN_HEARTHSTONE_TITLE"] = "Hearthstone"
 L["COLUMN_HEARTHSTONE_SUBTITLE"] = "That special place you call home"
 L["COLUMN_CLASS_SUBTITLE"] = "Character class and active specialization"
 L["COLUMN_RIDING_UPGRADEABLE"] = "This character could upgrade his riding skill"
+
+-- *** Tab Summary / Mythic Keystone ***
+
+L["COLUMN_KEYNAME_TITLE"] = "Current Mythic+ Keystone"
+L["COLUMN_KEYNAME_TITLE_SHORT"] = "Keystone"
+L["COLUMN_KEYNAME_SUBTITLE"] = "Your next adventure"
+L["COLUMN_KEYLEVEL_TITLE"] = "Current Mythic+ Keystone Level"
+L["COLUMN_KEYLEVEL_SUBTITLE"] = "You are definitely not prepared!"
+L["COLUMN_WEEKLYBEST_KEYNAME_TITLE"] = "Weekly Best Mythic+ Keystone"
+L["COLUMN_WEEKLYBEST_KEYNAME_SUBTITLE"] = "Mouse over for weekly best for all maps"
+L["COLUMN_WEEKLYBEST_KEYLEVEL_TITLE"] = "Weekly Best Mythic+ Level"
+L["COLUMN_WEEKLYBEST_KEYLEVEL_SUBTITLE"] = "How deep down the rabbit hole you dared to go"
+L["COLUMN_WEEKLYBEST_KEYTIME_TITLE"] = "Weekly Best Mythic+ Time"
+L["COLUMN_WEEKLYBEST_KEYTIME_SUBTITLE"] = "Mouse over for season best for all maps"
+
+
 -- *************************
 -- *** Tab Characters
 -- *************************

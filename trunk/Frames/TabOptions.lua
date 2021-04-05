@@ -120,6 +120,29 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+	{	name = "9.0.007 Changes",
+		bulletedList = {
+			"Summary Tab => Fixed the faction filter not working properly for languages other than English. This was due to the character faction being saved in English instead of localized.",
+			"Reconnecting your alts is necessary. Players using English clients are unaffected.",
+			"DataStore_Characters : Fixed the reported faction name for languages other than English (this is related to the previous line). This could cause Alliance characters to be reported as Horde. But fear not, the Alliance had not been infiltrated by the Horde !",
+			"Summary Tab => Added a panel for the mythic keystones."
+		},
+	},
+	{	name = "9.0.006d Changes",
+		bulletedList = {
+			"Fixed a localization error on 'Hearthstone'.",
+		},
+	},
+	{	name = "9.0.006c Changes",
+		bulletedList = {
+			"Fixed another packaging error of the Characters tab sources.",
+		},
+	},
+	{	name = "9.0.006b Changes",
+		bulletedList = {
+			"Fixed packaging error of DataStore_Characters (missing locales).",
+		},
+	},
 	{	name = "9.0.006 Changes",
 		bulletedList = {
 			"Fixed a bug that probably existed since a very long time in the account summary, when randomly sorting on a column that would try to get data from a DataStore module where a character key was completely missing.",

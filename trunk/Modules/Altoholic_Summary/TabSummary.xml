@@ -57,6 +57,11 @@
 					<Anchor point="TOPLEFT" relativeKey="$parent.MenuItem7" relativePoint="BOTTOMLEFT" x="0" y="0" />
 				</Anchors>
 			</Button>
+			<Button parentKey="MenuItem9" inherits="AltoTabSummaryMenuItemTemplate" id="9">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.MenuItem8" relativePoint="BOTTOMLEFT" x="0" y="0" />
+				</Anchors>
+			</Button>
 			
 			<Button parentKey="RealmsIcon" inherits="AltoTabSummaryIconTemplate" id="1">
 				<Anchors>
@@ -192,6 +197,7 @@
 				self.MenuItem6:SetText(GARRISON_FOLLOWERS_TITLE)
 				self.MenuItem7:SetText(GARRISON_TYPE_9_0_LANDING_PAGE_TITLE)
 				self.MenuItem8:SetText(MISCELLANEOUS)
+				self.MenuItem9:SetText(CHALLENGES)
 				
 				-- "Artifacts"
 				-- self.MenuItem7:SetText(GetCategoryInfo(15256))	
