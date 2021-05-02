@@ -15,9 +15,9 @@ local addonList = {
 	"Altoholic_Grids",
 }
 
-local url1 = "http://wow.curse.com/downloads/wow-addons/details/altoholic.aspx"
-local url2 = "http://www.wowinterface.com/downloads/info8533-Altoholic.html"
-local url3 = "http://wow.curseforge.com/addons/altoholic/localization/"
+local url1 = "https://www.curseforge.com/wow/addons/altoholic"
+local url2 = "https://www.wowinterface.com/downloads/info8533-Altoholic.html"
+local url3 = "https://www.curseforge.com/wow/addons/altoholic/localization"
 
 local help = {
 	{	name = "General",
@@ -394,6 +394,7 @@ function addon:SetupOptions()
 	f.IncludeGuildBankInTotal.Text:SetText(L["Include guild bank count in the total count"])
 	f.ShowGuildBankCountPerTab.Text:SetText(L["Detailed guild bank count"])
 	f.ShowHearthstoneCount.Text:SetText(L["Show counters for hearthstones"])
+	f.ShowItemXPack.Text:SetText(L["Show extended item information"])
 	L["Show item source"] = nil
 	L["Show item count per character"] = nil
 	L["Show item count without details"] = nil
@@ -407,6 +408,7 @@ function addon:SetupOptions()
 	L["Show counters for all accounts"] = nil
 	L["Include guild bank count in the total count"] = nil
 	L["Show counters for hearthstones"] = nil
+	L["Show extended item information"] = nil
 	
 	-- ** Calendar **
 	f = AltoholicCalendarOptions
