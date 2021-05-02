@@ -16,6 +16,8 @@
 ## X-eMail: thaoky.altoholic@yahoo.com
 ## X-Donate: http://wow.curse.com/downloads/wow-addons/details/altoholic.aspx
 ## X-Credits: My guild (Odysseüs), all translators, the wowace community, and all users for their invaluable suggestions !
+## X-Curse-Project-ID: 13402
+## X-WoWI-ID: 8533
 ## Dependencies: DataStore, DataStore_Characters
 
 ## OptionalDeps: Ace3, LibDataBroker-1.1, LibPeriodicTable-3.1, LibBabble-Boss-3.0, LibBabble-Inventory-3.0
