@@ -48,10 +48,10 @@ ignore:
   - LibStub/tests
 
 move-folders:
-    Altoholic/Modules/Altoholic_Achievements: Altoholic_Achievements
-    Altoholic/Modules/Altoholic_Agenda: Altoholic_Agenda
-    Altoholic/Modules/Altoholic_Characters: Altoholic_Characters
-    Altoholic/Modules/Altoholic_Grids: Altoholic_Grids
-    Altoholic/Modules/Altoholic_Guild: Altoholic_Guild
-    Altoholic/Modules/Altoholic_Search: Altoholic_Search
-    Altoholic/Modules/Altoholic_Summary: Altoholic_Summary
+  Altoholic/Modules/Altoholic_Achievements: Altoholic_Achievements
+  Altoholic/Modules/Altoholic_Agenda: Altoholic_Agenda
+  Altoholic/Modules/Altoholic_Characters: Altoholic_Characters
+  Altoholic/Modules/Altoholic_Grids: Altoholic_Grids
+  Altoholic/Modules/Altoholic_Guild: Altoholic_Guild
+  Altoholic/Modules/Altoholic_Search: Altoholic_Search
+  Altoholic/Modules/Altoholic_Summary: Altoholic_Summary
