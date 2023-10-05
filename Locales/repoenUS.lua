@@ -3,7 +3,7 @@ local L = LibStub("AceLocale-3.0"):NewLocale("Altoholic", "enUS", true, true)
 if not L then return end
 
 -- *************************
--- *** Tab Summary 
+-- *** Tab Summary
 -- *************************
 
 L["COLOR_RED"] = "Red"
@@ -205,7 +205,7 @@ L["TALENT_SPECIALIZATION_STAT_PRIORITY"] = "Stat priority"
 
 
 -- *************************
--- *** Tab Search 
+-- *** Tab Search
 -- *************************
 
 
@@ -215,13 +215,13 @@ L["TALENT_SPECIALIZATION_STAT_PRIORITY"] = "Stat priority"
 -- *************************
 
 -- *************************
--- *** Tab Achievements 
+-- *** Tab Achievements
 -- *************************
 
 L["ACCOUNT_WIDE"] = "Account Wide"
 
 -- *************************
--- *** Tab Agenda 
+-- *** Tab Agenda
 -- *************************
 
 
@@ -232,12 +232,6 @@ L["ACCOUNT_WIDE"] = "Account Wide"
 
 -- everything below this point has not yet been reviewed
 -- last review : 2016/11/07
-
-
-
-
-
-
 
 
 L["ITEM_TYPE_RECIPE"] = "Recipe"
@@ -275,7 +269,7 @@ L["Classes: Priest"] = true
 L["Classes: Death Knight"] = true
 L["Resistance"] = true
 
---skills
+-- skills
 L["Class Skills"] = true
 L["Secondary Skills"] = true
 L["Fishing"] = true
@@ -288,7 +282,7 @@ L["Poisons"] = true
 L["Beast Training"] = true
 L["Inscription"] = true
 
---factions not in LibFactions or LibZone
+-- factions not in LibFactions or LibZone
 L["Alliance Forces"] = true
 L["Horde Forces"] = true
 L["Steamwheedle Cartel"] = true
@@ -302,7 +296,7 @@ L["E-Mail"] = true
 L["Quests"] = true
 L["Equipment"] = true
 
---Altoholic.lua
+-- Altoholic.lua
 L["Account"] = true
 L["Default"] = true
 L["Loots"] = true
@@ -343,7 +337,7 @@ L["Could be learned by "] = true
 L["At least one recipe could not be read"] = true
 L["Please open this window again"] = true
 
---Calendar.lua
+-- Calendar.lua
 L["Number of players: %s"] = true
 L["Minimum Level: %s"] = true
 L["Maximum Level: %s"] = true
@@ -359,7 +353,7 @@ L["Left-click to invite attendees"] = true
 L["Display warnings in a dialog box"] = true
 L["Do you want to open Altoholic's calendar for details ?"] = true
 
---Comm.lua
+-- Comm.lua
 L["Sending account sharing request to %s"] = true
 L["Account sharing request received from %s"] = true
 L["You have received an account sharing request\nfrom %s%s|r, accept it?"] = true
@@ -392,12 +386,12 @@ L["Reference data not available"] = true
 L["Reference data received (%s) !"] = true
 L["Waiting for %s to accept .."] = true
 
---GuildBankTabs.lua
+-- GuildBankTabs.lua
 L["Requesting %s information from %s"] = true
 L["Guild Bank Remote Update"] = true
 L["Clicking this button will update\nyour local %s%s|r bank tab\nbased on %s%s's|r data"] = true
 
---GuildMembers.lua
+-- GuildMembers.lua
 L["Left-click to see this character's equipment"] = true
 L["Click a character's AiL to see its equipment"] = true
 
@@ -406,7 +400,7 @@ L["Offline Members"] = true
 L["Left click to view"] = true
 L["Shift+Left click to link"] = true
 
---Core.lua
+-- Core.lua
 L['search'] = true
 L["Search in bags"] = true
 L['show'] = true
@@ -417,11 +411,11 @@ L['toggle'] = true
 L["Toggles the UI"] = true
 L["Altoholic:|r Usage = /altoholic search <item name>"] = true
 
---AltoholicFu.lua
+-- AltoholicFu.lua
 L["Left-click to"] = true
 L["open/close"] = true
 
---AccountSummary.lua
+-- AccountSummary.lua
 L["View bags"] = true
 L["All-in-one"] = true
 L["View mailbox"] = true
@@ -460,7 +454,7 @@ L["Totals"] = true
 L["slots"] = true
 L["free"] = true
 
---Containers.lua
+-- Containers.lua
 L["32 Keys Max"] = true
 L["28 Slot"] = true
 L["Bank bag"] = true
@@ -473,7 +467,7 @@ L["Valor"] = true
 L["Valor / Week"] = true
 L["Justice"] = true
 
---Equipment.lua
+-- Equipment.lua
 L["Find Upgrade"] = true
 L["(based on iLvl)"] = true
 L["Right-Click to find an upgrade"] = true
@@ -483,14 +477,14 @@ L["Balance"] = true
 L["Elemental Shaman"] = true		-- shaman spec !
 L["Heal"] = true
 
---GuildBank.lua
+-- GuildBank.lua
 L["Last visit: %s by %s"] = true
 L["Local Time: %s   %sRealm Time: %s"] = true
 L["Update current tab from"] = true
 L["Newer data"] = true
 L["Older data"] = true
 
---Mails.lua
+-- Mails.lua
 L[" has not visited his/her mailbox yet"] = true
 L["%s has no mail"] = true
 L[" has no mail, last check "] = true
@@ -503,30 +497,30 @@ L["Do you want to view it now ?"] = true
 L["Will be %sreturned|r in"] = true
 L["Will be %sdeleted|r in"] = true
 
---Quests.lua
+-- Quests.lua
 L["No quest found for "] = true
 L["QuestID"] = true
 L["Are also on this quest:"] = true
 
---Recipes.lua
+-- Recipes.lua
 L["No data"] = true
 L[" scan failed for "] = true
 
---Reputations.lua
+-- Reputations.lua
 L["Shift-Click to link this info"] = true
 L[" is "] = true
 L[" with "] = true
 L["%s is %s with %s (%d/%d)"] = true
 L["Up to %s"] = true
 
---Search.lua
+-- Search.lua
 L["Item Level"] = true
 L[" results found (Showing "] = true
 L["No match found!"] = true
 L[" not found!"] = true
 L["Socket"] = true
 
---skills.lua
+-- skills.lua
 L["Rogue Proficiencies"] = true
 L["up to"] = true
 L["at"] = true
@@ -561,8 +555,8 @@ L["This character"] = true
 L["This faction"] = true
 L["Both factions"] = true
 
---loots.lua
---Instinct drop
+-- loots.lua
+-- Instinct drop
 L["Hard Mode"] = true
 L["Trash Mobs"] = true
 L["Random Boss"] = true
@@ -625,7 +619,7 @@ L["Opera (Shared Drops)"] = true
 L["Timed Chest"] = true
 L["Patterns"] = true
 
---Rep
+-- Rep
 L["Token Hand-Ins"] = true
 L["Items"] = true
 L["Beasts Deck"] = true
@@ -638,7 +632,7 @@ L["Blessings Deck"] = true
 L["Lunacy Deck"] = true
 L["Quest rewards"] = true
 
---World drop
+-- World drop
 L["Outdoor Bosses"] = true
 L["Highlord Kruul"] = true
 L["Bash'ir Landing"] = true
@@ -721,7 +715,7 @@ L["Gordok Brewery"] = true
 L["Drohn's Distillery"] = true
 L["T'chali's Voodoo Brewery"] = true
 
---craft
+-- craft
 L["Crafted Weapons"] = true
 L["Master Swordsmith"] = true
 L["Master Axesmith"] = true
@@ -795,7 +789,7 @@ L["Expert"] = true
 L["Artisan"] = true
 L["Master"] = true
 
---Set & PVP
+-- Set & PVP
 L["Superior Rewards"] = true
 L["Epic Rewards"] = true
 L["Lv %s Rewards"] = true
@@ -844,7 +838,7 @@ L["Level 40-49"] = true
 L["Level 50-60"] = true
 L["Level 70"] = true
 
--- Altoholic.Gathering : Mining 
+-- Altoholic.Gathering : Mining
 L["Copper Vein"] = true
 L["Tin Vein"] = true
 L["Iron Deposit"] = true
@@ -920,7 +914,7 @@ L["Netherdust Bush"] = true
 
 L["Glowcap"] = true
 L["Sanguine Hibiscus"] = true
-	
+
 -- Old XML strings
 
 L["Location"] = true
@@ -945,7 +939,7 @@ L["Account Sharing Request"] = true
 L["Click this button to ask a player\nto share his entire Altoholic Database\nand add it to your own"] = true
 L["Both parties must enable account sharing\nbefore using this feature (see options)"] = true
 L["Account Sharing"] = true
-				
+
 L["Realm"] = true
 L["Character"] = true
 L["View"] = true
@@ -968,7 +962,7 @@ L["Reset"] = true
 L["Account Name"] = true
 L["Send account sharing request to:"] = true
 
---TabOptions.lua
+-- TabOptions.lua
 
 L["Memory used"] = true
 
@@ -992,7 +986,7 @@ L["When |cFFFF0000disabled|cFFFFFFFF, your confirmation will be\nrequired before
 L["Security hint: disable this if you have officer rights\non guild bank tabs that may not be viewed by everyone,\nand authorize requests manually"] = true
 L["Transparency"] = true
 
--- ** Frame 2 : Search **				
+-- ** Frame 2 : Search **
 L["AutoQuery server |cFFFF0000(disconnection risk)"] = true
 L["|cFFFFFFFFIf an item not in the local item cache\nis encountered while searching loot tables,\nAltoholic will attempt to query the server for 5 new items.\n\n"] = true
 L["This will gradually improve the consistency of the searches,\nas more items are available in the item cache.\n\n"] = true
