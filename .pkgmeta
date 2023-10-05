@@ -1,5 +1,9 @@
 ﻿package-as: Altoholic
 
+enable-toc-creation: yes
+
+wowi-archive-previous: no
+
 license-output: LICENSE.txt
 
 required-dependencies:
