@@ -2,8 +2,6 @@
 
 license-output: LICENSE.txt
 
-enable-nolib-creation: yes
-
 required-dependencies:
 - datastore
 - datastore_achievements
@@ -24,24 +22,30 @@ required-dependencies:
 - datastore_talents
 
 externals:
- libs/AceConfig-3.0:
-  url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceConfig-3.0
- libs/AceDBOptions-3.0:
-  url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceDBOptions-3.0
- libs/AceGUI-3.0:
-  url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceGUI-3.0
- libs/LibMVC-1.0:
-  url: https://repos.curseforge.com/wow/libmvc/trunk 
- libs/LibBabble-Boss-3.0:
-  url: svn://svn.wowace.com/wow/libbabble-boss-3-0/mainline/trunk
- libs/LibCraftInfo-1.0:
+Libs/LibStub:
+  url: https://repos.curseforge.com/wow/libstub/trunk
+Libs/CallbackHandler-1.0:
+  url: https://repos.curseforge.com/wow/callbackhandler/trunk/CallbackHandler-1.0
+ Libs/AceConfig-3.0:
+  url: https://repos.curseforge.com/wow/ace3/trunk/AceConfig-3.0
+ Libs/AceDBOptions-3.0:
+  url: https://repos.curseforge.com/wow/ace3/trunk/AceDBOptions-3.0
+ Libs/AceGUI-3.0:
+  url: https://repos.curseforge.com/wow/ace3/trunk/AceGUI-3.0
+ Libs/LibMVC-1.0:
+  url: https://repos.curseforge.com/wow/libmvc/trunk
+ Libs/LibBabble-Boss-3.0:
+  url: https://repos.curseforge.com/wow/libbabble-boss-3-0/trunk
+ Libs/LibCraftInfo-1.0:
   url: svn://svn.curseforge.net/wow/libcraftinfo/mainline/trunk
- libs/LibCraftLevels-1.0:
-  url: svn://svn.curseforge.net/wow/libcraftlevels/mainline/trunk
- libs/LibDataBroker-1.1: 
-  url: git://github.com/tekkub/libdatabroker-1-1.git
+ Libs/LibCraftLevels-1.0:
+  url: https://repos.curseforge.com/wow/libcraftinfo/trunk
+ Libs/LibDataBroker-1.1:
+  url: https://repos.curseforge.com/wow/libdatabroker-1-1
   tag: latest
  
+ignore:
+  - LibStub/tests
 
 move-folders:
     Altoholic/Modules/Altoholic_Achievements: Altoholic_Achievements
