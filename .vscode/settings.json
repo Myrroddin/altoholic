@@ -340,6 +340,9 @@
         "TruncatedTooltipScript_OnLeave",
         "SHOW",
         "HIDE",
-        "ERR_FRIEND_OFFLINE_S"
+        "ERR_FRIEND_OFFLINE_S",
+        "ReagentBankFrame_OnShow",
+        "ReagentBankFrame",
+        "NumberFontNormalLarge"
     ]
 }

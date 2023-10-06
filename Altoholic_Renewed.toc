@@ -52,7 +52,7 @@ Locales\deDE.lua
 Locales\ruRU.lua
 
 Core.lua
-Services\Services.xml
+Formatter.lua
 Templates\UITemplates.xml
 Altoholic_Renewed.xml
 

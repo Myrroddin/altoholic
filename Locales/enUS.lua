@@ -15,3 +15,5 @@ L["Toggle"] = true
 L["<item name>"] = true
 L["A new version of Altoholic_Renewed is available, consider upgrading to get the latest features."] = true
 L["Official sources: curseforge.com, wago.io, & wowinterface.com"] = true
+L["Usage = /altoholic search <item name>"] = true
+L["%s is disabled."] = true

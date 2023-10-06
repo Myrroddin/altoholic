@@ -426,7 +426,7 @@ function addon.Tabs:OnClick(index)
 		index = frameToID[index]
 	end
 
-	PanelTemplates_SetTab("Altoholic_Renewed.." .. "Frame", index);
+	PanelTemplates_SetTab("Altoholic_Renewed.." .. "Frame", index)
 	self:HideAll()
 	self.current = index
 
@@ -446,14 +446,14 @@ function addon.Tabs:OnClick(index)
 				tabFrame:SetFrameLevel(parentLevel+1)
 			end
 		else
-			addon:Print(format("%s is disabled.", moduleName))
+			self:Print(L["%s is disabled."]:format(moduleName))
 		end
 	end
 
 	ShowTab(tabList[index])
 end
 
--- Allow ESC to close the main frame
+-- allow ESC to close the main frame
 tinsert(UISpecialFrames, "AltoholicFrame")
 tinsert(UISpecialFrames, "AltoMessageBox")
 
@@ -461,7 +461,7 @@ function addon:CmdSearchBags(arg1, arg2)
 	-- arg 1 is a table, no idea of what it does, investigate later, only  arg2 matters at this point
 
 	if string.len(arg2) == 0 then
-		self:Print("|cFF00FF9A" .. L["Altoholic:|r Usage = /altoholic search <item name>"])
+		self:Print(L["Usage = /altoholic search <item name>"])
 		return
 	end
 
