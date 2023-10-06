@@ -29,7 +29,7 @@ Libs\AceConsole-3.0\AceConsole-3.0.xml
 Libs\AceGUI-3.0\AceGUI-3.0.xml
 Libs\AceConfig-3.0\AceConfig-3.0.xml
 Libs\AceComm-3.0\AceComm-3.0.xml
-AceSerializer-3.0\AceSerializer-3.0.xml
+Libs\AceSerializer-3.0\AceSerializer-3.0.xml
 Libs\LibMVC-1.0\LibMVC.xml
 Libs\LibBabble-Boss-3.0\lib.xml
 Libs\LibBabble-Inventory-3.0\lib.xml
@@ -40,7 +40,17 @@ Libs\LibPeriodicTable-3.1\modules.xml
 Libs\LibDeflate-1.0\lib.xml
 Libs\LibItemInfo-1.0\LibItemInfo-1.0.xml
 
-locale.xml
+Locales\enUS.lua
+Locales\esES.lua
+Locales\esMX.lua
+Locales\frFR.lua
+Locales\itIT.lua
+Locales\koKR.lua
+Locales\ptBR.lua
+Locales\zhCN.lua
+Locales\zhTW.lua
+Locales\deDE.lua
+Locales\ruRU.lua
 
 Core.lua
 Services\Services.xml
