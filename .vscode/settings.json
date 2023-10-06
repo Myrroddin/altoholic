@@ -328,6 +328,15 @@
         "CooldownFrame_Set",
         "BattlePetToolTip_Show",
         "ItemRefTooltip",
-        "ITEM_COOLDOWN_TIME"
+        "ITEM_COOLDOWN_TIME",
+        "YES",
+        "NO",
+        "OKAY",
+        "CANCEL",
+        "PanelTemplates_SetNumTabs",
+        "GameFontNormalSmall",
+        "GameFontHighlightSmall",
+        "TruncatedTooltipScript_OnEnter",
+        "TruncatedTooltipScript_OnLeave"
     ]
 }

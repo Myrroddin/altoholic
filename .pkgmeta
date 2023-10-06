@@ -1,61 +1,59 @@
-﻿package-as: Altoholic
-
+﻿package-as: Altoholic_Renewed
 enable-toc-creation: yes
-
 wowi-archive-previous: no
 
-license-output: LICENSE.txt
-
 required-dependencies:
-- datastore
-- datastore_achievements
-- datastore_agenda
-- datastore_auctions
-- datastore_characters
-- datastore_containers
-- datastore_crafts
-- datastore_currencies
-- datastore_garrisons
-- datastore_inventory
-- datastore_mails
-- datastore_pets
-- datastore_quests
-- datastore_reputations
-- datastore_spells
-- datastore_stats
-- datastore_talents
+  - datastore-renewed
+  - datastore
+  - datastore_achievements
+  - datastore_agenda
+  - datastore_auctions
+  - datastore_characters
+  - datastore_containers
+  - datastore_crafts
+  - datastore_currencies
+  - datastore_garrisons
+  - datastore_inventory
+  - datastore_mails
+  - datastore_pets
+  - datastore_quests
+  - datastore_reputations
+  - datastore_spells
+  - datastore_stats
+  - datastore_talents
 
 externals:
-Libs/LibStub:
-  url: https://repos.curseforge.com/wow/libstub/trunk
-Libs/CallbackHandler-1.0:
-  url: https://repos.curseforge.com/wow/callbackhandler/trunk/CallbackHandler-1.0
- Libs/AceConfig-3.0:
-  url: https://repos.curseforge.com/wow/ace3/trunk/AceConfig-3.0
- Libs/AceDBOptions-3.0:
-  url: https://repos.curseforge.com/wow/ace3/trunk/AceDBOptions-3.0
- Libs/AceGUI-3.0:
-  url: https://repos.curseforge.com/wow/ace3/trunk/AceGUI-3.0
- Libs/LibMVC-1.0:
-  url: https://repos.curseforge.com/wow/libmvc/trunk
- Libs/LibBabble-Boss-3.0:
-  url: https://repos.curseforge.com/wow/libbabble-boss-3-0/trunk
- Libs/LibCraftInfo-1.0:
-  url: svn://svn.curseforge.net/wow/libcraftinfo/mainline/trunk
- Libs/LibCraftLevels-1.0:
-  url: https://repos.curseforge.com/wow/libcraftinfo/trunk
- Libs/LibDataBroker-1.1:
-  url: https://repos.curseforge.com/wow/libdatabroker-1-1
-  tag: latest
+externals:
+  Libs/LibStub: https://repos.curseforge.com/wow/libstub/trunk
+  Libs/CallbackHandler-1.0: https://repos.curseforge.com/wow/callbackhandler/trunk/CallbackHandler-1.0
+  Libs/AceAddon-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceAddon-3.0
+  Libs/AceEvent-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceEvent-3.0
+  Libs/AceDB-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceDB-3.0
+  Libs/AceDBOptions-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceDBOptions-3.0
+  Libs/AceLocale-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceLocale-3.0
+  Libs/AceConsole-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceConsole-3.0
+  Libs/AceGUI-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceGUI-3.0
+  Libs/AceConfig-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceConfig-3.0
+  Libs/AceComm-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceComm-3.0
+  Libs/AceSerializer-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceSerializer-3.0
+  Libs/LibMVC-1.0: https://repos.curseforge.com/wow/libmvc/trunk
+  Libs/LibBabble-Boss-3.0: https://repos.curseforge.com/wow/libbabble-boss-3-0/trunk
+  Libs/LibBabble-Inventory-3.0: https://repos.curseforge.com/wow/libbabble-inventory-3-0/trunk
+  Libs/LibCraftInfo-1.0: https://repos.curseforge.com/wow/libcraftinfo/trunk
+  Libs/LibCraftLevels-1.0: https://repos.curseforge.com/wow/libcraftlevels/trunk
+  Libs/LibDataBroker-1.1: https://repos.curseforge.com/wow/libdatabroker-1-1
+  Libs/LibPeriodicTable-3.1: https://repos.curseforge.com/wow/libperiodictable-3-1/trunk
+  Libs/LibDeflate-1.0: https://github.com/SafeteeWoW/LibDeflate
  
 ignore:
-  - LibStub/tests
+  - Libs/LibStub/tests
 
 move-folders:
-  Altoholic/Modules/Altoholic_Achievements: Altoholic_Achievements
-  Altoholic/Modules/Altoholic_Agenda: Altoholic_Agenda
-  Altoholic/Modules/Altoholic_Characters: Altoholic_Characters
-  Altoholic/Modules/Altoholic_Grids: Altoholic_Grids
-  Altoholic/Modules/Altoholic_Guild: Altoholic_Guild
-  Altoholic/Modules/Altoholic_Search: Altoholic_Search
-  Altoholic/Modules/Altoholic_Summary: Altoholic_Summary
+  Altoholic_Renewed/Modules/Altoholic_Achievements: Altoholic_Renewed_Achievements
+  Altoholic_Renewed/Modules/Altoholic_Agenda: Altoholic_Renewed_Agenda
+  Altoholic_Renewed/Modules/Altoholic_Characters: Altoholic_Renewed_Characters
+  Altoholic_Renewed/Modules/Altoholic_Grids: Altoholic_Renewed_Grids
+  Altoholic_Renewed/Modules/Altoholic_Guild: Altoholic_Renewed_Guild
+  Altoholic_Renewed/Modules/Altoholic_Search: Altoholic_Renewed_Search
+  Altoholic_Renewed/Modules/Altoholic_Summary: Altoholic_Renewed_Summary
+  Altoholic_Renewed/Modules/AddonFactory: AddonFactory
