@@ -12,9 +12,8 @@
 ## X-Website: https://www.curseforge.com/wow/addons/altoholic
 ## X-eMail: psvander@gmail.com
 ## X-Credits: Thaoky, who wrote Altoholic
-## Dependencies: DataStore, DataStore_Characters
 
-## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibDataBroker-1.1, LibPeriodicTable-3.1, LibBabble-Boss-3.0, LibBabble-Inventory-3.0, AddonFactory, LibDeflate, DataStore_Renewed, LibMVC-1.0, LibCraftInfo-1.0, LibCraftLevels-1.0
+## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibDataBroker-1.1, LibPeriodicTable-3.1, LibBabble-Boss-3.0, LibBabble-Inventory-3.0, AddonFactory, LibDeflate, DataStore_Renewed, LibMVC-1.0, LibCraftInfo-1.0, LibCraftLevels-1.0, LibItemInfo-1.0
 ## SavedVariables: Altoholic_RenewedDB
 ## X-Category: Interface Enhancements
 

@@ -34,9 +34,9 @@ local categories = {
 	},
 	{
 		name = AUCTION_CATEGORY_ARMOR,
-		class = LE_ITEM_CLASS_ARMOR,
+		class = Enum.ItemClass.Armor,
 		subClasses = {
-			LE_ITEM_ARMOR_PLATE, LE_ITEM_ARMOR_MAIL, LE_ITEM_ARMOR_LEATHER, LE_ITEM_ARMOR_CLOTH, 
+			Enum.ItemArmorSubclass.Plate, Enum.ItemArmorSubclass.Mail, Enum.ItemArmorSubclass.Leather, Enum.ItemArmorSubclass.Cloth, 
 			LE_ITEM_ARMOR_GENERIC, LE_ITEM_ARMOR_SHIELD, LE_ITEM_ARMOR_COSMETIC,
 		},
 		isCollapsed = true,

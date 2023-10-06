@@ -337,6 +337,9 @@
         "GameFontNormalSmall",
         "GameFontHighlightSmall",
         "TruncatedTooltipScript_OnEnter",
-        "TruncatedTooltipScript_OnLeave"
+        "TruncatedTooltipScript_OnLeave",
+        "SHOW",
+        "HIDE",
+        "ERR_FRIEND_OFFLINE_S"
     ]
 }

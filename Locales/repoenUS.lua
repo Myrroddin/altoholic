@@ -395,21 +395,19 @@ L["Clicking this button will update\nyour local %s%s|r bank tab\nbased on %s%s's
 L["Left-click to see this character's equipment"] = true
 L["Click a character's AiL to see its equipment"] = true
 
---GuildProfessions.lua
+-- GuildProfessions.lua
 L["Offline Members"] = true
 L["Left click to view"] = true
 L["Shift+Left click to link"] = true
 
 -- Core.lua
-L['search'] = true
 L["Search in bags"] = true
-L['show'] = true
 L["Shows the UI"] = true
-L['hide'] = true
 L["Hides the UI"] = true
-L['toggle'] = true
+L["Toggle"] = true
 L["Toggles the UI"] = true
-L["Altoholic:|r Usage = /altoholic search <item name>"] = true
+L["Altoholic: Usage = /altoholic search <item name>"] = true
+L["Toggle UI"] = true
 
 -- AltoholicFu.lua
 L["Left-click to"] = true
